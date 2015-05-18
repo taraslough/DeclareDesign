@@ -8,7 +8,7 @@ env:
 
 warnings_are_errors: true
 
-script: "Rscript -e 'library(devtools); check(); test()'"
+script: "Rscript -e 'library(devtools); check(args = "--as-cran"); test()'"
 
 notifications:
   email:
