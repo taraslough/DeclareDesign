@@ -1,0 +1,9 @@
+Package: registration
+Title: Pre-registration and analysis of experiments
+Version: 0.1
+Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Description: Experimental registration package to create a pre-registration document and describe an experimental design and planned analyses in detail.
+Depends: R (>= 3.2.0)
+Suggests: testthat
+License: GPL (>= 2)
+LazyData: true

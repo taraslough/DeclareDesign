@@ -1,0 +1,19 @@
+language: r
+
+sudo: required
+
+env:
+ global:
+   - CRAN: http://cran.rstudio.com
+
+r_github_packages:
+  - hadley/testthat
+
+warnings_are_errors: true
+
+script: "Rscript -e 'library(devtools); check(); test()'"
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
