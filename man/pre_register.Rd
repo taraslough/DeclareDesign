@@ -2,10 +2,11 @@
 % Please edit documentation in R/pre_register.R
 \name{pre_register}
 \alias{pre_register}
-\title{Create pre-registration document as a PDF, .Rmd, or .Rnw}
+\title{Create pre-registration document}
 \usage{
-pre_register(design, title, authors, file = NULL, type = "rmarkdown",
-  make_output = TRUE, output_format = "pdf", open_output = TRUE, ...)
+pre_register(design, title, authors, file = NULL, random.seed = 42,
+  type = "rmarkdown", make_output = TRUE, output_format = "pdf",
+  open_output = TRUE, ...)
 }
 \arguments{
 \item{design}{A design object from the declare_design function.}
@@ -16,6 +17,8 @@ pre_register(design, title, authors, file = NULL, type = "rmarkdown",
 
 \item{file}{File name where object is saved in the current working directory.}
 
+\item{random.seed}{Random seed to ensure reproducibility of the design}
+
 \item{type}{Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.}
 
 \item{make_output}{Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document}
@@ -23,11 +26,13 @@ pre_register(design, title, authors, file = NULL, type = "rmarkdown",
 \item{output_format}{String indicating which type of output file is created, "pdf" (default), "word", or "html"}
 
 \item{open_output}{Indicator for whether the output file is opened after it is compiled.}
+
+\item{...}{Other options for the render() command to create the output file from the markdown code.}
 }
 \value{
 Filename and location where .Rmd or .Rnw and PDF file are saved.
 }
 \description{
-Create pre-registration document as a PDF, .Rmd, or .Rnw
+Create pre-registration document
 }
 
