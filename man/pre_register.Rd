@@ -2,24 +2,32 @@
 % Please edit documentation in R/pre_register.R
 \name{pre_register}
 \alias{pre_register}
-\title{Create pre-registration object to document a design, power analysis, and experiment analyses}
+\title{Create pre-registration document as a PDF, .Rmd, or .Rnw}
 \usage{
-pre_register(design, title, authors)
+pre_register(design, title, authors, file = NULL, type = "rmarkdown",
+  make_output = TRUE, output_format = "pdf", open_output = TRUE, ...)
 }
 \arguments{
 \item{design}{A design object from the declare_design function.}
 
 \item{title}{Title of the pre-registration}
 
-\item{authors}{List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Michael LaCour", "UCLA"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.}
+\item{authors}{List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.}
+
+\item{file}{File name where object is saved in the current working directory.}
+
+\item{type}{Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.}
+
+\item{make_output}{Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document}
+
+\item{output_format}{String indicating which type of output file is created, "pdf" (default), "word", or "html"}
+
+\item{open_output}{Indicator for whether the output file is opened after it is compiled.}
 }
 \value{
-\code{pre_registration} object that can be exported.
+Filename and location where .Rmd or .Rnw and PDF file are saved.
 }
 \description{
-Create pre-registration object to document a design, power analysis, and experiment analyses
-}
-\examples{
-export(design.object, compile_pdf = TRUE, open_pdf = TRUE)
+Create pre-registration document as a PDF, .Rmd, or .Rnw
 }
 
