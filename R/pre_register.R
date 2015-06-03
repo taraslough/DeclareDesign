@@ -37,7 +37,14 @@
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @importFrom rmarkdown render
 #' @export
-pre_register <- function(design, title, authors, file = NULL,
+pre_register <- function(design, ## design object or a list of design objects
+                         power, ## power object or a list of power objects
+                         data, ## data set created by fake data function or list of data sets
+                         design_titles, ## vector of strings for each design 
+                                       ## (ignored in the case of a single design)
+                         registration_title,
+                         registration_authors, 
+                         file = NULL,
                          random.seed = 42,
                          type = "rmarkdown", ## options (will be) rmarkdown and knitr
                          make_output = TRUE,
