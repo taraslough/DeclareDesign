@@ -18,6 +18,9 @@ declare_analysis <- function(
                     test_statistic ## a function that extracts the test statistic from the analysis
                     ){
   
+  if(!class(test_statistic)=="function")
+    stop("Currently only functions can be used as test_statistics.")
+  
   if(class(method) == "character") {
     if(method == "diff-in-means") {
       method <- function(data, design){
@@ -30,10 +33,8 @@ declare_analysis <- function(
       }
     } 
   } else if(class(method) == "function"){
-    
-    analysis <- method
-    
-    return(list(analysis = analysis, test_statistic = test_statistic))
+        
+    return(list(analysis = method, test_statistic = test_statistic))
     
   }
     
