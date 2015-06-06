@@ -1,5 +1,3 @@
-rm(list = ls())
-
 # make_data() -------------------------------------------------------------
 
 # This function needs to handle four cases:
