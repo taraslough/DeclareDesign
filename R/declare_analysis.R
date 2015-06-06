@@ -15,12 +15,12 @@ declare_analysis <- function(method, get_p_value){
     stop("Currently only functions can be used to extract p values.")
   
   if(class(method) == "character") {
-    if(method == "diff-in-means") {
+    if(method == "lm-no-covariates") {
       method <- function(data, design){
         
         analysis <- function(design, data) lm(paste(outcome_var_name(design), "~", treat_var_name(design)), data = data)
         
-        test_statistic <- function(analysis) sqrt(diag(vcov(analysis)))[1, 1]
+        test_statistic <- function(analysis) summary(analysis)$coefficients[1,4]
         
         return.object <- list(analysis = analysis, get_p_value = get_p_value)
         
@@ -36,6 +36,13 @@ declare_analysis <- function(method, get_p_value){
   return()
     
 }
+
+## NOTE this does not work yet, until we get the design and data objects up and running
+## once it does it will work like this:
+##
+## analysis_1 <- declare_analysis(method = "lm-no-covariates") ## creates an object with a function to run a diff-in-means analysis and a function to extract p-value
+## run_analysis(analysis_1) ## in this case returns an lm object alone
+## get_p_value(analysis_1) ## extracts the p-value for the treatment effect from the lm object (note this runs run_analysis() and then extracts p-value) -- this can be used for power
 
 #' Return the p value for treatment effect(s) from an experimental analysis
 #'
