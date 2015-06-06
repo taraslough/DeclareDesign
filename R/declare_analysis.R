@@ -20,7 +20,7 @@ declare_analysis <- function(method, get_p_value){
         
         analysis <- function(design, data) lm(paste(outcome_var_name(design), "~", treat_var_name(design)), data = data)
         
-        test_statistic <- function(analysis) summary(analysis)$coefficients[1,4]
+        get_p_value <- function(analysis) summary(analysis)$coefficients[1,4]
         
         return.object <- list(analysis = analysis, get_p_value = get_p_value)
         
@@ -28,7 +28,7 @@ declare_analysis <- function(method, get_p_value){
     } 
   } else if(class(method) == "function"){
         
-    return.object <- list(analysis = method, test_statistic = test_statistic)
+    return.object <- list(analysis = method, get_p_value = get_p_value)
     
   }
   
