@@ -42,7 +42,8 @@ make_covariates <-
                function()as.data.frame(lapply(fun.list,function(f)f()))
              variable_names <- names(variable_list)
              covariate_object <- list(make_X_matrix = make_X_matrix,
-                                      variable_names = variable_names)
+                                      variable_names = variable_names,
+                                      call = match.call())
              class(covariate_object) <- "covariate_object"
              return(covariate_object)
            }
