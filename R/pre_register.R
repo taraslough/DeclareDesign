@@ -25,10 +25,13 @@
 #' Create pre-registration document
 #'
 #' @param design A design object from the declare_design function.
-#' @param title Title of the pre-registration
-#' @param authors List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.
-#' @param random.seed Random seed to ensure reproducibility of the design
-#' @param file File name where object is saved in the current working directory.
+#' @param data A data object from the make_y function.
+#' @param analysis An analysis object from the declare_analysis function, or a list of analysis objects.
+#' @param registration_title Title of the pre-registration.
+#' @param registration_authors List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.
+#' @param registration_description General description of the experiment.
+#' @param random.seed Random seed to ensure reproducibility of the design.
+#' @param file File name where object is saved.
 #' @param type Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.
 #' @param make_output Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document
 #' @param output_format String indicating which type of output file is created, "pdf" (default), "word", or "html"
@@ -37,19 +40,10 @@
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @importFrom rmarkdown render
 #' @export
-pre_register <- function(design, ## design object or a list of design objects
-                         power, ## power object or a list of power objects
-                         data, ## data set created by fake data function or list of data sets
-                         design_titles, ## vector of strings for each design 
-                                       ## (ignored in the case of a single design)
-                         registration_title,
-                         registration_authors, 
-                         file = NULL,
-                         random.seed = 42,
-                         type = "rmarkdown", ## options (will be) rmarkdown and knitr
-                         make_output = TRUE,
-                         output_format = "pdf", ## options are pdf, doc, html
-                         open_output = TRUE, ...){
+pre_register <- function(design, data, analysis, 
+                         registration_title, registration_authors, registration_description,
+                         random.seed = 42, file = NULL, type = "rmarkdown",
+                         make_output = TRUE, output_format = "pdf", open_output = TRUE, ...){
   
   if(type != "rmarkdown")
     stop("Type must be 'rmarkdown' in the first version.")
@@ -59,14 +53,25 @@ pre_register <- function(design, ## design object or a list of design objects
   doc <- "testline1\n\ntestline2" ## test string
   rcode <- "runif(1)" ## test R code
   
+  ## master loop of analyses
+  ##power <- list()
+  ##for(a in length(analysis)){
+    
+    ## need print of power of analysis and then analysis
+    
+    ##power[[a]] <- get_power(analysis = analysis[[a]], data = data, design = design)
+    
+  ##}
+  
   ## create temp file name if user does not supply one
   if(is.null(file)) 
-    file <- tempfile("registration", fileext = ".Rmd")
+    file <- tempfile(paste("registration-", format(Sys.time(), "%d-%b-%Y-%H:%M:%S"), sep = ""), 
+                     fileext = ".Rmd")
   
   ## writes Rmd rmarkdown file
   sink(file)
-  cat(create_header(title, authors, date()))
-  cat(create_code_snippet(paste("## set fixed random seed for reproducibility\n\nset.seed(", 
+  cat(create_header(registration_title, registration_authors, date()))
+  cat(create_code_snippet(paste("## set fixed random seed for registration reproducibility\n\nset.seed(", 
                                 random.seed, ")", sep = "")))
   cat(doc)
   cat(create_code_snippet(rcode))
