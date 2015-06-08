@@ -256,6 +256,9 @@ declare_design <-
  }
 
 
+# Things to add to database
+# 1. matrix of sufficient
+
 # Examples
 design_1 <- declare_design(N = 100, m=50)
 design_1
