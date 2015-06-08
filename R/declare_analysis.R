@@ -1,42 +1,84 @@
-
-
-get_test_statistic <- function(analysis, data, design){
+#' Declare an experimental analysis
+#'
+#' Description
+#' @param method either string "diff-in-means", "lm-with-covariates" or a function object that takes as arguments data, design and spits out in the simplest version a single treatment effect estimates (for a multi-arm study spits out something more complex)
+#' @param get_p_value a function that extracts the test statistic from the analysis
+#' @return a list containing a function to conduct the analysis and a function to extract the p value
+#' @examples
+#' # these examples don't work yet
+#' # declare_analysis(method = "diff-in-means")
+#' # declare_analysis(method = function(design, data) lm(paste(outcome_variable_name(data) ~ treatment_variable_name(design), data = data))
+#' @export
+declare_analysis <- function(method, get_p_value){
   
-  return(analysis$test_statistic(analysis$analysis(design, data)))
+  if(!class(get_p_value)=="function")
+    stop("Currently only functions can be used to extract p values.")
+  
+  if(class(method) == "character") {
+    if(method == "lm-no-covariates") {
+      method <- function(data, design){
+        
+        analysis <- function(design, data) lm(paste(outcome_var_name(design), "~", treat_var_name(design)), data = data)
+        
+        get_p_value <- function(analysis) summary(analysis)$coefficients[1,4]
+        
+        return.object <- list(analysis = analysis, get_p_value = get_p_value)
+        
+      }
+    } 
+  } else if(class(method) == "function"){
+        
+    return.object <- list(analysis = method, get_p_value = get_p_value)
+    
+  }
+  
+  class(return.object) <- "analysis"
+  return()
+    
+}
+
+## NOTE this does not work yet, until we get the design and data objects up and running
+## once it does it will work like this:
+##
+## analysis_1 <- declare_analysis(method = "lm-no-covariates") ## creates an object with a function to run a diff-in-means analysis and a function to extract p-value
+## run_analysis(analysis_1) ## in this case returns an lm object alone
+## get_p_value(analysis_1) ## extracts the p-value for the treatment effect from the lm object (note this runs run_analysis() and then extracts p-value) -- this can be used for power
+
+#' Return the p value for treatment effect(s) from an experimental analysis
+#'
+#' Description
+#' @param analysis analysis object created by declare_analysis
+#' @param data data object created by make_y
+#' @param design design object created by declare_design
+#' @return a numeric scalar or vector of p-values
+#' @examples
+#' # Some examples will go here
+#' @export
+get_p_value.analysis <- function(analysis, data, design){
+  
+  ## first runs the analysis then extracts the p-value from the analysis
+  
+  return(analysis$get_p_value(analysis$analysis(design, data)))
   
 }
 
-do_analysis <- function(analysis, data, design){
+#' Runs a pre-defined experimental analysis
+#'
+#' Description
+#' @param analysis analysis object created by declare_analysis
+#' @param data data object created by make_y
+#' @param design design object created by declare_design
+#' @return a numeric scalar or vector of p-values
+#' @examples
+#' Some examples will go here
+#' @export
+run_analysis.analysis <- function(analysis, data, design){
   
   return(analysis$analysis(design, data))
   
 }
 
-declare_analysis <- function(
-                    method, ## either string "diff-in-means", "lm-with-covariates" or a function object that takes as arguments data, design and 
-                           ## spits out in the simplest version a single treatment effect estimates (for a multi-arm study spits out something more complex)
-                    test_statistic ## a function that extracts the test statistic from the analysis
-                    ){
-  
-  if(!class(test_statistic)=="function")
-    stop("Currently only functions can be used as test_statistics.")
-  
-  if(class(method) == "character") {
-    if(method == "diff-in-means") {
-      method <- function(data, design){
-        
-        analysis <- function(design, data) lm(paste(outcome_var_name(design), "~", treat_var_name(design)), data = data)
-        
-        test_statistic <- function(analysis) sqrt(diag(vcov(analysis)))[1, 1]
-        
-        return(list(analysis = analysis, test_statistic = test_statistic))
-      }
-    } 
-  } else if(class(method) == "function"){
-        
-    return(list(analysis = method, test_statistic = test_statistic))
-    
-  }
-    
-  
-}
+
+
+
+

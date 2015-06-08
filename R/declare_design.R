@@ -249,11 +249,19 @@ declare_design <-
             num_arms_2 <- length(unique(Z))
             probs_mat <- "to be added"
           }
-          return(list(ra_fun=ra_fun, N=N_2, N_blocks = N_blocks, N_clus = N_clus, 
-                      condition_names=sort(condition_names_2), 
-                      num_arms=num_arms_2, probs_mat=probs_mat,
-                      call = match.call()))
+          
+          return.object <- list(ra_fun=ra_fun, N=N_2, N_blocks = N_blocks, N_clus = N_clus, 
+               condition_names=sort(condition_names_2), 
+               num_arms=num_arms_2, probs_mat=probs_mat,
+               call = match.call())
+          class(return.object) <- "design"
+          
+          return(return.object)
  }
+
+treatment_variable_name.design <- function(x) {
+  return(x$condition_names)
+}
 
 
 # Things to add to database
