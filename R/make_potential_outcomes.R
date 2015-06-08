@@ -71,7 +71,7 @@ make_potential_outcomes <-
         }
         # Check what the DGP of the outcome variable is and do necessary transformations
         if(outcome_DGP$distribution=="binary"){
-          outcomes <- apply(outcomes,2,function(i)rbinom(dim(outcomes)[1],1,invlogit(i)))
+          outcomes <- apply(outcomes,2,function(i)rbinom(n = dim(outcomes)[1],size = 1,prob = 1/(1 + exp(-i))))
         }
         return(data.frame(outcomes,X))
       }
