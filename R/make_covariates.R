@@ -39,7 +39,15 @@ make_covariates <-
                }
              })
              make_X_matrix <-
-               function()as.data.frame(lapply(fun.list,function(f)f()))
+               function(){
+                 x <- lapply(fun.list,function(f)f())
+                 X.char <- do.call(cbind.data.frame,x)
+                 X <- data.frame(matrix(rep(NA,dim(X.char)[1]*dim(X.char)[2]),nrow = dim(X.char)[1]))
+                 for(i in 1:6){
+                   X[,i] <- X.char[i][,1]
+                 }
+                 return(X)
+                 }
              variable_names <- names(variable_list)
              covariate_object <- list(make_X_matrix = make_X_matrix,
                                       variable_names = variable_names,
@@ -66,4 +74,4 @@ covariate_object_1 <- make_covariates(
 
 
 
-
+X.mat <- covariate_object_1$make_X_matrix()
