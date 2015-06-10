@@ -42,8 +42,9 @@
 #' @export
 pre_register <- function(design, data, analysis, 
                          registration_title, registration_authors, registration_description,
-                         random.seed = 42, file = NULL, type = "rmarkdown",
-                         make_output = TRUE, output_format = "pdf", open_output = TRUE, ...){
+                         random.seed = 42, dir = getwd(), type = "rmarkdown",
+                         make_output = TRUE, output_format = "pdf", keep_tex = FALSE, 
+                         open_output = TRUE, ...){
   
   if(type != "rmarkdown")
     stop("Type must be 'rmarkdown' in the first version.")
@@ -64,43 +65,70 @@ pre_register <- function(design, data, analysis,
   ##}
   
   ## create temp file name if user does not supply one
-  if(is.null(file)) 
-    file <- tempfile(paste("registration-", format(Sys.time(), "%d-%b-%Y-%H:%M:%S"), sep = ""), 
-                     fileext = ".Rmd")
+  if(is.null(dir)) 
+    dir <- tempdir()
+    
+  file <- paste("registration-", format(Sys.time(), "%d-%b-%Y-%Hh%Mm%Ss"), sep = "")
+    
+  template <- readLines(system.file("tex", "egap_registration_template.tex", package = "registration"))
+    
+  ## write EGAP template to directory
+  writeLines(template, con = paste(dir, "/egap_registration_template.tex", sep = ""))
   
   ## writes Rmd rmarkdown file
-  sink(file)
-  cat(create_header(registration_title, registration_authors, date()))
+  sink(paste(dir, "/", file, ".Rmd", sep = ""))
+  cat(create_header(title = registration_title, authors = registration_authors, keep_tex = keep_tex))
   cat(create_code_snippet(paste("## set fixed random seed for registration reproducibility\n\nset.seed(", 
                                 random.seed, ")", sep = "")))
   cat(doc)
   cat(create_code_snippet(rcode))
   sink()
   
-  cat("\nRegistration raw document (markdown .Rmd file) saved in", file, "\n")
+  cat("\nRegistration raw document (markdown .Rmd file) saved in ", dir, "/", file, "\n", sep = "")
   
   ## compile Rmd into a PDF if requested
   if(make_output == TRUE){
     output_format_internal <- ifelse(output_format == "pdf", "pdf_document", 
                                      ifelse(output_format == "doc", "word_document", 
                                             stop("Chosen output_format not supported.")))
-    render(file, output_format_internal, quiet = TRUE, ... = ...)
+    input <- paste(dir, "/", file, ".Rmd", sep = "")
+    render(input = input, output_format_internal, quiet = TRUE, ... = ...)
     cat("\nRegistration output document (PDF file) saved in", 
-        paste(substr(file, 1, nchar(file) - 4), ".pdf", sep = ""), "\n")
+        paste(dir, "/", file, ".pdf", sep = ""), "\n")
     
   }
   
   ## open output file (i.e. PDF) if requested
   if(open_output == TRUE)
-    system(paste("open ", substr(file, 1, nchar(file) - 4), ".pdf", sep = ""))
+    system(paste("open ", dir, "/", file, ".pdf", sep = ""))
   
   cat("\n")
   
 }
 
-create_header <- function(title, authors, date){
+create_header <- function(title = NULL, authors = NULL, keep_tex = FALSE){
   
-  return(paste("---\ntitle: \"", title, "\"\noutput: pdf_document\n---\n\n", sep = ""))
+  ##return(paste("---\ntitle: \"", title, "\"\noutput: pdf_document\n---\n\n", sep = ""))
+  
+  ##abstract: |
+  ##  This is the abstract.
+  
+  ##It consists of two paragraphs.
+  
+  authors.text <- paste("-", authors[1], "\n")
+  if(length(authors) > 1) {
+    for(i in 2:length(authors))
+      authors.text <- paste(authors.text, paste("-", authors[i], "\n"))
+  }
+  
+  return(paste("---\ntitle: \"", title, 
+               "\"\nauthor: \n", 
+               authors.text,
+               "date: \"`r format(Sys.time(), \'%d %B %Y\')`\"",
+               "\noutput:\n  pdf_document:\n    template: ./egap_registration_template.tex\n",
+               ifelse(keep_tex, "    keep_tex: true\n", ""),
+               "---\n\n", 
+               sep = ""))
   
 }
 
