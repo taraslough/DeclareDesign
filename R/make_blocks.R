@@ -9,53 +9,63 @@ covariate <- covariates_to_block_on[1]
 make_blocks <-
   function(covariates_to_block_on,
            design_object,
-           covariate_object) {
-             require(blockTools)
-             # Check whether covariate_object is covarite_object or a user-supplied matrix
-             if(class(covariate_object)=="covariate_object"){
-               covariate_matrix <- covariate_object$make_X_matrix()
-             }
-             if(class(covariate_object)%in%c("matrix","data.frame")){
-               covariate_matrix <- covariate_object
-             }
-             
-             block_variables <- data.frame(sapply(
-               covariates_to_block_on,function(covariate){
-               covariate_class <- class(covariate_matrix[,covariate])
-               if(!covariate_class%in%c("integer","numeric")){
-                 covariate_matrix[,covariate] <- as.integer(covariate_matrix[,covariate])
+           covariate_object,
+           custom_block_function = NULL) {
+             if(!is.null(custom_block_function)){
+               block_indicator <- custom_block_function(covariates_to_block_on,
+                                                        design_object,
+                                                        covariate_object
+               )
+               
+             }else{
+               
+               require(blockTools)
+               # Check whether covariate_object is covarite_object or a user-supplied matrix
+               if(class(covariate_object)=="covariate_object"){
+                 covariate_matrix <- covariate_object$make_X_matrix()
                }
-               return(unlist(covariate_matrix[,covariate]))
+               if(class(covariate_object)%in%c("matrix","data.frame")){
+                 covariate_matrix <- covariate_object
+               }
                
-             }))
-             
-             block_variables$ID <- 1:dim(block_variables)[1]
-             
-             blocks <- blockTools::block(data = block_variables,
-                                         n.tr = design_object$num_arms,
-                                         id.vars = "ID",
-                                         block.vars = covariates_to_block_on)
-             
-             block_assignment <- subset(blockTools::assignment(blocks)[[1]]$`1`)
-             
-             block_assignment <- block_assignment[,-which(names(block_assignment)=="Max Distance")]
-             
-             names(block_assignment) <- design_object$condition_names
-             
-             reshaped_assignment <- data.frame(
-               ID = unlist(sapply(1:dim(block_assignment)[2],function(i){
-                 block_assignment[,i][!is.na(block_assignment[,i])]
-               })),
-               condition = as.integer(as.factor(unlist(sapply(1:dim(block_assignment)[2],function(i){
-                 rep(names(block_assignment)[i],
-                     length(block_assignment[,i][!is.na(block_assignment[,i])]))
+               block_variables <- data.frame(sapply(
+                 covariates_to_block_on,function(covariate){
+                   covariate_class <- class(covariate_matrix[,covariate])
+                   if(!covariate_class%in%c("integer","numeric")){
+                     covariate_matrix[,covariate] <- as.integer(covariate_matrix[,covariate])
+                   }
+                   return(unlist(covariate_matrix[,covariate]))
+                   
+                 }))
+               
+               block_variables$ID <- 1:dim(block_variables)[1]
+               
+               blocks <- blockTools::block(data = block_variables,
+                                           n.tr = design_object$num_arms,
+                                           id.vars = "ID",
+                                           block.vars = covariates_to_block_on)
+               
+               block_assignment <- subset(blockTools::assignment(blocks)[[1]]$`1`)
+               
+               block_assignment <- block_assignment[,-which(names(block_assignment)=="Max Distance")]
+               
+               names(block_assignment) <- design_object$condition_names
+               
+               reshaped_assignment <- data.frame(
+                 ID = unlist(sapply(1:dim(block_assignment)[2],function(i){
+                   block_assignment[,i][!is.na(block_assignment[,i])]
+                 })),
+                 condition = as.integer(as.factor(unlist(sapply(1:dim(block_assignment)[2],function(i){
+                   rep(names(block_assignment)[i],
+                       length(block_assignment[,i][!is.na(block_assignment[,i])]))
                  }))))
+                 
+               )
                
-             )
-             
-             block_indicator <- merge(block_variables,
-                                      reshaped_assignment,
-                                      by = "ID")$condition
+               block_indicator <- merge(block_variables,
+                                        reshaped_assignment,
+                                        by = "ID")$condition
+             }
              
              return(block_indicator)
 
