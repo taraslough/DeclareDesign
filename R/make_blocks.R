@@ -9,9 +9,15 @@ covariate <- covariates_to_block_on[1]
 make_blocks <-
   function(covariates_to_block_on,
            design_object,
-           covariate_matrix) {
+           covariate_object) {
              require(blockTools)
-             
+             # Check whether covariate_object is covarite_object or a user-supplied matrix
+             if(class(covariate_object)=="covariate_object"){
+               covariate_matrix <- covariate_object$make_X_matrix()
+             }
+             if(class(covariate_object)%in%c("matrix","data.frame")){
+               covariate_matrix <- covariate_object
+             }
              
              block_variables <- data.frame(sapply(
                covariates_to_block_on,function(covariate){
@@ -74,10 +80,19 @@ covariate_object_1 <- make_covariates(
   design_object = design_7
 )
 
+covariate_matrix_1 <- covariate_object_1$make_X_matrix()
+
 make_blocks(covariates_to_block_on = c("event","income","count","party_id"),
             design_object = design_7,
-            covariate_matrix = covariate_object_1$make_X_matrix()
+            # Using fixed matrix:
+            covariate_object = covariate_matrix_1
             )
+
+make_blocks(covariates_to_block_on = c("event","income","count","party_id"),
+            design_object = design_7,
+            # Using user-defined covariate object (new cov matrix each time)
+            covariate_object = covariate_object_1
+)
 
 
 
