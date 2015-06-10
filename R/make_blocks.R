@@ -3,8 +3,6 @@
 #' @param variable_name The name of your new variable 
 #' @param linear_mean If the variable is linear 
 #' @export
-covariate <- covariates_to_block_on[1]
-
 
 make_blocks <-
   function(covariates_to_block_on,
