@@ -38,9 +38,9 @@ get_power <- function(design, condition_means, condition_noise, test_type = diff
   }
 
 # Example
-design <- declare_design(N = 100, m=50)
-get_power(design, c(2, 3), c(5, 5), test_stat = diff.means, alpha = 0.05, sims=1000)
-get_power(design, c(2, 3), c(10, 10), test_stat = diff.means, alpha = 0.05, sims=1000)
+##design <- declare_design(N = 100, m=50)
+##get_power(design, c(2, 3), c(5, 5), test_stat = diff.means, alpha = 0.05, sims=1000)
+##get_power(design, c(2, 3), c(10, 10), test_stat = diff.means, alpha = 0.05, sims=1000)
 
 
 # Comment 

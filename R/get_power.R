@@ -1,5 +1,4 @@
 
-source("declare_design.r")
 N <- 1000
 Y0 <- rbinom(N, 1, .4)
 Y1 <- rbinom(N, 1, .6)
