@@ -1,7 +1,44 @@
 
+source("declare_design.r")
+N <- 1000
+Y0 <- rbinom(N, 1, .4)
+Y1 <- rbinom(N, 1, .6)
 
-get_power <- function(data, design, test_stat, sims=1000){
+po_matrix <- data.frame(Y0, Y1)
+
+
+design_1 <- declare_design(N = 1000, m = 500)
+
+Z <- design_1$ra_fun()
+
+reveal_pos <- function(po_matrix, Z){
+  condition_names <- sort(unique(Z))
+  if(ncol(po_matrix) != length(condition_names)){
+    stop("Potential outcomes matrix (po_matrix) must have the same number of columns as unique conditions in random assignment vector (Z).")
+  }
+  if(nrow(po_matrix) != length(Z)){
+    stop("Potential outcomes matrix (po_matrix) must have the same number of rows as the length of the random assignment vector (Z)")
+  }
   
+  Y_obs <- rep(NA, length(Z))
+  
+  for(i in 1:length(condition_names)){
+    Y_obs[Z==condition_names[i]] <- po_matrix[Z==condition_names[i], i]
+  }
+  return(Y_obs)
+}
+
+Y_obs_test <- reveal_pos(po_matrix = po_matrix, Z = Z)
+
+
+get_power <- function(data, design, po_matrix, test_fun, sims=1000){
+  sims_vec <- rep(NA, sims)
+  for(i in 1:sims){
+    Z_sim <- design$ra_fun()
+    Y_sim <- reveal_pos(po_matrix = po_matrix, Z = Z_sim)
+    sims_vec[i] <- test_fun(Y = Y_sim, Z=Z_sim, data=data)
+  }
+  return(power=mean(sims_vec))
 }
 
 # series of test statistics
@@ -12,38 +49,3 @@ test_coefficients <- function(formula, which_coefs, data){
   
   
   
-
-# Examples
-design_1 <- declare_design(N = 100, m=50)
-design_1
-
-# A DGP -- NOT VERY GENERAL YET
-dgp = function(T, condition_names, condition_means, condition_noise){
-
-  sapply(1:length(T), function(i) condition_means[condition_names==T[i]]+condition_noise[condition_names==T[i]]*rnorm(1))
-         
-  }
-
-# Example
-dgp(c(1, 0, 1, 0, 1), c(0,1), c(2, 10), c(0, 1))
-
-
-get_power <- function(design, condition_means, condition_noise, test_type = diff.means, alpha = 0.05, sims=1000){
-  ps <- replicate(sims,
-    {T <- design$ra_fun()
-    Y  <- dgp(T, design$condition_names, condition_means, condition_noise) 
-    t.test(Y, T)$p.value}
-    )
-  mean(ps <= alpha)
-  }
-
-# Example
-design <- declare_design(N = 100, m=50)
-get_power(design, c(2, 3), c(5, 5), test_stat = diff.means, alpha = 0.05, sims=1000)
-get_power(design, c(2, 3), c(10, 10), test_stat = diff.means, alpha = 0.05, sims=1000)
-
-
-# Comment 
-# need dgp to be an argument entering flexibly
-# need multiple test_types
-
