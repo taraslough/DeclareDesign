@@ -1,19 +1,16 @@
 #' Make vector for blocked random assignment
 #'
-#' @param variable_name The name of your new variable 
-#' @param linear_mean If the variable is linear 
+#' @param custom_block_function A user defined blocking function 
 #' @export
 
 make_blocks <-
   function(covariates_to_block_on,
            design_object,
            covariate_object,
-           custom_block_function = NULL) {
+           custom_block_function = NULL,
+           ...) {
              if(!is.null(custom_block_function)){
-               block_indicator <- custom_block_function(covariates_to_block_on,
-                                                        design_object,
-                                                        covariate_object
-               )
+               block_indicator <- custom_block_function(...)
                
              }else{
                
