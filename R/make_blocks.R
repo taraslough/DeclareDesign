@@ -99,6 +99,20 @@ make_blocks(covariates_to_block_on = c("event","income","count","party_id"),
             covariate_object = covariate_object_1
 )
 
+# Demo for balance
+
+covariate_matrix_2 <- 
+  data.frame(covariate_matrix_1,
+             block_var = 
+               make_blocks(covariates_to_block_on = c("event","income","count","party_id"),
+                           design_object = design_7,
+                           covariate_object = covariate_matrix_1))
+
+table(covariate_matrix_2$block_var,covariate_matrix_2$event)
+table(covariate_matrix_2$block_var,covariate_matrix_2$party_id)
+with(covariate_matrix_2,table(block_var[income<=quantile(income)[2]]))
+with(covariate_matrix_2,table(block_var[income<=quantile(income)[3]&income>=quantile(income)[2]]))
+with(covariate_matrix_2,table(block_var[income<=quantile(income)[4]&income>=quantile(income)[3]]))
 
 
 
