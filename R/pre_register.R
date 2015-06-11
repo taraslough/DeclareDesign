@@ -29,7 +29,7 @@
 #' @param analysis An analysis object from the declare_analysis function, or a list of analysis objects.
 #' @param registration_title Title of the pre-registration.
 #' @param registration_authors List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.
-#' @param registration_description General description of the experiment.
+#' @param registration_abstract General description of the experiment.
 #' @param random.seed Random seed to ensure reproducibility of the design.
 #' @param file File name where object is saved.
 #' @param type Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.
@@ -41,7 +41,7 @@
 #' @importFrom rmarkdown render
 #' @export
 pre_register <- function(design, data, analysis, 
-                         registration_title, registration_authors, registration_description,
+                         registration_title, registration_authors, registration_abstract,
                          random.seed = 42, dir = getwd(), type = "rmarkdown",
                          make_output = TRUE, output_format = "pdf", keep_tex = FALSE, 
                          open_output = TRUE, ...){
@@ -84,8 +84,8 @@ pre_register <- function(design, data, analysis,
   cat(create_code_snippet(rcode))
   sink()
   
-  cat("\nRegistration raw document (markdown .Rmd file) saved in ", dir, "/", file, "\n", sep = "")
-  
+  cat("\nRegistration raw document (markdown .Rmd file) saved in ", dir, "/", file, ".Rmd\n", sep = "")
+    
   ## compile Rmd into a PDF if requested
   if(make_output == TRUE){
     output_format_internal <- ifelse(output_format == "pdf", "pdf_document", 
@@ -93,6 +93,10 @@ pre_register <- function(design, data, analysis,
                                             stop("Chosen output_format not supported.")))
     input <- paste(dir, "/", file, ".Rmd", sep = "")
     render(input = input, output_format_internal, quiet = TRUE, ... = ...)
+    
+    if(keep_tex == TRUE)
+      cat("\nRegistration raw document (.tex file) saved in ", dir, "/", file, ".tex\n", sep = "")
+    
     cat("\nRegistration output document (PDF file) saved in", 
         paste(dir, "/", file, ".pdf", sep = ""), "\n")
     
