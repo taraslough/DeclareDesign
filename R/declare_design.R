@@ -3,6 +3,7 @@ rm(list=ls())
 
 # random assignment functions
 
+#' @export
 complete_ra <- 
   function(N, m = NULL, num_arms = NULL, m_each = NULL, prob_each = NULL, 
                         condition_names = NULL) {
@@ -85,6 +86,7 @@ complete_ra <-
                           }
                           return(assign)
                         }
+#' @export
 block_ra <- 
   function(block_var, num_arms= NULL, block_m=NULL, block_prob=NULL, condition_names = NULL){
   
@@ -143,6 +145,7 @@ block_ra <-
   }
 }
 
+#' @export
 cluster_ra <- function(clust_var, m=NULL, num_arms=NULL, m_each = NULL, condition_names = NULL){
   unique_clus <- unique(clust_var)
   n_clus <- length(unique_clus)
@@ -157,6 +160,7 @@ cluster_ra <- function(clust_var, m=NULL, num_arms=NULL, m_each = NULL, conditio
 block_var <- rep(1:10, each=10)
 clust_var <- rep(letters[1:20], each=5)
 
+#' @export
 blocked_and_clustered_ra <- 
   function(clust_var, block_var, num_arms= NULL, block_m=NULL, block_prob=NULL, condition_names = NULL) {
     
@@ -180,6 +184,7 @@ blocked_and_clustered_ra <-
     return(as.character(merged$z_clust))
   }
 
+#' @export
 declare_design <- 
   function(N = NULL, m = NULL, 
            m_each = NULL, prob_each = NULL, 
@@ -259,7 +264,28 @@ declare_design <-
           return(return.object)
  }
 
-treatment_variable_name.design <- function(x) {
+#' @export
+summary.design <- function(object, ...) {
+  ## this function itself does nothing, it's just an R package technicality
+  ## so that print.summary.design() works
+  structure(object, class = c("summary.design", class(object)))
+}
+
+#' @export
+print.summary.design <- function(x, ...){
+  ## prints paragraph describing design
+
+}
+ 
+#' @export
+assign_treatment.design <- function(x) {
+
+    return(x$ra_fun())
+
+}
+
+#' @export
+treatment_indicator_name.design <- function(x) {
   return(x$condition_names)
 }
 
