@@ -57,11 +57,11 @@ declare_analysis <- function(method, test_result, alpha = .05, ...){
 #' @examples
 #' # Some examples will go here
 #' @export
-test_result.analysis <- function(Y, Z, analysis, data, alpha = .05){
+test_result.analysis <- function(formula, analysis, design, data, alpha = .05){
   
   ## first runs the analysis then extracts the test result based on the analysis
   
-  return(analysis$test_result(results = analysis$analysis(Y, Z, data), alpha = alpha))
+  return(analysis$test_result(results = run_analysis(formula, analysis, design, data), alpha = alpha))
   
 }
 
