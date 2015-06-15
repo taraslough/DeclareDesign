@@ -263,6 +263,16 @@ declare_design <-
           
           return(return.object)
  }
+ 
+summary.design <- function(x) {
+
+}
+ 
+assign_treatment.design <- function(x) {
+
+    return(x$ra_fun())
+
+}
 
 #' @export
 summary.design <- function(object, ...) {
