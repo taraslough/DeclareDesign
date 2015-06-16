@@ -82,31 +82,3 @@ declare_DGP <- function(
   }
 
 
-# DEMO
-
-
-declare_DGP()
-
-declare_DGP(linear_mean = 1000,
-            linear_sd = 100)
-
-declare_DGP(variable_name = "Event",
-            binary_probability = .8,
-            binary_categories = c("Did not happen","Happened")
-)
-
-declare_DGP(variable_name = "Party_ID",
-            multinomial_probabilities = c(.4,.4,.2),
-            multinomial_categories = c("D","R","I")
-)
-
-
-
-
-
-
-
-
-
-
-

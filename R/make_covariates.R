@@ -58,24 +58,3 @@ make_covariates <-
            }
 
 
-# Demo
-design_6 <- declare_design(clust_var=rep(letters, times=1:26), m_each=c(7, 7, 12),
-                           condition_names=c("control", "placebo", "treatment"))
-
-covariate_object_1 <- make_covariates(
-  X1 = declare_DGP(),
-  X2 = declare_DGP(),
-  event = declare_DGP(binary_probability = .5,
-                      binary_categories = c("happened","did not")),
-  income = function()rnorm(n = design_6$N,mean = 0,sd = 1),
-  count = function()rpois(n = design_6$N,lambda = 30),
-  party_id = declare_DGP(
-    multinomial_probabilities = c(.4,.4,.2),
-    multinomial_categories = c("D","R","I")),
-  design_object = design_6
-)
-
-head(covariate_object_1$make_X_matrix())
-
-
-
