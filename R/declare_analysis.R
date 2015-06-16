@@ -2,50 +2,53 @@
 #'
 #' Description
 #' @param method either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm
-#' @param test_result a function that extracts the binary result of a statistical test (did it pass = 1, if not = 0)
+#' @param test_success a function that extracts the binary result of a statistical test (did it pass = 1, if not = 0)
 #' @param formula an optional formula object to define analyses such as linear regressions with covariates
-#' @param ... additional options to be sent to the analysis function and the test_result function
+#' @param ... additional options to be sent to the analysis function and the test_success function
 #' @return a list containing a function to conduct the analysis and a function to extract the result of the test
 #' @examples
 #' # these examples don't work yet
 #' # declare_analysis(analysis = "diff-in-means")
 #' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
 #' @export
-declare_analysis <- function(method, test_result, alpha = .05, ...){
+declare_analysis <- function(formula, treatment_variable = "Z", method, design, Y, Z, 
+                             test_success = "treatment-coefficient-significant", alpha = .05, ...){
+  
+  ##substitute(y ~ z + z*p, list(z = as.name = "q"))
   
   if(class(method) == "character") {    
     ## if user provides a string as a method, this invokes default analyses we define
     if(method == "lm")
-      analysis <- function(formula, data, ...) lm(formula = formula, data = data, ... = ...)
-    else if(method == "glm")
-      analysis <- function(formula, data, family, ...) glm(formula = formula, data = data, family = family, ... = ...)
-    
+      analysis <- function(data) lm(formula = formula, data = data)
+    else if(method == "glm"){
+      if(missing(family)){
+        family <- "binomial('logit')"
+        warning("Family was not specified for glm. Binomial logistic regression was chosen as the default.")
+      }
+      analysis <- function(data) glm(formula = formula, data = data, family = family)
+    }
   }
   
-  if(class(test_result) == "character" | !exists(test_result)){
-    ## if user provides a string, this invokes default test_result functions
-    if(!exists(test_result) & (method == "lm" | method == "glm"))
-      test_result <- "first-coefficient-significant"
+  if(class(test_success) == "character" | !exists(test_sucess)){
+    ## if user provides a string, this invokes default test_success functions
+    if(!exists(test_success) & (method == "lm" | method == "glm"))
+      test_success <- "treatment-coefficient-significant"
     
-    if(test_result == "first-coefficient-significant")
-      test_result <- function(results, alpha) summary(results)$coefficients[k,4] < alpha
-    ## note this code definitely works for lm, glm
+    if(test_success == "treatment-coefficient-significant"){
+      treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable)
+      
+      test_success <- function(results, k = treat_coef_num, alpha = alpha) summary(results)$coefficients[k,4] < alpha
+      ## note this code definitely works for lm, glm
+    }
   }
   
-  return.object <- list(analysis = analysis, test_result = test_result, call = match.call())
+  return.object <- list(analysis = analysis, test_success = test_success, call = match.call())
   
   class(return.object) <- "analysis"
   
-  return()
+  return(return.object)
   
 }
-
-## NOTE this does not work yet, until we get the design and data objects up and running
-## once it does it will work like this:
-##
-## analysis_1 <- declare_analysis(method = "lm-no-covariates") ## creates an object with a function to run a diff-in-means analysis and a function to extract p-value
-## run_analysis(analysis_1) ## in this case returns an lm object alone
-## get_p_value(analysis_1) ## extracts the p-value for the treatment effect from the lm object (note this runs run_analysis() and then extracts p-value) -- this can be used for power
 
 #' Return the result of a test for treatment effect(s) from an experimental analysis
 #'
@@ -57,11 +60,15 @@ declare_analysis <- function(method, test_result, alpha = .05, ...){
 #' @examples
 #' # Some examples will go here
 #' @export
-test_result.analysis <- function(formula, analysis, design, data, alpha = .05){
+test_success.analysis <- function(formula, analysis, finished_analysis = NULL,
+                                 design, data, alpha = .05){
   
   ## first runs the analysis then extracts the test result based on the analysis
   
-  return(analysis$test_result(results = run_analysis(formula, analysis, design, data), alpha = alpha))
+  if(!exists("finished_analysis"))
+    finished_analysis <- run_analysis(analysis, data)
+  
+  return(analysis$test_success(results = finished_analysis, alpha = alpha))
   
 }
 
@@ -76,17 +83,9 @@ test_result.analysis <- function(formula, analysis, design, data, alpha = .05){
 #' @examples
 #' Some examples will go here
 #' @export
-run_analysis.analysis <- function(formula, analysis, design, data){
+run_analysis.analysis <- function(analysis, data){
   
-  ## check that the treatment indicator is the first variable, which is required by the test_result function
-  Z <- treatment_indicator_name(design)
-  
-  formula.rhs <- attr(terms.formula(formula), "term.labels")
-  
-  if(formula.rhs[1] != Z)
-    stop(paste("The treatment indicator (", Z, ") should appear as the first variable in the formula.", sep = ""))
-      
-  return(analysis$analysis(formula, data))
+  return(analysis$analysis(data))
   
 }
 
