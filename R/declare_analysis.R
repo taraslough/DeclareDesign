@@ -10,6 +10,7 @@
 #' # these examples don't work yet
 #' # declare_analysis(analysis = "diff-in-means")
 #' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
+#' @rdname declare_analysis
 #' @export
 declare_analysis <- function(formula, treatment_variable = "Z", method, design, Y, Z, 
                              test_success = "treatment-coefficient-significant", alpha = .05, ...){
@@ -59,9 +60,13 @@ declare_analysis <- function(formula, treatment_variable = "Z", method, design, 
 #' @return a numeric scalar or vector of p-values
 #' @examples
 #' # Some examples will go here
+#' @rdname declare_analysis
 #' @export
-test_success.analysis <- function(formula, analysis, finished_analysis = NULL,
+test_success <- function(formula, analysis, finished_analysis = NULL,
                                  design, data, alpha = .05){
+  
+  if(class(analysis) != "analysis") 
+    stop("Can only run analyses created by declare_analysis.")
   
   ## first runs the analysis then extracts the test result based on the analysis
   
@@ -82,8 +87,12 @@ test_success.analysis <- function(formula, analysis, finished_analysis = NULL,
 #' @return a numeric scalar or vector of p-values
 #' @examples
 #' ##Some examples will go here
+#' @rdname declare_analysis
 #' @export
-run_analysis.analysis <- function(analysis, data){
+run_analysis <- function(analysis, data){
+  
+  if(class(analysis) != "analysis") 
+    stop("Can only run analyses created by declare_analysis.")
   
   return(analysis$analysis(data))
   

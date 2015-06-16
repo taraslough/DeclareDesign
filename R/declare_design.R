@@ -276,13 +276,13 @@ print.summary.design <- function(x, ...){
 }
  
 #' @export
-assign_treatment.design <- function(x) {
+assign_treatment <- function(x) {
     return(x$ra_fun())
 }
 
 #' @export
-treatment_indicator_name.design <- function(x) {
-  return(x$condition_names)
+treatment_indicator_name <- function(x) {
+  return("NOT SURE YET")
 }
 
 

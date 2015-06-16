@@ -9,7 +9,7 @@ make_potential_outcomes(covariate_object, design_object, outcome_formula,
   N_per_cluster = NULL, ICC = 0.01, unit_variance = 1)
 }
 \arguments{
-\item{covariate_object}{}
+\item{covariate_object}{covariates data frame}
 }
 \value{
 a data frame?

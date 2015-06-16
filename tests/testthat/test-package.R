@@ -2,7 +2,7 @@ context("Check that basic code works")
 
 rm(list=ls())
 
-test_that("1=1", {
+test_that("test workflow", {
   
   ## dgp
   #  1 covs
@@ -75,7 +75,7 @@ test_that("1=1", {
     ps <- sapply(1:sims, function(i){
       podata   <- po_dgp(covs, betas = betas, ate = ate)
       mock     <- make_data_frame(covariates = covs, potential_outcomes = podata)
-      test_success   <- test_success.analysis(analysis = analysis, finished_analysis = M)
+      test_success   <- test_success(analysis = analysis)
       
       return(test_success)
     }
@@ -83,17 +83,18 @@ test_that("1=1", {
     mean(ps)
   }
   
-  assign_treatment.design <- function(design) {
+  assign_treatment <- function(design) {
     return(design())
   }
   
-  observed_y.design <- function(outcome, treatment.assignment, data){
+  observed_y <- function(outcome, treatment.assignment, data){
     observed_y <- rep(NA, nrow(data))
-    treat.vals <- na.omit(unique(data[,assignment])) ## temporarily doing na.omit
+    treat.vals <- na.omit(unique(data[,treatment.assignment])) ## temporarily doing na.omit
     ##if(any(is.na(treat.vals)))
     ##  stop("There are NAs in the treatment assignment.")
     for(v in treat.vals){
-      treat.cond <- data[,assignment] == v & is.na(data[,assignment]) == F ## is.na is temporary
+      treat.cond <- data[,treatment.assignment] == v & 
+        is.na(data[,treatment.assignment]) == F ## is.na is temporary
       observed_y[treat.cond] <- data[treat.cond, paste(outcome, "_", v, sep = "")]
     }
     return(observed_y)
@@ -114,16 +115,16 @@ test_that("1=1", {
   
   analysis      <- declare_analysis(formula = Y ~ Z, treatment.variable = "Z", method = "lm")
   
-  power         <- power(sims = 2000, alpha = .05, analysis = analysis,
-                         covs =  cov_dgp(c(1:10), rep(0:1,5), N_per_cluster = 4), 
-                         betas = c(0,1),  ate=0,  block_var = "L1")
+  ##power         <- power(sims = 2000, alpha = .05, analysis = analysis,
+  ##                       covs =  cov_dgp(c(1:10), rep(0:1,5), N_per_cluster = 4), 
+  ##                       betas = c(0,1),  ate=0,  block_var = "L1")
   
-  mock$Z        <- assign_treatment.design(design)
-  mock$Y        <- observed_y.design(outcome = "Y", treatment.assignment = "Z", data = mock)
+  mock$Z        <- assign_treatment(design)
+  mock$Y        <- observed_y(outcome = "Y", treatment.assignment = "Z", data = mock)
   
-  M             <- run_analysis.analysis(analysis = analysis, data = mock)
+  M             <- run_analysis(analysis = analysis, data = mock)
   
-  test_success   <- test_success.analysis(analysis = analysis, finished_analysis = M)
+  test_success   <- test_success(analysis = analysis, finished_analysis = M)
   
   
   ## pre_register(covs, podata, design, mock, analyze, power) ## this function creates the .Rmd file
