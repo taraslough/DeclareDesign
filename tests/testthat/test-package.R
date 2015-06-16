@@ -1,8 +1,8 @@
-##context("Check that basic code works")
+context("Check that basic code works")
 
-##rm(list=ls())
+rm(list=ls())
 
-##test_that("test workflow", {
+test_that("test workflow", {
   
   ## dgp
   #  1 covs
@@ -139,6 +139,6 @@
                random.seed = 42, dir = getwd(), type = "rmarkdown",
                make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
                open_output = TRUE)
-    
-    
-##  })
+  
+  
+})
