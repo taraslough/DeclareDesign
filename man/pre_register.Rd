@@ -6,8 +6,8 @@
 \usage{
 pre_register(design, data, analysis, registration_title, registration_authors,
   registration_abstract, random.seed = 42, dir = getwd(),
-  type = "rmarkdown", make_output = TRUE, output_format = "pdf",
-  keep_tex = FALSE, open_output = TRUE, ...)
+  temp.dir = FALSE, type = "rmarkdown", make_output = TRUE,
+  output_format = "pdf", keep_tex = FALSE, open_output = TRUE, ...)
 }
 \arguments{
 \item{design}{A design object from the declare_design function.}

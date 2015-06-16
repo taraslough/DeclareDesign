@@ -42,7 +42,7 @@
 #' @export
 pre_register <- function(design, data, analysis, 
                          registration_title, registration_authors, registration_abstract,
-                         random.seed = 42, dir = getwd(), type = "rmarkdown",
+                         random.seed = 42, dir = getwd(), temp.dir = FALSE, type = "rmarkdown",
                          make_output = TRUE, output_format = "pdf", keep_tex = FALSE, 
                          open_output = TRUE, ...){
   
@@ -57,35 +57,42 @@ pre_register <- function(design, data, analysis,
   ## master loop of analyses
   ##power <- list()
   ##for(a in length(analysis)){
-    
-    ## need print of power of analysis and then analysis
-    
-    ##power[[a]] <- get_power(analysis = analysis[[a]], data = data, design = design)
-    
+  
+  ## need print of power of analysis and then analysis
+  
+  ##power[[a]] <- get_power(analysis = analysis[[a]], data = data, design = design)
+  
   ##}
   
   ## create temp file name if user does not supply one
-  if(is.null(dir)) 
+  if(temp.dir == TRUE)
     dir <- tempdir()
-    
+  
   file <- paste("registration-", format(Sys.time(), "%d-%b-%Y-%Hh%Mm%Ss"), sep = "")
-    
+  
   template <- readLines(system.file("tex", "egap_registration_template.tex", package = "registration"))
-    
+  
   ## write EGAP template to directory
   writeLines(template, con = paste(dir, "/egap_registration_template.tex", sep = ""))
   
   ## writes Rmd rmarkdown file
-  sink(paste(dir, "/", file, ".Rmd", sep = ""))
-  cat(create_header(title = registration_title, authors = registration_authors, keep_tex = keep_tex))
-  cat(create_code_snippet(paste("## set fixed random seed for registration reproducibility\n\nset.seed(", 
-                                random.seed, ")", sep = "")))
-  cat(doc)
-  cat(create_code_snippet(rcode))
-  sink()
+  ## send it a set of character objects
+  cat_doc(
+    title_header(title = registration_title, authors = registration_authors, keep_tex = keep_tex),
+    code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
+                 random.seed, ")"),
+    tex_header("Introduction", 1),
+    registration_abstract,
+    tex_header("Hypotheses", 1),
+    tex_header("Experimental Design", 1),
+    tex_header("Results", 1),
+    ##code_snippet(analysis$call)
+    
+    filename = paste(dir, "/", file, ".Rmd", sep = "")
+  )
   
   cat("\nRegistration raw document (markdown .Rmd file) saved in ", dir, "/", file, ".Rmd\n", sep = "")
-    
+  
   ## compile Rmd into a PDF if requested
   if(make_output == TRUE){
     output_format_internal <- ifelse(output_format == "pdf", "pdf_document", 
@@ -110,7 +117,22 @@ pre_register <- function(design, data, analysis,
   
 }
 
-create_header <- function(title = NULL, authors = NULL, keep_tex = FALSE){
+cat_doc <- function(..., filename){
+  ddd <- list(...)
+  sink(filename)
+  for(i in 1:length(ddd))
+    cat(ddd[[i]], "\n\n")
+  sink()
+}
+
+tex_header <- function(title, level){
+  if(level==1)
+    return(paste(title, "\n==="))
+  else if(level==2)
+    return(paste(title, "\n--"))
+} 
+
+title_header <- function(title = NULL, authors = NULL, keep_tex = FALSE){
   
   ##return(paste("---\ntitle: \"", title, "\"\noutput: pdf_document\n---\n\n", sep = ""))
   
@@ -136,10 +158,12 @@ create_header <- function(title = NULL, authors = NULL, keep_tex = FALSE){
   
 }
 
-create_code_snippet <- function(x, ## takes a character string
-                                results = "asis", 
-                                echo = FALSE) {
-  return(paste("\n```{r, echo =", echo, ", results='", results, "'}\n", x, "\n```\n", sep = ""))
+code_snippet <- function(..., ## takes a character string
+                         results = "asis", 
+                         echo = FALSE) {
+  return(paste("```{r, echo =", echo, ", results='", results, "'}\n", 
+               paste(unlist(list(...)), collapse = ""), 
+               "\n```", sep = ""))
 }
 
 

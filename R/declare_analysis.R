@@ -62,16 +62,17 @@ declare_analysis <- function(formula, treatment_variable = "Z", method, design, 
 #' # Some examples will go here
 #' @rdname declare_analysis
 #' @export
-test_success <- function(formula, analysis, finished_analysis = NULL,
-                                 design, data, alpha = .05){
-  
+test_success <- function(analysis, finished_analysis = NULL, data, alpha = .05){
+    
   if(class(analysis) != "analysis") 
     stop("Can only run analyses created by declare_analysis.")
   
   ## first runs the analysis then extracts the test result based on the analysis
   
-  if(!exists("finished_analysis"))
-    finished_analysis <- run_analysis(analysis, data)
+  if(is.null(finished_analysis))
+    finished_analysis <- run_analysis(analysis = analysis, data = data)
+  
+  ##save(analysis, finished_analysis, data, file = "~/downloads/tmp44.RData")
   
   return(analysis$test_success(results = finished_analysis, alpha = alpha))
   

@@ -9,8 +9,7 @@
 declare_analysis(formula, treatment_variable = "Z", method, design, Y, Z,
   test_success = "treatment-coefficient-significant", alpha = 0.05, ...)
 
-test_success(formula, analysis, finished_analysis = NULL, design, data,
-  alpha = 0.05)
+test_success(analysis, finished_analysis = NULL, data, alpha = 0.05)
 
 run_analysis(analysis, data)
 }

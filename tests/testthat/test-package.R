@@ -1,8 +1,8 @@
-context("Check that basic code works")
+##context("Check that basic code works")
 
-rm(list=ls())
+##rm(list=ls())
 
-test_that("test workflow", {
+##test_that("test workflow", {
   
   ## dgp
   #  1 covs
@@ -68,6 +68,7 @@ test_that("test workflow", {
                    betas = c(0,1), ate=1,                   # DGP arguments 
                    block = TRUE, block_var = "L1",          # Design arguments                   
                    analysis,                                # Analysis arguments
+                   design,
                    block.analyis= TRUE, 
                    block.analysis.name = "L1"
   ) {
@@ -75,7 +76,12 @@ test_that("test workflow", {
     ps <- sapply(1:sims, function(i){
       podata   <- po_dgp(covs, betas = betas, ate = ate)
       mock     <- make_data_frame(covariates = covs, potential_outcomes = podata)
-      test_success   <- test_success(analysis = analysis)
+      mock$Z        <- assign_treatment(design)
+      mock$Y        <- observed_y(outcome = "Y", treatment.assignment = "Z", data = mock)
+      
+      save(analysis, mock, file = "~/downloads/testsuite.RData")
+      
+      test_success   <- test_success(analysis = analysis, data = mock)
       
       return(test_success)
     }
@@ -115,23 +121,24 @@ test_that("test workflow", {
   
   analysis      <- declare_analysis(formula = Y ~ Z, treatment.variable = "Z", method = "lm")
   
-  ##power         <- power(sims = 2000, alpha = .05, analysis = analysis,
-  ##                       covs =  cov_dgp(c(1:10), rep(0:1,5), N_per_cluster = 4), 
-  ##                       betas = c(0,1),  ate=0,  block_var = "L1")
+  power         <- power(sims = 10, alpha = .05, analysis = analysis,
+                         covs =  cov_dgp(c(1:10), rep(0:1,5), N_per_cluster = 4), 
+                         betas = c(0,1),  ate=0,  block_var = "L1",
+                         design = design)
   
   mock$Z        <- assign_treatment(design)
   mock$Y        <- observed_y(outcome = "Y", treatment.assignment = "Z", data = mock)
   
-  M             <- run_analysis(analysis = analysis, data = mock)
+  M             <- run_analysis(analysis = analysis, data = mock)  
   
-  test_success   <- test_success(analysis = analysis, finished_analysis = M)
-  
-  
-  ## pre_register(covs, podata, design, mock, analyze, power) ## this function creates the .Rmd file
-  ## right now, I directly include the .Rmd file in the directory
-  
-  ## the function compiles the .Rmd into a .tex file and a PDF.
-  ##library(rmarkdown)
-  ##render("mock_report.Rmd", output_options = list(keep_tex = T))
-  
-})
+  ##pre_register(covs, podata, design, mock, analyze, power)
+  pre_register(design = design, data = mock, analysis = analysis,
+               registration_title = "Lady Tasting Tea", 
+               registration_authors = c("Ronald A. Fisher"), 
+               registration_abstract = "Description of the experiment",
+               random.seed = 42, dir = getwd(), type = "rmarkdown",
+               make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
+               open_output = TRUE)
+    
+    
+##  })
