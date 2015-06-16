@@ -1,11 +1,9 @@
 
 #' Create the potential outcomes of the experiment
 #'
-#' @param covariate_object 
-#' @return 
+#' @param covariate_object covariates data frame
+#' @return a data frame?
 #' @export
-
-
 make_potential_outcomes <- 
   function(
     covariate_object,

@@ -4,20 +4,25 @@
 \alias{pre_register}
 \title{Create pre-registration document}
 \usage{
-pre_register(design, title, authors, file = NULL, random.seed = 42,
+pre_register(design, data, analysis, registration_title, registration_authors,
+  registration_abstract, random.seed = 42, dir = getwd(),
   type = "rmarkdown", make_output = TRUE, output_format = "pdf",
-  open_output = TRUE, ...)
+  keep_tex = FALSE, open_output = TRUE, ...)
 }
 \arguments{
 \item{design}{A design object from the declare_design function.}
 
-\item{title}{Title of the pre-registration}
+\item{data}{A data object from the make_y function.}
 
-\item{authors}{List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.}
+\item{analysis}{An analysis object from the declare_analysis function, or a list of analysis objects.}
 
-\item{file}{File name where object is saved in the current working directory.}
+\item{registration_title}{Title of the pre-registration.}
 
-\item{random.seed}{Random seed to ensure reproducibility of the design}
+\item{registration_authors}{List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.}
+
+\item{registration_abstract}{General description of the experiment.}
+
+\item{random.seed}{Random seed to ensure reproducibility of the design.}
 
 \item{type}{Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.}
 
@@ -28,6 +33,8 @@ pre_register(design, title, authors, file = NULL, random.seed = 42,
 \item{open_output}{Indicator for whether the output file is opened after it is compiled.}
 
 \item{...}{Other options for the render() command to create the output file from the markdown code.}
+
+\item{file}{File name where object is saved.}
 }
 \value{
 Filename and location where .Rmd or .Rnw and PDF file are saved.

@@ -29,7 +29,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method, design, 
     }
   }
   
-  if(class(test_success) == "character" | !exists(test_sucess)){
+  if(class(test_success) == "character" | !exists(test_success)){
     ## if user provides a string, this invokes default test_success functions
     if(!exists(test_success) & (method == "lm" | method == "glm"))
       test_success <- "treatment-coefficient-significant"
@@ -81,7 +81,7 @@ test_success.analysis <- function(formula, analysis, finished_analysis = NULL,
 #' @param data data object created by make_y
 #' @return a numeric scalar or vector of p-values
 #' @examples
-#' Some examples will go here
+#' ##Some examples will go here
 #' @export
 run_analysis.analysis <- function(analysis, data){
   
