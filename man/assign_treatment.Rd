@@ -8,6 +8,8 @@ assign_treatment(x)
 }
 \arguments{
 \item{design}{A design object created by declare_design; or a function that assigns treatment}
+
+\item{...}{Options to override defaults in random assignmetn function}
 }
 \value{
 a random assignment vector

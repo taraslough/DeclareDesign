@@ -79,10 +79,7 @@ test_that("test workflow", {
       podata   <- po_dgp(covs, betas = betas, ate = ate)
       mock     <- make_data_frame(covariates = covs, potential_outcomes = podata)
       mock$Z        <- assign_treatment(design)
-      mock$Y        <- observed_y(outcome = "Y", treatment.assignment = "Z", data = mock)
-      
-      save(analysis, mock, file = "~/downloads/testsuite.RData")
-      
+      mock$Y        <- observed_y(outcome = "Y", treatment.assignment = "Z", data = mock)      
       test_success   <- test_success(analysis = analysis, data = mock)
       
       return(test_success)
