@@ -1,0 +1,12 @@
+---
+title: "How to Pre-Register a Simple Experimental Design using the `registration` package"
+author: "EGAP"
+date: "`r Sys.Date()`"
+output: rmarkdown::pdf_vignette
+vignette: >
+  %\VignetteIndexEntry{Pre-Register Simple Experiment}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+This vignette demonstrates how to pre-register a simple experimental design using the `registration` package.
