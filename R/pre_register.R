@@ -73,11 +73,10 @@ pre_register <- function(design, data, analysis,
   ## writes Rmd rmarkdown file
   ## send it a set of character objects
   cat_doc(
-    title_header(title = registration_title, authors = registration_authors, keep_tex = keep_tex),
+    title_header(title = registration_title, authors = registration_authors, 
+                 abstract = registration_abstract, keep_tex = keep_tex),
     code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
                  random.seed, ")"),
-    tex_header("Introduction", 1),
-    registration_abstract,
     tex_header("Hypotheses", 1),
     tex_header("Experimental Design", 1),
     tex_header("Results", 1),
@@ -127,7 +126,7 @@ tex_header <- function(title, level){
     return(paste(title, "\n--"))
 } 
 
-title_header <- function(title = NULL, authors = NULL, keep_tex = FALSE){
+title_header <- function(title = NULL, authors = NULL, abstract = NULL, keep_tex = FALSE){
   
   ##return(paste("---\ntitle: \"", title, "\"\noutput: pdf_document\n---\n\n", sep = ""))
   
@@ -145,6 +144,7 @@ title_header <- function(title = NULL, authors = NULL, keep_tex = FALSE){
   return(paste("---\ntitle: \"", title, 
                "\"\nauthor: \n", 
                authors.text,
+               ifelse(is.null(abstract), "", paste("abstract: |\n", abstract, "\n")),
                "date: \"`r format(Sys.time(), \'%d %B %Y\')`\"",
                "\noutput:\n  pdf_document:\n    template: ./egap_registration_template.tex\n",
                ifelse(keep_tex, "    keep_tex: true\n", ""),
