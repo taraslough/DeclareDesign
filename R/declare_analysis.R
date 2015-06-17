@@ -12,12 +12,13 @@
 #' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
 #' @rdname declare_analysis
 #' @export
-declare_analysis <- function(formula, treatment_variable = "Z", method, design, 
+declare_analysis <- function(formula, treatment_variable = "Z", method, 
                              test_success = "treatment-coefficient-significant", alpha = .05, ...){
   
   formula_rhs <- attr(terms.formula(formula), "term.labels")
   if(!any(formula_rhs== treatment_variable))
-    stop(paste("The treatment variable set in treatment_variable,", treatment_variable, ", does not appear in the formula.", sep = ""))
+    stop(paste("The treatment variable set in treatment_variable,", treatment_variable, ", 
+               does not appear in the formula.", sep = ""))
   
   outcome_variable <- all.vars(formula[[2]])
   
@@ -61,7 +62,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method, design,
   
   return.object <- list(analysis = analysis, test_success = test_success, 
                         treatment_variable = treatment_variable, outcome_variable = outcome_variable,
-                        method = method, design = design, alpha = alpha,
+                        method = method, alpha = alpha,
                         call = match.call())
   
   class(return.object) <- "analysis"
