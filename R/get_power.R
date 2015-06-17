@@ -16,6 +16,8 @@ get_power <- function(data, design, analysis, sims = 100){
     # I don't understand how to use the analysis object
     
     sims_vec[i] <- test_success(analysis = analysis, data = data)
+    ## this runs an analysis using analysis$analysis() and then from that output runs the test_success function defined in analysis$test_success().
+  
   }
   return(power=mean(sims_vec))
 }
