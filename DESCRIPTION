@@ -1,8 +1,8 @@
-Package: registration
-Title: Pre-registration and analysis of experiments
+Package: preregister
+Title: Tools to simplify the design and pre-registration of experiments, including generating simulated data and conducting power analyses
 Version: 0.1
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: Experimental registration package to create a pre-registration document and describe an experimental design and planned analyses in detail.
+Authors@R: person("Graeme", "Blair", email = "graeme.blair@columbia.edu", role = c("aut", "cre"))
+Description: Experiment registration package to create a pre-registration document and describe an experimental design and planned analyses in detail.
 Depends: R (>= 3.2.0)
 Imports: rmarkdown
 Suggests: testthat
