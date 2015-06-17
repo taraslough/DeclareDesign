@@ -6,10 +6,10 @@
 \alias{test_success}
 \title{Declare an experimental analysis}
 \usage{
-declare_analysis(formula, treatment_variable = "Z", method, design, Y, Z,
+declare_analysis(formula, treatment_variable = "Z", method, design,
   test_success = "treatment-coefficient-significant", alpha = 0.05, ...)
 
-test_success(analysis, finished_analysis = NULL, data, alpha = 0.05)
+test_success(analysis, finished_analysis = NULL, data)
 
 run_analysis(analysis, data)
 }
@@ -19,10 +19,6 @@ run_analysis(analysis, data)
 \item{method}{either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm}
 
 \item{design}{design object created by declare_design}
-
-\item{Y}{name of the outcome for the analysis, a character object}
-
-\item{Z}{name of the treatment indicator(s) for the analysis, a character object or vector of character objects}
 
 \item{test_success}{a function that extracts the binary result of a statistical test (did it pass = 1, if not = 0)}
 
@@ -34,7 +30,7 @@ run_analysis(analysis, data)
 
 \item{analysis}{analysis object created by declare_analysis}
 
-\item{data}{data object created by make_y}
+\item{data}{data object created by make_data_frame}
 }
 \value{
 a list containing a function to conduct the analysis and a function to extract the result of the test

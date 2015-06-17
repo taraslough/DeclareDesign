@@ -10,8 +10,13 @@
 #' # declare_analysis(analysis = "diff-in-means")
 #' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
 #' @export
-make_data_frame <- function(potential_outcomes, covariates){
+make_data <- function(potential_outcomes, covariates){
   
-  return(cbind(potential_outcomes, covariates))
+  ## right now this only takes our functions and draws one realization of the potential outcomes and the covariates
+  ## in future it should alternatively be able to take two dataframes, or just a dataframe of covariates
+  
+  return(cbind(make_potential_outcomes(potential_outcomes, covariates = covariates), make_covariates(covariates)))
   
 }
+
+

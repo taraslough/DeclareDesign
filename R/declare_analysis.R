@@ -17,6 +17,9 @@ declare_analysis <- function(formula, treatment_variable = "Z", method, design,
   
   ## note for graeme (you can ignore)
   ## substitute(y ~ z + z*p, list(z = as.name = "q"))
+  formula_rhs <- attr(terms.formula(formula), "term.labels")
+  if(!any(formula_rhs== treatment_variable))
+    stop(paste("The treatment variable set in treatment_variable,", treatment_variable, ", does not appear in the formula.", sep = ""))
   
   if(class(method) == "character") {    
     ## if user provides a string as a method, this invokes default analyses we define
@@ -37,7 +40,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method, design,
       test_success <- "treatment-coefficient-significant"
     
     if(test_success == "treatment-coefficient-significant"){
-      treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable)
+      treat_coef_num <- which(formula_rhs == treatment_variable)
       
       test_success <- function(results, k = treat_coef_num, alpha = alpha) summary(results)$coefficients[k,4] < alpha
       ## note this code definitely works for lm, glm

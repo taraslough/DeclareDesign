@@ -7,7 +7,7 @@
 #' 
 #' 
 
-make_covariates <-
+declare_covariates <-
   function(...,
            design_object = NULL,
            N = design_object$N) {
@@ -57,4 +57,8 @@ make_covariates <-
              return(covariate_object)
            }
 
+#' @export
+make_covariates <- function(covariates) {
+  return(covariates$make_X_matrix())
+}
 

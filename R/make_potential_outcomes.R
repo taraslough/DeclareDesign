@@ -4,7 +4,7 @@
 #' @param covariate_object covariates data frame
 #' @return a data frame?
 #' @export
-make_potential_outcomes <- 
+declare_potential_outcomes <- 
   function(
     covariate_object,
     design_object,
@@ -81,4 +81,9 @@ make_potential_outcomes <-
       return(outcomes_object)
     }
 
+
+#' @export
+make_potential_outcomes <- function(potential_outcomes) {
+  return(potential_outcomes$make_outcomes())
+}
 
