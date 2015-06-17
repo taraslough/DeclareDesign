@@ -12,7 +12,7 @@ assign_treatment <- function(design, ...) {
   ## should be expanded to take either a design object or a function
   ## may be need to have this respond to the characteristics of the data frame, i.e. N and m?
 
-  return(design(...))
+  return(design$ra_fun(...))
   
 }
 
@@ -26,12 +26,13 @@ assign_treatment <- function(design, ...) {
 #' @examples
 #' # some examples go here
 #' @export
-observed_outcome <- function(outcome, treatment_assignment, data){
+observed_outcome <- function(outcome = "Y", treatment_assignment, data){
   
   if(any(is.na(data[,treatment_assignment]))>0)
     warning("There are NA's in the treatment assignment vector.")
 
   observed_y <- rep(NA, nrow(data))
+  treat_vals <- unique(treatment_assignment)
   for(v in treat_vals){
     treat_cond <- data[,treatment_assignment] == v & 
       is.na(data[,treatment_assignment]) == F ## is.na is temporary
