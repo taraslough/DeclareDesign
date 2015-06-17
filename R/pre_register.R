@@ -49,11 +49,6 @@ pre_register <- function(design, data, analysis,
   if(type != "rmarkdown")
     stop("Type must be 'rmarkdown' in the first version.")
   
-  ## set up the markdown file
-  ## (this will be the key part once we have the design/power/etc. objects)
-  doc <- "testline1\n\ntestline2" ## test string
-  rcode <- "runif(1)" ## test R code
-  
   ## master loop of analyses
   ##power <- list()
   ##for(a in length(analysis)){
@@ -64,7 +59,7 @@ pre_register <- function(design, data, analysis,
   
   ##}
   
-  ## create temp file name if user does not supply one
+  ## create temp dir if user does not supply one
   if(temp.dir == TRUE)
     dir <- tempdir()
   
@@ -93,7 +88,7 @@ pre_register <- function(design, data, analysis,
   
   cat("\nRegistration raw document (markdown .Rmd file) saved in ", dir, "/", file, ".Rmd\n", sep = "")
   
-  ## compile Rmd into a PDF if requested
+  ## compile Rmd into a PDF or Word doc if requested
   if(make_output == TRUE){
     output_format_internal <- ifelse(output_format == "pdf", "pdf_document", 
                                      ifelse(output_format == "doc", "word_document", 

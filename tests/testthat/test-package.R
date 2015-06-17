@@ -1,6 +1,7 @@
 context("Check that basic code works")
 
 rm(list=ls())
+library(testthat)
 
 test_that("test workflow", {
   
@@ -30,7 +31,7 @@ test_that("test workflow", {
   }
   
   ra.block <- function(block, p){
-    out<-rep(NA, length(block)) 
+    out<-rep(NA, length(as.numeric(block)))
     for(b in unique(block)) {
       out[block==b] <-   ra.complete(block[block==b], p = p)
     }
@@ -43,6 +44,7 @@ test_that("test workflow", {
     if(block)  f   <-  function(p = propensity) ra.block(block_var, propensity)  
     return(f)
   }
+    
   ##source("R Package scripts/declare_design.R")
   
   # Mock data, depends on podata and  design
@@ -115,7 +117,7 @@ test_that("test workflow", {
   
   podata        <- po_dgp(covs)
   
-  design        <- declare_design(block_var = covs["L1"])
+  design        <- declare_design(block_var = covs$L1)
   
   mock          <- make_data_frame(covariates = covs, potential_outcomes = podata)
   
@@ -135,7 +137,7 @@ test_that("test workflow", {
   pre_register(design = design, data = mock, analysis = analysis,
                registration_title = "Lady Tasting Tea", 
                registration_authors = c("Ronald A. Fisher"), 
-               registration_abstract = "Description of the experiment",
+               registration_abstract = "Description of the lady tasting tea experiment",
                random.seed = 42, dir = getwd(), type = "rmarkdown",
                make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
                open_output = TRUE)
