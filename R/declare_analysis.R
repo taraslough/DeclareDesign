@@ -15,22 +15,34 @@
 declare_analysis <- function(formula, treatment_variable = "Z", method, design, 
                              test_success = "treatment-coefficient-significant", alpha = .05, ...){
   
-  ## note for graeme (you can ignore)
-  ## substitute(y ~ z + z*p, list(z = as.name = "q"))
   formula_rhs <- attr(terms.formula(formula), "term.labels")
   if(!any(formula_rhs== treatment_variable))
     stop(paste("The treatment variable set in treatment_variable,", treatment_variable, ", does not appear in the formula.", sep = ""))
   
+  outcome_variable <- all.vars(formula[[2]])
+  
   if(class(method) == "character") {    
     ## if user provides a string as a method, this invokes default analyses we define
     if(method == "lm")
-      analysis <- function(data) lm(formula = formula, data = data)
+      analysis <- function(data, Y, Z) {
+        ##if(!missing(Y) & Y != outcome_variable)
+        ##  formula2 <- substitute(formula, list(outcome_variable = as.name(Y)))
+        ##if(!missing(Z) & Z != treatment_variable)
+        ##  formula <- substitute(formula, list(treatment_variable = as.name(Z)))
+        lm(formula = formula, data = data)
+      }
     else if(method == "glm"){
       if(missing(family)){
         family <- "binomial('logit')"
         warning("Family was not specified for glm. Binomial logistic regression was chosen as the default.")
       }
-      analysis <- function(data) glm(formula = formula, data = data, family = family)
+      analysis <- function(data) {
+        ##if(!missing(Y) & Y != outcome_variable)
+        ##  formula2 <- substitute(formula, list(outcome_variable = as.name(Y)))
+        ##if(!missing(Z) & Z != treatment_variable)
+        ##  formula <- substitute(formula, list(treatment_variable = as.name(Z)))
+        glm(formula = formula, data = data, family = family)
+      }
     }
   }
   
@@ -48,7 +60,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method, design,
   }
   
   return.object <- list(analysis = analysis, test_success = test_success, 
-                        treatment_variable = treatment_variable, outcome_variable = all.vars(formula[[2]]),
+                        treatment_variable = treatment_variable, outcome_variable = outcome_variable,
                         method = method, design = design, alpha = alpha,
                         call = match.call())
   

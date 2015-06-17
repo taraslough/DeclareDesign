@@ -2,8 +2,9 @@ context("Check that basic code works")
 
 rm(list=ls())
 library(testthat)
+library(preregister)
 
-test_that("test workflow", {
+##test_that("test workflow", {
   
   ## dgp
   #  1 covs
@@ -29,7 +30,7 @@ test_that("test workflow", {
   
   podata        <- po_dgp(covs)
   
-  design        <- declare_design(N = nrow(podata), m = 10, block_var = "L1")
+  design        <- declare_design(block_var = "L1")
   
   mock          <- cbind(podata, covs) ## temp
     ##make_data_frame(covariates = covs, potential_outcomes = podata)
@@ -53,4 +54,4 @@ test_that("test workflow", {
                open_output = TRUE)
   
   
-})
+##})
