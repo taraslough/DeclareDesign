@@ -30,7 +30,7 @@ library(preregister)
   
   podata        <- po_dgp(covs)
   
-  design        <- declare_design(block_var = "L1")
+  design        <- declare_design(block_var = covs$L1)
   
   mock          <- cbind(podata, covs) ## temp
     ##make_data_frame(covariates = covs, potential_outcomes = podata)
