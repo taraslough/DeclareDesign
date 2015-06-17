@@ -12,10 +12,11 @@
 #' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
 #' @rdname declare_analysis
 #' @export
-declare_analysis <- function(formula, treatment_variable = "Z", method, design, Y, Z, 
+declare_analysis <- function(formula, treatment_variable = "Z", method, design, 
                              test_success = "treatment-coefficient-significant", alpha = .05, ...){
   
-  ##substitute(y ~ z + z*p, list(z = as.name = "q"))
+  ## note for graeme (you can ignore)
+  ## substitute(y ~ z + z*p, list(z = as.name = "q"))
   
   if(class(method) == "character") {    
     ## if user provides a string as a method, this invokes default analyses we define
@@ -43,7 +44,10 @@ declare_analysis <- function(formula, treatment_variable = "Z", method, design, 
     }
   }
   
-  return.object <- list(analysis = analysis, test_success = test_success, call = match.call())
+  return.object <- list(analysis = analysis, test_success = test_success, 
+                        treatment_variable = treatment_variable, outcome_variable = all.vars(formula[[2]]),
+                        method = method, design = design, alpha = alpha,
+                        call = match.call())
   
   class(return.object) <- "analysis"
   
@@ -62,7 +66,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method, design, 
 #' # Some examples will go here
 #' @rdname declare_analysis
 #' @export
-test_success <- function(analysis, finished_analysis = NULL, data, alpha = .05){
+test_success <- function(analysis, finished_analysis = NULL, data){
     
   if(class(analysis) != "analysis") 
     stop("Can only run analyses created by declare_analysis.")
@@ -71,20 +75,16 @@ test_success <- function(analysis, finished_analysis = NULL, data, alpha = .05){
   
   if(is.null(finished_analysis))
     finished_analysis <- run_analysis(analysis = analysis, data = data)
-  
-  ##save(analysis, finished_analysis, data, file = "~/downloads/tmp44.RData")
-  
-  return(analysis$test_success(results = finished_analysis, alpha = alpha))
+    
+  return(analysis$test_success(results = finished_analysis))
   
 }
 
 #' Runs a pre-defined experimental analysis
 #'
 #' Description
-#' @param Y name of the outcome for the analysis, a character object
-#' @param Z name of the treatment indicator(s) for the analysis, a character object or vector of character objects
 #' @param analysis analysis object created by declare_analysis
-#' @param data data object created by make_y
+#' @param data data object created by make_data_frame
 #' @return a numeric scalar or vector of p-values
 #' @examples
 #' ##Some examples will go here
@@ -99,7 +99,15 @@ run_analysis <- function(analysis, data){
   
 }
 
+#' @export
+analysis_outcome <- function(x) {
+  return(x$outcome_variable)
+}
 
+#' @export
+analysis_treatment_variable <- function(x) {
+  return(x$treatment_variable)
+}
 
 
 
