@@ -35,17 +35,19 @@ library(preregister)
   mock          <- cbind(podata, covs) ## temp
     ##make_data_frame(covariates = covs, potential_outcomes = podata)
   
-  analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
-  
-  power         <- power(sims = 100, analysis = analysis, design = design, data = mock)
+  analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
+  analysis_2      <- declare_analysis(formula = Y ~ Z + L2, treatment_variable = "Z", design = design, method = "lm") ## "robustness check"
+
+  power         <- get_power(sims = 100, analysis = analysis_1, design = design, data = mock)
   
   mock$Z        <- assign_treatment(design)
-  mock$Y        <- observed_y(outcome = "Y", treatment_assignment = "Z", data = mock)
+  mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
-  M             <- run_analysis(analysis = analysis, data = mock)  
-  
+  M1             <- run_analysis(analysis = analysis_1, data = mock)  
+  M2             <- run_analysis(analysis = analysis_2, data = mock)  
+
   ##pre_register(covs, podata, design, mock, analyze, power)
-  pre_register(design = design, data = mock, analysis = analysis,
+  pre_register(design = design, data = mock, analysis = list(analysis_1, analysis_2), ## runs get_power() with default values
                registration_title = "Lady Tasting Tea", 
                registration_authors = c("Ronald A. Fisher"), 
                registration_abstract = "Description of the lady tasting tea experiment",

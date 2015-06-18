@@ -12,8 +12,14 @@
 #' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
 #' @rdname declare_analysis
 #' @export
-declare_analysis <- function(formula, treatment_variable = "Z", method, 
+declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", 
                              test_success = "treatment-coefficient-significant", alpha = .05, ...){
+  
+  ## NOTES FOR GRAEME -- THIS WILL GO IN ALL ANALYSIS FUNCTIONS
+  ##if(!missing(Y) & Y != outcome_variable)
+  ##  formula2 <- substitute(formula, list(outcome_variable = as.name(Y)))
+  ##if(!missing(Z) & Z != treatment_variable)
+  ##  formula <- substitute(formula, list(treatment_variable = as.name(Z)))
   
   formula_rhs <- attr(terms.formula(formula), "term.labels")
   if(!any(formula_rhs== treatment_variable))
@@ -24,27 +30,31 @@ declare_analysis <- function(formula, treatment_variable = "Z", method,
   
   if(class(method) == "character") {    
     ## if user provides a string as a method, this invokes default analyses we define
-    if(method == "lm")
-      analysis <- function(data, Y, Z) {
-        ##if(!missing(Y) & Y != outcome_variable)
-        ##  formula2 <- substitute(formula, list(outcome_variable = as.name(Y)))
-        ##if(!missing(Z) & Z != treatment_variable)
-        ##  formula <- substitute(formula, list(treatment_variable = as.name(Z)))
+    
+    if(method == "lm") {
+      
+      analysis <- function(data #, Y = NULL, Z = NULL
+                           ) {
         lm(formula = formula, data = data)
       }
-    else if(method == "glm"){
-      if(missing(family)){
+      
+    } else if(method == "glm"){
+      
+      if(!exists(family)){
         family <- "binomial('logit')"
         warning("Family was not specified for glm. Binomial logistic regression was chosen as the default.")
       }
-      analysis <- function(data) {
+      analysis <- function(data #,Y = NULL, Z = NULL
+                           ) {
         ##if(!missing(Y) & Y != outcome_variable)
         ##  formula2 <- substitute(formula, list(outcome_variable = as.name(Y)))
         ##if(!missing(Z) & Z != treatment_variable)
         ##  formula <- substitute(formula, list(treatment_variable = as.name(Z)))
         glm(formula = formula, data = data, family = family)
       }
+      
     }
+    
   }
   
   if(class(test_success) == "character" | !exists(test_success)){
@@ -52,10 +62,13 @@ declare_analysis <- function(formula, treatment_variable = "Z", method,
     if(!exists(test_success) & (method == "lm" | method == "glm"))
       test_success <- "treatment-coefficient-significant"
     
-    if(test_success == "treatment-coefficient-significant"){
-      treat_coef_num <- which(formula_rhs == treatment_variable)
+    if(test_success == "treatment-coefficient-significant"){      
+      treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable)
       
-      test_success <- function(results, k = treat_coef_num, alpha = alpha) summary(results)$coefficients[k,4] < alpha
+      test_success <- function(results, k = treat_coef_num #Y = NULL, Z = NULL, 
+                               ) {
+        summary(results)$coefficients[k,4] < alpha
+      }
       ## note this code definitely works for lm, glm
     }
   }
@@ -82,7 +95,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method,
 #' # Some examples will go here
 #' @rdname declare_analysis
 #' @export
-test_success <- function(analysis, finished_analysis = NULL, data){
+test_success <- function(analysis, finished_analysis = NULL, data, Y = NULL, Z = NULL){
     
   if(class(analysis) != "analysis") 
     stop("Can only run analyses created by declare_analysis.")
@@ -90,9 +103,12 @@ test_success <- function(analysis, finished_analysis = NULL, data){
   ## first runs the analysis then extracts the test result based on the analysis
   
   if(is.null(finished_analysis))
-    finished_analysis <- run_analysis(analysis = analysis, data = data)
+    finished_analysis <- run_analysis(analysis = analysis, data = data) ## Y = Y, Z = Z)
+  
+  ##if(is.null(Z))
+  ##  Z <- analysis_treatment_variable(analysis)
     
-  return(analysis$test_success(results = finished_analysis))
+  return(analysis$test_success(results = finished_analysis))  ##, Z = Z))
   
 }
 
@@ -106,23 +122,23 @@ test_success <- function(analysis, finished_analysis = NULL, data){
 #' ##Some examples will go here
 #' @rdname declare_analysis
 #' @export
-run_analysis <- function(analysis, data){
+run_analysis <- function(analysis, data, Y = NULL, Z = NULL){
   
   if(class(analysis) != "analysis") 
     stop("Can only run analyses created by declare_analysis.")
   
-  return(analysis$analysis(data))
+  return(analysis$analysis(data = data)) #, Y = Y, Z = Z))
   
 }
 
 #' @export
-analysis_outcome <- function(x) {
-  return(x$outcome_variable)
+analysis_outcome_variable <- function(analysis) {
+  return(analysis$outcome_variable)
 }
 
 #' @export
-analysis_treatment_variable <- function(x) {
-  return(x$treatment_variable)
+analysis_treatment_variable <- function(analysis) {
+  return(analysis$treatment_variable)
 }
 
 

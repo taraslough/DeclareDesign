@@ -1,3 +1,4 @@
+
 #' @export
 get_power <- function(data, design, analysis, sims = 100){
   sims_vec <- rep(NA, sims)

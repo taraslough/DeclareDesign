@@ -2,7 +2,7 @@
 
 S3method(print,summary.design)
 S3method(summary,design)
-export(analysis_outcome)
+export(analysis_outcome_variable)
 export(analysis_treatment_variable)
 export(assign_treatment)
 export(block_ra)

@@ -32,7 +32,7 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data){
     warning("There are NA's in the treatment assignment vector.")
 
   observed_y <- rep(NA, nrow(data))
-  treat_vals <- unique(treatment_assignment)
+  treat_vals <- unique(data[,treatment_assignment])
   for(v in treat_vals){
     treat_cond <- data[,treatment_assignment] == v & 
       is.na(data[,treatment_assignment]) == F ## is.na is temporary
