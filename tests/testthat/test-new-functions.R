@@ -28,7 +28,7 @@ library(preregister)
   ## this will be changed to declare_covariates (takes declare_dgp objects), then make_covariates
   ## this uses "level" as word rather than "cluster"
   
-  podata        <- po_dgp(covs)
+  podata        <- po_dgp(covs, ate = 0.1)
   
   design        <- declare_design(block_var = covs$L1)
   
@@ -36,10 +36,11 @@ library(preregister)
     ##make_data_frame(covariates = covs, potential_outcomes = podata)
   
   analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
-  analysis_2      <- declare_analysis(formula = Y ~ Z + L2, treatment_variable = "Z", design = design, method = "lm") ## "robustness check"
+  analysis_2      <- declare_analysis(formula = Y ~ Z + as.factor(L2), treatment_variable = "Z", design = design, method = "lm") ## "robustness check"
 
-  power         <- get_power(sims = 100, analysis = analysis_1, design = design, data = mock)
-  
+  power_1         <- get_power(sims = 100, analysis = analysis_1, design = design, data = mock)
+  power_2         <- get_power(sims = 100, analysis = analysis_2, design = design, data = mock)
+
   mock$Z        <- assign_treatment(design)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
@@ -47,7 +48,8 @@ library(preregister)
   M2             <- run_analysis(analysis = analysis_2, data = mock)  
 
   ##pre_register(covs, podata, design, mock, analyze, power)
-  pre_register(design = design, data = mock, analysis = list(analysis_1, analysis_2), ## runs get_power() with default values
+  pre_register(design = design, data = mock, analysis = list(analysis_1, analysis_2), 
+               ## runs get_power() with default values; assigns treat and outcome based on default names defined in analysis object
                registration_title = "Lady Tasting Tea", 
                registration_authors = c("Ronald A. Fisher"), 
                registration_abstract = "Description of the lady tasting tea experiment",
