@@ -50,8 +50,8 @@ library(preregister)
   # (this substitutes standard normals for the covariates in the formula), or both 
   # the potential_outcomes and the covariate_object. It can also handle fixed covariates.
   
-  mock          <- make_data(potential_outcomes = po_object,covariates = cov_object)
-  
+  mock          <- make_data(potential_outcomes = po_object, covariates = cov_object)
+
   design        <- declare_design(block_var = mock$blocks_id)
 
   analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
