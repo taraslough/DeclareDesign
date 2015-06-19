@@ -6,37 +6,46 @@ library(preregister)
 
 ##test_that("test workflow", {
   
-  ## dgp
-  #  1 covs
-  cov_dgp = function(means, sds, N_per_cluster = 10, f = rnorm) {
-    # This is two level DGP; can be generalized
-    L1 <- as.vector(sapply(1:length(means), function(j) rep(j, N_per_cluster)))
-    L2 <- as.vector(sapply(1:length(means), function(j) f(N_per_cluster, means[j], sds[j])))
-    data.frame(L1,L2)  
-  }
+  # Takes arbitrary number of nested levels (will implement non-nested levels later)
+  # You either put each successive level in as a list, or if you only have 1 level you
+  # can just enter the covariates into declare_covariates() as is
   
-  ## 2  add potential outcomes
-  po_dgp = function(covs, betas = c(0,1), shockfn = function(x) rnorm(x,0,1), ate = 1){
-    Y_0 <- as.matrix(covs)%*%as.matrix(betas) + shockfn(nrow(covs))
-    Y_1 <- Y_0+ate
-    data.frame(Y_0, Y_1)
-  }
+  cov_object <- declare_covariates(
+    individuals = list(
+      income = declare_variable(),
+      female = declare_variable(binary_probability = .5)),
+    villages = list(
+      development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
+    ),
+    blocks = list(
+      block = function()sample(1:4)
+    ),
+    N_per_level = c(100,20,4),
+    lower_units_per_level = list(
+      individuals = rep(1,100), 
+      villages = rep(5,20),
+      blocks = rep(5,4)
+    ))
   
-  # Sample implementation of everything
+  # You can declare an arbitrary number of potential outcomes using condition_names and outcome_formula
   
-  covs          <- cov_dgp(c(1:3), c(1,1,0))
-  ## this will be changed to declare_covariates (takes declare_variable objects), then make_covariates
-  ## this uses "level" as word rather than "cluster"
+  po_object     <-  declare_potential_outcomes(
+    condition_names = c("Z0","Z1"),
+    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income + .1*female + .1*development_level,
+    cluster_variable = "villages_id",
+    ICC = .2
+  )
   
-  podata        <- po_dgp(covs, ate = 0.1)
+  # Make data is flexible: it can take just a covariate_object, just a PO_object 
+  # (this substitutes standard normals for the covariates in the formula), or both 
+  # the potential_outcomes and the covariate_object. It can also handle fixed covariates.
   
-  design        <- declare_design(block_var = covs$L1)
+  mock          <- make_data(potential_outcomes = po_object,covariates = cov_object)
   
-  mock          <- cbind(podata, covs) ## temp
-    ##make_data_frame(covariates = covs, potential_outcomes = podata)
-  
+  design        <- declare_design(block_var = mock$blocks_id)
+
   analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
-  analysis_2      <- declare_analysis(formula = Y ~ Z + as.factor(L2), treatment_variable = "Z", design = design, method = "lm") ## "robustness check"
+  analysis_2      <- declare_analysis(formula = Y ~ Z + as.factor(villages_id), treatment_variable = "Z", design = design, method = "lm") ## "robustness check"
 
   power_1         <- get_power(sims = 100, analysis = analysis_1, design = design, data = mock)
   power_2         <- get_power(sims = 100, analysis = analysis_2, design = design, data = mock)
