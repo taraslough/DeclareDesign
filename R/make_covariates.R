@@ -1,6 +1,6 @@
 #' Create covariates for the experiment
 #'
-#' @param ... A list of DGP_objects (of the form variable = declare_DGP(...)), or functions that generate random numbers, of the form variable = function()rng(...)
+#' @param ... A list of DGP_objects (of the form variable = declare_variable(...)), or functions that generate random numbers, of the form variable = function()rng(...)
 #' @param design_object The object created by declare_design
 #' @param N The number of observations.   
 #' @export
@@ -15,14 +15,11 @@ declare_covariates <-
                  variable_names <- names(variable_list)
              make_X_matrix <-
                function(){
-             
-                 
-                 
                  fun.list <- lapply(variable_list,function(variable) {
                    
                    if (!class(variable) %in% c("function","DGP_object")) {
                      stop(
-                       "Variables should either be random number functions or of DGP_object (see declare_DGP())"
+                       "Variables should either be random number functions or of DGP_object (see declare_variable())"
                      )
                    }
                    if (class(variable) == "function") {

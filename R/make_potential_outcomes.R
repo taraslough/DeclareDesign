@@ -9,7 +9,7 @@ declare_potential_outcomes <-
     covariate_object,
     design_object,
     outcome_formula,
-    outcome_DGP = declare_DGP(),
+    outcome_DGP = declare_variable(),
     cluster_variable = NULL,
     N_per_cluster = NULL,
     ICC = .01,

@@ -25,7 +25,7 @@ library(preregister)
   # Sample implementation of everything
   
   covs          <- cov_dgp(c(1:3), c(1,1,0))
-  ## this will be changed to declare_covariates (takes declare_dgp objects), then make_covariates
+  ## this will be changed to declare_covariates (takes declare_variable objects), then make_covariates
   ## this uses "level" as word rather than "cluster"
   
   podata        <- po_dgp(covs, ate = 0.1)

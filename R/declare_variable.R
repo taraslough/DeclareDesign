@@ -1,10 +1,8 @@
 #' Declare the data-generating process of a variable
 #'
-#' @param variable_name The name of your new variable 
 #' @param linear_mean If the variable is linear 
 #' @export
-declare_DGP <- function(
-  # variable_name = "my_variable",
+declare_variable <- function(
   linear_mean        = NULL,
   linear_sd          = NULL,
   binary_probability = NULL,
@@ -21,13 +19,13 @@ declare_DGP <- function(
         "Please enter parameters for only one kind of variable (linear, binary or multinomial).")}
     if(!is.null(linear_mean)){
       if(!is.null(linear_sd)){
-        variable <- list(#name = variable_name,
+        variable <- list(
           distribution = "normal",
           mean = linear_mean,
           sd = linear_sd
         )
       }
-      variable <- list(#name = variable_name,
+      variable <- list(
         distribution = "normal",
         mean = linear_mean,
         sd = linear_mean*.10+1
@@ -35,29 +33,28 @@ declare_DGP <- function(
     }
     if(!is.null(binary_probability)){
       if(!is.null(binary_categories)){
-        variable <- list(#name = variable_name,
+        variable <- list(
           distribution = "binary",
           probability = binary_probability,
           categories = binary_categories
         )
       }else{
-        variable <- list(#name = variable_name,
+        variable <- list(
           distribution = "binary",
           probability = binary_probability,
-          categories = c(0,1) # When it's binary, check if cats are numeric or 
-          # string. Make factor when string.  
+          categories = c(0,1) 
         )
       }
     }
     if(!is.null(multinomial_probabilities)){
       if(!is.null(multinomial_categories)){
-        variable <- list(#name = variable_name,
+        variable <- list(
           distribution = "multinomial",
           probability = multinomial_probabilities,
           categories = multinomial_categories
         )
       }else{
-        variable <- list(#name = variable_name,
+        variable <- list(
           distribution = "multinomial",
           probability = multinomial_probabilities,
           categories = 1:length(multinomial_probabilities) 
@@ -71,7 +68,7 @@ declare_DGP <- function(
         multinomial = list(multinomial_probabilities,multinomial_categories)),
       FUN = function(i)unlist(lapply(i,is.null)))) 
     ){
-        variable <- list(#name = variable_name,
+        variable <- list(
           distribution = "normal",
           mean = 0,
           sd = 1

@@ -9,13 +9,13 @@ test_that("make covariates works", {
                              condition_names=c("control", "placebo", "treatment"))
   
   covariate_object_1 <- make_covariates(
-    X1 = declare_DGP(),
-    X2 = declare_DGP(),
-    event = declare_DGP(binary_probability = .5,
+    X1 = declare_variable(),
+    X2 = declare_variable(),
+    event = declare_variable(binary_probability = .5,
                         binary_categories = c("happened","did not")),
     income = function()rnorm(n = design_6$N,mean = 0,sd = 1),
     count = function()rpois(n = design_6$N,lambda = 30),
-    party_id = declare_DGP(
+    party_id = declare_variable(
       multinomial_probabilities = c(.4,.4,.2),
       multinomial_categories = c("D","R","I")),
     design_object = design_6
@@ -25,21 +25,21 @@ test_that("make covariates works", {
   
 })
 
-test_that("declare_DGP works", {
+test_that("declare_variable works", {
 
   skip("skipping now because not working")
   
-  declare_DGP()
+  declare_variable()
   
-  declare_DGP(linear_mean = 1000,
+  declare_variable(linear_mean = 1000,
               linear_sd = 100)
   
-  declare_DGP(variable_name = "Event",
+  declare_variable(variable_name = "Event",
               binary_probability = .8,
               binary_categories = c("Did not happen","Happened")
   )
   
-  declare_DGP(variable_name = "Party_ID",
+  declare_variable(variable_name = "Party_ID",
               multinomial_probabilities = c(.4,.4,.2),
               multinomial_categories = c("D","R","I")
   )
@@ -59,9 +59,9 @@ test_that("make_potential_outcomes works", {
   )
   
   covariate_object <- make_covariates(
-    X1 = declare_DGP(),
-    X2 = declare_DGP(),
-    event = declare_DGP(binary_probability = .5,
+    X1 = declare_variable(),
+    X2 = declare_variable(),
+    event = declare_variable(binary_probability = .5,
                         binary_categories = c("happened","did not")),
     income = function()rnorm(n = design_6$N,mean = 0,sd = 1),
     count = function()rpois(n = design_6$N,lambda = 30),
@@ -91,7 +91,7 @@ test_that("make_potential_outcomes works", {
         .02*X1  + .02*X2  + 
         .02*(as.character(event)=="happened")  + 
         .02*income  + .02*count,
-      outcome_DGP = declare_DGP(binary_probability = .2), # Outcome declared binary here
+      outcome_DGP = declare_variable(binary_probability = .2), # Outcome declared binary here
       ICC = .3
     )
   
@@ -110,7 +110,7 @@ test_that("make_potential_outcomes works", {
         .02*X1  + .02*X2  + 
         .02*(as.character(event)=="happened")  + 
         .02*income  + .02*count,
-      outcome_DGP = declare_DGP(binary_probability = .2), # Outcome declared binary here
+      outcome_DGP = declare_variable(binary_probability = .2), # Outcome declared binary here
       ICC = .3
     )
   
