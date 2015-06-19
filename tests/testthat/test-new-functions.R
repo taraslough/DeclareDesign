@@ -23,14 +23,10 @@ library(preregister)
     villages = list(
       development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
     ),
-    blocks = list(
-      block = function()sample(1:4)
-    ),
-    N_per_level = c(100,20,4),
+    N_per_level = c(1000,200),
     lower_units_per_level = list(
-      individuals = rep(1,100), 
-      villages = rep(5,20),
-      blocks = rep(5,4)
+      individuals = rep(1,1000), 
+      villages = rep(5, 200)
     ))
   
   # You can declare an arbitrary number of potential outcomes using condition_names and outcome_formula
@@ -41,7 +37,7 @@ library(preregister)
   po_object     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income + .1*female + .1*development_level,
-    outcome_variable_DGP = declare_variable(linear_mean = 0,linear_sd = 1),
+    outcome_variable_DGP = declare_variable(linear_mean = 0, linear_sd = 1),
     cluster_variable = "villages_id",
     ICC = .2
   )
@@ -52,11 +48,11 @@ library(preregister)
   
   mock          <- make_data(potential_outcomes = po_object, covariates = cov_object)
 
-  design        <- declare_design(block_var = mock$blocks_id)
+  design        <- declare_design(clust_var = mock$village)
 
   analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
-  analysis_2      <- declare_analysis(formula = Y ~ Z + as.factor(villages_id), treatment_variable = "Z", design = design, method = "lm") ## "robustness check"
-
+  analysis_2      <- declare_analysis(formula = Y ~ Z + income + female, treatment_variable = "Z", design = design, method = "lm") ## "robustness check"
+  analysis <- analysis_1
   power_1         <- get_power(sims = 100, analysis = analysis_1, design = design, data = mock)
   power_2         <- get_power(sims = 100, analysis = analysis_2, design = design, data = mock)
 
@@ -67,7 +63,8 @@ library(preregister)
   M2             <- run_analysis(analysis = analysis_2, data = mock)  
 
   ##pre_register(covs, podata, design, mock, analyze, power)
-  pre_register(design = design, data = mock, analysis = list(analysis_1, analysis_2), 
+  pre_register(design_declaration = design, covariates_declaration = cov_object, 
+               potential_outcomes_declaration = po_object, analysis_declaration = analysis, 
                ## runs get_power() with default values; assigns treat and outcome based on default names defined in analysis object
                registration_title = "Lady Tasting Tea", 
                registration_authors = c("Ronald A. Fisher"), 

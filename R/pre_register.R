@@ -40,7 +40,7 @@
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @importFrom rmarkdown render
 #' @export
-pre_register <- function(design, data, analysis, 
+pre_register <- function(design_declaration, covariates_declaration, potential_outcomes_declaration, analysis_declaration, 
                          registration_title, registration_authors, registration_abstract,
                          random.seed = 42, dir = getwd(), temp.dir = FALSE, type = "rmarkdown",
                          make_output = TRUE, output_format = "pdf", keep_tex = FALSE, 
@@ -72,15 +72,36 @@ pre_register <- function(design, data, analysis,
   
   ## writes Rmd rmarkdown file
   ## send it a set of character objects
+  i <- 1
   cat_doc(
     title_header(title = registration_title, authors = registration_authors, 
                  abstract = registration_abstract, keep_tex = keep_tex),
+    code_snippet("library(preregister)\nlibrary(xtable)"),
     code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
                  random.seed, ")"),
+    code_snippet("cov <- ", covariates_declaration$call, "\n", 
+      "po <- ", potential_outcomes_declaration$call, "\n", 
+      "mock <- make_data(potential_outcomes = po, covariates = cov)", "\n",
+      "design <- ", design_declaration$call, "\n", 
+      "analysis <- ", analysis_declaration$call, "\n",
+      "mock$Z <- assign_treatment(design)", "\n",
+      "mock$Y <- observed_outcome(outcome = 'Y', treatment_assignment = 'Z', data = mock)"
+    ),
     tex_header("Hypotheses", 1),
+    "Please write your hypotheses here. Be sure to explain each declared analysis.",
     tex_header("Experimental Design", 1),
+    code_snippet("summary(design)"),
+    "Please describe your experimental conditions and randomization protocol.",
+    ##for(i in 1:length(analysis)){
+      tex_header(paste("Power for analysis", i), 2),
+      code_snippet(paste("cat(\"The power of analysis ", i, " is \", get_power(design = design, analysis = analysis, data = mock), sep = \"\")")),
+    ##}
     tex_header("Results", 1),
-    ##code_snippet(analysis$call)
+    ##code_snippet("mock <- make_data(potential_outcomes = po, covariates = cov)")
+    ##for(i in 1:length(analysis)){
+      tex_header(paste("Simulated results for analysis", i), 2),
+      code_snippet("print(xtable(run_analysis(analysis, data = mock), caption = \"Analysis 1 Results based on Simulated Data\"), comment = FALSE)"),
+    ##}
     
     filename = paste(dir, "/", file, ".Rmd", sep = "")
   )

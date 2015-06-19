@@ -36,7 +36,7 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data){
   for(v in treat_vals){
     treat_cond <- data[,treatment_assignment] == v & 
       is.na(data[,treatment_assignment]) == F ## is.na is temporary
-    observed_y[treat_cond] <- data[treat_cond, paste(outcome, "_", v, sep = "")]
+    observed_y[treat_cond] <- data[treat_cond, paste0(outcome, "_Z", v)]
   }
   
   return(observed_y)

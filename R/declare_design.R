@@ -272,7 +272,7 @@ summary.design <- function(object, ...) {
 #' @export
 print.summary.design <- function(x, ...){
   ## prints paragraph describing design
-
+  cat("This is a description of the design. Most importantly, N =", x$N)
 }
  
 #' @export

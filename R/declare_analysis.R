@@ -20,8 +20,11 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm",
   ##  formula2 <- substitute(formula, list(outcome_variable = as.name(Y)))
   ##if(!missing(Z) & Z != treatment_variable)
   ##  formula <- substitute(formula, list(treatment_variable = as.name(Z)))
-  
+  formula_has_intercept <- attr(terms.formula(formula), "intercept")
   formula_rhs <- attr(terms.formula(formula), "term.labels")
+  if(formula_has_intercept == 1)
+    formula_rhs <- c("(Intercept)", formula_rhs)
+  
   if(!any(formula_rhs== treatment_variable))
     stop(paste("The treatment variable set in treatment_variable,", treatment_variable, ", 
                does not appear in the formula.", sep = ""))
@@ -63,7 +66,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm",
       test_success <- "treatment-coefficient-significant"
     
     if(test_success == "treatment-coefficient-significant"){      
-      treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable)
+      treat_coef_num <- which(formula_rhs == treatment_variable)
       
       test_success <- function(results, k = treat_coef_num #Y = NULL, Z = NULL, 
                                ) {

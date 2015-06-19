@@ -4,7 +4,7 @@
 #' @param covariates A covariate_object made with declare_covariates(), or a pre-existing dataframe
 #' @param N If covariates are provided, this argument is ignored.
 #' @export
-make_data <- function(potential_outcomes = NULL,covariates = NULL,N = NULL){
+make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL){
 
   if(is.null(covariates)&is.null(potential_outcomes))stop(
     "You must provide at least covariates or a potential outcomes object."

@@ -6,7 +6,7 @@
 \alias{test_success}
 \title{Declare an experimental analysis}
 \usage{
-declare_analysis(formula, treatment_variable = "Z", method,
+declare_analysis(formula, treatment_variable = "Z", method = "lm",
   test_success = "treatment-coefficient-significant", alpha = 0.05, ...)
 
 test_success(analysis, finished_analysis = NULL, data, Y = NULL, Z = NULL)
