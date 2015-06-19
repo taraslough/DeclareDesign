@@ -7,8 +7,14 @@ library(preregister)
 ##test_that("test workflow", {
   
   # Takes arbitrary number of nested levels (will implement non-nested levels later)
-  # You either put each successive level in as a list, or if you only have 1 level you
-  # can just enter the covariates into declare_covariates() as is
+  # You either simply list all of your covariates (for a 1-level data structure),
+  # or put each successive level in as a list of variables contained at that level 
+  # (i.e. the unit-level variables, the cluster-level variables, the block-level variables)
+  # There is some trickiness about how to automate the numeric descriptions of the number of
+  # levels within levels a bit better. 
+  # Level ids generated automatically depending on how the list is named. 
+  # It should be noted that the function does not produce dataframes that are sensitive to ordering.
+  # Also user-programmed RNGs can be used in place of DGP_objects made with declare_variable()
   
   cov_object <- declare_covariates(
     individuals = list(
@@ -28,10 +34,14 @@ library(preregister)
     ))
   
   # You can declare an arbitrary number of potential outcomes using condition_names and outcome_formula
+  # This function allows for `extra' unobserved clustering among the outcomes 
+  # Future versions should allow for the inclusion of factor variables, but it is a little 
+  # tricky to reverse engineer these (better if user just puts in dummies)
   
   po_object     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income + .1*female + .1*development_level,
+    outcome_variable_DGP = declare_variable(linear_mean = 0,linear_sd = 1),
     cluster_variable = "villages_id",
     ICC = .2
   )
