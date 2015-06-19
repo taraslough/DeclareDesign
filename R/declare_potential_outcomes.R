@@ -15,8 +15,9 @@ declare_potential_outcomes <-
         "All conditions must be included as variables in the outcome formula."
       )
       outcomes_object <- list(
-        condition_names = condition_names,
-        outcome_formula = outcome_formula,
+        condition_names  = condition_names,
+        outcome_formula  = outcome_formula,
+        outcome_name     = all.vars(outcome_formula)[1],
         outcome_variable = outcome_variable_DGP,
         cluster_variable = cluster_variable,
         ICC = .01,
