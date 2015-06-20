@@ -26,17 +26,19 @@ assign_treatment <- function(design, ...) {
 #' @examples
 #' # some examples go here
 #' @export
-observed_outcome <- function(outcome = "Y", treatment_assignment, data){
+observed_outcome <- function(outcome = "Y", treatment_assignment, design, data, sep = "_"){
+  
+  ## get condition names from design
   
   if(any(is.na(data[,treatment_assignment]))>0)
     warning("There are NA's in the treatment assignment vector.")
 
   observed_y <- rep(NA, nrow(data))
-  treat_vals <- unique(data[,treatment_assignment])
-  for(v in treat_vals){
-    treat_cond <- data[,treatment_assignment] == v & 
+  condition_names <- design$condition_names 
+  for(v in condition_names){
+    treat_cond <- data[,treatment_assignment] == (which(condition_names %in% v) - 1) & 
       is.na(data[,treatment_assignment]) == F ## is.na is temporary
-    observed_y[treat_cond] <- data[treat_cond, paste0(outcome, "_Z", v)]
+    observed_y[treat_cond] <- data[treat_cond, paste0(outcome, sep, v)]
   }
   
   return(observed_y)
