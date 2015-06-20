@@ -35,7 +35,7 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, design, data, 
   observed_y <- rep(NA, nrow(data))
   condition_names <- design$condition_names 
   for(v in condition_names){
-    treat_cond <- data[,treatment_assignment] == (which(condition_names %in% v) - 1)
+    treat_cond <- data[,treatment_assignment] == v
     observed_y[treat_cond] <- data[treat_cond, paste0(outcome, sep, v)]
   }
   

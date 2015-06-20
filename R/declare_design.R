@@ -276,8 +276,8 @@ print.summary.design <- function(x, ...){
 }
  
 #' @export
-assign_treatment <- function(x) {
-    return(x$ra_fun())
+assign_treatment <- function(design) {
+    return(design$ra_fun())
 }
 
 #' @export

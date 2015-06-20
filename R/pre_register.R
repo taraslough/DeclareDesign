@@ -85,7 +85,7 @@ pre_register <- function(design_declaration, covariates_declaration, potential_o
       "design <- ", design_declaration$call, "\n", 
       "analysis <- ", analysis_declaration$call, "\n",
       "mock$Z <- assign_treatment(design)", "\n",
-      "mock$Y <- observed_outcome(outcome = 'Y', treatment_assignment = 'Z', data = mock)"
+      "mock$Y <- observed_outcome(outcome = 'Y', treatment_assignment = 'Z', design = design, data = mock)"
     ),
     tex_header("Hypotheses", 1),
     "Please write your hypotheses here. Be sure to explain each declared analysis.",
