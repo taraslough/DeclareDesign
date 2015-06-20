@@ -1,12 +1,71 @@
 ---
-title: "How to Pre-Register a Simple Experimental Design using the `registration` package"
-author: "EGAP"
+title: "How to Pre-Register a Simple Experimental Design using the registration package"
+author: "Experiments in Governance and Politics"
 date: "`r Sys.Date()`"
-output: rmarkdown::pdf_vignette
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Pre-Register Simple Experiment}
+  %\VignetteIndexEntry{How to Pre-Register a Simple Experimental Design using the registration package}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 ---
 
-This vignette demonstrates how to pre-register a simple experimental design using the `registration` package.
+This vignette demonstrates how to pre-register a simple experimental design using the registration package. 
+
+```{r, echo = FALSE}
+library(registration)
+```
+
+First, we define a set of covariates that will be simulated to conduct power analysis and for simulated analyses.
+
+```{r covariates}
+cov_object <- declare_covariates(
+  individuals = list(
+    income = declare_variable(),
+    female = declare_variable(binary_probability = .5)),
+  villages = list(
+    development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
+    ),
+  N_per_level = c(100,20),
+  lower_units_per_level = list(
+    individuals = rep(1,100), 
+    villages = rep(5,20)
+    ))
+```
+
+Second, we define the potential outcomes, which will also be simulated.
+
+```{r}
+po_object     <-  declare_potential_outcomes(
+  condition_names = c("Z0","Z1"),
+  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income + .1*female,
+  cluster_variable = "villages_id",
+  ICC = .2
+)
+```
+
+Third, we make a simulated data set and then declare the design.
+
+```{r}
+mock          <- make_data(potential_outcomes = po_object, covariates = cov_object)
+design        <- declare_design(clust_var = mock$villages_id, 
+                                condition_names = po_object$condition_names)
+```
+
+Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
+
+
+```{r}
+analysis      <- declare_analysis(formula = Y ~ Z + income + female, treatment_variable = "Z",
+                                    design = design, method = "lm")
+```
+
+Finally, we use the pre_register function to create the pre-registration document.
+
+```{r}
+pre_register(design = design, covariates = cov_object, 
+             potential_outcomes = po_object, analysis = analysis, 
+             registration_title = "Lady Tasting Tea", 
+             registration_authors = c("Ronald A. Fisher"), 
+             registration_abstract = "Description of the lady tasting tea experiment",
+             temp_dir = TRUE)
+```

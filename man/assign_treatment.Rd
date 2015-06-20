@@ -4,7 +4,7 @@
 \alias{assign_treatment}
 \title{Assign treatment status}
 \usage{
-assign_treatment(x)
+assign_treatment(design)
 }
 \arguments{
 \item{design}{A design object created by declare_design; or a function that assigns treatment}

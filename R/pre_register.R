@@ -33,6 +33,7 @@
 #' @param random.seed Random seed to ensure reproducibility of the design.
 #' @param file File name where object is saved.
 #' @param type Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.
+#' @param check_registration Indicates whether the design is evaluated for consistency with declared analyses.
 #' @param make_output Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document
 #' @param output_format String indicating which type of output file is created, "pdf" (default), "word", or "html"
 #' @param open_output Indicator for whether the output file is opened after it is compiled.
@@ -40,27 +41,22 @@
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @importFrom rmarkdown render
 #' @export
-pre_register <- function(design_declaration, covariates_declaration, potential_outcomes_declaration, analysis_declaration, 
+pre_register <- function(design, covariates, potential_outcomes, analysis, 
                          registration_title, registration_authors, registration_abstract,
-                         random.seed = 42, dir = getwd(), temp.dir = FALSE, type = "rmarkdown",
+                         random.seed = 42, dir = getwd(), temp_dir = FALSE, type = "rmarkdown",
+                         check_registration = TRUE,
                          make_output = TRUE, output_format = "pdf", keep_tex = FALSE, 
                          open_output = TRUE, ...){
+  
+  if(check_registration == TRUE)
+    check_registration(design = design, analysis = analysis, covariates = covariates, 
+                 potential_outcomes = potential_outcomes)
   
   if(type != "rmarkdown")
     stop("Type must be 'rmarkdown' in the first version.")
   
-  ## master loop of analyses
-  ##power <- list()
-  ##for(a in length(analysis)){
-  
-  ## need print of power of analysis and then analysis
-  
-  ##power[[a]] <- get_power(analysis = analysis[[a]], data = data, design = design)
-  
-  ##}
-  
   ## create temp dir if user does not supply one
-  if(temp.dir == TRUE)
+  if(temp_dir == TRUE)
     dir <- tempdir()
   
   file <- paste("registration-", format(Sys.time(), "%d-%b-%Y-%Hh%Mm%Ss"), sep = "")
@@ -76,16 +72,16 @@ pre_register <- function(design_declaration, covariates_declaration, potential_o
   cat_doc(
     title_header(title = registration_title, authors = registration_authors, 
                  abstract = registration_abstract, keep_tex = keep_tex),
-    code_snippet("library(preregister)\nlibrary(xtable)"),
+    code_snippet("library(registration) \n library(xtable)"),
     code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
                  random.seed, ")"),
-    code_snippet("cov <- ", covariates_declaration$call, "\n", 
-      "po <- ", potential_outcomes_declaration$call, "\n", 
-      "mock <- make_data(potential_outcomes = po, covariates = cov)", "\n",
-      "design <- ", design_declaration$call, "\n", 
-      "analysis <- ", analysis_declaration$call, "\n",
-      "mock$Z <- assign_treatment(design)", "\n",
-      "mock$Y <- observed_outcome(outcome = 'Y', treatment_assignment = 'Z', design = design, data = mock)"
+    code_snippet("cov <- ", covariates$call, "\n", 
+                 "po <- ", potential_outcomes$call, "\n", 
+                 "mock <- make_data(potential_outcomes = po, covariates = cov)", "\n",
+                 "design <- ", design$call, "\n", 
+                 "analysis <- ", analysis$call, "\n",
+                 "mock$Z <- assign_treatment(design)", "\n",
+                 "mock$Y <- observed_outcome(outcome = 'Y', treatment_assignment = 'Z', design = design, data = mock)"
     ),
     tex_header("Hypotheses", 1),
     "Please write your hypotheses here. Be sure to explain each declared analysis.",
@@ -93,14 +89,14 @@ pre_register <- function(design_declaration, covariates_declaration, potential_o
     code_snippet("summary(design)"),
     "Please describe your experimental conditions and randomization protocol.",
     ##for(i in 1:length(analysis)){
-      tex_header(paste("Power for analysis", i), 2),
-      code_snippet(paste("cat(\"The power of analysis ", i, " is \", get_power(design = design, analysis = analysis, data = mock), sep = \"\")")),
+    tex_header(paste("Power for analysis", i), 2),
+    code_snippet(paste("cat(\"The power of analysis ", i, " is \", get_power(design = design, analysis = analysis, data = mock), sep = \"\")")),
     ##}
     tex_header("Results", 1),
     ##code_snippet("mock <- make_data(potential_outcomes = po, covariates = cov)")
     ##for(i in 1:length(analysis)){
-      tex_header(paste("Simulated results for analysis", i), 2),
-      code_snippet("print(xtable(run_analysis(analysis, data = mock), caption = \"Analysis 1 Results based on Simulated Data\"), comment = FALSE)"),
+    tex_header(paste("Simulated results for analysis", i), 2),
+    code_snippet("print(xtable(run_analysis(analysis, data = mock), caption = \"Analysis 1 Results based on Simulated Data\"), comment = FALSE)"),
     ##}
     
     filename = paste(dir, "/", file, ".Rmd", sep = "")

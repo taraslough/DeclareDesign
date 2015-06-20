@@ -4,14 +4,17 @@
 \alias{pre_register}
 \title{Create pre-registration document}
 \usage{
-pre_register(design_declaration, covariates_declaration,
-  potential_outcomes_declaration, analysis_declaration, registration_title,
-  registration_authors, registration_abstract, random.seed = 42,
-  dir = getwd(), temp.dir = FALSE, type = "rmarkdown",
-  make_output = TRUE, output_format = "pdf", keep_tex = FALSE,
-  open_output = TRUE, ...)
+pre_register(design, covariates, potential_outcomes, analysis,
+  registration_title, registration_authors, registration_abstract,
+  random.seed = 42, dir = getwd(), temp.dir = FALSE, type = "rmarkdown",
+  check_design = TRUE, make_output = TRUE, output_format = "pdf",
+  keep_tex = FALSE, open_output = TRUE, ...)
 }
 \arguments{
+\item{design}{A design object from the declare_design function.}
+
+\item{analysis}{An analysis object from the declare_analysis function, or a list of analysis objects.}
+
 \item{registration_title}{Title of the pre-registration.}
 
 \item{registration_authors}{List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.}
@@ -22,6 +25,8 @@ pre_register(design_declaration, covariates_declaration,
 
 \item{type}{Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.}
 
+\item{check_design}{Indicates whether the design is evaluated for consistency with declared analyses.}
+
 \item{make_output}{Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document}
 
 \item{output_format}{String indicating which type of output file is created, "pdf" (default), "word", or "html"}
@@ -30,11 +35,7 @@ pre_register(design_declaration, covariates_declaration,
 
 \item{...}{Other options for the render() command to create the output file from the markdown code.}
 
-\item{design}{A design object from the declare_design function.}
-
 \item{data}{A data object from the make_y function.}
-
-\item{analysis}{An analysis object from the declare_analysis function, or a list of analysis objects.}
 
 \item{file}{File name where object is saved.}
 }

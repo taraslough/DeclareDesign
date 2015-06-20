@@ -4,7 +4,8 @@
 \alias{observed_outcome}
 \title{Reveal observed outcomes based on a given treatment assignment}
 \usage{
-observed_outcome(outcome = "Y", treatment_assignment, data)
+observed_outcome(outcome = "Y", treatment_assignment, design, data,
+  sep = "_")
 }
 \arguments{
 \item{outcome}{A character string}
