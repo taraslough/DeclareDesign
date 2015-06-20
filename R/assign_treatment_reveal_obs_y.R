@@ -26,7 +26,7 @@ assign_treatment <- function(design, ...) {
 #' @examples
 #' # some examples go here
 #' @export
-observed_outcome <- function(outcome = "Y", treatment_assignment, data){
+observed_outcome <- function(outcome = "Y", treatment_assignment, data,sep = "_"){
   
   if(any(is.na(data[,treatment_assignment]))>0)
     warning("There are NA's in the treatment assignment vector.")
@@ -36,7 +36,7 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data){
   for(v in treat_vals){
     treat_cond <- data[,treatment_assignment] == v & 
       is.na(data[,treatment_assignment]) == F ## is.na is temporary
-    observed_y[treat_cond] <- data[treat_cond, paste0(outcome, "_Z", v)]
+    observed_y[treat_cond] <- data[treat_cond, paste0(outcome, sep, v)]
   }
   
   return(observed_y)
