@@ -6,8 +6,8 @@
 \usage{
 pre_register(design, covariates, potential_outcomes, analysis,
   registration_title, registration_authors, registration_abstract,
-  random.seed = 42, dir = getwd(), temp.dir = FALSE, type = "rmarkdown",
-  check_design = TRUE, make_output = TRUE, output_format = "pdf",
+  random.seed = 42, dir = getwd(), temp_dir = FALSE, type = "rmarkdown",
+  check_registration = TRUE, make_output = TRUE, output_format = "pdf",
   keep_tex = FALSE, open_output = TRUE, ...)
 }
 \arguments{
@@ -25,7 +25,7 @@ pre_register(design, covariates, potential_outcomes, analysis,
 
 \item{type}{Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.}
 
-\item{check_design}{Indicates whether the design is evaluated for consistency with declared analyses.}
+\item{check_registration}{Indicates whether the design is evaluated for consistency with declared analyses.}
 
 \item{make_output}{Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document}
 
