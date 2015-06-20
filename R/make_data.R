@@ -4,7 +4,7 @@
 #' @param covariates A covariate_object made with declare_covariates(), or a pre-existing dataframe
 #' @param N If covariates are provided, this argument is ignored.
 #' @export
-make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL){
+make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep = "_"){
 
   if(is.null(covariates)&is.null(potential_outcomes))stop(
     "You must provide at least covariates or a potential outcomes object."
@@ -72,7 +72,7 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL){
   )}
   # Apply that function through the covariate matrix to get the potential outcomes
   outcomes     <- data.frame(t(sapply(1:dim(X)[1],function(i)each_treat(X[i,]))))
-  names(outcomes) <- paste0(outcome_name,"_",condition_names)
+  names(outcomes) <- paste0(outcome_name,sep,condition_names)
   
   if(!is.null(ICC)&!is.null(cluster_var_name)){
     cluster_variance <- ICC*unit_variance/(1-ICC)

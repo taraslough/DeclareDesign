@@ -48,7 +48,7 @@ library(preregister)
   
   mock          <- make_data(potential_outcomes = po_object, covariates = cov_object)
 
-  design        <- declare_design(clust_var = mock$village)
+  design        <- declare_design(clust_var = mock$village,condition_names = po_object$condition_names)
 
   analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
   analysis_2      <- declare_analysis(formula = Y ~ Z + income + female, treatment_variable = "Z", design = design, method = "lm") ## "robustness check"
