@@ -8,4 +8,5 @@
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
+vignettes/.*
 .Rproj.user
