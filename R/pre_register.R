@@ -50,7 +50,7 @@ pre_register <- function(design, covariates, potential_outcomes, analysis,
   
   if(check_registration == TRUE)
     check_registration(design = design, analysis = analysis, covariates = covariates, 
-                 potential_outcomes = potential_outcomes)
+                       potential_outcomes = potential_outcomes)
   
   if(type != "rmarkdown")
     stop("Type must be 'rmarkdown' in the first version.")
@@ -75,57 +75,60 @@ pre_register <- function(design, covariates, potential_outcomes, analysis,
     code_snippet("library(registration) \n library(xtable)"),
     code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
                  random.seed, ")"),
-    code_snippet("cov <- ", covariates$call, "\n", 
-                 "po <- ", potential_outcomes$call, "\n", 
-                 "mock <- make_data(potential_outcomes = po, covariates = cov)", "\n",
-                 "design <- ", design$call, "\n", 
-                 "analysis <- ", analysis$call, "\n",
-                 "mock$Z <- assign_treatment(design)", "\n",
-                 "mock$Y <- observed_outcome(outcome = 'Y', treatment_assignment = 'Z', design = design, data = mock)"
+    code_snippet("cov <- ", covariates$call, "\n\n", 
+                 "po <- ", potential_outcomes$call, "\n\n", 
+                 "mock <- make_data(potential_outcomes = po, covariates = cov)", "\n\n",
+                 "design <- ", design$call, "\n\n", 
+                 paste(sapply(1:length(analysis), 
+                              function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
+                       collapse = ""),
+                 "mock$Z <- assign_treatment(design)", "\n\n",
+                 paste(sapply(1:length(analysis), 
+                              function(x) paste0("mock[, analysis_outcome_variable(analysis_", x, ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, "), treatment_assignment = 'Z', design = design, data = mock) \n")), collapse = "")
     ),
     tex_header("Hypotheses", 1),
     "Please write your hypotheses here. Be sure to explain each declared analysis.",
     tex_header("Experimental Design", 1),
     code_snippet("summary(design)"),
     "Please describe your experimental conditions and randomization protocol.",
-    ##for(i in 1:length(analysis)){
-    tex_header(paste("Power for analysis", i), 2),
-    code_snippet(paste("cat(\"The power of analysis ", i, " is \", get_power(design = design, analysis = analysis, data = mock), sep = \"\")")),
-    ##}
+    tex_header("Power analysis", 2),
+    code_snippet(paste0("cat(\"The power of analysis ", 1:length(analysis), 
+                 " is \", get_power(design = design, analysis = analysis_", 1:length(analysis), 
+                 ", data = mock), \". \", sep = \"\")\n\n")),
     tex_header("Results", 1),
-    ##code_snippet("mock <- make_data(potential_outcomes = po, covariates = cov)")
-    ##for(i in 1:length(analysis)){
-    tex_header(paste("Simulated results for analysis", i), 2),
-    code_snippet("print(xtable(run_analysis(analysis, data = mock), caption = \"Analysis 1 Results based on Simulated Data\"), comment = FALSE)"),
-    ##}
-    
-    filename = paste(dir, "/", file, ".Rmd", sep = "")
-  )
+    paste(sapply(1:length(analysis), function(x) { 
+      paste(tex_header(paste("Simulated results for analysis", x), 2), "\n",
+      code_snippet("print(xtable(run_analysis(analysis_", x, 
+                   ", data = mock), caption = \"Analysis ", x,
+                   " Results with Simulated Data\"), comment = FALSE)"), "\n\n", collapse = "")   
+      }), collapse = ""),
+filename = paste(dir, "/", file, ".Rmd", sep = "")
+)
+
+cat("\nRegistration raw document (markdown .Rmd file) saved in ", dir, "/", file, ".Rmd\n", sep = "")
+
+## compile Rmd into a PDF or Word doc if requested
+if(make_output == TRUE){
+  output_format_internal <- ifelse(output_format == "pdf", "pdf_document", 
+                                   ifelse(output_format == "doc", "word_document", 
+                                          stop("Chosen output_format not supported.")))
+  input <- paste(dir, "/", file, ".Rmd", sep = "")
+  render(input = input, output_format_internal, quiet = TRUE, ... = ...)
   
-  cat("\nRegistration raw document (markdown .Rmd file) saved in ", dir, "/", file, ".Rmd\n", sep = "")
+  if(keep_tex == TRUE)
+    cat("\nRegistration raw document (.tex file) saved in ", dir, "/", file, ".tex\n", sep = "")
   
-  ## compile Rmd into a PDF or Word doc if requested
-  if(make_output == TRUE){
-    output_format_internal <- ifelse(output_format == "pdf", "pdf_document", 
-                                     ifelse(output_format == "doc", "word_document", 
-                                            stop("Chosen output_format not supported.")))
-    input <- paste(dir, "/", file, ".Rmd", sep = "")
-    render(input = input, output_format_internal, quiet = TRUE, ... = ...)
-    
-    if(keep_tex == TRUE)
-      cat("\nRegistration raw document (.tex file) saved in ", dir, "/", file, ".tex\n", sep = "")
-    
-    cat("\nRegistration output document (PDF file) saved in", 
-        paste(dir, "/", file, ".pdf", sep = ""), "\n")
-    
-  }
+  cat("\nRegistration output document (PDF file) saved in", 
+      paste(dir, "/", file, ".pdf", sep = ""), "\n")
   
-  ## open output file (i.e. PDF) if requested
-  if(open_output == TRUE)
-    system(paste("open ", dir, "/", file, ".pdf", sep = ""))
-  
-  cat("\n")
-  
+}
+
+## open output file (i.e. PDF) if requested
+if(open_output == TRUE)
+  system(paste("open ", dir, "/", file, ".pdf", sep = ""))
+
+cat("\n")
+
 }
 
 cat_doc <- function(..., filename){

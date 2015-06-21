@@ -4,7 +4,7 @@ rm(list=ls())
 library(testthat)
 library(registration)
 
-test_that("test workflow", {
+##test_that("test workflow", {
   
   # Takes arbitrary number of nested levels (will implement non-nested levels later)
   # You either simply list all of your covariates (for a 1-level data structure),
@@ -16,7 +16,7 @@ test_that("test workflow", {
   # It should be noted that the function does not produce dataframes that are sensitive to ordering.
   # Also user-programmed RNGs can be used in place of DGP_objects made with declare_variable()
   
-  cov_object <- declare_covariates(
+  cov <- declare_covariates(
     individuals = list(
       income = declare_variable(),
       female = declare_variable(binary_probability = .5)),
@@ -35,7 +35,7 @@ test_that("test workflow", {
   
   # You can declare an arbitrary number of potential outcomes using condition_names and outcome_formula
   
-  po_object     <-  declare_potential_outcomes(
+  po     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income + .1*female + .1*development_level,
     cluster_variable = "villages_id",
@@ -46,11 +46,11 @@ test_that("test workflow", {
   # (this substitutes standard normals for the covariates in the formula), or both 
   # the potential_outcomes and the covariate_object. It can also handle fixed covariates.
   
-  mock          <- make_data(potential_outcomes = po_object, covariates = cov_object)
+  mock          <- make_data(potential_outcomes = po, covariates = cov)
   
   design        <- declare_design(clust_var = mock$village,
                                   block_var = mock$district_id,
-                                  condition_names = po_object$condition_names)
+                                  condition_names = po$condition_names)
   
   analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
                                       design = design, method = "lm")
@@ -67,8 +67,11 @@ test_that("test workflow", {
   M1             <- run_analysis(analysis = analysis_1, data = mock)  
   M2             <- run_analysis(analysis = analysis_2, data = mock)  
   
-  pre_register(design = design, covariates = cov_object, 
-               potential_outcomes = po_object, analysis = analysis_1, 
+  ## tmp 
+  analysis <- list(analysis_1, analysis_2)
+  
+  pre_register(design = design, covariates = cov, 
+               potential_outcomes = po, analysis = list(analysis_1, analysis_2), 
                registration_title = "Lady Tasting Tea", 
                registration_authors = c("Ronald A. Fisher"), 
                registration_abstract = "Description of the lady tasting tea experiment",
@@ -77,4 +80,4 @@ test_that("test workflow", {
                open_output = TRUE)
   
   
-})
+##})
