@@ -24,8 +24,10 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
                                       design = design, method = "lm")
   analysis_2      <- declare_analysis(formula = Y ~ Z + I(income_cat), treatment_variable = "Z", 
                                       design = design, method = "lm")
+    
+  ## resample covariates and potential_outcomes
+  power_1         <- get_power(sims = 1, analysis = analysis_1, design = design, covariates = cov, potential_outcomes = po)
   
-  power_1         <- get_power(sims = 100, analysis = analysis_1, design = design, data = mock)
   power_1
   
   mock$Z        <- assign_treatment(design)

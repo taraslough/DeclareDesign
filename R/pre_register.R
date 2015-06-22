@@ -164,7 +164,7 @@ title_header <- function(title = NULL, authors = NULL, abstract = NULL, keep_tex
   authors.text <- paste("-", authors[1], "\n")
   if(length(authors) > 1) {
     for(i in 2:length(authors))
-      authors.text <- paste(authors.text, paste("-", authors[i], "\n"))
+      authors.text <- paste(authors.text, paste("- ", authors[i], "\n", sep = ""), sep = "")
   }
   
   return(paste("---\ntitle: \"", title, 
@@ -172,7 +172,7 @@ title_header <- function(title = NULL, authors = NULL, abstract = NULL, keep_tex
                authors.text,
                ifelse(is.null(abstract), "", paste("abstract: |\n", abstract, "\n")),
                "date: \"`r format(Sys.time(), \'%d %B %Y\')`\"",
-               "\noutput:\n  pdf_document:\n    template: ./egap_registration_template.tex\n",
+               "\noutput:\n  pdf_document:\n    toc: yes\n    template: ./egap_registration_template.tex\n",
                ifelse(keep_tex, "    keep_tex: true\n", ""),
                "---\n\n", 
                sep = ""))

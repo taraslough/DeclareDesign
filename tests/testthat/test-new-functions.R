@@ -4,7 +4,7 @@ rm(list=ls())
 library(testthat)
 library(registration)
 
-##test_that("test workflow", {
+test_that("test workflow", {
   
   # Takes arbitrary number of nested levels (will implement non-nested levels later)
   # You either simply list all of your covariates (for a 1-level data structure),
@@ -54,7 +54,7 @@ library(registration)
     outcome_variable_DGP = declare_variable(binary_probability = .5)
   )
   make_data(po3,N = 100)
-
+  
   # Make data is flexible: it can take just a covariate_object, just a PO_object 
   # (this substitutes standard normals for the covariates in the formula), or both 
   # the potential_outcomes and the covariate_object. It can also handle fixed covariates.
@@ -71,7 +71,15 @@ library(registration)
   analysis_2      <- declare_analysis(formula = Y ~ Z + income + female, treatment_variable = "Z",
                                       design = design, method = "lm") ## "robustness check"
   
-  power_1         <- get_power(sims = 100, analysis = analysis_1, design = design, data = mock)
+  ## fixed data, potential outcomes resampled
+  power_1         <- get_power(sims = 1, analysis = analysis_1, design = design, data = make_data(covariates = cov), potential_outcomes = po)
+  
+  ## resample covariates and potential_outcomes
+  power_1         <- get_power(sims = 1, analysis = analysis_1, design = design, covariates = cov, potential_outcomes = po)
+  
+  ## do not resample; data and potential outcomes are fixed
+  power_1         <- get_power(sims = 1, analysis = analysis_1, design = design, data = mock)
+
   power_2         <- get_power(sims = 100, analysis = analysis_2, design = design, data = mock)
   
   mock$Z        <- assign_treatment(design)
@@ -94,7 +102,8 @@ library(registration)
                open_output = TRUE)
   
   
-##})
+})
 
-  
-  
+
+
+
