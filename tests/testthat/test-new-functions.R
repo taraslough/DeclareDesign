@@ -41,6 +41,19 @@ library(registration)
     cluster_variable = "villages_id",
     ICC = .2
   )
+  
+  # Demo of bug fix
+  po2     <-  declare_potential_outcomes(
+    condition_names = c("Z0","Z1"),
+    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 
+  )
+  make_data(po2,N = 100)
+  po3     <-  declare_potential_outcomes(
+    condition_names = c("Z0","Z1"),
+    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1,
+    outcome_variable_DGP = declare_variable(binary_probability = .5)
+  )
+  make_data(po3,N = 100)
 
   # Make data is flexible: it can take just a covariate_object, just a PO_object 
   # (this substitutes standard normals for the covariates in the formula), or both 

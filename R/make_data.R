@@ -39,7 +39,13 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep
       X <- data.frame(matrix(data = rnorm(length(covariate_names)*N),ncol = length(covariate_names)))
       names(X) <- covariate_names
     }else{
-      X <- make_X_matrix(untreated_outcome = outcome_variable,
+      if(outcome_variable$distribution!="normal"){
+        untreated_var <- declare_variable()
+      }else{
+          untreated_var <- outcome_variable
+        }
+      
+      X <- make_X_matrix(untreated_outcome = untreated_var,
                     N = N)
       outcome_formula <- as.formula(paste0(as.character(outcome_formula)[2]," ",
                                 as.character(outcome_formula)[1],
