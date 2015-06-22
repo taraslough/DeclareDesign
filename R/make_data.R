@@ -17,7 +17,7 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep
     outcome_variable <- potential_outcomes$outcome_variable
     covariate_names  <- all.vars(outcome_formula)[!all.vars(outcome_formula)%in%condition_names][-1]
     outcome_name     <- all.vars(outcome_formula)[1]
-    model_formula    <- as.formula(paste0(outcome_name," ~ ",paste(covariate_names,collapse = "+")))
+    model_formula    <- as.formula(paste0(outcome_name," ~ ", paste(covariate_names,collapse = "+")))
   }
   # Check whether covariate_object is covarite_object or a user-supplied matrix
   if(!is.null(covariates)){
@@ -46,7 +46,7 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep
   # Make a function that generates potential outcomes as a function of 
   # all of the variables (treatment assignment, covariates) and some normal noise
   
-  if(potential_outcomes$outcome_variable$distribution=="Normal"){
+  if(potential_outcomes$outcome_variable$distribution=="normal"){
   gen_outcome  <- eval(parse(text = paste0(
     "function(slice){y <- with(slice,{",outcome_formula[3],"}) + rnorm(1,potential_outcomes$outcome_variable$mean,potential_outcomes$outcome_variable$sd);return(y)}"
   )))

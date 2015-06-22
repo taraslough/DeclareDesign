@@ -24,12 +24,13 @@ declare_variable <- function(
           mean = linear_mean,
           sd = linear_sd
         )
-      }
+      }else{
       variable <- list(
         distribution = "normal",
         mean = linear_mean,
         sd = linear_mean*.10+1
       )
+      }
     }
     if(!is.null(binary_probability)){
       if(!is.null(binary_categories)){

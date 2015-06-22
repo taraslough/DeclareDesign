@@ -96,23 +96,28 @@ declare_covariates <-
           return(X_names[length(X_names)])
         })
         
-        X_mat_joined <- NA
+        covariate_matrix <- X_list[[1]]
         
-        for(i in N_levels:2){
+        if(N_levels > 1){ 
+          X_mat_joined <- NA
           
-          X_list[[i-1]]$merge_id <- 
-            sample(rep(X_list[[i]][,id_vars[i]],
-                       lower_units_per_level[[i]]))
-          
-          names(X_list[[i-1]])[names(X_list[[i-1]])=="merge_id"] <- id_vars[i]
-          
-          X_mat_joined <- 
-            merge(x  = X_list[[i-1]],
-                  y  = X_list[[i]],
-                  by = id_vars[i])
-          
+          for(i in N_levels:2){
+            
+            X_list[[i-1]]$merge_id <- 
+              sample(rep(X_list[[i]][,id_vars[i]],
+                         lower_units_per_level[[i]]))
+            
+            names(X_list[[i-1]])[names(X_list[[i-1]])=="merge_id"] <- id_vars[i]
+            
+            X_mat_joined <- 
+              merge(x  = X_list[[i-1]],
+                    y  = X_list[[i]],
+                    by = id_vars[i])
+            
+          }
+          covariate_matrix <- X_mat_joined
         }
-      covariate_matrix <- X_mat_joined
+        
       return(covariate_matrix)
     }
     

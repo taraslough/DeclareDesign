@@ -5,22 +5,35 @@
 #' @param analysis analysis object
 #' @param sims number of iterations
 #' @export
-get_power <- function(data, design, analysis, sims = 100, ...){
+get_power <- function(data=NULL, potential_outcomes = NULL, covariates = NULL, design, analysis, sims = 100, ...){
+  if(is.null(data) & is.null(potential_outcomes) & is.null(covariates)){
+    stop("You must provide either a dataframe or one or both of the potential outcomes argument and the covariates argument.")
+  }
+  
+  if(!is.null(data) & (!is.null(potential_outcomes) | !is.null(covariates))){
+    stop("Please do not simultaneously specify both the data argument and one or both of the potential outcomes argument and the covariates argument.")
+  }
+  
   simulation_vector <- rep(NA, sims)
   for(i in 1:sims){
     
     ## sends ... options to assign_treatment, which passes them onto ra_fun()
     ## this is how we allow varying N and other parameters
-    data[, analysis_treatment_variable(analysis = analysis)] <- 
+    data_sim <- data
+    if(is.null(data)){
+      data_sim <- make_data(potential_outcomes = potential_outcomes, covariates = covariates)
+    }
+    
+    data_sim[, analysis_treatment_variable(analysis = analysis)] <- 
       assign_treatment(design = design)
     
-    data[, analysis_outcome_variable(analysis = analysis)] <- 
+    data_sim[, analysis_outcome_variable(analysis = analysis)] <- 
       observed_outcome(outcome = analysis_outcome_variable(analysis),  
                        treatment_assignment = analysis_treatment_variable(analysis),
                        design = design,
-                       data = data)
+                       data = data_sim)
     
-    simulation_vector[i] <- test_success(analysis = analysis, data = data)
+    simulation_vector[i] <- test_success(analysis = analysis, data = data_sim)
     
   }
   return(power = mean(simulation_vector))

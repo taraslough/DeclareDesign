@@ -48,6 +48,11 @@ pre_register <- function(design, covariates, potential_outcomes, analysis,
                          make_output = TRUE, output_format = "pdf", keep_tex = FALSE, 
                          open_output = TRUE, ...){
   
+  if(class(analysis) != "list")
+    analysis <- list(analysis)
+  if(class(analysis) != "list" & class(analysis) != "analysis")
+    stop("Analysis must be either a list of analysis objects or a single object created by declare_analysis.")
+  
   if(check_registration == TRUE)
     check_registration(design = design, analysis = analysis, covariates = covariates, 
                        potential_outcomes = potential_outcomes)
@@ -82,14 +87,15 @@ pre_register <- function(design, covariates, potential_outcomes, analysis,
                  paste(sapply(1:length(analysis), 
                               function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
                        collapse = ""),
-                 "mock$Z <- assign_treatment(design)", "\n\n",
+                 echo = T),
+    code_snippet("mock$Z <- assign_treatment(design)", "\n\n",
                  paste(sapply(1:length(analysis), 
-                              function(x) paste0("mock[, analysis_outcome_variable(analysis_", x, ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, "), treatment_assignment = 'Z', design = design, data = mock) \n")), collapse = "")
-    ),
+                              function(x) paste0("mock[, analysis_outcome_variable(analysis_", x, ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, "), treatment_assignment = 'Z', design = design, data = mock) \n")), collapse = "")),
     tex_header("Hypotheses", 1),
     "Please write your hypotheses here. Be sure to explain each declared analysis.",
     tex_header("Experimental Design", 1),
     code_snippet("summary(design)"),
+    code_snippet("print(xtable(table(design$ra_fun()), caption = \"Example Random Assignment\"), include.colnames = FALSE, comment = FALSE)"),
     "Please describe your experimental conditions and randomization protocol.",
     tex_header("Power analysis", 2),
     code_snippet(paste0("cat(\"The power of analysis ", 1:length(analysis), 
@@ -175,8 +181,9 @@ title_header <- function(title = NULL, authors = NULL, abstract = NULL, keep_tex
 
 code_snippet <- function(..., ## takes a character string
                          results = "asis", 
-                         echo = FALSE) {
-  return(paste("```{r, echo =", echo, ", results='", results, "'}\n", 
+                         echo = FALSE,
+                         tidy = TRUE) {
+  return(paste("```{r, echo =", echo, ", tidy =", tidy, ", results ='", results, "'}\n", 
                paste(unlist(list(...)), collapse = ""), 
                "\n```", sep = ""))
 }

@@ -4,7 +4,8 @@
 \alias{get_power}
 \title{Declare the data-generating process of a variable}
 \usage{
-get_power(data, design, analysis, sims = 100, ...)
+get_power(data = NULL, potential_outcomes = NULL, covariates = NULL,
+  design, analysis, sims = 100, ...)
 }
 \arguments{
 \item{data}{data object}

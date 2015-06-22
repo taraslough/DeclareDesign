@@ -255,7 +255,7 @@ declare_design <-
           
           return.object <- list(ra_fun=ra_fun, N=N_2, N_blocks = N_blocks, N_clus = N_clus, 
                condition_names=sort(condition_names_2), 
-               num_arms=num_arms_2, probs_mat=probs_mat,
+               num_arms=num_arms_2, probs_mat=probs_mat,design=design,
                call = match.call())
           class(return.object) <- "design"
           
@@ -272,7 +272,14 @@ summary.design <- function(object, ...) {
 #' @export
 print.summary.design <- function(x, ...){
   ## prints paragraph describing design
-  cat("This is a description of the design. Most importantly, N =", x$N)
+  cat(ifelse(x$design == "blocked", paste("This experiment employs a block-randomized design with", x$N_blocks, "blocks."), ""), 
+      ifelse(x$design == "clustered", paste("This experiment employs a cluster-randomized design with", x$N_clus, "clusters."), ""),
+      ifelse(x$design == "blocked and clustered", paste("This experiment employs a block-and-cluster-randomized design with", x$N_clus, 
+                                                        "clusters and", x$N_blocks, "blocks."), ""),
+      ifelse(x$design == "complete", "This experiment employs a completely-randomized design.", "")
+      )
+  cat(" The total sample size is ", x$N, ".", sep = "")
+  cat(" The possible treatment categories are ", paste(x$condition_names, collapse = " and "), ".", sep = "")
 }
  
 #' @export
