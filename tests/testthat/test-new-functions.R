@@ -41,12 +41,13 @@ library(registration)
     cluster_variable = "villages_id",
     ICC = .2
   )
-  
+
   # Make data is flexible: it can take just a covariate_object, just a PO_object 
   # (this substitutes standard normals for the covariates in the formula), or both 
   # the potential_outcomes and the covariate_object. It can also handle fixed covariates.
   
   mock          <- make_data(potential_outcomes = po, covariates = cov)
+  
   
   design        <- declare_design(clust_var = mock$village,
                                   block_var = mock$district_id,
@@ -81,3 +82,6 @@ library(registration)
   
   
 ##})
+
+  
+  

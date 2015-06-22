@@ -17,7 +17,9 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep
     outcome_variable <- potential_outcomes$outcome_variable
     covariate_names  <- all.vars(outcome_formula)[!all.vars(outcome_formula)%in%condition_names][-1]
     outcome_name     <- all.vars(outcome_formula)[1]
+    if(length(covariate_names)>0){
     model_formula    <- as.formula(paste0(outcome_name," ~ ", paste(covariate_names,collapse = "+")))
+    }else(model_formula <- NULL)
   }
   # Check whether covariate_object is covarite_object or a user-supplied matrix
   if(!is.null(covariates)){
@@ -29,11 +31,21 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep
     }
     if(class(covariates)%in%c("matrix","data.frame")){
       X <- covariates
-    }}else{
+    }
+    if(is.null(potential_outcomes))return(X)}
+  if(is.null(covariates)){
+    if(is.null(N))stop("You have not supplied any covariates, so the sample size cannot be determined. Please supply a value for N.")
+    if(length(covariate_names)>0){
       X <- data.frame(matrix(data = rnorm(length(covariate_names)*N),ncol = length(covariate_names)))
       names(X) <- covariate_names
-    }
-  if(is.null(potential_outcomes))return(X)
+    }else{
+      X <- make_X_matrix(untreated_outcome = outcome_variable,
+                    N = N)
+      outcome_formula <- as.formula(paste0(as.character(outcome_formula)[2]," ",
+                                as.character(outcome_formula)[1],
+                                " untreated_outcome + " ,
+                                as.character(outcome_formula)[3]))
+      }}
   
   
   # Check that all of the variables in the formula are in the X matrix or in the treatment names
@@ -47,9 +59,14 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep
   # all of the variables (treatment assignment, covariates) and some normal noise
   
   if(potential_outcomes$outcome_variable$distribution=="normal"){
+    if(is.null(covariates)){
+      gen_outcome  <- eval(parse(text = paste0(
+        "function(slice){y <- with(slice,{",outcome_formula[3],"});return(y)}"
+      )))
+    }else{
   gen_outcome  <- eval(parse(text = paste0(
     "function(slice){y <- with(slice,{",outcome_formula[3],"}) + rnorm(1,potential_outcomes$outcome_variable$mean,potential_outcomes$outcome_variable$sd);return(y)}"
-  )))
+  )))}
   unit_variance <- potential_outcomes$outcome_variable$sd^2
   }else{
     gen_outcome  <- eval(parse(text = paste0(
@@ -71,7 +88,13 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep
     }
   )}
   # Apply that function through the covariate matrix to get the potential outcomes
-  outcomes     <- data.frame(t(sapply(1:dim(X)[1],function(i)each_treat(X[i,]))))
+  if(dim(X)[2]==1){
+    X_name <- names(X)
+    X <- X[,1]
+    X <- setNames(X,rep(X_name,length(X))) 
+    outcomes     <- data.frame(t(sapply(1:length(X),function(i)each_treat(X[i]))))
+  }else{
+  outcomes     <- data.frame(t(sapply(1:dim(X)[1],function(i)each_treat(X[i,]))))}
   names(outcomes) <- paste0(outcome_name,sep,condition_names)
   
   if(!is.null(ICC)&!is.null(cluster_var_name)){
