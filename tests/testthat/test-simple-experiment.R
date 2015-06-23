@@ -36,7 +36,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   pre_register(design = design, covariates = cov, 
                potential_outcomes = po, analysis = analysis_1, 
                registration_title = "Simplest Possible Experiment", 
-               registration_authors = c("Graeme Blair", "Alexander Coppock"), 
+               registration_authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
                registration_abstract = "The effect of pixie dust on productivity.",
                random.seed = 42, temp_dir = TRUE, type = "rmarkdown",
                make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
