@@ -100,7 +100,7 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep
     X <- setNames(X,rep(X_name,length(X))) 
     outcomes     <- data.frame(t(sapply(1:length(X),function(i)each_treat(X[i]))))
   }else{
-  outcomes     <- data.frame(t(sapply(1:dim(X)[1],function(i)each_treat(X[i,]))))}
+  outcomes     <- data.frame(t(sapply(1:dim(X)[1],function(i)each_treat(X[i,]))))} ## this line takes a really long time (perhaps two lines above as well?)
   names(outcomes) <- paste0(outcome_name,sep,condition_names)
   
   if(!is.null(ICC)&!is.null(cluster_var_name)){
