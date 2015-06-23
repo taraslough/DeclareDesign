@@ -15,8 +15,10 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .05*Z1 + .1*income_cat
   )
-  
+    
   mock          <- make_data(potential_outcomes = po, covariates = cov)
+  
+  block <- declare_blocks(blocks = "income")
   
   design        <- declare_design(block_var = mock$income_cat, condition_names = po$condition_names)
   
