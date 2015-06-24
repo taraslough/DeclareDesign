@@ -46,6 +46,7 @@ pre_register <- function(design, covariates, potential_outcomes, analysis,
                          random.seed = 42, dir = getwd(), temp_dir = FALSE, type = "rmarkdown",
                          check_registration = TRUE,
                          make_output = TRUE, output_format = "pdf", keep_tex = FALSE, 
+                         save_r_code = FALSE,
                          open_output = TRUE, ...){
   
   if(class(analysis) != "list")
@@ -129,6 +130,10 @@ pre_register <- function(design, covariates, potential_outcomes, analysis,
         paste(dir, "/", file, ".pdf", sep = ""), "\n")
     
   }
+  
+  if(save_r_code == TRUE)
+    knitr::purl(input = paste(dir, "/", file, ".Rmd", sep = ""),
+                output = paste(dir, "/", file, ".R", sep = ""))
   
   ## open output file (i.e. PDF) if requested
   if(open_output == TRUE)
