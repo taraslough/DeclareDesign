@@ -23,7 +23,7 @@ assign_treatment <- function(design, data) {
   condition_names <- design$condition_names
   #m <- design$m
   m_each <- design$m_each
-  prob_each <- m <- design$prob_each
+  prob_each <- design$prob_each
   block_m <- design$block_m
   block_prob <- design$block_prob
   design_type <- design$design_type

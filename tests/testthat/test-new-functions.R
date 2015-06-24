@@ -33,8 +33,6 @@ test_that("test workflow", {
       blocks = rep(5,4)
     ))
   
-  # You can declare an arbitrary number of potential outcomes using condition_names and outcome_formula
-  
   po     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income + .1*female + .1*development_level,
@@ -42,64 +40,61 @@ test_that("test workflow", {
     ICC = .2
   )
   
-  # Demo of bug fix
-  po2     <-  declare_potential_outcomes(
-    condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 
-  )
-  make_data(po2,N = 100)
-  po3     <-  declare_potential_outcomes(
-    condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1,
-    outcome_variable_DGP = declare_variable(binary_probability = .5)
-  )
-  make_data(po3,N = 100)
+  clusters <- declare_clusters(clusters = "villages")
+  blocks <- declare_blocks(blocks = "districts", clusters = clusters)
+     
+  design        <- declare_design(potential_outcomes = po, blocks = blocks, clusters = clusters)
   
-  # Make data is flexible: it can take just a covariate_object, just a PO_object 
-  # (this substitutes standard normals for the covariates in the formula), or both 
-  # the potential_outcomes and the covariate_object. It can also handle fixed covariates.
+  analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm", qoi_function = ?)
+  analysis_2      <- declare_analysis(formula = Y ~ Z + income + female, treatment_variable = "Z", method = "lm", qoi_function = ?)
+    
+  ## where do you declare experiment-wide test_success function
   
-  mock          <- make_data(potential_outcomes = po, covariates = cov)
+  ## pre_register
+  pre_register <- pre_register(design = design, covariates = cov, 
+                               potential_outcomes = po, analysis = list(analysis_1, analysis_2), 
+                               registration_title = "Lady Tasting Tea", 
+                               registration_authors = c("Ronald A. Fisher"), 
+                               registration_abstract = "Description of the lady tasting tea experiment",
+                               random.seed = 42, dir = getwd(), type = "rmarkdown",
+                               make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
+                               open_output = TRUE)
   
   
-  design        <- declare_design(clust_var = mock$village,
-                                  block_var = mock$district_id,
-                                  condition_names = po$condition_names)
   
-  analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
-                                      design = design, method = "lm")
-  analysis_2      <- declare_analysis(formula = Y ~ Z + income + female, treatment_variable = "Z",
-                                      design = design, method = "lm") ## "robustness check"
-  
-  ## fixed data, potential outcomes resampled
-  power_1         <- get_power(sims = 1, analysis = analysis_1, design = design, data = make_data(covariates = cov), potential_outcomes = po)
   
   ## resample covariates and potential_outcomes
-  power_1         <- get_power(sims = 1, analysis = analysis_1, design = design, covariates = cov, potential_outcomes = po)
+  sims         <- simulate_experiment(sims = 500, analysis = list(analysis_1, analysis_2), 
+                                      design = design, covariates = cov, potential_outcomes = po, clusters = clusters, blocks = blocks)
+  ## outputs experiment_simulations matrix
   
-  ## do not resample; data and potential outcomes are fixed
-  power_1         <- get_power(sims = 1, analysis = analysis_1, design = design, data = mock)
+  summary <- summary(sims)
+  ## outputs a table of summaries based on the matrix
+  
 
-  power_2         <- get_power(sims = 100, analysis = analysis_2, design = design, data = mock)
+  paper_draft(pre_registration = pre_register) ## outputs a paper draft Rmd / knitr / etc. file based on the pre-registered analyses etc.
+    
+  ## separately, you can test out how the analyses work, etc., using a realization of treatment
+  ## now get a single realization of the data and treatment assignment
+  mock          <- make_data(potential_outcomes = po, covariates = cov, clusters = clusters, blocks = blocks)
+  
+  data <- make_clusters(clusters, data)   ## sticks the cluster variable into data and returns the whole data frame
+  data <- make_blocks(blocks, data)  ## sticks the blocks variable into data and returns the whole data frame
   
   mock$Z        <- assign_treatment(design)
+  
+  ## observed probabilities of treatment
+  mock$Z_prob   <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
+
+  perm_matrix <- make_permutation_matrix(mock, treatment_assignment = "Z", design = design)
+  
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", design = design,
                                     data = mock)
+
+  
   
   M1             <- run_analysis(analysis = analysis_1, data = mock)  
   M2             <- run_analysis(analysis = analysis_2, data = mock)  
-  
-  ## tmp 
-  analysis <- list(analysis_1, analysis_2)
-  
-  pre_register(design = design, covariates = cov, 
-               potential_outcomes = po, analysis = list(analysis_1, analysis_2), 
-               registration_title = "Lady Tasting Tea", 
-               registration_authors = c("Ronald A. Fisher"), 
-               registration_abstract = "Description of the lady tasting tea experiment",
-               random.seed = 42, dir = getwd(), type = "rmarkdown",
-               make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
-               open_output = TRUE)
   
   
 })
