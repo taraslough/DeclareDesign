@@ -184,83 +184,48 @@ blocked_and_clustered_ra <-
 
 #' @export
 declare_design <- 
-  function(N = NULL, m = NULL, 
-           m_each = NULL, prob_each = NULL, 
-           block_var = NULL, block_m = NULL, 
+  function(potential_outcomes, 
+           blocks = NULL, 
+           clusters = NULL,
+           m = NULL, 
+           m_each = NULL, 
+           prob_each = NULL, 
+           block_m = NULL, 
            block_prob = NULL,
-           clust_var = NULL, 
-           num_arms = NULL, condition_names = NULL) {
-          
-          design <- "complete"   
-          if(!is.null(block_var)) {design <- "blocked"}
-          if(!is.null(clust_var)) {design <- "clustered"}
-          if(!is.null(clust_var) & !is.null(block_var)) {design <- "blocked and clustered"}
-          
-          if(design=="complete"){
-            ra_fun <- function() {
-              complete_ra(N=N, m=m, num_arms = num_arms, m_each = m_each,
-                            prob_each = prob_each, condition_names = condition_names)
-            }
-            Z <- ra_fun()
-            N_2 <- length(Z)
-            N_blocks <- "Not a blocked design"
-            N_clus <- "Not a clustered design"
-            
-            condition_names_2 <- unique(Z)
-            num_arms_2 <- length(unique(Z))
-            probs_mat <- "to be added"
-          }
-          
-          if(design=="blocked"){
-            ra_fun <- function() {
-              block_ra(block_var=block_var, num_arms = num_arms, block_m = block_m,
-                                  block_prob = block_prob, condition_names = condition_names)
-            }
-            Z <- ra_fun()
-            N_2 <- length(Z)
-            N_blocks <- length(unique(block_var))
-            N_clus <- "Not a clustered design"
-            condition_names_2 <- unique(Z)
-            num_arms_2 <- length(unique(Z))
-            probs_mat <- "to be added"
-          }
-          
-          if(design=="clustered"){
-            ra_fun <- function() {
-              cluster_ra(clust_var=clust_var, m = m, num_arms = num_arms, m_each = m_each,
-                               condition_names = condition_names)
-            }
-            Z <- ra_fun()
-            N_2 <- length(Z)
-            N_blocks <- "Not a blocked design"
-            N_clus <- length(unique(clust_var))
-            condition_names_2 <- unique(Z)
-            num_arms_2 <- length(unique(Z))
-            probs_mat <- "to be added"
-          }
-          
-          if(design=="blocked and clustered"){
-            ra_fun <- function() {
-                blocked_and_clustered_ra(clust_var=clust_var,block_var=block_var, block_m=block_m, num_arms=num_arms,
-                       block_prob = block_prob, condition_names = condition_names)
-            }
-            Z <- ra_fun()
-            N_2 <- length(Z)
-            N_blocks <- length(unique(block_var))
-            N_clus <- length(unique(clust_var))
-            condition_names_2 <- unique(Z)
-            num_arms_2 <- length(unique(Z))
-            probs_mat <- "to be added"
-          }
-          
-          return.object <- list(ra_fun=ra_fun, N=N_2, N_blocks = N_blocks, N_clus = N_clus, 
-               condition_names=sort(condition_names_2), 
-               num_arms=num_arms_2, probs_mat=probs_mat,design=design,
-               call = match.call())
-          class(return.object) <- "design"
-          
-          return(return.object)
- }
+           excluded_arms = NULL) {
+    
+    design_type <- "complete"   
+    if(!is.null(blocks)) {design_type <- "blocked"}
+    if(!is.null(clusters)) {design_type <- "clustered"}
+    if(!is.null(clusters) & !is.null(blocks)) {
+      design_type <- "blocked and clustered"
+    }
+    
+    condition_names <- potential_outcomes$condition_names
+    if(!is.null(excluded_arms)){
+      condition_names <- condition_names[!condition_names %in% excluded_arms]  
+    }
+    
+    if(is.null(blocks)){block_name=NULL}
+    if(is.null(clusters)){cluster_name=NULL}
+    
+    block_name <- blocks$block_name
+    cluster_name <- clusters$cluster_name
+    
+    return.object <- list(block_name = block_name,
+                          cluster_name = cluster_name,
+                          condition_names = condition_names,
+                          m = m,
+                          m_each = m_each,
+                          prob_each = prob_each,
+                          block_m = block_m,
+                          block_prob = block_prob,
+                          design_type = design_type,
+                          call = match.call())
+    class(return.object) <- "design"
+    return(return.object)
+  }
+
  
 #' @export
 summary.design <- function(object, ...) {
@@ -272,26 +237,15 @@ summary.design <- function(object, ...) {
 #' @export
 print.summary.design <- function(x, ...){
   ## prints paragraph describing design
-  cat(ifelse(x$design == "blocked", paste("This experiment employs a block-randomized design with", x$N_blocks, "blocks."), ""), 
-      ifelse(x$design == "clustered", paste("This experiment employs a cluster-randomized design with", x$N_clus, "clusters."), ""),
-      ifelse(x$design == "blocked and clustered", paste("This experiment employs a block-and-cluster-randomized design with", x$N_clus, 
-                                                        "clusters and", x$N_blocks, "blocks."), ""),
-      ifelse(x$design == "complete", "This experiment employs a completely-randomized design.", "")
+  cat(ifelse(x$design_type == "blocked", paste("This experiment employs a block-randomized design."), ""),
+      ifelse(x$design_type == "clustered", paste("This experiment employs a cluster-randomized design."), ""),
+      ifelse(x$design_type == "blocked and clustered", paste("This experiment employs a block-and-cluster-randomized design."), ""),
+      ifelse(x$design_type == "complete", "This experiment employs a completely-randomized design.", "")
       )
-  cat(" The total sample size is ", x$N, ".", sep = "")
   cat(" The possible treatment categories are ", paste(x$condition_names, collapse = " and "), ".", sep = "")
 }
  
 #' @export
-assign_treatment <- function(design) {
-    return(design$ra_fun())
-}
-
-#' @export
 treatment_indicator_name <- function(x) {
   return("NOT SURE YET")
 }
-
-
-# Things to add to database
-# 1. matrix of sufficient
