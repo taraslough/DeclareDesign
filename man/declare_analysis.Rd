@@ -2,55 +2,30 @@
 % Please edit documentation in R/declare_analysis.R
 \name{declare_analysis}
 \alias{declare_analysis}
-\alias{run_analysis}
-\alias{test_success}
 \title{Declare an experimental analysis}
 \usage{
 declare_analysis(formula, treatment_variable = "Z", method = "lm",
-  test_success = "treatment-coefficient-significant", alpha = 0.05, ...)
-
-test_success(analysis, finished_analysis = NULL, data, Y = NULL, Z = NULL)
-
-run_analysis(analysis, data, Y = NULL, Z = NULL)
+  subset = NULL, formula_estimand = NULL, weights_variable = NULL,
+  qoi = "ATE", ...)
 }
 \arguments{
 \item{formula}{an optional formula object to define analyses such as linear regressions with covariates}
 
 \item{method}{either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm}
 
-\item{test_success}{a function that extracts the binary result of a statistical test (did it pass = 1, if not = 0)}
-
 \item{...}{additional options to be sent to the analysis function and the test_success function}
 
-\item{analysis}{analysis object created by declare_analysis}
-
-\item{data}{data object created by make_y}
-
-\item{design}{design object created by declare_design}
-
-\item{analysis}{analysis object created by declare_analysis}
-
-\item{data}{data object created by make_data_frame}
+\item{test_success}{a function that extracts the binary result of a statistical test (did it pass = 1, if not = 0)}
 }
 \value{
 a list containing a function to conduct the analysis and a function to extract the result of the test
-
-a numeric scalar or vector of p-values
-
-a numeric scalar or vector of p-values
 }
 \description{
-Description
-
-Description
-
 Description
 }
 \examples{
 # these examples don't work yet
 # declare_analysis(analysis = "diff-in-means")
 # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
-# Some examples will go here
-##Some examples will go here
 }
 

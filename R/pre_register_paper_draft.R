@@ -42,7 +42,7 @@
 #' @export
 pre_register <- function(design, covariates, potential_outcomes, analysis, 
                          title, authors, affiliations, acknowledgements, abstract,
-                         random.seed = 42, dir = getwd(), temp_dir = FALSE, type = "rmarkdown",
+                         random.seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                          check_registration = TRUE,
                          make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                          output_format = "pdf", open_output = TRUE, ...){
@@ -115,7 +115,7 @@ pre_register <- function(design, covariates, potential_outcomes, analysis,
 #' @export
 paper_draft <- function(design, covariates, potential_outcomes, analysis, 
                         title, authors, affiliations, acknowledgements, abstract,
-                        random.seed = 42, dir = getwd(), temp_dir = FALSE, type = "rmarkdown",
+                        random.seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                         make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                         output_format = "pdf", open_output = TRUE, ...){
   
@@ -168,11 +168,11 @@ paper_draft <- function(design, covariates, potential_outcomes, analysis,
 output_document <- function(..., type = "registration",
                             title = NULL, authors = NULL, affiliations = NULL, 
                             acknowledgements = NULL, abstract = NULL,
-                            random.seed = 42, dir = getwd(), temp_dir = FALSE, type = "rmarkdown",
+                            random.seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                             make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
-                            output_format = "pdf", open_output = TRUE, ...) {
-  if(type != "rmarkdown")
-    stop("Type must be 'rmarkdown' in the first version.")
+                            output_format = "pdf", open_output = TRUE) {
+  if(format != "rmarkdown")
+    stop("Format must be 'rmarkdown' in the first version.")
   
   ## create temp dir if user does not supply one
   if(temp_dir == TRUE)

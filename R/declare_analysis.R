@@ -14,8 +14,8 @@
 #' @export
 
 
-declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", 
-                             formula_estimand = NULL, weights_variable = NULL, qoi_function, ...) {
+declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", subset = "X == 1",
+                             formula_estimand = NULL, weights_variable = NULL, qoi = "ATE", ...) {
   
   ## should weights be able to be different for estimate and estimand functions?
   
@@ -26,48 +26,60 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm",
   
   if(is.null(formula_estimand))
     formula_estimand <- formula
-    
-  ## default estimate function is lm
-  estimate <- function(data) {
-    if(!is.null(weights_variable)){
-      wts <- data[, weights_variable]
-      lm(formula = formula, data = data, weights = wts)
-    } else {
-      lm(formula = formula, data = data)
+  
+  if(method == "lm") {
+    ## default estimate function is lm
+    estimate <- function(data) {
+      ## change this so it can take any R model function and send the ... options to it
+      if(!is.null(subset))
+        data <- subset(data, eval(parse(text = subset)))
+      if(!is.null(weights_variable)){
+        wts <- data[, weights_variable]
+        lm(formula = formula, data = data, weights = wts)
+      } else {
+        lm(formula = formula, data = data)
+      }
     }
   }
   
-  ## default estimand function is exactly the same as estimate
-  estimand <- function(data) {
-    if(!is.null(weights_variable)){
-      wts <- data[, weights_variable]
-      lm(formula = formula_estimand, data = data, weights = wts)
-    } else {
-      lm(formula = formula_estimand, data = data)
-    }
+  if(estimand == "ATE" | estimand == "CATE"){
+    ## default estimand function is exactly the same as estimate
+    estimand <- function(data) {
+      if(estimand == "CATE"){
+        if(!is.null(subset)){
+          data <- subset(data, eval(parse(text = subset)))
+        } else {
+          stop("The chosen estimand CATE needs to know which subset to estimate the CATE on.")
+        }
+      }
+      if(!is.null(weights_variable)){
+        wts <- data[, weights_variable]
+        lm(formula = formula_estimand, data = data, weights = wts)
+      } else {
+        lm(formula = formula_estimand, data = data)
+      }
+    } 
   }
   
   ## default qoi is based on the treatment indicator coefficient 
   qoi <- function(x){
-    treat_coef_num <- which(formula_rhs == treatment_variable)
+    ##treat_coef_num <- which(formula_rhs == treatment_variable)
+    treat_coef_num <- 2
     df <- df.residual(x)
     est <- coef(x)[treat_coef_num]
     se <- sqrt(diag(vcov(x)))[treat_coef_num]
     p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
     conf_int <- confint(x)[treat_coef_num, ]
     return(list(est = est, se = se, p = p, ci.lower = conf_int[1], ci.upper = conf_int[2], df = df))
-  }
+  } 
+  
+  ## how is estimate/estimand/qoi different? all should be linked
   
   return(list(estimate = estimate, estimand = estimand, qoi = qoi, call = match.call()))
   
 }
 
-get_estimate <- function(analysis, data){
-  return(analysis$estimate(data = data))
-}
-
-get_estimand <- function(analysis, data){
-  
+god_data_frame <- function(analysis, data) {
   treatment_conditions <- unique(data[, analysis_treatment_variable(analysis)])
   formula <- analysis$call$formula ##_estimand
   
@@ -82,18 +94,50 @@ get_estimand <- function(analysis, data){
                                                                       treatment_assignment = analysis_treatment_variable(analysis),
                                                                       data = data.rep, design = design)
   
+}
+
+get_estimates_model <- function(analysis, data){
+  return(analysis$estimate(data = data))
+}
+
+get_estimands_model <- function(analysis, data){
+  
+  
   return(analysis$estimand(data = data.rep))
   
 }
 
+get_estimates <- function(analysis, data) {
+  ## default behavior
+  qoi(get_estimates_model(analysis = analysis, data = data))
+  
+  ## custom qoi
+  analysis$qoi(data = data)
+  return()
+}
+
+get_estimands <- function(analysis, data) {
+  return(qoi(get_estimands_model(analysis = analysis, data = data)))
+}
+
 #' @export
-get_qoi <- function(analysis, data, output = "estimate"){
-  ## in principle we could integrate multiple analyses here
+get_qoi <- function(analysis, data, qoi = NULL, output = "estimate"){
+  
+  ## analysis can be an analysis object or a list of them
+  if(class(analysis) == "list" & is.null(qoi))
+    stop("To get a quantity of interest from multiple analyses, please specify a function to do so in the qoi argument.")
+  
   if(output == "estimate")
     output <- estimate
   else if (output == "estimand")
     output <- estimand
-  return(analysis$qoi(output(analysis = analysis, data = data)))
+  
+  if(class(analysis) == "analysis")
+    qoi <- analysis$qoi(output(analysis = analysis, data = data))
+  else
+    qoi <- qoi(analysis = analysis, data = data)
+  
+  return(qoi)
 }
 
 #' @export
