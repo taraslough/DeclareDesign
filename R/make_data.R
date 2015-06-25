@@ -4,7 +4,7 @@
 #' @param covariates A covariate_object made with declare_covariates(), or a pre-existing dataframe
 #' @param N If covariates are provided, this argument is ignored.
 #' @export
-make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep = "_"){
+make_data <- function(potential_outcomes = NULL, covariates = NULL, blocks=NULL, clusters=NULL, N = NULL,sep = "_"){
 
   if(is.null(covariates)&is.null(potential_outcomes))stop(
     "You must provide at least covariates or a potential outcomes object."
@@ -112,12 +112,15 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep
   if(potential_outcomes$outcome_variable$distribution=="binary"){
     outcomes <- apply(outcomes,2,function(i)rbinom(n = dim(outcomes)[1],size = 1,prob = 1/(1 + exp(-i))))
   }
-  if(is.null(covariates))return(data.frame(outcomes))else{
-    return(data.frame(outcomes,X))
-  }
-    
   
+  return_frame <- data.frame(outcomes)
+  if(!is.null(covariates)){return_frame <- cbind(df, data.frame(covariates))}
+  if(!is.null(blocks)){return_frame <- cbind(df, blocks$blocks_function(covariates=covariates))}
+  #if(!is.null(clusters)){return_frame <- cbind(df, data.frame(clust_var))}
+  
+  return(return_frame)
 }
+
 
 
 
