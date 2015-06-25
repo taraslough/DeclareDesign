@@ -12,126 +12,88 @@
 #' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
 #' @rdname declare_analysis
 #' @export
+
+
 declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", 
-                             test_success = "treatment-coefficient-significant", alpha = .05, ...){
+                             formula_estimand = NULL, weights_variable = NULL, qoi_function, ...) {
   
-  ## NOTES FOR GRAEME -- THIS WILL GO IN ALL ANALYSIS FUNCTIONS
-  ##if(!missing(Y) & Y != outcome_variable)
-  ##  formula2 <- substitute(formula, list(outcome_variable = as.name(Y)))
-  ##if(!missing(Z) & Z != treatment_variable)
-  ##  formula <- substitute(formula, list(treatment_variable = as.name(Z)))
+  ## should weights be able to be different for estimate and estimand functions?
+  
   formula_has_intercept <- attr(terms.formula(formula), "intercept")
   formula_rhs <- attr(terms.formula(formula), "term.labels")
   if(formula_has_intercept == 1)
     formula_rhs <- c("(Intercept)", formula_rhs)
   
-  if(!any(formula_rhs== treatment_variable))
-    stop(paste("The treatment variable set in treatment_variable,", treatment_variable, ", 
-               does not appear in the formula.", sep = ""))
-  
-  outcome_variable <- all.vars(formula[[2]])
-  
-  if(class(method) == "character") {    
-    ## if user provides a string as a method, this invokes default analyses we define
+  if(is.null(formula_estimand))
+    formula_estimand <- formula
     
-    if(method == "lm") {
-      
-      analysis <- function(data #, Y = NULL, Z = NULL
-                           ) {
-        lm(formula = formula, data = data)
-      }
-      
-    } else if(method == "glm"){
-      
-      if(!exists(family)){
-        family <- "binomial('logit')"
-        warning("Family was not specified for glm. Binomial logistic regression was chosen as the default.")
-      }
-      analysis <- function(data #,Y = NULL, Z = NULL
-                           ) {
-        ##if(!missing(Y) & Y != outcome_variable)
-        ##  formula2 <- substitute(formula, list(outcome_variable = as.name(Y)))
-        ##if(!missing(Z) & Z != treatment_variable)
-        ##  formula <- substitute(formula, list(treatment_variable = as.name(Z)))
-        glm(formula = formula, data = data, family = family)
-      }
-      
-    }
-    
-  }
-  
-  if(class(test_success) == "character" | !exists(test_success)){
-    ## if user provides a string, this invokes default test_success functions
-    if(!exists(test_success) & (method == "lm" | method == "glm"))
-      test_success <- "treatment-coefficient-significant"
-    
-    if(test_success == "treatment-coefficient-significant"){      
-      treat_coef_num <- which(formula_rhs == treatment_variable)
-      
-      test_success <- function(results, k = treat_coef_num #Y = NULL, Z = NULL, 
-                               ) {
-        summary(results)$coefficients[k,4] < alpha
-      }
-      ## note this code definitely works for lm, glm
+  ## default estimate function is lm
+  estimate <- function(data) {
+    if(!is.null(weights_variable)){
+      wts <- data[, weights_variable]
+      lm(formula = formula, data = data, weights = wts)
+    } else {
+      lm(formula = formula, data = data)
     }
   }
   
-  return.object <- list(analysis = analysis, test_success = test_success, 
-                        treatment_variable = treatment_variable, outcome_variable = outcome_variable,
-                        method = method, alpha = alpha,
-                        call = match.call())
+  ## default estimand function is exactly the same as estimate
+  estimand <- function(data) {
+    if(!is.null(weights_variable)){
+      wts <- data[, weights_variable]
+      lm(formula = formula_estimand, data = data, weights = wts)
+    } else {
+      lm(formula = formula_estimand, data = data)
+    }
+  }
   
-  class(return.object) <- "analysis"
+  ## default qoi is based on the treatment indicator coefficient 
+  qoi <- function(x){
+    treat_coef_num <- which(formula_rhs == treatment_variable)
+    df <- df.residual(x)
+    est <- coef(x)[treat_coef_num]
+    se <- sqrt(diag(vcov(x)))[treat_coef_num]
+    p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
+    conf_int <- confint(x)[treat_coef_num, ]
+    return(list(est = est, se = se, p = p, ci.lower = conf_int[1], ci.upper = conf_int[2], df = df))
+  }
   
-  return(return.object)
-  
-}
-
-#' Return the result of a test for treatment effect(s) from an experimental analysis
-#'
-#' Description
-#' @param analysis analysis object created by declare_analysis
-#' @param data data object created by make_y
-#' @param design design object created by declare_design
-#' @return a numeric scalar or vector of p-values
-#' @examples
-#' # Some examples will go here
-#' @rdname declare_analysis
-#' @export
-test_success <- function(analysis, finished_analysis = NULL, data, Y = NULL, Z = NULL){
-    
-  if(class(analysis) != "analysis") 
-    stop("Can only run analyses created by declare_analysis.")
-  
-  ## first runs the analysis then extracts the test result based on the analysis
-  
-  if(is.null(finished_analysis))
-    finished_analysis <- run_analysis(analysis = analysis, data = data) ## Y = Y, Z = Z)
-  
-  ##if(is.null(Z))
-  ##  Z <- analysis_treatment_variable(analysis)
-    
-  return(analysis$test_success(results = finished_analysis))  ##, Z = Z))
+  return(list(estimate = estimate, estimand = estimand, qoi = qoi, call = match.call()))
   
 }
 
-#' Runs a pre-defined experimental analysis
-#'
-#' Description
-#' @param analysis analysis object created by declare_analysis
-#' @param data data object created by make_data_frame
-#' @return a numeric scalar or vector of p-values
-#' @examples
-#' ##Some examples will go here
-#' @rdname declare_analysis
+get_estimate <- function(analysis, data){
+  return(analysis$estimate(data = data))
+}
+
+get_estimand <- function(analysis, data){
+  
+  treatment_conditions <- unique(data[, analysis_treatment_variable(analysis)])
+  formula <- analysis$call$formula ##_estimand
+  
+  ## create replicated data frame with only the right variables
+  data <- data[, all.vars(formula)]
+  data.rep <- do.call("rbind", replicate(length(treatment_conditions), data, simplify = FALSE))
+  
+  ## replace treatment with the replicated treatment
+  data.rep[, analysis_treatment_variable(analysis)] <- rep(treatment_conditions, each = nrow(data))
+  
+  data.rep[, analysis_outcome_variable(analysis)] <- observed_outcome(outcome = analysis_outcome_variable(analysis), 
+                                                                      treatment_assignment = analysis_treatment_variable(analysis),
+                                                                      data = data.rep, design = design)
+  
+  return(analysis$estimand(data = data.rep))
+  
+}
+
 #' @export
-run_analysis <- function(analysis, data, Y = NULL, Z = NULL){
-  
-  if(class(analysis) != "analysis") 
-    stop("Can only run analyses created by declare_analysis.")
-  
-  return(analysis$analysis(data = data)) #, Y = Y, Z = Z))
-  
+get_qoi <- function(analysis, data, output = "estimate"){
+  ## in principle we could integrate multiple analyses here
+  if(output == "estimate")
+    output <- estimate
+  else if (output == "estimand")
+    output <- estimand
+  return(analysis$qoi(output(analysis = analysis, data = data)))
 }
 
 #' @export

@@ -91,8 +91,6 @@ test_that("test workflow", {
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", design = design,
                                     data = mock)
 
-  
-  
   M1             <- run_analysis(analysis = analysis_1, data = mock)  
   M2             <- run_analysis(analysis = analysis_2, data = mock)  
   
