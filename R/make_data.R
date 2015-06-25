@@ -114,9 +114,9 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, blocks=NULL,
   }
   
   return_frame <- data.frame(outcomes)
-  if(!is.null(covariates)){return_frame <- cbind(df, data.frame(covariates))}
-  if(!is.null(blocks)){return_frame <- cbind(df, blocks$blocks_function(covariates=covariates))}
-  #if(!is.null(clusters)){return_frame <- cbind(df, data.frame(clust_var))}
+  if(!is.null(covariates)){return_frame <- cbind(return_frame, X)}
+  if(!is.null(blocks)){return_frame <- cbind(return_frame, blocks$blocks_function(covariates=return_frame))}
+  if(!is.null(clusters)){return_frame <- cbind(return_frame, clusters$clusters_function(covariates=return_frame))}
   
   return(return_frame)
 }

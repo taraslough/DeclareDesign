@@ -42,14 +42,14 @@ assign_treatment <- function(design, data) {
   }
   
   
-  if(design=="clustered"){
+  if(design_type=="clustered"){
     Z <- cluster_ra(clust_var=clust_var, 
                     m = m, 
                     m_each = m_each,
                     condition_names = condition_names)
   }
   
-  if(design=="blocked and clustered"){
+  if(design_type=="blocked and clustered"){
     Z <- blocked_and_clustered_ra(clust_var=clust_var,
                                   block_var=block_var, 
                                   block_m=block_m,

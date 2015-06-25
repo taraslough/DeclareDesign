@@ -51,7 +51,7 @@ declare_blocks <- function(blocks = NULL, recode = TRUE, recode_function = NULL,
     ## set default multi_blocking_function
     if(is.null(multi_blocking_function)){
       multi_blocking_function <- function(blocks, covariates, block_name = block_name){
-        df <- model.matrix(as.formula(paste("~", paste(blocks, collapse = "+"))), covariates = covariates)
+        df <- model.matrix(as.formula(paste("~", paste(blocks, collapse = "+"))), data = covariates)
         pca_first_component <- summary(princomp(df))$scores[,1]
         if(length(unique(pca_first_component)) < block_count)
           warning(paste("Not enough variation to make", block_count, "blocks. We made", length(unique(pca_first_component)), "blocks instead."))
@@ -88,13 +88,15 @@ declare_blocks <- function(blocks = NULL, recode = TRUE, recode_function = NULL,
 # gender <- sample(c("M", "F"), N, replace=TRUE)
 # party <- sample(c("D", "R", "I"),N, replace=TRUE)
 # lincome <- rnorm(N, 5, 2)
-# covariates <- data.frame(gender, lincome, party)
 # 
 # 
-# blocks <- declare_blocks(blocks = c("party", "gender"), recode = FALSE, block_count = 10)
-# table(blocks$blocks_function(covariates = covariates))
+# df <- data.frame(gender, lincome, party)
 # 
-# table(blocks$blocks_function(covariates = covariates)[,1], gender)
-# table(blocks$blocks_function(covariates = covariates)[,1], party)
+# 
+# blocks <- declare_blocks(blocks = "gender", recode = TRUE, block_count = 10)
+# table(blocks$blocks_function(covariates = df))
+# 
+# table(blocks$blocks_function(covariates = df)[,1], gender)
+# table(blocks$blocks_function(covariates = df)[,1], party)
 
 
