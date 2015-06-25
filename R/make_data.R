@@ -112,12 +112,15 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, N = NULL,sep
   if(potential_outcomes$outcome_variable$distribution=="binary"){
     outcomes <- apply(outcomes,2,function(i)rbinom(n = dim(outcomes)[1],size = 1,prob = 1/(1 + exp(-i))))
   }
-  if(is.null(covariates))return(data.frame(outcomes))else{
-    return(data.frame(outcomes,X))
-  }
-    
   
+  return_frame <- data.frame(outcomes)
+  if(!is.null(covariates)){return_frame <- cbind(df, data.frame(covariates))}
+  if(!is.null(blocks)){return_frame <- cbind(df, data.frame(block_var))}
+  if(!is.null(clusters)){return_frame <- cbind(df, data.frame(clust_car))}
+  
+  return(return_frame)
 }
+
 
 
 
