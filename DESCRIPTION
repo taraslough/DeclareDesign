@@ -1,10 +1,10 @@
 Package: registration
 Title: Tools to simplify the design and pre-registration of experiments, including generating simulated data and conducting power analyses
 Version: 0.1
-Authors@R: c(person("Graeme", "Blair", email = "email@columbia.edu", role = c("aut", "cre")),
-             person("Jasper", "Cooper", email = "email@columbia.edu", role = c("aut", "cre")),
-             person("Alexander", "Coppock", email = "email@columbia.edu", role = c("aut", "cre")),
-             person("Macartan", "Humphreys", email = "email@columbia.edu", role = c("aut", "cre")))
+Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@columbia.edu", role = c("aut", "cre")),
+             person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = c("aut", "cre")),
+             person("Alexander", "Coppock", email = "ac3242@columbia.edu", role = c("aut", "cre")),
+             person("Macartan", "Humphreys", email = "macartan@gmail.com", role = c("aut", "cre")))
 Author: Graeme Blair [aut, cre], Jasper Cooper [aut, cre], Alexander Coppock [aut, cre], Macartan Humphreys [aut, cre]
 Maintainer: Graeme Blair <graeme.blair@columbia.edu>
 Description: Experiment registration package to create a pre-registration document and describe an experimental design and planned analyses in detail.
