@@ -12,7 +12,7 @@ assign_treatment <- function(design, data) {
   ## should be expanded to take either a design object or a function
   ## may be need to have this respond to the characteristics of the data frame, i.e. N and m?
   
-  #N <- nrow(data)
+  N <- nrow(data)
   # It occurs to me that condition_names will be inherited from potential_outcomes (and exclude arms).  
   # Should we just simplify to prob_each or block_prob?
   block_name <- design$block_name
@@ -29,7 +29,8 @@ assign_treatment <- function(design, data) {
   design_type <- design$design_type
   
   if(design_type=="complete"){
-    Z <- complete_ra(m_each = m_each,
+    Z <- complete_ra(N = N,
+                     m_each = m_each,
                      prob_each = prob_each, 
                      condition_names = condition_names)
   }
