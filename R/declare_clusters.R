@@ -1,9 +1,9 @@
 
-cluster_function_generic <- function(clusters, cluster_name, covariates){
-  x <- covariates[,clusters]
+cluster_function_generic <- function(clusters, cluster_name, sample){
+  x <- sample[,clusters]
   n_digits <- nchar(as.character(length(unique(x))))
-  x <- paste0("Cluster_",sprintf(paste0("%0",n_digits,"d"),(as.numeric(as.factor(x)))))
-  cluster_df <- data.frame(x)
+  x <- paste0("cluster_",sprintf(paste0("%0",n_digits,"d"),(as.numeric(as.factor(x)))))
+  cluster_df <- data.frame(x, stringsAsFactors = FALSE)
   colnames(cluster_df) <- cluster_name
   return(cluster_df)
 } 
@@ -18,16 +18,16 @@ cluster_function_generic <- function(clusters, cluster_name, covariates){
 declare_clusters <- function(clusters, cluster_name = "cluster_variable", custom_cluster_function = NULL){
   
   if(is.null(custom_cluster_function)){
-    cluster_function <- function(covariates){
-      cluster_function_generic(clusters = clusters, cluster_name = cluster_name, covariates = covariates)
+    cluster_function <- function(sample){
+      cluster_function_generic(clusters = clusters, cluster_name = cluster_name, sample = sample)
     }
   }
   if(!is.null(custom_cluster_function)){
     cluster_funtion <- function(covariates){
       x <- custom_cluster_function(covariates)
       n_digits <- nchar(as.character(length(unique(x))))
-      x <- paste0("Cluster_",sprintf(paste0("%0",n_digits,"d"),(as.numeric(as.factor(x)))))
-      cluster_df <- data.frame(x)
+      x <- paste0("cluster_",sprintf(paste0("%0",n_digits,"d"),(as.numeric(as.factor(x)))))
+      cluster_df <- data.frame(x, stringsAsFactors = FALSE)
       colnames(cluster_df) <- cluster_name
       return(cluster_df)
     }

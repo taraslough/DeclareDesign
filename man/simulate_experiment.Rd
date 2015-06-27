@@ -5,7 +5,7 @@
 \title{Declare the data-generating process of a variable}
 \usage{
 simulate_experiment(data = NULL, potential_outcomes = NULL,
-  covariates = NULL, blocks = NULL, clusters = NULL, design, analysis,
+  sample_frame = NULL, blocks = NULL, clusters = NULL, design, analysis,
   sims = 100)
 }
 \arguments{

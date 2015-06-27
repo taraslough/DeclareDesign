@@ -5,11 +5,11 @@
 \title{Declare the data-generating process of a variable}
 \usage{
 declare_blocks(blocks = NULL, recode = TRUE, recode_function = NULL,
-  block_count = 5, multi_blocking_function = NULL,
+  block_count = 5, clusters = NULL, blocks_function = NULL,
   block_name = "block_variable")
 }
 \arguments{
-\item{blocks}{A character vector describing the variables in the covariates dataframe that will be used for blocking.}
+\item{blocks}{A character vector describing the variables in the sample dataframe that will be used for blocking.}
 
 \item{recode}{logical.  If TRUE (the default), principal components analysis used to make equally sized blocks, where the number of blocks is defined by block_count}
 
@@ -17,7 +17,7 @@ declare_blocks(blocks = NULL, recode = TRUE, recode_function = NULL,
 
 \item{block_count}{The total number of blocks.  If the blocking variables imply fewer than this number, nothing changes. If the variables supplied in blocks imply more possible categories, then the variable is recoded (if recode=TRUE).}
 
-\item{multi_blocking_function}{Function to take multiple variables and construct blocks from them. Must take blocks, covariates, and block_name and return}
+\item{blocks_function}{Function to take multiple variables and construct blocks from them. Must take blocks, sample, and block_name and return}
 
 \item{block_name}{A character string that gives the name of the blocking variable.}
 }

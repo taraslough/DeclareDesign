@@ -24,6 +24,7 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   )
   
   clusters <- declare_clusters(clusters = "villages_id")
+  blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
   
   design <- declare_design(potential_outcomes = po, clusters = clusters)
   
@@ -35,18 +36,19 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   power_2         <- simulate_experiment(sims = 100, analysis = list(analysis_1, analysis_2), design = design, clusters = clusters, sample_frame = smp, potential_outcomes = po)
   power_2
   
-  mock          <- make_data(potential_outcomes = po, sample_frame = smp, clusters = clusters)
+  mock          <- make_data(potential_outcomes = po, sample_frame = smp, blocks = blocks, clusters = clusters)
   
   head(mock)
   mock$Z        <- assign_treatment(design, data = mock)
   
-  with(mock, table(Z, cluster_variable))
+  with(subset(mock, development_level==1), table(as.character(cluster_variable), block_variable))
   
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
   M1             <- get_estimates(analysis = analysis_1, data = mock)  
   summary(M1)
-    
+  summary(power_1)
+  
   pre_register(design = design, covariates = cov, 
                potential_outcomes = po, analysis = analysis_1, 
                registration_title = "Simplest Possible Experiment", 

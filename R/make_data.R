@@ -1,13 +1,13 @@
-#' Make the full dataset or just covariates
+#' Make the full dataset or just a sample
 #'
 #' @param potential_outcomes An outcomes_object made with declare_potential_outcomes()
-#' @param covariates A covariate_object made with declare_covariates(), or a pre-existing dataframe
-#' @param N If covariates are provided, this argument is ignored.
+#' @param sample_frame A sample_frame object made with declare_sample_frame(), or a pre-existing dataframe
+#' @param N If sample_frame is provided, this argument is ignored.
 #' @export
-make_data <- function(potential_outcomes = NULL, covariates = NULL, blocks=NULL, clusters=NULL, N = NULL,sep = "_"){
-
-  if(is.null(covariates)&is.null(potential_outcomes))stop(
-    "You must provide at least covariates or a potential outcomes object."
+make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates_data = NULL, blocks=NULL, clusters=NULL, N = NULL,sep = "_"){
+  
+  if(is.null(sample_frame)&is.null(potential_outcomes))stop(
+    "You must provide at least a sample frame or a potential outcomes object."
   )
   if(!is.null(potential_outcomes)){
     condition_names  <- potential_outcomes$condition_names
@@ -18,23 +18,23 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, blocks=NULL,
     covariate_names  <- all.vars(outcome_formula)[!all.vars(outcome_formula)%in%condition_names][-1]
     outcome_name     <- all.vars(outcome_formula)[1]
     if(length(covariate_names)>0){
-    model_formula    <- as.formula(paste0(outcome_name," ~ ", paste(covariate_names,collapse = "+")))
+      model_formula    <- as.formula(paste0(outcome_name," ~ ", paste(covariate_names,collapse = "+")))
     }else(model_formula <- NULL)
   }
-  # Check whether covariate_object is covarite_object or a user-supplied matrix
-  if(!is.null(covariates)){
-    if(!class(covariates)%in%c("covariate_object","matrix","data.frame"))stop(
-      "The covariates must either be a covariate_object created with declare_covariates(), or a dataframe or matrix."
+  # Check whether sample_frame_object is sample_frame class or a user-supplied matrix
+  if(!is.null(sample_frame)){
+    if(!class(sample_frame)%in%c("sample_frame","matrix","data.frame"))stop(
+      "The sample frame must either be a sample_frame object created with declare_sample_frame(), or a dataframe or matrix."
     )
-    if(class(covariates)=="covariate_object"){
-      X <- covariates$make_covariates()
+    if(class(sample_frame)=="sample_frame"){
+      X <- sample_frame$make_sample()
     }
-    if(class(covariates)%in%c("matrix","data.frame")){
-      X <- covariates
+    if(class(sample_frame)%in%c("matrix","data.frame")){
+      X <- sample_frame
     }
     if(is.null(potential_outcomes))return(X)}
-  if(is.null(covariates)){
-    if(is.null(N))stop("You have not supplied any covariates, so the sample size cannot be determined. Please supply a value for N.")
+  if(is.null(sample_frame)){
+    if(is.null(N))stop("You have not supplied any sample frame, so the sample size cannot be determined. Please supply a value for N.")
     if(length(covariate_names)>0){
       X <- data.frame(matrix(data = rnorm(length(covariate_names)*N),ncol = length(covariate_names)))
       names(X) <- covariate_names
@@ -42,44 +42,44 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, blocks=NULL,
       if(outcome_variable$distribution!="normal"){
         untreated_var <- declare_variable()
       }else{
-          untreated_var <- outcome_variable
-        }
+        untreated_var <- outcome_variable
+      }
       
       X <- make_X_matrix(untreated_outcome = untreated_var,
-                    N = N)
+                         N = N)
       outcome_formula <- as.formula(paste0(as.character(outcome_formula)[2]," ",
-                                as.character(outcome_formula)[1],
-                                " untreated_outcome + " ,
-                                as.character(outcome_formula)[3]))
-      }}
+                                           as.character(outcome_formula)[1],
+                                           " untreated_outcome + " ,
+                                           as.character(outcome_formula)[3]))
+    }}
   
   
   # Check that all of the variables in the formula are in the X matrix or in the treatment names
   # Check that the baseline is nested in the treatment formula
   if(
     FALSE %in% (all.vars(outcome_formula)[-1] %in% c(names(X),condition_names))
-  )stop("All of the variables in the formula should either be in the covariate matrix or in the condition_names of the design_object.")
+  )stop("All of the variables in the formula should either be in the sample matrix or in the condition_names of the design_object.")
   treat_mat    <- diag(length(condition_names))
   colnames(treat_mat) <- condition_names
   # Make a function that generates potential outcomes as a function of 
-  # all of the variables (treatment assignment, covariates) and some normal noise
+  # all of the variables (treatment assignment, sample_frame) and some normal noise
   
   if(potential_outcomes$outcome_variable$distribution=="normal"){
-    if(is.null(covariates)){
+    if(is.null(sample_frame)){
       gen_outcome  <- eval(parse(text = paste0(
         "function(slice){y <- with(slice,{",outcome_formula[3],"});return(y)}"
       )))
     }else{
-  gen_outcome  <- eval(parse(text = paste0(
-    "function(slice){y <- with(slice,{",outcome_formula[3],"}) + rnorm(1,potential_outcomes$outcome_variable$mean,potential_outcomes$outcome_variable$sd);return(y)}"
-  )))}
-  unit_variance <- potential_outcomes$outcome_variable$sd^2
+      gen_outcome  <- eval(parse(text = paste0(
+        "function(slice){y <- with(slice,{",outcome_formula[3],"}) + rnorm(1,potential_outcomes$outcome_variable$mean,potential_outcomes$outcome_variable$sd);return(y)}"
+      )))}
+    unit_variance <- potential_outcomes$outcome_variable$sd^2
   }else{
     gen_outcome  <- eval(parse(text = paste0(
       "function(slice){y <- with(slice,{",outcome_formula[3],"}) + rnorm(1);return(y)}")))
     unit_variance <- 1
   }
-
+  
   
   # Make another function that applies the gen.outcome function across 
   # the treatment condition indicators, generating a vector of outcomes for 
@@ -93,14 +93,14 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, blocks=NULL,
       ))))
     }
   )}
-  # Apply that function through the covariate matrix to get the potential outcomes
+  # Apply that function through the sample matrix to get the potential outcomes
   if(dim(X)[2]==1){
     X_name <- names(X)
     X <- X[,1]
     X <- setNames(X,rep(X_name,length(X))) 
     outcomes     <- data.frame(t(sapply(1:length(X),function(i)each_treat(X[i]))))
   }else{
-  outcomes     <- data.frame(t(sapply(1:dim(X)[1],function(i)each_treat(X[i,]))))} ## this line takes a really long time (perhaps two lines above as well?)
+    outcomes     <- data.frame(t(sapply(1:dim(X)[1],function(i)each_treat(X[i,]))))} ## this line takes a really long time (perhaps two lines above as well?)
   names(outcomes) <- paste0(outcome_name,sep,condition_names)
   
   if(!is.null(ICC)&!is.null(cluster_var_name)){
@@ -114,12 +114,33 @@ make_data <- function(potential_outcomes = NULL, covariates = NULL, blocks=NULL,
   }
   
   return_frame <- data.frame(outcomes)
-  if(!is.null(covariates)){return_frame <- cbind(return_frame, X)}
-  if(!is.null(blocks)){return_frame <- cbind(return_frame, blocks$blocks_function(covariates=return_frame))}
-  if(!is.null(clusters)){return_frame <- cbind(return_frame, clusters$clusters_function(covariates=return_frame))}
+  return_frame$make_data_sort_id <- 1:nrow(return_frame)
+  if(!is.null(sample_frame)){return_frame <- cbind(return_frame, X)}
+  if(!is.null(clusters)){return_frame <- cbind(return_frame, clusters$cluster_function(sample=return_frame))}
+  
+  if(!is.null(blocks)){
+    if(is.null(blocks$call$clusters)){
+      return_frame <- cbind(return_frame, blocks$blocks_function(sample=return_frame))
+    }else{
+      cluster_frame <- unique(return_frame[, c(clusters$cluster_name, blocks$call$blocks)])
+      if(nrow(cluster_frame) != length(unique(return_frame[,clusters$cluster_name]))){
+        stop("There is more than one level of a cluster-level covariate in at least one cluster, so you cannot block on it. Please construct cluster-level variables that have a single value within clusters.")
+      } 
+      cluster_frame[, blocks$block_name] <- blocks$blocks_function(sample=cluster_frame)
+      
+      return_frame <- merge(return_frame, cluster_frame[, c(blocks$block_name, clusters$cluster_name)], by = clusters$cluster_name, all.x = TRUE, all.y = FALSE)
+      
+    }
+  }
+  
+  return_frame <- return_frame[order(return_frame$make_data_sort_id),]
+  return_frame$make_data_sort_id <- NULL
+  
   
   return(return_frame)
 }
+
+
 
 
 

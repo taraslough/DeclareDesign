@@ -21,7 +21,7 @@ assign_treatment <- function(design, data) {
   clust_var <- data[,cluster_name]
   
   condition_names <- design$condition_names
-  #m <- design$m
+  m <- design$m
   m_each <- design$m_each
   prob_each <- design$prob_each
   block_m <- design$block_m

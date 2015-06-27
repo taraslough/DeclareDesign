@@ -2,19 +2,20 @@
 % Please edit documentation in R/make_data.R
 \name{make_data}
 \alias{make_data}
-\title{Make the full dataset or just covariates}
+\title{Make the full dataset or just a sample}
 \usage{
-make_data(potential_outcomes = NULL, covariates = NULL, blocks = NULL,
-  clusters = NULL, N = NULL, sep = "_")
+make_data(potential_outcomes = NULL, sample_frame = NULL,
+  covariates_data = NULL, blocks = NULL, clusters = NULL, N = NULL,
+  sep = "_")
 }
 \arguments{
 \item{potential_outcomes}{An outcomes_object made with declare_potential_outcomes()}
 
-\item{covariates}{A covariate_object made with declare_covariates(), or a pre-existing dataframe}
+\item{sample_frame}{A sample_frame object made with declare_sample_frame(), or a pre-existing dataframe}
 
-\item{N}{If covariates are provided, this argument is ignored.}
+\item{N}{If sample_frame is provided, this argument is ignored.}
 }
 \description{
-Make the full dataset or just covariates
+Make the full dataset or just a sample
 }
 

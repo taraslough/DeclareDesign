@@ -1,4 +1,4 @@
-#' Declare the structure of the covariates 
+#' Declare the structure of the sample frame 
 #'
 #' @param ... a list either of variable declarations, or of lists of variable declarations (one per level)
 #' @param N_per_level description
@@ -16,9 +16,9 @@ declare_sample_frame <-
     
     if(TRUE %in% (c("function","DGP_object")%in%sapply(variable_list,class))){
       N_levels <- 1
-      make_covariates <- function(){make_X_matrix(variables = variable_list,
-                                                  variable_names = names(variable_list),
-                                                  N = N_units
+      make_sample <- function(){make_X_matrix(variables = variable_list,
+                                              variable_names = names(variable_list),
+                                              N = N_units
       )} 
       level_names <- "Only one level"
       # data_structure_description <- "Only one level"
@@ -40,7 +40,7 @@ declare_sample_frame <-
         # lower_units_per_level    <- Some division
       }
       
-      make_covariates <- function(){
+      make_sample <- function(){
         X_list <- lapply(1:N_levels,function(i){
           X_mat <- make_X_matrix(variables = variable_list[[i]],
                                  variable_names = variable_names[[i]],
@@ -55,7 +55,7 @@ declare_sample_frame <-
           return(X_names[length(X_names)])
         })
         
-        covariate_matrix <- X_list[[1]]
+        sample_matrix <- X_list[[1]]
         
         if(N_levels > 1){ 
           X_mat_joined <- NA
@@ -74,10 +74,10 @@ declare_sample_frame <-
                     by = id_vars[i])
             
           }
-          covariate_matrix <- X_mat_joined
+          sample_matrix <- X_mat_joined
         }
         
-        return(covariate_matrix)
+        return(sample_matrix)
       }
       
       
@@ -90,8 +90,8 @@ declare_sample_frame <-
       #       }),collapse = ", "),".")
       
     }
-    covariate_object <- list(
-      make_covariates = make_covariates,
+    sample_frame_object <- list(
+      make_sample = make_sample,
       covariate_names = variable_names,
       level_names = level_names,
       number_levels = N_levels,
@@ -100,8 +100,8 @@ declare_sample_frame <-
       # data_structure_description = data_structure_description,
       call = match.call()
     )
-    class(covariate_object) <- "covariate_object"
-    return(covariate_object)
+    class(sample_frame_object) <- "sample_frame"
+    return(sample_frame_object)
   }
 
 

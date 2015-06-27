@@ -5,7 +5,7 @@ library(testthat)
 library(registration)
 
 test_that("test whether a simple experiment with blocking can be pre-registered", {
-  cov <- declare_covariates(
+  smp <- declare_sample_frame(
     individuals = list(
       income = declare_variable(linear_mean = 3, linear_sd = 1)),
     N_per_level = c(500))
@@ -16,9 +16,6 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income
   )
   
-    
-  
-  
   blocks <- declare_blocks(blocks = "income")
   
   design        <- declare_design(potential_outcomes = po, blocks = blocks)
@@ -28,13 +25,13 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   analysis_2      <- declare_analysis(formula = Y ~ Z + income, treatment_variable = "Z", 
                                       design = design, method = "lm")
   
-  sims <- simulate_experiment(potential_outcomes = po, covariates = cov, blocks = blocks, 
+  sims <- simulate_experiment(potential_outcomes = po, sample_frame = smp, blocks = blocks, 
                               design = design,analysis = list(analysis_1, analysis_2))
   summary(sims)
   
   
   # Run analysis on a single realization
-  mock          <- make_data(potential_outcomes = po, covariates = cov, blocks = blocks)
+  mock          <- make_data(potential_outcomes = po, sample_frame = smp, blocks = blocks)
   mock$Z        <- assign_treatment(design, data = mock)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   head(mock)

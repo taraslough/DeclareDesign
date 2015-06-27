@@ -5,19 +5,23 @@
 #' @param analysis analysis object
 #' @param sims number of iterations
 #' @export
-simulate_experiment <- function(data = NULL, potential_outcomes = NULL, covariates = NULL, blocks = NULL, clusters = NULL,
+simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_frame = NULL, blocks = NULL, clusters = NULL, 
                                 design, analysis, sims = 100){
   
-  if(is.null(data) & is.null(covariates) & is.null(potential_outcomes)) {
-    stop("You must provide one or more of data, covariates, and potential_outcomes.")
-  }
+  ## do not allow sample_frame and no potential_outcomes
+  ## warning if provide all three
   
-  if(!is.null(data) & !is.null(covariates)){
-    warning("You specified both data and covariates. The function will resample covariates, replacing those in the data argument.")
-  }
+  if(!is.null(sample_frame) & is.null(potential_outcomes))
+    stop("If you provide a sample_frame argument, please also provide a potential_outcomes argument.")
+  if(!is.null(data) & !is.null(sample_frame) & !is.null(potential_outcomes))
+    warning("You provided arguments for sample_frame, potential_outcomes, and data. The function will resample the covariates from the sample_frame argument, resample the potential_outcomes from the potential_outcomes argument, and ignore the data argument. To avoid this warning, please do not specify the data argument.")
   
-  resample_covariates <- !is.null(covariates) & is.null(data)
-  resample_potential_outcomes <- !is.null(potential_outcomes)
+  if(!is.null(data) & is.null(sample_frame) & !is.null(potential_outcomes))
+    resample <- "potential_outcomes"
+  if(!is.null(sample_frame) & !is.null(potential_outcomes))
+    resample <- "both"
+  if(is.null(sample_frame) & is.null(potential_outcomes) & !is.null(data))
+    resample <- "neither"
   
   if(!is.null(data))
     data_sim <- data
@@ -26,23 +30,20 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, covariat
   estimands_list <- list()
   for(i in 1:sims){
     
-    if(resample_covariates == TRUE & resample_potential_outcomes == TRUE){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, covariates = covariates, blocks = blocks, clusters = clusters)
+    if(resample == "potential_outcomes"){
+      data_sim <- make_data(potential_outcomes = potential_outcomes, sample_frame = data, blocks = blocks, clusters = clusters)
+    } else if (resample == "both"){
+      data_sim <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, blocks = blocks, clusters = clusters)
+    } else if (resample == "neither"){
+      stop("Neither is not yet implemented. Please fix make_data.")
     }
     
-    #if(resample_covariates == FALSE & resample_potential_outcomes = TRUE){
-    #  data_sim <- make_data(potential_outcomes = potential_outcomes, covariates = data_sim, blocks = blocks, clusters = clusters)
-    #}
-    ##if(resample_covariates == FALSE & resample_potential_outcomes = FALSE){
-    ##  data_sim <- make_data(potential_outcomes = data_sim, covariates = data_sim, blocks = blocks, clusters = clusters)
-    ##}
-    
-    dummy_assignment <- assign_treatment(design = design, data = data_sim)
+    z_sim <- assign_treatment(design = design, data = data_sim)
    
     if(class(analysis)=="analysis"){analysis <- list(analysis)}
     
     for(j in 1:length(analysis)){
-      data_sim[, analysis_treatment_variable(analysis = analysis[[j]])] <- dummy_assignment
+      data_sim[, analysis_treatment_variable(analysis = analysis[[j]])] <- z_sim
       
       data_sim[, analysis_outcome_variable(analysis = analysis[[j]])] <- 
         observed_outcome(outcome = analysis_outcome_variable(analysis[[j]]),  
@@ -74,7 +75,6 @@ summary.experiment_simulations <- function(object, ...) {
   summary_array <- array(NA, dim = c(ncol(estimates[[1]]), 4, length(estimates)),
                          dimnames = list(colnames(estimates[[1]]),c("sate", "sate_hat", "error", "p"), 
                                          1:length(estimates)))
-  
   for(i in 1:length(object$estimates)){
     
     for(q in 1:ncol(estimates[[i]])){
@@ -89,27 +89,26 @@ summary.experiment_simulations <- function(object, ...) {
     }
   }
   
-  
   if(dim(summary_array)[1]==1){
-    PATES <- mean(summary_array[,1,])
-    simulation_errors <- sd(summary_array[,1,])
-    powers <- mean(summary_array[,4,] < 0.05)
-    RMSES <- sqrt(mean((summary_array[,1,] - summary_array[,2,])^2))
-    bias <- mean(summary_array[,1,] - PATES)
+    PATE <- mean(summary_array[,1,])
+    simulation_error <- sd(summary_array[,1,])
+    power <- mean(summary_array[,4,] < 0.05)
+    RMSE <- sqrt(mean((summary_array[,1,] - summary_array[,2,])^2))
+    bias <- mean(summary_array[,1,] - PATE)
     
-    summ <- cbind(PATES, simulation_errors, powers, RMSES, bias)
+    summ <- cbind(PATE, simulation_error, power, RMSE, bias)
     
     #structure(summ, class = c("summary.experiment_simulations", class(summ)))
     return(summ)
   }
   
-  PATES <- apply(summary_array[,1,], 1 , mean)
-  simulation_errors <- apply(summary_array[,1,], 1 , sd)
-  powers <- apply(summary_array[,4,], 1 , function(x) mean(x < 0.05))
-  RMSES <- apply(summary_array[,1,] - summary_array[,2,], 1 , function(x) sqrt(mean(x^2)))
-  bias <- apply(summary_array[,2,] - PATES, 1, mean)
+  PATE <- apply(summary_array[,1,], 1 , mean)
+  simulation_error <- apply(summary_array[,1,], 1 , sd)
+  power <- apply(summary_array[,4,], 1 , function(x) mean(x < 0.05))
+  RMSE <- apply(summary_array[,1,] - summary_array[,2,], 1 , function(x) sqrt(mean(x^2)))
+  bias <- apply(summary_array[,2,] - PATE, 1, mean)
   
-  summ <- cbind(PATES, simulation_errors, powers, RMSES, bias)
+  summ <- cbind(PATE, simulation_error, power, RMSE, bias)
   
   #structure(summ, class = c("summary.experiment_simulations", class(summ)))
   return(summ)

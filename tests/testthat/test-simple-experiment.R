@@ -7,9 +7,8 @@ library(registration)
 test_that("test whether a simple experiment can be pre-registered", {
   
   # Still have to put in covariates because where else to specify n (it's in make_data() right now)
-  cov <- declare_covariates(
-    individuals = list(
-      income = declare_variable()),
+  cov <- declare_sample_frame(
+    individuals = list(),
     N_per_level = c(500))
   
   po     <-  declare_potential_outcomes(
@@ -24,7 +23,7 @@ test_that("test whether a simple experiment can be pre-registered", {
                                       method = "lm", qoi_function = "ATE")
   
   sims <- simulate_experiment(potential_outcomes = po, covariates = cov, 
-                              design = design, analysis = analysis_1,sims = 100)
+                              design = design, analysis = analysis_1, sims = 100)
   summary(sims)
   
   # Run analysis on a single realization
