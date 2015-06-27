@@ -302,7 +302,11 @@ observed_probs <- function(treatment_assignment, design, data){
   return(prob_obs)  
 }
   
-
+#' @export
+make_permutation_matrix <- function(design, data, sims=100){
+  permutation_matrix <- replicate(n = sims, expr = assign_treatment(design = design, data = data))
+  return(permutation_matrix)
+}
 
 
 
