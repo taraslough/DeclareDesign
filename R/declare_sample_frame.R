@@ -1,8 +1,10 @@
 #' Declare the structure of the covariates 
 #'
 #' @param ... a list either of variable declarations, or of lists of variable declarations (one per level)
+#' @param N_per_level description
+#' @param lower_units_per_level description
 #' @export
-declare_covariates <-
+declare_sample_frame <-
   function(...,N_per_level=NULL,lower_units_per_level=NULL) {
     
     # Put in checks here to check how the list is structured
@@ -75,18 +77,18 @@ declare_covariates <-
           covariate_matrix <- X_mat_joined
         }
         
-      return(covariate_matrix)
-    }
-    
-    
-#     data_structure_description <- paste0(paste(sapply(2:N_levels,function(i){
-#       if(nested_levels[i-1]){
-#         paste0(level_names[i-1], " is / are nested within ",level_names[i])
-#       }else{paste0(level_names[i-1], 
-#                    " is / are not nested within ",
-#                    level_names[i])}
-#       }),collapse = ", "),".")
-    
+        return(covariate_matrix)
+      }
+      
+      
+      #     data_structure_description <- paste0(paste(sapply(2:N_levels,function(i){
+      #       if(nested_levels[i-1]){
+      #         paste0(level_names[i-1], " is / are nested within ",level_names[i])
+      #       }else{paste0(level_names[i-1], 
+      #                    " is / are not nested within ",
+      #                    level_names[i])}
+      #       }),collapse = ", "),".")
+      
     }
     covariate_object <- list(
       make_covariates = make_covariates,
