@@ -76,7 +76,7 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data, sep = "_
     warning("There are NA's in the treatment assignment vector.")
 
   observed_y <- rep(NA, nrow(data))
-  condition_names <- unique(treatment_assignment)
+  condition_names <- unique(data[,treatment_assignment])
   for(v in condition_names){
     treat_cond <- data[,treatment_assignment] == v
     observed_y[treat_cond] <- data[treat_cond, paste0(outcome, sep, v)]

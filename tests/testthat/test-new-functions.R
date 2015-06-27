@@ -6,16 +6,6 @@ library(registration)
 
 test_that("test workflow", {
   
-  # Takes arbitrary number of nested levels (will implement non-nested levels later)
-  # You either simply list all of your covariates (for a 1-level data structure),
-  # or put each successive level in as a list of variables contained at that level 
-  # (i.e. the unit-level variables, the cluster-level variables, the block-level variables)
-  # There is some trickiness about how to automate the numeric descriptions of the number of
-  # levels within levels a bit better. 
-  # Level ids generated automatically depending on how the list is named. 
-  # It should be noted that the function does not produce dataframes that are sensitive to ordering.
-  # Also user-programmed RNGs can be used in place of DGP_objects made with declare_variable()
-  
   cov <- declare_covariates(
     individuals = list(
       income = declare_variable(),
@@ -40,14 +30,16 @@ test_that("test workflow", {
     ICC = .2
   )
   
-  clusters <- declare_clusters(clusters = "villages")
-  blocks <- declare_blocks(blocks = "districts", clusters = clusters)
-     
-  design        <- declare_design(potential_outcomes = po, blocks = blocks, clusters = clusters)
+  ##clusters <- declare_clusters(clusters = "villages")
+
+  blocks <- declare_blocks(blocks = "income", block_count = 10)
   
-  analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm", qoi_function = ?)
-  analysis_2      <- declare_analysis(formula = Y ~ Z + income + female, treatment_variable = "Z", method = "lm", qoi_function = ?)
-    
+  design        <- declare_design(potential_outcomes = po, blocks = blocks)
+  
+  analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm", qoi_function = "ATE")
+  
+  analysis_2      <- declare_analysis(formula = Y ~ Z + income + female, treatment_variable = "Z", method = "lm", qoi_function = x)
+  
   ## where do you declare experiment-wide test_success function
   
   ## pre_register
@@ -71,26 +63,31 @@ test_that("test workflow", {
   summary <- summary(sims)
   ## outputs a table of summaries based on the matrix
   
-
+  
   paper_draft(pre_registration = pre_register) ## outputs a paper draft Rmd / knitr / etc. file based on the pre-registered analyses etc.
-    
+  
   ## separately, you can test out how the analyses work, etc., using a realization of treatment
   ## now get a single realization of the data and treatment assignment
-  mock          <- make_data(potential_outcomes = po, covariates = cov, clusters = clusters, blocks = blocks)
+  mock          <- make_data(potential_outcomes = po, covariates = cov, blocks = blocks) ##clusters = clusters, 
   
-  data <- make_clusters(clusters, data)   ## sticks the cluster variable into data and returns the whole data frame
-  data <- make_blocks(blocks, data)  ## sticks the blocks variable into data and returns the whole data frame
+  ##data <- make_clusters(clusters, data)   ## sticks the cluster variable into data and returns the whole data frame
+  ##data <- make_blocks(blocks, data)  ## sticks the blocks variable into data and returns the whole data frame
   
-  mock$Z        <- assign_treatment(design)
+  mock$Z        <- assign_treatment(design = design, data = mock)
+  mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
+  
+  
+  m <- get_estimates(analysis_1, data = mock)
+  
   
   ## observed probabilities of treatment
   mock$Z_prob   <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
-
+  
   perm_matrix <- make_permutation_matrix(mock, treatment_assignment = "Z", design = design)
   
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", design = design,
                                     data = mock)
-
+  
   M1             <- run_analysis(analysis = analysis_1, data = mock)  
   M2             <- run_analysis(analysis = analysis_2, data = mock)  
   

@@ -5,17 +5,34 @@
 \title{Declare an experimental analysis}
 \usage{
 declare_analysis(formula, treatment_variable = "Z", method = "lm",
-  subset = NULL, formula_estimand = NULL, weights_variable = NULL,
-  qoi = "ATE", ...)
+  subset = NULL, weights = NULL, estimand = "ATE",
+  formula_estimand = NULL, outcome_variable = NULL, qoi = "ATE",
+  qoi_only = FALSE, qoi_labels = NULL, ...)
 }
 \arguments{
 \item{formula}{an optional formula object to define analyses such as linear regressions with covariates}
 
+\item{treatment_variable}{}
+
 \item{method}{either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm}
+
+\item{subset}{a string indicating which subset of the data to take for analyses}
+
+\item{weights}{}
+
+\item{estimand}{}
+
+\item{formula_estimand}{}
+
+\item{outcome_variable}{}
+
+\item{qoi}{}
+
+\item{qoi_only}{}
 
 \item{...}{additional options to be sent to the analysis function and the test_success function}
 
-\item{test_success}{a function that extracts the binary result of a statistical test (did it pass = 1, if not = 0)}
+\item{method}{}
 }
 \value{
 a list containing a function to conduct the analysis and a function to extract the result of the test

@@ -4,8 +4,8 @@
 \alias{make_data}
 \title{Make the full dataset or just covariates}
 \usage{
-make_data(potential_outcomes = NULL, covariates = NULL, N = NULL,
-  sep = "_")
+make_data(potential_outcomes = NULL, covariates = NULL, blocks = NULL,
+  clusters = NULL, N = NULL, sep = "_")
 }
 \arguments{
 \item{potential_outcomes}{An outcomes_object made with declare_potential_outcomes()}

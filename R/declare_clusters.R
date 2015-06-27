@@ -8,17 +8,19 @@ cluster_function_generic <- function(clusters, cluster_name, covariates){
   return(cluster_df)
 } 
 
-
-#' @export
+#' Declare cluster variable
+#'
+#' Description
 #' @param clusters A character vector describing the variable in the covariates dataframe that will be used for clustering
 #' @param cluster_name A character string that gives the name of the cluster variable.
 #' @param custom_cluster_function A function that takes only a dataframe of covariates and returns a vector of length n whose entries describe which cluster each unit belongs to.
-declare_clusters <- function(clusters, cluster_name="cluster_variable", custom_cluster_function=NULL){
+#' @export
+declare_clusters <- function(clusters, cluster_name = "cluster_variable", custom_cluster_function = NULL){
   
   if(is.null(custom_cluster_function)){
-  cluster_function <- function(covariates){
-    cluster_function_generic(clusters = clusters, cluster_name = cluster_name, covariates = covariates)
-  }
+    cluster_function <- function(covariates){
+      cluster_function_generic(clusters = clusters, cluster_name = cluster_name, covariates = covariates)
+    }
   }
   if(!is.null(custom_cluster_function)){
     cluster_funtion <- function(covariates){

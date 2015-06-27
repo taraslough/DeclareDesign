@@ -2,7 +2,15 @@
 #'
 #' Description
 #' @param method either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm
-#' @param test_success a function that extracts the binary result of a statistical test (did it pass = 1, if not = 0)
+#' @param treatment_variable
+#' @param method
+#' @param subset a string indicating which subset of the data to take for analyses
+#' @param weights
+#' @param estimand
+#' @param formula_estimand
+#' @param outcome_variable
+#' @param qoi
+#' @param qoi_only
 #' @param formula an optional formula object to define analyses such as linear regressions with covariates
 #' @param ... additional options to be sent to the analysis function and the test_success function
 #' @return a list containing a function to conduct the analysis and a function to extract the result of the test
@@ -12,11 +20,9 @@
 #' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
 #' @rdname declare_analysis
 #' @export
-
-
-declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", subset = "X == 1",
-                             formula_estimand = NULL, method_estimand = "lm", outcome_variable = NULL, 
-                             weights_variable = NULL, qoi = "ATE", qoi_only = TRUE, ...) {
+declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", subset = NULL, weights = NULL, 
+                             estimand = "ATE", formula_estimand = NULL, outcome_variable = NULL, 
+                             qoi = "ATE", qoi_only = FALSE, qoi_labels = NULL, ...) {
   
   ## should weights be able to be different for estimate and estimand functions?
   
@@ -24,6 +30,11 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
   formula_rhs <- attr(terms.formula(formula), "term.labels")
   if(formula_has_intercept == 1)
     formula_rhs <- c("(Intercept)", formula_rhs)
+  
+  if(is.null(qoi_labels) & class(qoi) == "character")
+    qoi_labels <- qoi
+  
+  outcome_variable <- all.vars(formula[[2]])
   
   if(is.null(formula_estimand))
     formula_estimand <- formula
@@ -33,7 +44,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
   
   if(qoi_only == FALSE){
     
-    if(class(estimand) == "character") {
+    if(class(method) == "character") {
       
       if(method == "lm") {
         ## default estimate function is lm
@@ -41,9 +52,8 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
           ## change this so it can take any R model function and send the ... options to it
           if(!is.null(subset))
             data <- subset(data, eval(parse(text = subset)))
-          if(!is.null(weights_variable)){
-            wts <- data[, weights_variable]
-            lm(formula = formula, data = data, weights = wts)
+          if(!is.null(weights)){
+            lm(formula = formula, data = data, weights = data[, weights])
           } else {
             lm(formula = formula, data = data)
           }
@@ -54,23 +64,15 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
     
     if(class(estimand) == "character"){ 
       
-      if(estimand == "ATE" | estimand == "CATE"){
+      if(estimand == "ATE"){
         ## default estimand function is exactly the same as estimate
         estimand <- function(data) {
-          if(estimand == "CATE"){
-            if(!is.null(subset)){
-              data <- subset(data, eval(parse(text = subset)))
-            } else {
-              stop("The chosen estimand CATE needs to know which subset to estimate the CATE on.")
-            }
-          }
-          if(!is.null(weights_variable)){
-            wts <- data[, weights_variable]
-            lm(formula = formula_estimand, data = data, weights = wts)
+          if(!is.null(weights)){
+            lm(formula = formula_estimand, data = data, weights = data[, weights])
           } else {
             lm(formula = formula_estimand, data = data)
           }
-        } 
+        }
       }
       
     }
@@ -80,20 +82,26 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
       if(qoi == "ATE"){
         ## default qoi is based on the treatment indicator coefficient 
         qoi <- function(x){
-          ##treat_coef_num <- which(formula_rhs == treatment_variable)
-          treat_coef_num <- 2
+          treat_coef_num <- which(formula_rhs == treatment_variable)
+          coef_name <- names(coef(x))[treat_coef_num]
           df <- df.residual(x)
           est <- coef(x)[treat_coef_num]
           se <- sqrt(diag(vcov(x)))[treat_coef_num]
           p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
           conf_int <- confint(x)[treat_coef_num, ]
-          return(list(est = est, se = se, p = p, ci.lower = conf_int[1], ci.upper = conf_int[2], df = df))
+          
+          return(matrix(c(est, se, p, conf_int, df), 
+                        dimnames = list(c("est", "se", "p", "ci-lower", "ci-upper", "df"), 
+                                        paste(outcome_variable, "~", coef_name, "_", qoi_labels, sep = ""))))
         }
       }
       
-      return_object <- list(estimate = estimate, estimand = estimand, qoi = qoi, formula_estimand = formula_estimand, call = match.call())
-      
     }
+    
+    return_object <- list(estimate = estimate, estimand = estimand, qoi = qoi, 
+                          formula_estimand = formula_estimand, treatment_variable = treatment_variable,
+                          outcome_variable = outcome_variable,
+                          method = method, qoi_only = qoi_only, call = match.call())
     
   } else {
     
@@ -102,7 +110,9 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
     if(is.null(outcome_variable))
       stop("If you declare a custom quantity of interest (qoi) function, you must set declare both the treatment_variable and outcome_variable arguments.")
     
-    return_object <- list(qoi = qoi, call = match.call())
+    return_object <- list(qoi = qoi, qoi_only = TRUE, call = match.call())
+    ## this must take as arguments an analysis object created by declare_analysis and a data frame
+    ## this must return a matrix of rows # of statistics and columns # of qoi's
     
   }
   
@@ -112,20 +122,25 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
   
 }
 
-truth_data_frame <- function(formula = NULL, outcome_variable = "Y", treatment_variable = "Z", subset = NULL, data = data) {
+#' @export
+truth_data_frame <- function(formula = NULL, treatment_variable = "Z", 
+                             subset = NULL, data = data, sep = "_") {
   ##formula <- analysis$call$formula ##_estimand
   
   if(is.null(formula))
-    formula <- paste(outcome_variable, "~", treatment_variable)
+    stop("Formula must be provided.")
   
-  warning("question for us: should subset happen before or after obtaining list of treatment conditions")
-  if(!is.null(subset))
-    data <- subset(data, eval(parse(text = subset)))
+  outcome_variable <- all.vars(formula[[2]])
+  
+  covariate_variable_names <- all.vars(formula[[3]])[!(all.vars(formula[[3]]) %in% treatment_variable)]
   
   treatment_conditions <- unique(data[, treatment_variable])
   
+  potential_outcome_variable_names <- paste(outcome_variable, sep, treatment_conditions, sep = "")
+  
   ## create replicated data frame with only the right variables
-  data <- data[, all.vars(formula)]
+  ##data <- data[, all.vars(formula)]
+  data <- data[, c(potential_outcome_variable_names, covariate_variable_names)]
   data_rep <- do.call("rbind", replicate(length(treatment_conditions), data, simplify = FALSE))
   
   ## replace treatment with the replicated treatment
@@ -133,44 +148,108 @@ truth_data_frame <- function(formula = NULL, outcome_variable = "Y", treatment_v
   
   data_rep[, outcome_variable] <- observed_outcome(outcome = outcome_variable, 
                                                    treatment_assignment = treatment_variable,
-                                                   data = data_rep, design = design)
+                                                   data = data_rep, sep = sep)
+  
+  if(!is.null(subset))
+    data <- subset(data, eval(parse(text = subset)))
+  
   return(data_rep)
   
 }
 
+#' @export
 get_estimates_model <- function(analysis, data){
+  if(class(analysis) != "analysis")
+    stop("The analysis argument must be an object created by the declare_analysis function")
   return(analysis$estimate(data = data))
 }
 
+#' @export
 get_estimands_model <- function(analysis, data){
+  if(class(analysis) != "analysis")
+    stop("The analysis argument must be an object created by the declare_analysis function")
   return(analysis$estimand(data = truth_data_frame(formula = analysis$formula_estimand, data = data)))
 }
 
+#' @export
 get_estimates <- function(analysis, qoi = NULL, data) {
-  if(analysis$call$qoi_only == FALSE){
-    return(qoi(get_estimates_model(analysis = analysis, data = data)))
+  
+  analysis_labels <- paste0("analysis", sprintf(paste0("%0",nchar(as.character(length(analysis))),"d"),(1:length(analysis))))
+  
+  if(!is.null(qoi)) {
+    ## if there is a user-defined qoi function, use that to extract qoi from analysis object or list of them
+    return(qoi(analysis, data = data))
   } else {
-    return(analysis$qoi(data = data))
+    ## otherwise use qoi function defined in the analysis
+    if(class(analysis) == "list"){
+      ## if the user sends no qoi function but does send a list of analysis objects,
+      ## run this function on each analysis object and cbind the results
+      estimates_list <- list()
+      for(i in 1:length(analysis)) {
+        if(analysis[[i]]$qoi_only == FALSE){
+          estimates_list[[i]] <- analysis[[i]]$qoi(get_estimates_model(analysis = analysis[[i]], data = data))
+        } else {
+          estimates_list[[i]] <- analysis[[i]]$qoi(data = data)
+        }
+        colnames(estimates_list[[i]]) <- paste(colnames(estimates_list[[i]]), analysis_labels[i], sep = "_")
+      }
+      return(do.call("cbind", estimates_list))
+    } else {
+      if(class(analysis) != "analysis")
+        stop("The object in the analysis argument must by created by the declare_analysis function.")
+      ## otherwise process the one analysis function
+      if(analysis$qoi_only == FALSE){
+        estimates_matrix <- analysis$qoi(get_estimates_model(analysis = analysis, data = data))
+      } else {
+        estimates_matrix <- analysis$qoi(data = data)
+      }
+      colnames(estimates_matrix) <- paste(colnames(estimates_matrix), analysis_labels[1], sep = "_")
+      return(estimates_matrix)
+    }
   }
 }
 
-get_estimands <- function(analysis, qoi = NULL, data) {
+#' @export
+get_estimands <- function(analysis, qoi = NULL, data){
   
-  ## analysis can be an analysis object or a list of them
+  analysis_labels <- paste0("analysis", sprintf(paste0("%0",nchar(as.character(length(analysis))),"d"),(1:length(analysis))))
   
-  if(class(analysis) == "list") {
-    if(is.null(qoi))
-      stop("To get a quantity of interest from multiple analyses, please specify a function to do so in the qoi argument.")
-    return(qoi(analysis, data = data))
+  if(!is.null(qoi)) {
+    ## if there is a user-defined qoi function, use that to extract qoi from analysis object or list of them
+    return(qoi(analysis, data = truth_data_frame(formula = analysis$formula_estimand, data = data)))
   } else {
-    ## when analysis is a single object, take qoi and other objects from the analysis object
-    if(analysis$call$qoi_only == FALSE){
-      return(qoi(get_estimands_model(analysis = analysis, data = truth_data_frame(formula = analysis$formula_estimand, data = data))))
+    ## otherwise use qoi function defined in the analysis
+    if(class(analysis) == "list"){
+      warning("Need to fix this function so that it neatly handles different sets of parameters -- use merge")
+      
+      ## if the user sends no qoi function but does send a list of analysis objects,
+      ## run this function on each analysis object and cbind the results
+      estimands_list <- list()
+      for(i in 1:length(analysis)){
+        if(analysis[[i]]$qoi_only == FALSE){
+          estimands_list[[i]] <- analysis[[i]]$qoi(get_estimands_model(analysis = analysis[[i]], data = data))
+          ## get_estimands_model does truth_data_frame, so just sending it data
+        } else {
+          estimands_list[[i]] <- analysis[[i]]$qoi(data = truth_data_frame(formula = analysis[[i]]$formula_estimand, data = data))
+        }
+        colnames(estimands_list[[i]]) <- paste(colnames(estimands_list[[i]]), analysis_labels[i], sep = "_")
+      }
+      ## when it is sent back to get_estimands() it will run truth_data_frame, so just sending it data
+      return(do.call("cbind", estimands_list))
     } else {
-      return(analysis$qoi(data = truth_data_frame(formula = analysis$formula_estimand, data = data)))
+      if(class(analysis) != "analysis")
+        stop("The object in the analysis argument must by created by the declare_analysis function.")
+      ## otherwise process the one analysis function
+      if(analysis$qoi_only == FALSE){
+        estimands_matrix <- analysis$qoi(get_estimands_model(analysis = analysis, data = data))
+        ## get_estimands_model does truth_data_frame, so just sending it data
+      } else {
+        estimands_matrix <- analysis$qoi(data = truth_data_frame(formula = analysis$formula_estimand, data = data))
+      }
+      colnames(estimands_matrix) <- paste(colnames(estimands_matrix), analysis_labels[1], sep = "_")
+      return(estimands_matrix)
     }
   }
-  
 }
 
 #' @export

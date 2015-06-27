@@ -5,51 +5,102 @@
 #' @param analysis analysis object
 #' @param sims number of iterations
 #' @export
-get_power <- function(data=NULL, potential_outcomes = NULL, covariates = NULL, design, analysis, sims = 100, ...){
-  if(is.null(data) & is.null(covariates)) {
-    stop("You must provide either a data argument, a dataframe and a potential outcomes argument, or a potential outcomes and a covariates arguments.")
+simulate_experiment <- function(data = NULL, potential_outcomes = NULL, covariates = NULL, blocks = NULL, clusters = NULL,
+                                design, analysis, sims = 100){
+  
+  if(is.null(data) & is.null(covariates) & is.null(potential_outcomes)) {
+    stop("You must provide one or more of data, covariates, and potential_outcomes.")
   }
   
   if(!is.null(data) & !is.null(covariates)){
-    stop("Please do not simultaneously specify both the data argument and the covariates argument.")
+    warning("You specified both data and covariates. The function will resample covariates, replacing those in the data argument.")
   }
   
-  if(is.null(data))
-    resample <- TRUE
+  resample_covariates <- !is.null(covariates)
+  resample_potential_outcomes <- !is.null(potential_outcomes)
   
-  if(!is.null(data) & !is.null(potential_outcomes)){
-    resample <- TRUE
-    covariates <- data
-  }
-  
-  if(!is.null(data) & is.null(potential_outcomes) & is.null(covariates)){
-    resample <- FALSE
-    data_sim <- data
-  }
-  
-  if(resample == FALSE)
+  if(!is.null(data))
     data_sim <- data
   
-  simulation_vector <- rep(NA, sims)
+  estimates_list <- list()
+  estimands_list <- list()
   for(i in 1:sims){
     
-    if(resample == TRUE){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, covariates = covariates)
+    if(resample_covariates == TRUE & resample_potential_outcomes == TRUE){
+      data_sim <- make_data(potential_outcomes = potential_outcomes, covariates = covariates, blocks = blocks, clusters = clusters)
     } 
+    ##if(resample_covariates == FALSE & resample_potential_outcomes = TRUE){
+    ##  data_sim <- make_data(potential_outcomes = potential_outcomes, covariates = data_sim, blocks = blocks, clusters = clusters)
+    ##}
+    ##if(resample_covariates == FALSE & resample_potential_outcomes = FALSE){
+    ##  data_sim <- make_data(potential_outcomes = data_sim, covariates = data_sim, blocks = blocks, clusters = clusters)
+    ##}
     
-    data_sim[, analysis_treatment_variable(analysis = analysis)] <- 
-      assign_treatment(design = design)
+    dummy_assignment <- assign_treatment(design = design, data = data_sim)
+    for(j in 1:length(analysis)){
+      data_sim[, analysis_treatment_variable(analysis = analysis[[j]])] <- dummy_assignment
+      
+      data_sim[, analysis_outcome_variable(analysis = analysis[[j]])] <- 
+        observed_outcome(outcome = analysis_outcome_variable(analysis[[j]]),  
+                         treatment_assignment = analysis_treatment_variable(analysis[[j]]),
+                         data = data_sim)
+    }
     
-    data_sim[, analysis_outcome_variable(analysis = analysis)] <- 
-      observed_outcome(outcome = analysis_outcome_variable(analysis),  
-                       treatment_assignment = analysis_treatment_variable(analysis),
-                       design = design,
-                       data = data_sim)
-    
-    simulation_vector[i] <- test_success(analysis = analysis, data = data_sim)
+    estimates_list[[i]] <- get_estimates(analysis, data = data_sim)
+    estimands_list[[i]] <- get_estimands(analysis, data = data_sim)
     
   }
-  return(power = mean(simulation_vector))
+  
+  ##estimates <- do.call("rbind", lapply(estimates_list, reorient))
+  ##estimands <- do.call("rbind", lapply(estimands_list, reorient))
+  
+  return_object <- list(estimates = estimates_list, estimands = estimands_list)
+  class(return_object) <- "experiment_simulations"
+  
+  return(return_object)
+  
+}
+
+#' @export
+summary.experiment_simulations <- function(object, ...) {
+  
+  estimates <- object$estimates
+  estimands <- object$estimands
+  
+  summary_array <- array(NA, dim = c(ncol(estimates[[i]]), 4, length(estimates)),
+                         dimnames = list(colnames(estimates[[i]]),c("sate", "sate_hat", "error", "p"), 
+                                         1:length(estimates)))
+  
+  for(i in 1:length(object$estimates)){
+    
+    for(q in 1:ncol(estimates[[i]])){
+      
+      sate <- estimands[[i]]["est", q]
+      sate_hat <- estimates[[i]]["est", q]
+      error <- sate_hat - sate
+      p <- estimates[[i]]["p", q]
+      
+      summary_array[q, , i] <- c(sate, sate_hat, error, p)
+      
+    }
+  }
+  
+  summ <- apply(summary_array, c(1, 2), mean)
+  
+  structure(summ, class = c("summary.experiment_simulations", class(summ)))
+  
+}
+
+#' @export
+print.summary.experiment_simulations <- function(x, ...){
+  ## prints paragraph describing design
+  print("bob")
+}
+
+reorient <- function(x) {
+  obj <- c(x)
+  names(obj) <- rep(paste(rownames(x), colnames(x), sep = "_"), each = ncol(x))
+  return(obj)
 }
 
 #' Plot power across values of a parameter like the sample size
@@ -73,7 +124,7 @@ plot_power <- function(data, design, analysis, vary_parameter = "N", vary_sequen
   power_sequence <- rep(NA, length(vary_sequence))
   for(parameter in vary_sequence)
     power_sequence[i] <- power(data = data, design = design, analysis = analysis,
-                                 N = parameter)
+                               N = parameter)
   
   return(power_sequence)
   ##plot(vary_sequence, power_sequence, axes = F, las = 1)
