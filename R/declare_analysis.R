@@ -81,7 +81,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
       
       if(qoi == "ATE"){
         ## default qoi is based on the treatment indicator coefficient 
-        qoi <- function(x){
+        qoi <- function(x, stats = c("est", "se", "p", "ci_lower", "ci_upper", "df")){
           treat_coef_num <- which(formula_rhs == treatment_variable)
           coef_name <- names(coef(x))[treat_coef_num]
           df <- df.residual(x)
@@ -90,9 +90,10 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
           p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
           conf_int <- confint(x)[treat_coef_num, ]
           
-          return(matrix(c(est, se, p, conf_int, df), 
-                        dimnames = list(c("est", "se", "p", "ci-lower", "ci-upper", "df"), 
-                                        paste(outcome_variable, "~", coef_name, "_", qoi_labels, sep = ""))))
+          output <- matrix(c(est, se, p, conf_int, df), 
+                           dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                           paste(outcome_variable, "~", coef_name, "_", qoi_labels, sep = "")))
+          return(output[which(rownames(output) %in% stats), , drop = FALSE])
         }
       }
       
@@ -210,7 +211,7 @@ get_estimates <- function(analysis, qoi = NULL, data) {
 }
 
 #' @export
-get_estimands <- function(analysis, qoi = NULL, data){
+get_estimands <- function(analysis, qoi = NULL, data, stats = "est"){
   
   analysis_labels <- paste0("analysis", sprintf(paste0("%0",nchar(as.character(length(analysis))),"d"),(1:length(analysis))))
   
@@ -227,10 +228,10 @@ get_estimands <- function(analysis, qoi = NULL, data){
       estimands_list <- list()
       for(i in 1:length(analysis)){
         if(analysis[[i]]$qoi_only == FALSE){
-          estimands_list[[i]] <- analysis[[i]]$qoi(get_estimands_model(analysis = analysis[[i]], data = data))
+          estimands_list[[i]] <- analysis[[i]]$qoi(get_estimands_model(analysis = analysis[[i]], data = data), stats = stats)
           ## get_estimands_model does truth_data_frame, so just sending it data
         } else {
-          estimands_list[[i]] <- analysis[[i]]$qoi(data = truth_data_frame(formula = analysis[[i]]$formula_estimand, data = data))
+          estimands_list[[i]] <- analysis[[i]]$qoi(truth_data_frame(formula = analysis[[i]]$formula_estimand, data = data))
         }
         colnames(estimands_list[[i]]) <- paste(colnames(estimands_list[[i]]), analysis_labels[i], sep = "_")
       }
@@ -241,10 +242,10 @@ get_estimands <- function(analysis, qoi = NULL, data){
         stop("The object in the analysis argument must by created by the declare_analysis function.")
       ## otherwise process the one analysis function
       if(analysis$qoi_only == FALSE){
-        estimands_matrix <- analysis$qoi(get_estimands_model(analysis = analysis, data = data))
+        estimands_matrix <- analysis$qoi(get_estimands_model(analysis = analysis, data = data), stats = stats)
         ## get_estimands_model does truth_data_frame, so just sending it data
       } else {
-        estimands_matrix <- analysis$qoi(data = truth_data_frame(formula = analysis$formula_estimand, data = data))
+        estimands_matrix <- analysis$qoi(truth_data_frame(formula = analysis$formula_estimand, data = data))
       }
       colnames(estimands_matrix) <- paste(colnames(estimands_matrix), analysis_labels[1], sep = "_")
       return(estimands_matrix)
