@@ -4,11 +4,12 @@
 \alias{pre_register}
 \title{Create pre-registration document}
 \usage{
-pre_register(design, covariates, potential_outcomes, analysis, title, authors,
-  affiliations, acknowledgements, abstract, random.seed = 42, dir = getwd(),
-  temp_dir = FALSE, format = "rmarkdown", check_registration = TRUE,
-  make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE,
-  output_format = "pdf", open_output = TRUE, ...)
+pre_register(design, clusters, blocks, sample_frame, potential_outcomes,
+  analysis, title, authors, affiliations, acknowledgements, abstract,
+  random.seed = 42, dir = getwd(), temp_dir = FALSE,
+  format = "rmarkdown", check_registration = TRUE, make_output = TRUE,
+  keep_tex = FALSE, save_r_code = FALSE, output_format = "pdf",
+  open_output = TRUE, ...)
 }
 \arguments{
 \item{design}{A design object from the declare_design function.}

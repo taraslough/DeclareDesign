@@ -4,11 +4,11 @@
 \alias{paper_draft}
 \title{Create paper draft}
 \usage{
-paper_draft(design, covariates, potential_outcomes, analysis, title, authors,
-  affiliations, acknowledgements, abstract, random.seed = 42, dir = getwd(),
-  temp_dir = FALSE, format = "rmarkdown", make_output = TRUE,
-  keep_tex = FALSE, save_r_code = FALSE, output_format = "pdf",
-  open_output = TRUE, ...)
+paper_draft(design, clusters, blocks, sample_frame, potential_outcomes,
+  analysis, title, authors, affiliations, acknowledgements, abstract,
+  random.seed = 42, dir = getwd(), temp_dir = FALSE,
+  format = "rmarkdown", make_output = TRUE, keep_tex = FALSE,
+  save_r_code = FALSE, output_format = "pdf", open_output = TRUE, ...)
 }
 \arguments{
 \item{design}{A design object from the declare_design function.}

@@ -45,7 +45,7 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
-  M1             <- get_estimates(analysis = analysis_1, data = mock)  
+  M1             <- get_estimands(analysis = analysis_1, data = mock)  
   summary(M1)
   summary(power_1)
   
