@@ -40,12 +40,12 @@
 #' @param ... Other options for the render() command to create the output file from the markdown code.
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @export
-pre_register <- function(design, clusters, blocks, sample_frame, potential_outcomes, analysis, 
+pre_register <- function(design, sample_frame = NULL, clusters = NULL, blocks = NULL, potential_outcomes = NULL, analysis, 
                          title, authors, affiliations, acknowledgements, abstract,
                          random.seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                          check_registration = TRUE,
                          make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
-                         output_format = "pdf", open_output = TRUE, ...){
+                         output_format = "pdf", open_output = TRUE){
   
   if(class(analysis) != "list")
     analysis <- list(analysis)
@@ -61,39 +61,50 @@ pre_register <- function(design, clusters, blocks, sample_frame, potential_outco
                            code_snippet("library(registration) \n library(xtable)"),
                            code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
                                         random.seed, ")"),
-                           code_snippet("cov <- ", covariates$call, "\n\n", 
-                                        "po <- ", potential_outcomes$call, "\n\n", 
-                                        "mock <- make_data(potential_outcomes = po, covariates = cov)", "\n\n",
+                           code_snippet("sample_frame <- ", sample_frame$call, "\n\n", 
+                                        "potential_outcomes <- ", potential_outcomes$call, "\n\n", 
+                                        ifelse(!is.null(clusters), paste0("clusters <- ", list(clusters$call)), ""), "\n\n", 
+                                        ifelse(!is.null(blocks), paste0("blocks <- ", list(blocks$call)), ""), "\n\n", 
                                         "design <- ", design$call, "\n\n", 
                                         paste(sapply(1:length(analysis), 
                                                      function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
                                               collapse = ""),
                                         echo = T),
-                           code_snippet(paste(sapply(1:length(analysis), 
+                           code_snippet("mock <- make_data(sample_frame = sample_frame, potential_outcomes = potential_outcomes", 
+                                        ifelse(!is.null(clusters), ", clusters = clusters", ""),
+                                        ifelse(!is.null(blocks), ", blocks = blocks", ""), ")\n\n", 
+                                        paste(sapply(1:length(analysis), 
                                                      function(x) paste0("mock[, analysis_treatment_variable(analysis_", x, 
-                                                                        ")] <- assign_treatment(design)\n\n",
+                                                                        ")] <- assign_treatment(design, data = mock)\n\n",
                                                                         "mock[, analysis_outcome_variable(analysis_", x, 
                                                                         ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, 
-                                                                        "), treatment_assignment = 'Z', design = design, data = mock) \n")), collapse = "")),
+                                                                        "), treatment_assignment = 'Z', data = mock) \n")), collapse = "")),
                            tex_header("Hypotheses", 1),
                            "Please write your hypotheses here. Be sure to explain each declared analysis.",
                            tex_header("Experimental Design", 1),
                            code_snippet("summary(design)"),
-                           code_snippet("print(xtable(table(design$ra_fun()), caption = \"Example Random Assignment\"), include.colnames = FALSE, comment = FALSE)"),
+                           code_snippet("print(xtable(table(assign_treatment(design = design, data = mock)), ",
+                                        "caption = \"Example Random Assignment\"), include.colnames = FALSE, comment = FALSE)"),
                            "Please describe your experimental conditions and randomization protocol.",
                            tex_header("Power analysis", 2),
-                           code_snippet(paste0("cat(\"The power of analysis ", 1:length(analysis), 
-                                               " is \", get_power(design = design, analysis = analysis_", 1:length(analysis), 
-                                               ", data = mock), \". \", sep = \"\")\n\n")),
+                           ##code_snippet(paste0("cat(\"The power of analysis ", 1:length(analysis), 
+                           ##                    " is \", simulate_experiment(design = design, clusters = clusters, blocks = blocks, sample_frame = sample_frame, analysis = analysis_", 1:length(analysis), 
+                           ##                    ", data = mock), \". \", sep = \"\")\n\n")),
                            tex_header("Results", 1),
                            paste(sapply(1:length(analysis), function(x) { 
                              paste(tex_header(paste("Simulated results for analysis", x), 2), "\n",
-                                   code_snippet("print(xtable(run_analysis(analysis_", x, 
+                                   code_snippet("print(xtable(get_estimates_model(analysis_", x, 
                                                 ", data = mock), caption = \"Analysis ", x,
                                                 " Results with Simulated Data\"), comment = FALSE)"), "\n\n", collapse = "")   
                            }), collapse = ""))
   
-  output_document(doc = pre_register_doc, send_all_other_options)
+  output_document(doc = pre_register_doc, dir = dir, temp_dir = temp_dir, format = format, make_output = make_output, keep_tex = keep_tex,
+                  save_r_code = save_r_code, output_format = output_format, open_output = open_output)
+  
+  return_object <- list(design = design, sample_frame = sample_frame, potential_outcomes = potential_outcomes, 
+                        clusters = clusters, blocks = blocks, analysis = analysis)
+  
+  structure(return_object, class = "pre_registration")
   
 }
 
@@ -133,7 +144,6 @@ paper_draft <- function(design, clusters, blocks, sample_frame, potential_outcom
                                        random.seed, ")"),
                           code_snippet("cov <- ", covariates$call, "\n\n", 
                                        "po <- ", potential_outcomes$call, "\n\n", 
-                                       "mock <- make_data(potential_outcomes = po, covariates = cov)", "\n\n",
                                        "design <- ", design$call, "\n\n", 
                                        paste(sapply(1:length(analysis), 
                                                     function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
@@ -144,7 +154,7 @@ paper_draft <- function(design, clusters, blocks, sample_frame, potential_outcom
                                                                        ")] <- assign_treatment(design)\n\n",
                                                                        "mock[, analysis_outcome_variable(analysis_", x, 
                                                                        ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, 
-                                                                       "), treatment_assignment = 'Z', design = design, data = mock) \n")), collapse = "")),
+                                                                       "), treatment_assignment = 'Z', data = mock) \n")), collapse = "")),
                           tex_header("Hypotheses", 1),
                           "Please write your hypotheses here. Be sure to explain each declared analysis.",
                           tex_header("Experimental Design", 1),
@@ -163,13 +173,14 @@ paper_draft <- function(design, clusters, blocks, sample_frame, potential_outcom
                                                " Results with Simulated Data\"), comment = FALSE)"), "\n\n", collapse = "")   
                           }), collapse = ""))
   
-  output_document(doc = paper_draft_doc, send_all_other_options)
+  output_document(doc = paper_draft_doc, dir = dir, temp_dir = temp_dir, format = format, make_output = make_output, keep_tex = keep_tex,
+                  save_r_code = save_r_code, output_format = output_format, open_output = open_output)
   
 }
 
 #' @importFrom knitr purl
 #' @importFrom rmarkdown render
-output_document <- function(..., type = "registration",
+output_document <- function(doc, type = "registration",
                             title = NULL, authors = NULL, affiliations = NULL, 
                             acknowledgements = NULL, abstract = NULL,
                             random.seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
@@ -191,7 +202,7 @@ output_document <- function(..., type = "registration",
   
   ## writes Rmd rmarkdown file
   ## send it a set of character objects
-  cat_doc( pre_register_doc, filename = paste(dir, "/", file, ".Rmd", sep = "") )
+  cat_doc(doc = doc, filename = paste(dir, "/", file, ".Rmd", sep = "") )
   
   cat("\nRaw document (markdown .Rmd file) saved in ", dir, "/", file, ".Rmd\n", sep = "")
   
@@ -201,7 +212,7 @@ output_document <- function(..., type = "registration",
                                      ifelse(output_format == "doc", "word_document", 
                                             stop("Chosen output_format not supported.")))
     input <- paste(dir, "/", file, ".Rmd", sep = "")
-    render(input = input, output_format_internal, quiet = TRUE, ... = ...)
+    render(input = input, output_format_internal, quiet = TRUE)
     
     if(keep_tex == TRUE)
       cat("\nRaw document (.tex file) saved in ", dir, "/", file, ".tex\n", sep = "")
@@ -225,11 +236,10 @@ output_document <- function(..., type = "registration",
   cat("\n")
 }
 
-cat_doc <- function(..., filename){
-  ddd <- list(...)
+cat_doc <- function(doc, filename){
   sink(filename)
-  for(i in 1:length(ddd))
-    cat(ddd[[i]], "\n\n")
+  for(i in 1:length(doc))
+    cat(doc[[i]], "\n\n")
   sink()
 }
 
@@ -267,12 +277,14 @@ title_header <- function(title = NULL, authors = NULL, abstract = NULL, keep_tex
   
 }
 
+#' @importFrom formatR tidy_source
 code_snippet <- function(..., ## takes a character string
                          results = "asis", 
                          echo = FALSE,
-                         tidy = TRUE) {
-  return(paste("```{r, echo =", echo, ", tidy =", tidy, ", results ='", results, "'}\n", 
-               paste(unlist(list(...)), collapse = ""), 
+                         tidy = TRUE, tidy.opts = "list(width.cutoff = 50)",
+                         strip_white = TRUE) {
+  return(paste("```{r, echo = ", echo, ", tidy = ", tidy, ", tidy.opts = ", tidy.opts, ", strip_white = ", strip_white, ", results = '", results, "'}\n", 
+               paste(unlist(list(...)), collapse = ""),
                "\n```", sep = ""))
 }
 

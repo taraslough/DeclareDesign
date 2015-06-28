@@ -5,7 +5,7 @@ library(testthat)
 library(registration)
 
 test_that("test whether a simple experiment with blocking can be pre-registered", {
-  smp <- declare_sample_frame(
+  sample_frame <- declare_sample_frame(
     individuals = list(
       income = declare_variable()),
     villages = list(
@@ -17,7 +17,7 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
       villages = rep(5,200)
     ))
   
-  po     <-  declare_potential_outcomes(
+  potential_outcomes     <-  declare_potential_outcomes(
     outcome_variable_DGP = declare_variable(linear_mean = 0, linear_sd = 1),
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income
@@ -26,9 +26,16 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   clusters <- declare_clusters(clusters = "villages_id")
   blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
   
-  design <- declare_design(potential_outcomes = po, clusters = clusters)
+  design <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
+  
+  pre_registration <- pre_register(design = design, sample_frame = smp, clusters = clusters, blocks = blocks,
+                                   potential_outcomes = po, analysis = analysis_1, 
+                                   title = "Simplest Possible Experiment", 
+                                   authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
+                                   abstract = "The effect of pixie dust on productivity.",
+                                   random.seed = 42, temp_dir = TRUE)
   
   power_1         <- simulate_experiment(sims = 100, analysis = analysis_1, design = design, clusters = clusters, sample_frame = smp, potential_outcomes = po)
   power_1
@@ -50,18 +57,8 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   plot(balance, covariate_labels = c("Income", "Development Level"))
   balance
   
-  
   M1             <- get_estimands(analysis = analysis_1, data = mock)  
   summary(M1)
   summary(power_1)
-  
-  pre_register(design = design, covariates = cov, 
-               potential_outcomes = po, analysis = analysis_1, 
-               registration_title = "Simplest Possible Experiment", 
-               registration_authors = c("Graeme Blair", "Alexander Coppock"), 
-               registration_abstract = "The effect of pixie dust on productivity.",
-               random.seed = 42, temp_dir = TRUE, type = "rmarkdown",
-               make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
-               open_output = TRUE)
   
 })

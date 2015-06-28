@@ -4,12 +4,12 @@
 \alias{pre_register}
 \title{Create pre-registration document}
 \usage{
-pre_register(design, clusters, blocks, sample_frame, potential_outcomes,
-  analysis, title, authors, affiliations, acknowledgements, abstract,
-  random.seed = 42, dir = getwd(), temp_dir = FALSE,
-  format = "rmarkdown", check_registration = TRUE, make_output = TRUE,
-  keep_tex = FALSE, save_r_code = FALSE, output_format = "pdf",
-  open_output = TRUE, ...)
+pre_register(design, sample_frame = NULL, clusters = NULL, blocks = NULL,
+  potential_outcomes = NULL, analysis, title, authors, affiliations,
+  acknowledgements, abstract, random.seed = 42, dir = getwd(),
+  temp_dir = FALSE, format = "rmarkdown", check_registration = TRUE,
+  make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE,
+  output_format = "pdf", open_output = TRUE)
 }
 \arguments{
 \item{design}{A design object from the declare_design function.}
@@ -26,8 +26,6 @@ pre_register(design, clusters, blocks, sample_frame, potential_outcomes,
 
 \item{open_output}{Indicator for whether the output file is opened after it is compiled.}
 
-\item{...}{Other options for the render() command to create the output file from the markdown code.}
-
 \item{data}{A data object from the make_y function.}
 
 \item{registration_title}{Title of the pre-registration.}
@@ -39,6 +37,8 @@ pre_register(design, clusters, blocks, sample_frame, potential_outcomes,
 \item{file}{File name where object is saved.}
 
 \item{type}{Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.}
+
+\item{...}{Other options for the render() command to create the output file from the markdown code.}
 }
 \value{
 Filename and location where .Rmd or .Rnw and PDF file are saved.

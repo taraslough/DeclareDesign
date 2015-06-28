@@ -1,21 +1,24 @@
 
 
 #' @export
-balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", data, na.rm = TRUE){
+balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", data, llr_test = TRUE, na.rm = TRUE){
   
   condition_names <- unique(data[,treatment_assignment])
   
   summ <- function(x) c(mean(x), quantile(x, .025), quantile(x, .05), quantile(.95), quantile(.975))
   ##stdize <- function(x) (x - mean(x))/sd(x)
-  
-  ## convert factors to numeric
+
+  ## convert factors to numeric 
   for(cov in covariates){
     if(class(data[,cov]) != "numeric")
       data[,cov] <- as.numeric(as.character(data[,cov]))
   }
   
+  statistic_labels <- c()
+  
   summ <- list()
   for(cond in condition_names){
+    statistic_labels <- c(statistic_labels, paste0("Mean, ", cond), paste0("S.D., ", cond))
     summ[[paste0("mean_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
     summ[[paste0("sd_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, sd, na.rm = na.rm)
   }
@@ -24,19 +27,45 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", data,
   
   combn <- combn(rev(condition_names), m = 2)
   
-  for(i in 1:ncol(combn))
+  for(i in 1:ncol(combn)){
+    statistic_labels <- c(statistic_labels, paste0("Difference, ", paste(combn[,i], collapse = " - ")))
     summ[, paste0("diff_", paste(combn[,i], collapse = "-"))] <- summ[, paste0("mean_", combn[1, i])] - summ[, paste0("mean_", combn[2, i])]
+  }
   
-  return_object <- list(summary = summ, condition_names = condition_names)
-
+  return_object <- list(summary = summ, condition_names = condition_names, statistic_labels = statistic_labels)
+  
+  if(llr_test == TRUE){
+    return_object$llr <- get_llr(covariates = covariates, treatment_assignment = treatment_assignment, data = data) ##, prob_mat = )
+  }
+  
   structure(return_object, class = "balance")
   
+}
+
+#' @importFrom nnet multinom
+#' @export 
+get_llr <- function(covariates, treatment_assignment, data){ ##, prob_mat){
+  condition_names <- unique(data[,treatment_assignment])
+  ##w <- rep(NA, length(treatment_assignment))
+  ##for(i in 1:length(condition_names)){
+  ##  w[assign==condition_names[i]] <- 1 / prob_mat[i,][assign == condition_names[i]]
+  ##}
+  local.frame <- data.frame(data[,covariates], assignment = data[, treatment_assignment]) ##, w)
+  formula.u <- paste0("assign ~", paste(covs, collapse="+"))
+  formula.r <- paste0("assign ~ 1")
+  fit.u <- multinom(formula.u, ##weights = w, 
+                    data = local.frame, verbose = FALSE)
+  fit.r <- multinom(formula.r, ##weights = w, 
+                    data = local.frame, verbose = FALSE)
+  return(fit.r$deviance - fit.u$deviance)
 }
 
 #' @export
 plot.balance <- function(x, covariate_labels = NULL,
                          zero_line = TRUE, zero_line_lty = "dotted", ...){
-  summ <- table.balance(x)
+  summ <- x$summary
+  colnames(summ) <- x$statistic_labels
+  
   differences <- colnames(summ)[substr(colnames(summ), 1, 4) == "Diff"]
   par(mfrow = c(length(differences), 1), mar = c(4.25, 8, 0, 1))
   for(d in differences){
@@ -57,15 +86,8 @@ plot.balance <- function(x, covariate_labels = NULL,
 }
 
 #' @export
-table <- function(x) 
-  UseMethod("table")
-
-#' @export
-table.balance <- function(x, ...){
-  toupper_first <- function(x) {
-    paste(toupper(substring(x, 1,1)), substring(x, 2), sep="")
-  }
-  colnames(x$summary) <- gsub("Sd", "Std. dev.", gsub("Diff", "Difference", gsub("_", " ", toupper_first(colnames(x$summary)))))
+print.balance <- function(x, ...){
+  colnames(x$summary) <- x$statistic_labels
   return(x$summary)
 }
 
