@@ -27,26 +27,45 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", data,
   for(i in 1:ncol(combn))
     summ[, paste0("diff_", paste(combn[,i], collapse = "-"))] <- summ[, paste0("mean_", combn[1, i])] - summ[, paste0("mean_", combn[2, i])]
   
-  return(list(summary = summ, condition_names = condition_names))
+  return_object <- list(summary = summ, condition_names = condition_names)
+
+  structure(return_object, class = "balance")
+  
 }
 
 #' @export
-plot.balance <- function(x){
+plot.balance <- function(x, covariate_labels = NULL,
+                         zero_line = TRUE, zero_line_lty = "dotted", ...){
   summ <- table.balance(x)
   differences <- colnames(summ)[substr(colnames(summ), 1, 4) == "Diff"]
-  plot(c(0,1), type = "n", xlim = c(-1, 1), ylim = c(1 - .1, nrow(summ) + .1), axes = F, xlab = "Difference", ylab = "")
-  abline(v = 0, lty = "dotted")
-  for(d in differences)
+  par(mfrow = c(length(differences), 1), mar = c(4.25, 8, 0, 1))
+  for(d in differences){
+    if(!exists("xlim"))
+      xlim <- c(min(0, summ[, differences]), max(0, summ[, differences]))
+    if(!exists("xlab"))
+      xlab <- colnames(summ[, d, drop = FALSE])
+    plot(c(0,1), type = "n", xlim = xlim, ylim = c(1 - .1, nrow(summ) + .1), 
+         axes = F, xlab = xlab, ylab = "", ...)
+    if(zero_line == TRUE)
+      abline(v = 0, lty = zero_line_lty)
     points(summ[, d], 1:nrow(summ), pch = 19)
-  axis(2, at = summ[, differences], labels = colnames(summ[, differences, drop = FALSE]), tick = FALSE)
-  axis(1)
+    if(is.null(covariate_labels))
+      covariate_labels <- rownames(summ)
+    axis(2, at = 1:nrow(summ), labels = covariate_labels, tick = FALSE, las = 1)
+    axis(1)
+  }
 }
 
-table.balance <- function(x){
+#' @export
+table <- function(x) 
+  UseMethod("table")
+
+#' @export
+table.balance <- function(x, ...){
   toupper_first <- function(x) {
-    paste(toupper(substring(s, 1,1)), substring(s, 2), sep="")
+    paste(toupper(substring(x, 1,1)), substring(x, 2), sep="")
   }
-  colnames(x$summ) <- gsub("Sd", "Std. dev.", gsub("Diff", "Difference", gsub("_", " ", toupper_first(colnames(x$summ)))))
-  return(x$summ)
+  colnames(x$summary) <- gsub("Sd", "Std. dev.", gsub("Diff", "Difference", gsub("_", " ", toupper_first(colnames(x$summary)))))
+  return(x$summary)
 }
 
