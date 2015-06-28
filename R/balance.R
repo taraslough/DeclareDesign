@@ -90,8 +90,10 @@ plot.balance <- function(x, covariate_labels = NULL,
 }
 
 #' @export
-print.balance <- function(x, ...){
+print.balance <- function(x, print_llr = TRUE, ...){
   colnames(x$summary) <- x$statistic_labels
   print(x$summary)
+  if(!is.null(x$llr) & print_llr == TRUE)
+    cat("\nL-R statistic:", x$llr)
 }
 
