@@ -295,9 +295,9 @@ design_probs <- function(N= NULL,
 observed_probs <- function(treatment_assignment, design, data){
   prob_mat <- get_design_probs(design = design, data = data)
   prob_obs <- rep(NA, nrow(data))
-  condition_names <- unique(treatment_assignment)
+  condition_names <- unique(data[,treatment_assignment])
   for(v in condition_names){
-    prob_obs[treatment_assignment==v] <- prob_mat[treatment_assignment==v, v]
+    prob_obs[data[,treatment_assignment]==v] <- prob_mat[data[,treatment_assignment]==v, v]
   }
   return(prob_obs)  
 }

@@ -1,7 +1,7 @@
 
 
 #' @export
-balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", data, llr_test = TRUE, na.rm = TRUE){
+balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", design, data, llr_test = TRUE, na.rm = TRUE){
   
   condition_names <- unique(data[,treatment_assignment])
   
@@ -39,7 +39,7 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", data,
   return_object <- list(summary = summ[, 3:ncol(summ)], condition_names = condition_names, statistic_labels = statistic_labels)
   
   if(llr_test == TRUE){
-    return_object$llr <- get_llr(covariates = covariates, treatment_assignment = treatment_assignment, data = data) ##, prob_mat = )
+    return_object$llr <- get_llr(covariates = covariates, treatment_assignment = treatment_assignment, design = design, data = data)
   }
   
   structure(return_object, class = "balance")
@@ -48,18 +48,21 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", data,
 
 #' @importFrom nnet multinom
 #' @export 
-get_llr <- function(covariates, treatment_assignment, data){ ##, prob_mat){
+get_llr <- function(covariates, treatment_assignment, data, design){
+  
+  observed_probability_matrix <- observed_probs(treatment_assignment = treatment_assignment, design = design, data = data)
+  
   condition_names <- unique(data[,treatment_assignment])
-  ##w <- rep(NA, length(treatment_assignment))
-  ##for(i in 1:length(condition_names)){
-  ##  w[assign==condition_names[i]] <- 1 / prob_mat[i,][assign == condition_names[i]]
-  ##}
+  w <- rep(NA, length(treatment_assignment))
+  for(i in 1:length(condition_names)){
+    w[data[,treatment_assignment]==condition_names[i]] <- 1 / observed_probability_matrix[i,][data[, treatment_assignment] == condition_names[i]]
+  }
   local.frame <- data.frame(data[,covariates], assignment = data[, treatment_assignment]) ##, w)
   formula.u <- paste0("assignment ~", paste(covariates, collapse="+"))
   formula.r <- paste0("assignment ~ 1")
-  fit.u <- multinom(formula.u, ##weights = w, 
+  fit.u <- multinom(formula.u, weights = w, 
                     data = local.frame, verbose = FALSE)
-  fit.r <- multinom(formula.r, ##weights = w, 
+  fit.r <- multinom(formula.r, weights = w, 
                     data = local.frame, verbose = FALSE)
   return(fit.r$deviance - fit.u$deviance)
 }

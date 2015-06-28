@@ -52,8 +52,10 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
+  obs <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
+  
   balance       <- balance(covariates = c("income", "development_level"), 
-                           outcome = "Y", treatment_assignment = "Z", data = mock)
+                           outcome = "Y", treatment_assignment = "Z", design = design, data = mock)
   plot(balance, covariate_labels = c("Income", "Development Level"))
   balance
   
