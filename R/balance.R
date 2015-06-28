@@ -7,7 +7,7 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", data,
   
   summ <- function(x) c(mean(x), quantile(x, .025), quantile(x, .05), quantile(.95), quantile(.975))
   ##stdize <- function(x) (x - mean(x))/sd(x)
-
+  
   ## convert factors to numeric 
   for(cov in covariates){
     if(class(data[,cov]) != "numeric")
@@ -17,11 +17,13 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", data,
   statistic_labels <- c()
   
   summ <- list()
-  for(cond in condition_names){
-    statistic_labels <- c(statistic_labels, paste0("Mean, ", cond), paste0("S.D., ", cond))
-    summ[[paste0("mean_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
-    summ[[paste0("sd_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, sd, na.rm = na.rm)
-  }
+  summ[[paste("mean")]] <- apply(data[, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
+  summ[[paste("sd")]] <- apply(data[, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
+    for(cond in condition_names){
+      statistic_labels <- c(statistic_labels, paste0("Mean, ", cond), paste0("S.D., ", cond))
+      summ[[paste0("mean_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
+      summ[[paste0("sd_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, sd, na.rm = na.rm)
+    }
   
   summ <- data.frame(do.call(cbind, summ))
   
@@ -30,9 +32,11 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", data,
   for(i in 1:ncol(combn)){
     statistic_labels <- c(statistic_labels, paste0("Difference, ", paste(combn[,i], collapse = " - ")))
     summ[, paste0("diff_", paste(combn[,i], collapse = "-"))] <- summ[, paste0("mean_", combn[1, i])] - summ[, paste0("mean_", combn[2, i])]
+    statistic_labels <- c(statistic_labels, paste0("Std. Difference, ", paste(combn[,i], collapse = " - ")))
+    summ[, paste0("diff_std_", paste(combn[,i], collapse = "-"))] <- (summ[, paste0("mean_", combn[1, i])] - summ[, paste0("mean_", combn[2, i])]) / summ[, "sd"]
   }
   
-  return_object <- list(summary = summ, condition_names = condition_names, statistic_labels = statistic_labels)
+  return_object <- list(summary = summ[, 3:ncol(summ)], condition_names = condition_names, statistic_labels = statistic_labels)
   
   if(llr_test == TRUE){
     return_object$llr <- get_llr(covariates = covariates, treatment_assignment = treatment_assignment, data = data) ##, prob_mat = )
@@ -51,8 +55,8 @@ get_llr <- function(covariates, treatment_assignment, data){ ##, prob_mat){
   ##  w[assign==condition_names[i]] <- 1 / prob_mat[i,][assign == condition_names[i]]
   ##}
   local.frame <- data.frame(data[,covariates], assignment = data[, treatment_assignment]) ##, w)
-  formula.u <- paste0("assign ~", paste(covs, collapse="+"))
-  formula.r <- paste0("assign ~ 1")
+  formula.u <- paste0("assignment ~", paste(covariates, collapse="+"))
+  formula.r <- paste0("assignment ~ 1")
   fit.u <- multinom(formula.u, ##weights = w, 
                     data = local.frame, verbose = FALSE)
   fit.r <- multinom(formula.r, ##weights = w, 
@@ -88,6 +92,6 @@ plot.balance <- function(x, covariate_labels = NULL,
 #' @export
 print.balance <- function(x, ...){
   colnames(x$summary) <- x$statistic_labels
-  return(x$summary)
+  print(x$summary)
 }
 
