@@ -46,10 +46,10 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   ## nudge to set levels of sim (determined by design)
   
   power_1         <- simulate_experiment(sims = 100, analysis = analysis_1, design = design, clusters = clusters, sample_frame = sample_frame, potential_outcomes = potential_outcomes, blocks = blocks)
-  power_1
+  summary(power_1)
   
   power_2         <- simulate_experiment(sims = 100, analysis = list(analysis_1, analysis_2), design = design, clusters = clusters, blocks = blocks, sample_frame = sample_frame, potential_outcomes = potential_outcomes)
-  power_2
+  summary(power_2)
   
   mock          <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, blocks = blocks, clusters = clusters)
   
@@ -58,17 +58,20 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   
   with(subset(mock, development_level==1), table(as.character(cluster_variable), block_variable))
   
+  M1             <- get_estimands(analysis = analysis_1, data = mock)  
+  summary(M1)
+  
+  M1_est             <- get_estimates(analysis = analysis_1, data = mock)  
+  summary(M1_est)
+
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
+  ## below here doesn't work at the moment, working on it
   obs <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
   
   balance       <- balance(covariates = c("income", "development_level"), 
                            outcome = "Y", treatment_assignment = "Z", design = design, data = mock)
   plot(balance, covariate_labels = c("Income", "Development Level"))
   balance
-  
-  M1             <- get_estimands(analysis = analysis_1, data = mock)  
-  summary(M1)
-  summary(power_1)
-  
+
 })
