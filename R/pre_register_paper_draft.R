@@ -30,7 +30,7 @@
 #' @param registration_title Title of the pre-registration.
 #' @param registration_authors List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.
 #' @param registration_abstract General description of the experiment.
-#' @param random.seed Random seed to ensure reproducibility of the design.
+#' @param random_seed Random seed to ensure reproducibility of the design.
 #' @param file File name where object is saved.
 #' @param type Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.
 #' @param check_registration Indicates whether the design is evaluated for consistency with declared analyses.
@@ -40,9 +40,11 @@
 #' @param ... Other options for the render() command to create the output file from the markdown code.
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @export
-pre_register <- function(design, sample_frame = NULL, clusters = NULL, blocks = NULL, potential_outcomes = NULL, analysis, 
-                         title, authors, affiliations, acknowledgements, abstract,
-                         random.seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
+pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = NULL, 
+                         potential_outcomes = NULL, analysis, data = NULL,
+                         title = NULL, authors = NULL, affiliations = NULL,
+                         acknowledgements = NULL, abstract = NULL,
+                         random_seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                          check_registration = TRUE,
                          make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                          output_format = "pdf", open_output = TRUE){
@@ -60,7 +62,7 @@ pre_register <- function(design, sample_frame = NULL, clusters = NULL, blocks = 
                                         abstract = abstract, keep_tex = keep_tex),
                            code_snippet("library(registration) \n library(xtable)"),
                            code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
-                                        random.seed, ")"),
+                                        random_seed, ")"),
                            code_snippet("sample_frame <- ", sample_frame$call, "\n\n", 
                                         "potential_outcomes <- ", potential_outcomes$call, "\n\n", 
                                         ifelse(!is.null(clusters), paste0("clusters <- ", list(clusters$call)), ""), "\n\n", 
@@ -102,21 +104,18 @@ pre_register <- function(design, sample_frame = NULL, clusters = NULL, blocks = 
                   save_r_code = save_r_code, output_format = output_format, open_output = open_output)
   
   return_object <- list(design = design, sample_frame = sample_frame, potential_outcomes = potential_outcomes, 
-                        clusters = clusters, blocks = blocks, analysis = analysis)
+                        clusters = clusters, blocks = blocks, analysis = analysis,
+                        title = title, authors = authors, affiliations = affiliations,
+                        acknowledgements = acknowledgements, abstract = abstract, random_seed = random_seed,
+                        pre_registration_date = date())
   
   structure(return_object, class = "pre_registration")
   
 }
 
-#' Create paper draft
+#' Create paper draft from a pre_registration
 #'
-#' @param design A design object from the declare_design function.
-#' @param data A data object from the make_y function.
-#' @param analysis An analysis object from the declare_analysis function, or a list of analysis objects.
-#' @param registration_title Title of the pre-registration.
-#' @param registration_authors List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.
-#' @param registration_abstract General description of the experiment.
-#' @param random.seed Random seed to ensure reproducibility of the design.
+#' @param pre_registration Object created by pre_register() function. The inputs to create a paper draft are extracted exactly from the pre-registered descriptions of the experiment.
 #' @param file File name where object is saved.
 #' @param type Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.
 #' @param check_registration Indicates whether the design is evaluated for consistency with declared analyses.
@@ -126,9 +125,45 @@ pre_register <- function(design, sample_frame = NULL, clusters = NULL, blocks = 
 #' @param ... Other options for the render() command to create the output file from the markdown code.
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @export
-paper_draft <- function(design, clusters, blocks, sample_frame, potential_outcomes, analysis, 
-                        title, authors, affiliations, acknowledgements, abstract,
-                        random.seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
+draft_paper_from_pre_register <- function(pre_registration, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
+                                          make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
+                                          output_format = "pdf", open_output = TRUE){
+  
+  draft_paper(design = pre_registration$design, clusters = pre_registration$clusters,
+              blocks = pre_registration$blocks, sample_frame = pre_registration$sample_frame,
+              potential_outcomes = pre_registration$potential_outcomes, analysis = pre_registration$analysis,
+              title = pre_registration$title, authors = pre_registration$authors, 
+              affiliations = pre_registration$affiliations, abstract = pre_registration$abstract,
+              random_seed = pre_registration$random_seed, dir = dir, temp_dir = temp_dir, format = format,
+              make_output = make_output, keep_tex = keep_tex, save_r_code = save_r_code,
+              output_format = output_format, open_output = open_output)
+  
+}
+
+
+#' Create paper draft
+#'
+#' @param design A design object from the declare_design function.
+#' @param data A data object from the make_y function.
+#' @param analysis An analysis object from the declare_analysis function, or a list of analysis objects.
+#' @param registration_title Title of the pre-registration.
+#' @param registration_authors List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.
+#' @param registration_abstract General description of the experiment.
+#' @param random_seed Random seed to ensure reproducibility of the design.
+#' @param file File name where object is saved.
+#' @param type Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.
+#' @param check_registration Indicates whether the design is evaluated for consistency with declared analyses.
+#' @param make_output Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document
+#' @param output_format String indicating which type of output file is created, "pdf" (default), "word", or "html"
+#' @param open_output Indicator for whether the output file is opened after it is compiled.
+#' @param ... Other options for the render() command to create the output file from the markdown code.
+#' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
+#' @export
+draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = NULL, 
+                        potential_outcomes = NULL, analysis, data = NULL,
+                        title = NULL, authors = NULL, affiliations = NULL,
+                        acknowledgements = NULL, abstract = NULL,
+                        random_seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                         make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                         output_format = "pdf", open_output = TRUE, ...){
   
@@ -137,41 +172,48 @@ paper_draft <- function(design, clusters, blocks, sample_frame, potential_outcom
   if(class(analysis) != "list" & class(analysis) != "analysis")
     stop("Analysis must be either a list of analysis objects or a single object created by declare_analysis.")
   
-  paper_draft_doc <- list(title_header(title = title, authors = authors, abstract = abstract, 
-                                       keep_tex = keep_tex),
-                          code_snippet("library(registration) \n library(xtable)"),
-                          code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
-                                       random.seed, ")"),
-                          code_snippet("cov <- ", covariates$call, "\n\n", 
-                                       "po <- ", potential_outcomes$call, "\n\n", 
-                                       "design <- ", design$call, "\n\n", 
-                                       paste(sapply(1:length(analysis), 
-                                                    function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
-                                             collapse = ""),
-                                       echo = T),
-                          code_snippet(paste(sapply(1:length(analysis), 
-                                                    function(x) paste0("mock[, analysis_treatment_variable(analysis_", x, 
-                                                                       ")] <- assign_treatment(design)\n\n",
-                                                                       "mock[, analysis_outcome_variable(analysis_", x, 
-                                                                       ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, 
-                                                                       "), treatment_assignment = 'Z', data = mock) \n")), collapse = "")),
-                          tex_header("Hypotheses", 1),
-                          "Please write your hypotheses here. Be sure to explain each declared analysis.",
-                          tex_header("Experimental Design", 1),
-                          code_snippet("summary(design)"),
-                          code_snippet("print(xtable(table(design$ra_fun()), caption = \"Example Random Assignment\"), include.colnames = FALSE, comment = FALSE)"),
-                          "Please describe your experimental conditions and randomization protocol.",
-                          tex_header("Power analysis", 2),
-                          code_snippet(paste0("cat(\"The power of analysis ", 1:length(analysis), 
-                                              " is \", get_power(design = design, analysis = analysis_", 1:length(analysis), 
-                                              ", data = mock), \". \", sep = \"\")\n\n")),
-                          tex_header("Results", 1),
-                          paste(sapply(1:length(analysis), function(x) { 
-                            paste(tex_header(paste("Simulated results for analysis", x), 2), "\n",
-                                  code_snippet("print(xtable(run_analysis(analysis_", x, 
-                                               ", data = mock), caption = \"Analysis ", x,
-                                               " Results with Simulated Data\"), comment = FALSE)"), "\n\n", collapse = "")   
-                          }), collapse = ""))
+  paper_draft_doc <- list(title_header(title = title, authors = authors, 
+                                        abstract = abstract, keep_tex = keep_tex),
+                           code_snippet("library(registration) \n library(xtable)"),
+                           code_snippet("## set fixed random seed for paper reproducibility\n\nset.seed(", 
+                                        random_seed, ")"),
+                           code_snippet("sample_frame <- ", sample_frame$call, "\n\n", 
+                                        "potential_outcomes <- ", potential_outcomes$call, "\n\n", 
+                                        ifelse(!is.null(clusters), paste0("clusters <- ", list(clusters$call)), ""), "\n\n", 
+                                        ifelse(!is.null(blocks), paste0("blocks <- ", list(blocks$call)), ""), "\n\n", 
+                                        "design <- ", design$call, "\n\n", 
+                                        paste(sapply(1:length(analysis), 
+                                                     function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
+                                              collapse = ""),
+                                        echo = T),
+                           code_snippet("mock <- make_data(sample_frame = sample_frame, potential_outcomes = potential_outcomes", 
+                                        ifelse(!is.null(clusters), ", clusters = clusters", ""),
+                                        ifelse(!is.null(blocks), ", blocks = blocks", ""), ")\n\n", 
+                                        paste(sapply(1:length(analysis), 
+                                                     function(x) paste0("mock[, analysis_treatment_variable(analysis_", x, 
+                                                                        ")] <- assign_treatment(design, data = mock)\n\n",
+                                                                        "mock[, analysis_outcome_variable(analysis_", x, 
+                                                                        ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, 
+                                                                        "), treatment_assignment = 'Z', data = mock) \n")), collapse = "")),
+                           tex_header("Hypotheses", 1),
+                           "Please write your hypotheses here. Be sure to explain each declared analysis.",
+                           tex_header("Experimental Design", 1),
+                           code_snippet("summary(design)"),
+                           code_snippet("print(xtable(table(assign_treatment(design = design, data = mock)), ",
+                                        "caption = \"Example Random Assignment\"), include.colnames = FALSE, comment = FALSE)"),
+                           "Please describe your experimental conditions and randomization protocol.",
+                           tex_header("Power analysis", 2),
+                           ##code_snippet(paste0("cat(\"The power of analysis ", 1:length(analysis), 
+                           ##                    " is \", simulate_experiment(design = design, clusters = clusters, blocks = blocks, sample_frame = sample_frame, analysis = analysis_", 1:length(analysis), 
+                           ##                    ", data = mock), \". \", sep = \"\")\n\n")),
+                           tex_header("Results", 1),
+                           paste(sapply(1:length(analysis), function(x) { 
+                             paste(tex_header(paste("Simulated results for analysis", x), 2), "\n",
+                                   code_snippet("print(xtable(get_estimates_model(analysis_", x, 
+                                                ", data = mock), caption = \"Analysis ", x,
+                                                " Results with Simulated Data\"), comment = FALSE)"), "\n\n", collapse = "")   
+                           }), collapse = ""))
+  
   
   output_document(doc = paper_draft_doc, dir = dir, temp_dir = temp_dir, format = format, make_output = make_output, keep_tex = keep_tex,
                   save_r_code = save_r_code, output_format = output_format, open_output = open_output)
@@ -183,7 +225,7 @@ paper_draft <- function(design, clusters, blocks, sample_frame, potential_outcom
 output_document <- function(doc, type = "registration",
                             title = NULL, authors = NULL, affiliations = NULL, 
                             acknowledgements = NULL, abstract = NULL,
-                            random.seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
+                            random_seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                             make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                             output_format = "pdf", open_output = TRUE) {
   if(format != "rmarkdown")

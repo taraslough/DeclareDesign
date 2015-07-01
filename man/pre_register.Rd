@@ -4,19 +4,22 @@
 \alias{pre_register}
 \title{Create pre-registration document}
 \usage{
-pre_register(design, sample_frame = NULL, clusters = NULL, blocks = NULL,
-  potential_outcomes = NULL, analysis, title, authors, affiliations,
-  acknowledgements, abstract, random.seed = 42, dir = getwd(),
-  temp_dir = FALSE, format = "rmarkdown", check_registration = TRUE,
-  make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE,
-  output_format = "pdf", open_output = TRUE)
+pre_register(design, clusters = NULL, blocks = NULL, sample_frame = NULL,
+  potential_outcomes = NULL, analysis, data = NULL, title = NULL,
+  authors = NULL, affiliations = NULL, acknowledgements = NULL,
+  abstract = NULL, random_seed = 42, dir = getwd(), temp_dir = FALSE,
+  format = "rmarkdown", check_registration = TRUE, make_output = TRUE,
+  keep_tex = FALSE, save_r_code = FALSE, output_format = "pdf",
+  open_output = TRUE)
 }
 \arguments{
 \item{design}{A design object from the declare_design function.}
 
 \item{analysis}{An analysis object from the declare_analysis function, or a list of analysis objects.}
 
-\item{random.seed}{Random seed to ensure reproducibility of the design.}
+\item{data}{A data object from the make_y function.}
+
+\item{random_seed}{Random seed to ensure reproducibility of the design.}
 
 \item{check_registration}{Indicates whether the design is evaluated for consistency with declared analyses.}
 
@@ -25,8 +28,6 @@ pre_register(design, sample_frame = NULL, clusters = NULL, blocks = NULL,
 \item{output_format}{String indicating which type of output file is created, "pdf" (default), "word", or "html"}
 
 \item{open_output}{Indicator for whether the output file is opened after it is compiled.}
-
-\item{data}{A data object from the make_y function.}
 
 \item{registration_title}{Title of the pre-registration.}
 

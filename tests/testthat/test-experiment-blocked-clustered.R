@@ -20,30 +20,38 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   potential_outcomes     <-  declare_potential_outcomes(
     outcome_variable_DGP = declare_variable(linear_mean = 0, linear_sd = 1),
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income
+    outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
   )
-  
+
   clusters <- declare_clusters(clusters = "villages_id")
   blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
   
   design <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
+  analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", design = design, method = "lm")
   
-  pre_registration <- pre_register(design = design, sample_frame = smp, clusters = clusters, blocks = blocks,
-                                   potential_outcomes = po, analysis = analysis_1, 
+  ## estimated treatment effects
+  
+  pre_registration <- pre_register(design = design, sample_frame = sample_frame, clusters = clusters, blocks = blocks,
+                                   potential_outcomes = potential_outcomes, analysis = analysis_1, 
                                    title = "Simplest Possible Experiment", 
                                    authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
                                    abstract = "The effect of pixie dust on productivity.",
-                                   random.seed = 42, temp_dir = TRUE)
+                                   random_seed = 42, temp_dir = TRUE)
   
-  power_1         <- simulate_experiment(sims = 100, analysis = analysis_1, design = design, clusters = clusters, sample_frame = smp, potential_outcomes = po)
+  ## creates paper just from a pre_registration object
+  draft_paper_from_pre_register(pre_registration = pre_registration)
+  
+  ## nudge to set levels of sim (determined by design)
+  
+  power_1         <- simulate_experiment(sims = 100, analysis = analysis_1, design = design, clusters = clusters, sample_frame = sample_frame, potential_outcomes = potential_outcomes, blocks = blocks)
   power_1
   
-  power_2         <- simulate_experiment(sims = 100, analysis = list(analysis_1, analysis_2), design = design, clusters = clusters, sample_frame = smp, potential_outcomes = po)
+  power_2         <- simulate_experiment(sims = 100, analysis = list(analysis_1, analysis_2), design = design, clusters = clusters, blocks = blocks, sample_frame = sample_frame, potential_outcomes = potential_outcomes)
   power_2
   
-  mock          <- make_data(potential_outcomes = po, sample_frame = smp, blocks = blocks, clusters = clusters)
+  mock          <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, blocks = blocks, clusters = clusters)
   
   head(mock)
   mock$Z        <- assign_treatment(design, data = mock)
