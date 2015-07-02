@@ -5,11 +5,9 @@
 #' @param analysis analysis object
 #' @param sims number of iterations
 #' @export
-simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_frame = NULL, blocks = NULL, clusters = NULL, 
-                                design, analysis, sims = 100){
-  
-  ## do not allow sample_frame and no potential_outcomes
-  ## warning if provide all three
+simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_frame = NULL, 
+                                blocks = NULL, clusters = NULL, design, analysis, 
+                                bootstrap_data = FALSE, N_bootstrap, sims = 5){
   
   if(!is.null(sample_frame) & is.null(potential_outcomes))
     stop("If you provide a sample_frame argument, please also provide a potential_outcomes argument.")
@@ -23,6 +21,10 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_f
   if(is.null(sample_frame) & is.null(potential_outcomes) & !is.null(data))
     resample <- "neither"
   
+  if(bootstrap_data == TRUE & is.null(data))
+    stop("Please provide a data frame in the data argument to enable data bootstrapping, 
+         or set bootstrap_data to FALSE.")
+  
   if(!is.null(data))
     data_sim <- data
   
@@ -31,7 +33,13 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_f
   for(i in 1:sims){
     
     if(resample == "potential_outcomes"){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, sample_frame = data, blocks = blocks, clusters = clusters)
+      data_sim <- make_data(potential_outcomes = potential_outcomes, sample_frame = data, 
+                            blocks = blocks, clusters = clusters)
+      if(resample_data == TRUE){
+        ## for now N_resample is preset, but could be set according to a design object
+        N_bootstrap <- nrow(data_sim) 
+        data_sim <- data_sim[sample(1:nrow(data_sim), N_bootstrap, replace = TRUE)]
+      }
     } else if (resample == "both"){
       data_sim <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, blocks = blocks, clusters = clusters)
     } else if (resample == "neither"){
@@ -39,7 +47,7 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_f
     }
     
     z_sim <- assign_treatment(design = design, data = data_sim)
-   
+    
     if(class(analysis)=="analysis"){analysis <- list(analysis)}
     
     for(j in 1:length(analysis)){
