@@ -41,13 +41,16 @@
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @export
 pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = NULL, 
-                         potential_outcomes = NULL, analysis, data = NULL,
+                         potential_outcomes = NULL, analysis = NULL, data = NULL,
                          title = NULL, authors = NULL, affiliations = NULL,
                          acknowledgements = NULL, abstract = NULL,
                          random_seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                          check_registration = TRUE,
                          make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                          output_format = "pdf", open_output = TRUE){
+  
+  if(missing(design))
+    stop("Please provide a design object created using the declare_design() function.")
   
   if(class(analysis) != "list")
     analysis <- list(analysis)
@@ -129,6 +132,9 @@ draft_paper_from_pre_register <- function(pre_registration, dir = getwd(), temp_
                                           make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                                           output_format = "pdf", open_output = TRUE){
   
+  if(missing(pre_registration))
+    stop("Please provide a pre_registration object created using the pre_register() function, or you can create a paper draft directly using the draft_paper() function without a pre_registration object.")
+  
   draft_paper(design = pre_registration$design, clusters = pre_registration$clusters,
               blocks = pre_registration$blocks, sample_frame = pre_registration$sample_frame,
               potential_outcomes = pre_registration$potential_outcomes, analysis = pre_registration$analysis,
@@ -160,20 +166,23 @@ draft_paper_from_pre_register <- function(pre_registration, dir = getwd(), temp_
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @export
 draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = NULL, 
-                        potential_outcomes = NULL, analysis, data = NULL,
+                        potential_outcomes = NULL, analysis = NULL, data = NULL,
                         title = NULL, authors = NULL, affiliations = NULL,
                         acknowledgements = NULL, abstract = NULL,
                         random_seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                         make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                         output_format = "pdf", open_output = TRUE, ...){
   
+  if(missing(design))
+    stop("Please provide a design object created using the declare_design() function.")
+
   if(class(analysis) != "list")
     analysis <- list(analysis)
   if(class(analysis) != "list" & class(analysis) != "analysis")
     stop("Analysis must be either a list of analysis objects or a single object created by declare_analysis.")
   
   paper_draft_doc <- list(title_header(title = title, authors = authors, 
-                                        abstract = abstract, keep_tex = keep_tex),
+                                        abstract = abstract, keep_tex = keep_tex, pre_register = FALSE),
                            code_snippet("library(registration) \n library(xtable)"),
                            code_snippet("## set fixed random seed for paper reproducibility\n\nset.seed(", 
                                         random_seed, ")"),
@@ -292,7 +301,7 @@ tex_header <- function(title, level){
     return(paste(title, "\n--"))
 } 
 
-title_header <- function(title = NULL, authors = NULL, abstract = NULL, keep_tex = FALSE){
+title_header <- function(title = NULL, authors = NULL, abstract = NULL, keep_tex = FALSE, pre_register = TRUE){
   
   ##return(paste("---\ntitle: \"", title, "\"\noutput: pdf_document\n---\n\n", sep = ""))
   
@@ -312,9 +321,10 @@ title_header <- function(title = NULL, authors = NULL, abstract = NULL, keep_tex
                authors.text,
                ifelse(is.null(abstract), "", paste("abstract: |\n", abstract, "\n")),
                "date: \"`r format(Sys.time(), \'%d %B %Y\')`\"",
-               "\noutput:\n  pdf_document:\n    toc: yes\n    template: ./egap_registration_template.tex\n",
-               ifelse(keep_tex, "    keep_tex: true\n", ""),
-               "---\n\n", 
+               "\noutput:\n  pdf_document:\n    toc: yes",
+               ifelse(pre_register, "\n    template: ./egap_registration_template.tex", ""),
+               ifelse(keep_tex, "\n    keep_tex: true", ""),
+               "\n---\n\n", 
                sep = ""))
   
 }

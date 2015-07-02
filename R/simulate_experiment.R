@@ -117,7 +117,13 @@ summary.experiment_simulations <- function(object, ...) {
 #' @export
 print.summary.experiment_simulations <- function(x, ...){
   ## prints paragraph describing design
-  print("Design Descri")
+}
+
+
+#' @export
+print.experiment_simulations <- function(x, ...){
+  print(summary.experiment_simulations(x, ... = ...))
+  return()
 }
 
 reorient <- function(x) {
