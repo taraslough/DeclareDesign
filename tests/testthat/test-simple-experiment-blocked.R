@@ -26,7 +26,7 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
                                       design = design, method = "lm")
   
   sims <- simulate_experiment(potential_outcomes = po, sample_frame = smp, blocks = blocks, 
-                              design = design,analysis = list(analysis_1, analysis_2))
+                              design = design,analysis = list(analysis_1, analysis_2), sims = 10)
   summary(sims)
   
   
@@ -34,7 +34,10 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   mock          <- make_data(potential_outcomes = po, sample_frame = smp, blocks = blocks)
   mock$Z        <- assign_treatment(design, data = mock)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
-  head(mock)
+  
+  probs_mat <- get_design_probs(design = design, data = mock)
+  prob_obs <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
+  
   
   fit_1 <- get_estimates_model(analysis = analysis_1, data = mock)
   summary(fit_1)
