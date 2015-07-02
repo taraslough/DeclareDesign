@@ -53,7 +53,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
           if(!is.null(subset))
             data <- subset(data, eval(parse(text = subset)))
           if(!is.null(weights)){
-            lm(formula = formula, data = data, weights = data[, weights])
+            lm(formula = stats::formula(unclass(formula)), data = data, weights = data[, weights])
           } else {
             lm(formula = formula, data = data)
           }

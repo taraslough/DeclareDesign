@@ -2,6 +2,7 @@
 
 S3method(plot,balance)
 S3method(print,balance)
+S3method(print,experiment_simulations)
 S3method(print,summary.design)
 S3method(print,summary.experiment_simulations)
 S3method(summary,design)

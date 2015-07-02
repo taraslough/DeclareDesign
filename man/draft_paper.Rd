@@ -5,7 +5,7 @@
 \title{Create paper draft}
 \usage{
 draft_paper(design, clusters = NULL, blocks = NULL, sample_frame = NULL,
-  potential_outcomes = NULL, analysis, data = NULL, title = NULL,
+  potential_outcomes = NULL, analysis = NULL, data = NULL, title = NULL,
   authors = NULL, affiliations = NULL, acknowledgements = NULL,
   abstract = NULL, random_seed = 42, dir = getwd(), temp_dir = FALSE,
   format = "rmarkdown", make_output = TRUE, keep_tex = FALSE,
