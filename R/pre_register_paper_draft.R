@@ -135,6 +135,8 @@ draft_paper_from_pre_register <- function(pre_registration, dir = getwd(), temp_
   if(missing(pre_registration))
     stop("Please provide a pre_registration object created using the pre_register() function, or you can create a paper draft directly using the draft_paper() function without a pre_registration object.")
   
+  warning("Note: if you edited the pre-registration document after the pre_register() function saved it, you should start your paper draft based on the code in the final pre-registration document you submitted to a repository.")
+  
   draft_paper(design = pre_registration$design, clusters = pre_registration$clusters,
               blocks = pre_registration$blocks, sample_frame = pre_registration$sample_frame,
               potential_outcomes = pre_registration$potential_outcomes, analysis = pre_registration$analysis,
