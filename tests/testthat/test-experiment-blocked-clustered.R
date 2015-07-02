@@ -22,14 +22,15 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
   )
-
+  
   clusters <- declare_clusters(clusters = "villages_id")
   blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
   
   design <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
-  analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", design = design, method = "lm")
+  analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", 
+                                 design = design, method = "lm", weights = "prob_assign")
   
   ## estimated treatment effects
   
@@ -43,15 +44,27 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   ## creates paper just from a pre_registration object
   draft_paper_from_pre_register(pre_registration = pre_registration)
   
+  paper_draft <- draft_paper(design = design, sample_frame = sample_frame, clusters = clusters, blocks = blocks,
+                             potential_outcomes = potential_outcomes, analysis = analysis_1, 
+                             title = "Simplest Possible Experiment", 
+                             authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
+                             abstract = "The effect of pixie dust on productivity.",
+                             random_seed = 42, temp_dir = TRUE)
+  
   ## nudge to set levels of sim (determined by design)
   
-  power_1         <- simulate_experiment(sims = 100, analysis = analysis_1, design = design, clusters = clusters, sample_frame = sample_frame, potential_outcomes = potential_outcomes, blocks = blocks)
+  power_1         <- simulate_experiment(sims = 5, analysis = analysis_1, design = design, 
+                                         clusters = clusters, sample_frame = sample_frame, 
+                                         potential_outcomes = potential_outcomes, blocks = blocks)
   summary(power_1)
   
-  power_2         <- simulate_experiment(sims = 100, analysis = list(analysis_1, analysis_2), design = design, clusters = clusters, blocks = blocks, sample_frame = sample_frame, potential_outcomes = potential_outcomes)
+  power_2         <- simulate_experiment(sims = 5, analysis = list(analysis_1, analysis_2), 
+                                         design = design, clusters = clusters, blocks = blocks, 
+                                         sample_frame = sample_frame, potential_outcomes = potential_outcomes)
   summary(power_2)
   
-  mock          <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, blocks = blocks, clusters = clusters)
+  mock          <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, 
+                             blocks = blocks, clusters = clusters)
   
   head(mock)
   mock$Z        <- assign_treatment(design, data = mock)
@@ -61,10 +74,12 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   M1             <- get_estimands(analysis = analysis_1, data = mock)  
   summary(M1)
   
-  M1_est             <- get_estimates(analysis = analysis_1, data = mock)  
-  summary(M1_est)
-
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
+  
+  mock$prob_assign <- runif(nrow(mock))
+  
+  M1_est             <- get_estimates(analysis = analysis_2, data = mock)  
+  summary(M1_est)
   
   ## below here doesn't work at the moment, working on it
   obs <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
@@ -73,5 +88,5 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
                            outcome = "Y", treatment_assignment = "Z", design = design, data = mock)
   plot(balance, covariate_labels = c("Income", "Development Level"))
   balance
-
+  
 })
