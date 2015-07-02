@@ -10,11 +10,8 @@
 assign_treatment <- function(design, data) {
   
   ## should be expanded to take either a design object or a function
-  ## may be need to have this respond to the characteristics of the data frame, i.e. N and m?
   
   N <- nrow(data)
-  # It occurs to me that condition_names will be inherited from potential_outcomes (and exclude arms).  
-  # Should we just simplify to prob_each or block_prob?
   block_name <- design$block_name
   cluster_name <- design$cluster_name
   block_var <- data[,block_name]
@@ -25,11 +22,11 @@ assign_treatment <- function(design, data) {
   m_each <- design$m_each
   prob_each <- design$prob_each
   block_m <- design$block_m
-  block_prob <- design$block_prob
   design_type <- design$design_type
   
   if(design_type=="complete"){
     Z <- complete_ra(N = N,
+                     m = m,
                      m_each = m_each,
                      prob_each = prob_each, 
                      condition_names = condition_names)
@@ -38,7 +35,7 @@ assign_treatment <- function(design, data) {
   if(design_type=="blocked"){
     Z <- block_ra(block_var=block_var, 
                   block_m = block_m,
-                  block_prob = block_prob, 
+                  prob_each = prob_each,
                   condition_names = condition_names)
   }
   
@@ -47,6 +44,7 @@ assign_treatment <- function(design, data) {
     Z <- cluster_ra(clust_var=clust_var, 
                     m = m, 
                     m_each = m_each,
+                    prob_each = prob_each,
                     condition_names = condition_names)
   }
   
@@ -54,7 +52,7 @@ assign_treatment <- function(design, data) {
     Z <- blocked_and_clustered_ra(clust_var=clust_var,
                                   block_var=block_var, 
                                   block_m=block_m,
-                                  block_prob = block_prob, 
+                                  prob_each = prob_each,
                                   condition_names = condition_names)
   }
   return(Z)
@@ -120,7 +118,6 @@ get_design_probs <- function(design, data){
   m_each <- design$m_each
   prob_each <- m <- design$prob_each
   block_m <- design$block_m
-  block_prob <- design$block_prob
   design_type <- design$design_type
   num_arms <- length(unique(condition_names))
   
@@ -130,7 +127,6 @@ get_design_probs <- function(design, data){
                            m_each = m_each,
                            block_var = block_var, 
                            block_m = block_m, 
-                           block_prob = block_prob,
                            clust_var = clust_var, 
                            num_arms=num_arms, 
                            condition_names = condition_names, 
@@ -146,7 +142,6 @@ design_probs <- function(N= NULL,
                          m_each = NULL,
                          block_var = NULL, 
                          block_m = NULL, 
-                         block_prob = NULL,
                          clust_var = NULL, 
                          num_arms=NULL, 
                          condition_names = NULL, 
@@ -188,8 +183,6 @@ design_probs <- function(N= NULL,
         (remainder/num_arms)* ((m_each +1)/N)
     }
     
-    
-    
     if(!is.null(prob_each)){
       m_each <- floor(N*prob_each)
       remainder <- N - sum(m_each)
@@ -198,13 +191,8 @@ design_probs <- function(N= NULL,
         (remainder/length(prob_each))* ((m_each +1)/N)
     } 
     
-    
     if(is.null(num_arms)){
       num_arms <- length(m_each)
-    }
-    
-    if(is.null(condition_names)){
-      condition_names <- paste0("T", 1:num_arms)
     }
     
     if(N < num_arms){
@@ -216,12 +204,12 @@ design_probs <- function(N= NULL,
     
   }
   
-  if(design=="blocked"){
+  if(design_type=="blocked"){
     
     blocks <- sort(unique(block_var))
-    prob_mat <- matrix(NA, nrow = length(block_var), ncol = length(unique(Z)))
+    prob_mat <- matrix(NA, nrow = length(block_var), ncol = length(condition_names))
     
-    if(is.null(block_m) & is.null(block_prob) & is.null(num_arms)){
+    if(is.null(block_m) & is.null(prob_each) & is.null(num_arms)){
       for(i in 1:length(blocks)){
         N_block <- sum(block_var==blocks[i])
         prob_mat[block_var==blocks[i],] <- design_probs(N = N_block, condition_names=condition_names, design_type="complete")
@@ -230,7 +218,7 @@ design_probs <- function(N= NULL,
       return(prob_mat)
     }
     
-    if(is.null(block_m) & is.null(block_prob) & !is.null(num_arms)){
+    if(is.null(block_m) & is.null(prob_each) & !is.null(num_arms)){
       for(i in 1:length(blocks)){
         N_block <- sum(block_var==blocks[i])
         prob_mat[block_var==blocks[i],] <- design_probs(N = N_block, num_arms=num_arms, condition_names=condition_names, design_type="complete")
@@ -248,19 +236,19 @@ design_probs <- function(N= NULL,
       return(prob_mat)
     }
     
-    if(!is.null(block_prob)){
+    if(!is.null(prob_each)){
       
       for(i in 1:length(blocks)){
         N_block <- sum(block_var==blocks[i])
-        prob_mat[block_var==blocks[i],] <- design_probs(N = N_block, prob_each = block_prob, condition_names=condition_names, design_type="complete")
+        prob_mat[block_var==blocks[i],] <- design_probs(N = N_block, prob_each = prob_each, condition_names=condition_names, design_type="complete")
       }
-      colnames(prob_mat) <- colnames(design_probs(N = N_block, prob_each = block_prob, condition_names=condition_names, design_type="complete"))
+      colnames(prob_mat) <- colnames(design_probs(N = N_block, prob_each = prob_each, condition_names=condition_names, design_type="complete"))
       return(prob_mat)
     }
     
   }
   
-  if(design=="clustered"){`
+  if(design_type=="clustered"){
     unique_clus <- unique(clust_var)
     n_clus <- length(unique_clus)
     probs_clus <- design_probs(N = n_clus, m = m, num_arms = num_arms, m_each = m_each, 
@@ -272,13 +260,13 @@ design_probs <- function(N= NULL,
     return(probs_mat)
   }
   
-  if(design=="blocked and clustered"){`
+  if(design_type=="blocked and clustered"){
     unique_clus <- unique(clust_var)
     
     ## get the block for each cluster
-    clust_blocks <- rep(NA, length(unique_clust))
-    for(i in 1:length(unique_clust)){
-      clust_blocks[i] <- unique(block_var[clust_var==unique_clust[i]])  
+    clust_blocks <- rep(NA, length(unique_clus))
+    for(i in 1:length(unique_clus)){
+      clust_blocks[i] <- unique(block_var[clust_var==unique_clus[i]])  
     }
     probs_clus <- design_probs(num_arms = num_arms, m_each = m_each, 
                                prob_each = prob_each, block_var = clust_blocks,
@@ -296,8 +284,9 @@ observed_probs <- function(treatment_assignment, design, data){
   prob_mat <- get_design_probs(design = design, data = data)
   prob_obs <- rep(NA, nrow(data))
   condition_names <- unique(data[,treatment_assignment])
-  for(v in condition_names){
-    prob_obs[data[,treatment_assignment]==v] <- prob_mat[data[,treatment_assignment]==v, v]
+  for(i in 1:length(condition_names)){
+    prob_obs[data[,treatment_assignment]==condition_names[i]] <- 
+      prob_mat[data[,treatment_assignment]==condition_names[i], paste0("prob_", condition_names[i])]
   }
   return(prob_obs)  
 }
