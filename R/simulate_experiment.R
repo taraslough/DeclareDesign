@@ -9,6 +9,8 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_f
                                 blocks = NULL, clusters = NULL, design, analysis, 
                                 bootstrap_data = FALSE, N_bootstrap, sims = 5){
   
+  if(is.null(sample_frame) & is.null(data))
+    stop("Please provide either a sample_frame argument or a data argument.")
   if(!is.null(sample_frame) & is.null(potential_outcomes))
     stop("If you provide a sample_frame argument, please also provide a potential_outcomes argument.")
   if(!is.null(data) & !is.null(sample_frame) & !is.null(potential_outcomes))

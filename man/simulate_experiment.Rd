@@ -6,7 +6,7 @@
 \usage{
 simulate_experiment(data = NULL, potential_outcomes = NULL,
   sample_frame = NULL, blocks = NULL, clusters = NULL, design, analysis,
-  sims = 100)
+  bootstrap_data = FALSE, N_bootstrap, sims = 5)
 }
 \arguments{
 \item{data}{data object}

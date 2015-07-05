@@ -30,7 +30,7 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
   analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", 
-                                 design = design, method = "lm", weights = "prob_assign")
+                                 method = "lm", weights = "prob_assign")
   
   ## pre register experiment with EGAP
   

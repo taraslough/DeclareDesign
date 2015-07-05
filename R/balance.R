@@ -50,21 +50,17 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", desig
 #' @export 
 get_llr <- function(covariates, treatment_assignment, data, design){
   
-  observed_probability_matrix <- observed_probs(treatment_assignment = treatment_assignment, design = design, data = data)
-  
-  condition_names <- unique(data[,treatment_assignment])
-  w <- rep(NA, length(treatment_assignment))
-  for(i in 1:length(condition_names)){
-    w[data[,treatment_assignment]==condition_names[i]] <- 1 / observed_probability_matrix[i,][data[, treatment_assignment] == condition_names[i]]
-  }
-  local.frame <- data.frame(data[,covariates], assignment = data[, treatment_assignment]) ##, w)
-  formula.u <- paste0("assignment ~", paste(covariates, collapse="+"))
-  formula.r <- paste0("assignment ~ 1")
-  fit.u <- multinom(formula.u, weights = w, 
-                    data = local.frame, verbose = FALSE)
-  fit.r <- multinom(formula.r, weights = w, 
-                    data = local.frame, verbose = FALSE)
-  return(fit.r$deviance - fit.u$deviance)
+  observed_probs <- observed_probs(treatment_assignment = treatment_assignment, 
+                                   design = design, data = data)
+  local_frame <- data.frame(data[,covariates], assignment = data[, treatment_assignment], 
+                            w = observed_probs)
+  formula_u <- paste0("assignment ~", paste(covariates, collapse="+"))
+  formula_r <- paste0("assignment ~ 1")
+  fit_u <- multinom(formula_u, weights = w, 
+                    data = local_frame, trace = FALSE)
+  fit_r <- multinom(formula_r, weights = w, 
+                    data = local_frame, trace = FALSE)
+  return(fit_r$deviance - fit_u$deviance)
 }
 
 #' @export

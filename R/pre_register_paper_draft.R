@@ -88,17 +88,22 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
                            "Please write your hypotheses here. Be sure to explain each declared analysis.",
                            tex_header("Experimental Design", 1),
                            code_snippet("summary(design)"),
-                           code_snippet("print(xtable(table(assign_treatment(design = design, data = mock)), ",
+                           code_snippet("simulations <- summary(simulate_experiment(design = design, analysis = analysis_1,
+                                           sample_frame = sample_frame, potential_outcomes = potential_outcomes, 
+                                           clusters = clusters, blocks = blocks))", "\n\n",
+                                        "print(xtable(simulations, caption = \"Power analysis of quantities of interest\"),
+                                              include.rownames = FALSE, comment = FALSE)"),
+                           code_snippet("print(xtable(with(mock, table(Z)), ",
                                         "caption = \"Example Random Assignment\"), include.colnames = FALSE, comment = FALSE)"),
                            "Please describe your experimental conditions and randomization protocol.",
                            tex_header("Power analysis", 2),
-                           ##code_snippet(paste0("cat(\"The power of analysis ", 1:length(analysis), 
-                           ##                    " is \", simulate_experiment(design = design, clusters = clusters, blocks = blocks, sample_frame = sample_frame, analysis = analysis_", 1:length(analysis), 
-                           ##                    ", data = mock), \". \", sep = \"\")\n\n")),
                            tex_header("Results", 1),
                            paste(sapply(1:length(analysis), function(x) { 
                              paste(tex_header(paste("Simulated results for analysis", x), 2), "\n",
-                                   code_snippet("print(xtable(get_estimates_model(analysis_", x, 
+                                   code_snippet("print(xtable(get_estimates(analysis_", x, 
+                                                ", data = mock), caption = \"Analysis ", x,
+                                                " Quantities of Interest with Simulated Data\"), comment = FALSE)", "\n\n",
+                                                "print(xtable(get_estimates_model(analysis_", x, 
                                                 ", data = mock), caption = \"Analysis ", x,
                                                 " Results with Simulated Data\"), comment = FALSE)"), "\n\n", collapse = "")   
                            }), collapse = ""))
@@ -177,53 +182,58 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = N
   
   if(missing(design))
     stop("Please provide a design object created using the declare_design() function.")
-
+  
   if(class(analysis) != "list")
     analysis <- list(analysis)
   if(class(analysis) != "list" & class(analysis) != "analysis")
     stop("Analysis must be either a list of analysis objects or a single object created by declare_analysis.")
   
   paper_draft_doc <- list(title_header(title = title, authors = authors, 
-                                        abstract = abstract, keep_tex = keep_tex, pre_register = FALSE),
-                           code_snippet("library(registration) \n library(xtable)"),
-                           code_snippet("## set fixed random seed for paper reproducibility\n\nset.seed(", 
-                                        random_seed, ")"),
-                           code_snippet("sample_frame <- ", sample_frame$call, "\n\n", 
-                                        "potential_outcomes <- ", potential_outcomes$call, "\n\n", 
-                                        ifelse(!is.null(clusters), paste0("clusters <- ", list(clusters$call)), ""), "\n\n", 
-                                        ifelse(!is.null(blocks), paste0("blocks <- ", list(blocks$call)), ""), "\n\n", 
-                                        "design <- ", design$call, "\n\n", 
-                                        paste(sapply(1:length(analysis), 
-                                                     function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
-                                              collapse = ""),
-                                        echo = T),
-                           code_snippet("mock <- make_data(sample_frame = sample_frame, potential_outcomes = potential_outcomes", 
-                                        ifelse(!is.null(clusters), ", clusters = clusters", ""),
-                                        ifelse(!is.null(blocks), ", blocks = blocks", ""), ")\n\n", 
-                                        paste(sapply(1:length(analysis), 
-                                                     function(x) paste0("mock[, analysis_treatment_variable(analysis_", x, 
-                                                                        ")] <- assign_treatment(design, data = mock)\n\n",
-                                                                        "mock[, analysis_outcome_variable(analysis_", x, 
-                                                                        ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, 
-                                                                        "), treatment_assignment = 'Z', data = mock) \n")), collapse = "")),
-                           tex_header("Hypotheses", 1),
-                           "Please write your hypotheses here. Be sure to explain each declared analysis.",
-                           tex_header("Experimental Design", 1),
-                           code_snippet("summary(design)"),
-                           code_snippet("print(xtable(table(assign_treatment(design = design, data = mock)), ",
-                                        "caption = \"Example Random Assignment\"), include.colnames = FALSE, comment = FALSE)"),
-                           "Please describe your experimental conditions and randomization protocol.",
-                           tex_header("Power analysis", 2),
-                           ##code_snippet(paste0("cat(\"The power of analysis ", 1:length(analysis), 
-                           ##                    " is \", simulate_experiment(design = design, clusters = clusters, blocks = blocks, sample_frame = sample_frame, analysis = analysis_", 1:length(analysis), 
-                           ##                    ", data = mock), \". \", sep = \"\")\n\n")),
-                           tex_header("Results", 1),
-                           paste(sapply(1:length(analysis), function(x) { 
-                             paste(tex_header(paste("Simulated results for analysis", x), 2), "\n",
-                                   code_snippet("print(xtable(get_estimates_model(analysis_", x, 
-                                                ", data = mock), caption = \"Analysis ", x,
-                                                " Results with Simulated Data\"), comment = FALSE)"), "\n\n", collapse = "")   
-                           }), collapse = ""))
+                                       abstract = abstract, keep_tex = keep_tex, pre_register = FALSE),
+                          code_snippet("library(registration) \n library(xtable)"),
+                          code_snippet("## set fixed random seed for paper reproducibility\n\nset.seed(", 
+                                       random_seed, ")"),
+                          code_snippet("sample_frame <- ", sample_frame$call, "\n\n", 
+                                       "potential_outcomes <- ", potential_outcomes$call, "\n\n", 
+                                       ifelse(!is.null(clusters), paste0("clusters <- ", list(clusters$call)), ""), "\n\n", 
+                                       ifelse(!is.null(blocks), paste0("blocks <- ", list(blocks$call)), ""), "\n\n", 
+                                       "design <- ", design$call, "\n\n", 
+                                       paste(sapply(1:length(analysis), 
+                                                    function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
+                                             collapse = ""),
+                                       echo = T),
+                          code_snippet("mock <- make_data(sample_frame = sample_frame, potential_outcomes = potential_outcomes", 
+                                       ifelse(!is.null(clusters), ", clusters = clusters", ""),
+                                       ifelse(!is.null(blocks), ", blocks = blocks", ""), ")\n\n", 
+                                       paste(sapply(1:length(analysis), 
+                                                    function(x) paste0("mock[, analysis_treatment_variable(analysis_", x, 
+                                                                       ")] <- assign_treatment(design, data = mock)\n\n",
+                                                                       "mock[, analysis_outcome_variable(analysis_", x, 
+                                                                       ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, 
+                                                                       "), treatment_assignment = 'Z', data = mock) \n")), collapse = "")),
+                          tex_header("Hypotheses", 1),
+                          "Please write your hypotheses here. Be sure to explain each declared analysis.",
+                          tex_header("Experimental Design", 1),
+                          code_snippet("summary(design)"),
+                          code_snippet("simulations <- summary(simulate_experiment(design = design, analysis = analysis_1,
+                                           sample_frame = sample_frame, potential_outcomes = potential_outcomes, 
+                                           clusters = clusters, blocks = blocks))", "\n\n",
+                                       "print(xtable(simulations, caption = \"Power analysis of quantities of interest\"),
+                                              include.rownames = FALSE, comment = FALSE)"),
+                          code_snippet("print(xtable(with(mock, table(Z)), ",
+                                       "caption = \"Example Random Assignment\"), include.colnames = FALSE, comment = FALSE)"),
+                          "Please describe your experimental conditions and randomization protocol.",
+                          tex_header("Power analysis", 2),
+                          tex_header("Results", 1),
+                          paste(sapply(1:length(analysis), function(x) { 
+                            paste(tex_header(paste("Simulated results for analysis", x), 2), "\n",
+                                  code_snippet("print(xtable(get_estimates(analysis_", x, 
+                                               ", data = mock), caption = \"Analysis ", x,
+                                               " Quantities of Interest with Simulated Data\"), comment = FALSE)", "\n\n",
+                                               "print(xtable(get_estimates_model(analysis_", x, 
+                                               ", data = mock), caption = \"Analysis ", x,
+                                               " Results with Simulated Data\"), comment = FALSE)"), "\n\n", collapse = "")   
+                          }), collapse = ""))
   
   
   output_document(doc = paper_draft_doc, dir = dir, temp_dir = temp_dir, format = format, make_output = make_output, keep_tex = keep_tex,
@@ -304,13 +314,6 @@ tex_header <- function(title, level){
 } 
 
 title_header <- function(title = NULL, authors = NULL, abstract = NULL, keep_tex = FALSE, pre_register = TRUE){
-  
-  ##return(paste("---\ntitle: \"", title, "\"\noutput: pdf_document\n---\n\n", sep = ""))
-  
-  ##abstract: |
-  ##  This is the abstract.
-  
-  ##It consists of two paragraphs.
   
   authors.text <- paste("-", authors[1], "\n")
   if(length(authors) > 1) {
