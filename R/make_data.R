@@ -4,7 +4,8 @@
 #' @param sample_frame A sample_frame object made with declare_sample_frame(), or a pre-existing dataframe
 #' @param N If sample_frame is provided, this argument is ignored.
 #' @export
-make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates_data = NULL, blocks=NULL, clusters=NULL, N = NULL,sep = "_"){
+make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates_data = NULL, 
+                      blocks = NULL, clusters = NULL, N = NULL, sep = "_"){
   
   if(is.null(sample_frame)&is.null(potential_outcomes))stop(
     "You must provide at least a sample frame or a potential outcomes object."
@@ -22,43 +23,28 @@ make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates
     }else(model_formula <- NULL)
   }
   # Check whether sample_frame_object is sample_frame class or a user-supplied matrix
-  if(!is.null(sample_frame)){
-    if(!class(sample_frame)%in%c("sample_frame","matrix","data.frame"))stop(
-      "The sample frame must either be a sample_frame object created with declare_sample_frame(), or a dataframe or matrix."
-    )
-    if(class(sample_frame)=="sample_frame"){
+  
+  if((is.null(data) & is.null(sample_frame)) | (class(sample_frame) != c("sample_frame")))
+    stop("Please either send an object created with declare_sample_frame to the sample_frame argument or a data frame to the data argument.")
+  
+  if(!is.null(sample_frame) | !is.null(data)){
+    
+    if(!is.null(sample_frame)){
       X <- sample_frame$make_sample()
     }
-    if(class(sample_frame)%in%c("matrix","data.frame")){
-      X <- sample_frame
+    if(!is.null(data)){
+      X <- declare_sample_frame(data = data)
     }
-    if(is.null(potential_outcomes))return(X)}
-  if(is.null(sample_frame)){
-    if(is.null(N))stop("You have not supplied any sample frame, so the sample size cannot be determined. Please supply a value for N.")
-    if(length(covariate_names)>0){
-      X <- data.frame(matrix(data = rnorm(length(covariate_names)*N),ncol = length(covariate_names)))
-      names(X) <- covariate_names
-    }else{
-      if(outcome_variable$distribution!="normal"){
-        untreated_var <- declare_variable()
-      }else{
-        untreated_var <- outcome_variable
-      }
-      
-      X <- make_X_matrix(untreated_outcome = untreated_var,
-                         N = N)
-      outcome_formula <- as.formula(paste0(as.character(outcome_formula)[2]," ",
-                                           as.character(outcome_formula)[1],
-                                           " untreated_outcome + " ,
-                                           as.character(outcome_formula)[3]))
-    }}
+    
+    if(is.null(potential_outcomes))
+      return(X)
+  }
   
   
   # Check that all of the variables in the formula are in the X matrix or in the treatment names
   # Check that the baseline is nested in the treatment formula
-  if(
-    FALSE %in% (all.vars(outcome_formula)[-1] %in% c(names(X),condition_names))
-  )stop("All of the variables in the formula should either be in the sample matrix or in the condition_names of the design_object.")
+  if( FALSE %in% (all.vars(outcome_formula)[-1] %in% c(names(X),condition_names)))
+    stop("All of the variables in the formula should either be in the sample matrix or in the condition_names of the design_object.")
   treat_mat    <- diag(length(condition_names))
   colnames(treat_mat) <- condition_names
   # Make a function that generates potential outcomes as a function of 
@@ -130,7 +116,6 @@ make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates
   
   return_frame <- return_frame[order(return_frame$make_data_sort_id),]
   return_frame$make_data_sort_id <- NULL
-  
   
   return(return_frame)
 }
