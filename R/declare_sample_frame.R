@@ -18,8 +18,16 @@ declare_sample_frame <-
       "You may not specify N and N_per_level simultaneously."
     )
     
-    if(is.null(N_per_level)&is.null(N))stop(
-      "You must specify either N or N_per_level."
+    if(!is.null(lower_units_per_level)&!is.null(N))stop(
+      "You may not specify N and lower_units_per_level simultaneously."
+    )
+    
+    if(!is.null(lower_units_per_level)&!is.null(N_per_level))stop(
+      "You may not specify N_per_level and lower_units_per_level simultaneously."
+    )
+    
+    if(is.null(N_per_level)&is.null(N)&is.null(lower_units_per_level))stop(
+      "You must specify either N, lower_units_per_level or N_per_level."
     )
     
     if(is.null(N_per_level)&!is.null(N)) N_per_level <- N
@@ -49,10 +57,40 @@ declare_sample_frame <-
         
         
         
-        
       }
     }
     
+    if(!is.null(lower_units_per_level)){
+      N_per_level <- sapply(lower_units_per_level,length)
+      N <- N_per_level[1]
+    }
+    
+    if(!is.null(N)){
+      N_per_level <- N
+    }
+    
+    if(!is.null(N_per_level)){
+      lower_units_per_level <- 
+        list(rep(NA,
+                 length(N_per_level)))
+      
+      if(length(N_per_level)>1){
+        lower_units_per_level[2:length(N_per_level)] <- 
+          lapply(2:length(N_per_level),
+                 function(i){
+                   remaindr(N_per_level[i-1],N_per_level[i])
+                 })        
+      }
+      lower_units_per_level[[1]] <- 
+        rep(1,N_per_level[1])   
+    }
+    
+    
+    if(!length(variable_list)==0){
+      level_names    <- names(variable_list)
+    }else{
+      level_names <- paste0("level_",1:length(N_per_level))
+    }
     
     
     
@@ -68,8 +106,7 @@ declare_sample_frame <-
       
     }else{
       
-      N_levels       <- length(variable_list)
-      level_names    <- names(variable_list)
+      N_levels       <- length(N_per_level)
       variable_names <- lapply(variable_list, names)
       
       # Make object here stating number of levels, which 
@@ -83,15 +120,24 @@ declare_sample_frame <-
       }
       
       make_sample <- function(){
+        
+        
+        
         X_list <- lapply(1:N_levels,function(i){
+          # When there's variables
           X_mat <- make_X_matrix(variables = variable_list[[i]],
                                  variable_names = variable_names[[i]],
                                  N = N_per_level[i])
+          
+          # In case no variables
+          X_mat <- data.frame(matrix(nrow = N_per_level[i]))
+          
           X_mat$id <- 1:dim(X_mat)[1]
           names(X_mat)[names(X_mat)=="id"] <- paste0(level_names[i],"_id")
           return(X_mat)
         })
         
+        # replace with paste0(level_names[i],"_id")
         id_vars <- sapply(X_list,function(X_to_grab){
           X_names <- names(X_to_grab)
           return(X_names[length(X_names)])
