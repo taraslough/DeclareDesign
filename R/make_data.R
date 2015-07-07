@@ -48,8 +48,9 @@ make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates
   # Check that the baseline is nested in the treatment formula
   if( FALSE %in% (all.vars(outcome_formula)[-1] %in% c(names(X),condition_names)))
     stop("All of the variables in the formula should either be in the sample matrix or in the condition_names of the design_object.")
-  treat_mat    <- diag(length(condition_names))
+  treat_mat <- diag(length(condition_names))
   colnames(treat_mat) <- condition_names
+  
   # Make a function that generates potential outcomes as a function of 
   # all of the variables (treatment assignment, sample_frame) and some normal noise
   
@@ -57,12 +58,12 @@ make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates
     "function(slice){y <- with(slice,{",outcome_formula[3],"});return(y)}"
   )))
   
-  if(potential_outcomes$outcome_variable$distribution=="normal"){
+  if(potential_outcomes$outcome_variable$distribution == "normal"){
     unit_variance <- potential_outcomes$outcome_variable$sd^2
     epsilon <- rnorm(n = dim(X)[1], 
                      mean = potential_outcomes$outcome_variable$mean,
                      sd = potential_outcomes$outcome_variable$sd)
-  }else{
+  } else {
     unit_variance <- 1
     epsilon <- rnorm(n = dim(X)[1], mean=0, sd = 1)
   }
@@ -87,25 +88,30 @@ make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates
   
   colnames(outcomes) <- paste0(outcome_name,sep,condition_names)
   
-  if(!is.null(ICC)&!is.null(cluster_var_name)){
+  if(!is.null(ICC) & !is.null(cluster_var_name)){
     cluster_variance <- ICC*unit_variance/(1-ICC)
-    cluster_shock <- rnorm(length(unique(X[,cluster_var_name])), sd = cluster_variance^.5)[X[,cluster_var_name]]
+    cluster_shock <- rnorm(length(unique(X[,cluster_var_name])), 
+                           sd = cluster_variance^.5)[X[,cluster_var_name]]
     outcomes <- outcomes + cluster_shock
   }
   # Check what the DGP of the outcome variable is and do necessary transformations
-  if(potential_outcomes$outcome_variable$distribution=="binary"){
+  if(potential_outcomes$outcome_variable$distribution == "binary"){
     outcomes <- apply(outcomes,2,function(i)rbinom(n = dim(outcomes)[1],size = 1,prob = 1/(1 + exp(-i))))
   }
   
   return_frame <- data.frame(outcomes)
   return_frame$make_data_sort_id <- 1:nrow(return_frame)
-  if(!is.null(sample_frame)){return_frame <- cbind(return_frame, X)}
-  if(!is.null(clusters)){return_frame <- cbind(return_frame, clusters$cluster_function(sample=return_frame))}
+  if(!is.null(sample_frame)){
+    return_frame <- cbind(return_frame, X)
+  }
+  if(!is.null(clusters)){
+    return_frame <- cbind(return_frame, clusters$cluster_function(sample=return_frame))
+  }
   
   if(!is.null(blocks)){
     if(is.null(blocks$call$clusters)){
       return_frame <- cbind(return_frame, blocks$blocks_function(sample=return_frame))
-    }else{
+    } else {
       cluster_frame <- unique(return_frame[, c(clusters$cluster_name, blocks$call$blocks)])
       if(nrow(cluster_frame) != length(unique(return_frame[,clusters$cluster_name]))){
         stop("There is more than one level of a cluster-level covariate in at least one cluster, so you cannot block on it. Please construct cluster-level variables that have a single value within clusters.")
