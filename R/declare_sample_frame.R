@@ -109,12 +109,10 @@ declare_sample_frame <-
       
       make_sample <- function(){
         
-        
-        
         X_list <- lapply(1:N_levels,function(i){
           # When there's variables
           
-          if(is.null(variable_list)){
+          if(length(variable_list) >0){
           X_mat <- make_X_matrix(variables = variable_list[[i]],
                                  variable_names = variable_names[[i]],
                                  N = N_per_level[i])
@@ -150,7 +148,8 @@ declare_sample_frame <-
           }
           sample_matrix <- X_mat_joined
         }
-        sample_matrix <- sample_matrix[order(sample_matrix[,id_vars[1]]),]
+        
+        sample_matrix <- sample_matrix[order(sample_matrix[,id_vars[1]]), , drop=FALSE]
         return(sample_matrix)
       }
       
