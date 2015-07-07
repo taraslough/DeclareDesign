@@ -4,7 +4,8 @@
 \alias{declare_sample_frame}
 \title{Declare the structure of the sample frame}
 \usage{
-declare_sample_frame(..., N_per_level = NULL, lower_units_per_level = NULL)
+declare_sample_frame(..., N_per_level = NULL, lower_units_per_level = NULL,
+  N = NULL)
 }
 \arguments{
 \item{...}{a list either of variable declarations, or of lists of variable declarations (one per level)}

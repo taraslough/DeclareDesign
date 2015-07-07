@@ -6,12 +6,9 @@ library(registration)
 
 test_that("test whether a simple experiment can be pre-registered", {
   
-  # Still have to put in covariates because where else to specify n (it's in make_data() right now)
-  smp <- declare_sample_frame(
-    N_per_level = c(500))
+  smp <- declare_sample_frame(N_per_level = c(500, 100))
   
   po     <-  declare_potential_outcomes(
-    outcome_variable_DGP = declare_variable(linear_mean = 0, linear_sd = 1),
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 
   )
@@ -21,7 +18,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
   
   sims <- simulate_experiment(potential_outcomes = po, sample_frame =  smp, 
-                              design = design, analysis = analysis_1, sims = 10)
+                              design = design, analysis = analysis_1, sims = 100)
   summary(sims)
   
   # Run analysis on a single realization
