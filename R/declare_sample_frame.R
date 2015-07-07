@@ -5,20 +5,62 @@
 #' @param lower_units_per_level description
 #' @export
 declare_sample_frame <-
-  function(...,N_per_level=NULL,lower_units_per_level=NULL) {
+  function(...,N_per_level=NULL,lower_units_per_level=NULL,N=NULL) {
+    
+    
     
     # Put in checks here to check how the list is structured
     # i.e. if there are variable declarations or functions in the top level it should
     # only be those, no lists
     # and if there are levels, then the levels should be named and have
+
+    if(!is.null(N_per_level)&!is.null(N))stop(
+      "You may not specify N and N_per_level simultaneously."
+    )
+    
+    if(is.null(N_per_level)&is.null(N))stop(
+      "You must specify either N or N_per_level."
+    )
+    
+    if(is.null(N_per_level)&!is.null(N)) N_per_level <- N
+    
+    if(!all(diff(N_per_level)<0))stop(
+      "Each level in N_per_level should be smaller than the preceding level."
+    )
+    
     
     variable_list  <- list(...)
+    
+    
+    if(is.null(variable_list)){
+      if(length(N_per_level)>1&!is.null(lower_units_per_level)){
+        
+        lower_units_per_level <- 
+          list(rep(NA,
+                   length(N_per_level)))
+        lower_units_per_level[2:length(N_per_level)] <- 
+          lapply(2:length(N_per_level),
+               function(i){
+                 remaindr(N_per_level[i-1],N_per_level[i])
+                 })
+        
+        lower_units_per_level[[1]] <- 
+          rep(1,N_per_level[1])
+        
+        
+        
+        
+      }
+    }
+    
+    
+    
     
     if(TRUE %in% (c("function","DGP_object")%in%sapply(variable_list,class))){
       N_levels <- 1
       make_sample <- function(){make_X_matrix(variables = variable_list,
                                               variable_names = names(variable_list),
-                                              N = N_units
+                                              N = N
       )} 
       level_names <- "Only one level"
       # data_structure_description <- "Only one level"
@@ -162,5 +204,21 @@ make_X_matrix <-
     if(is.null(variable_names))names(X) <- names_list
     return(X)
   }
+
+#' @export
+remaindr <- function(numerator,denominator) {
+  m_each <- rep(numerator %/% denominator, denominator)
+  remainder <- numerator %% denominator
+  m_each <-
+    m_each + ifelse(1:denominator %in% sample(1:denominator, remainder), 1, 0)
+  return(m_each)
+}
+
+
+
+
+
+
+
 
 
