@@ -64,6 +64,8 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
   pre_register_doc <- list(title_header(title = title, authors = authors, 
                                         abstract = abstract, keep_tex = keep_tex),
                            code_snippet("library(registration) \n library(xtable)"),
+                           ifelse(!is.null(data), 
+                                  code_snippet("load(\"pre_registration_data.RData\")"), ""),
                            code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
                                         random_seed, ")"),
                            code_snippet("sample_frame <- ", sample_frame$call, "\n\n", 
@@ -108,11 +110,11 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
                                                 " Results with Simulated Data\"), comment = FALSE)"), "\n\n", collapse = "")   
                            }), collapse = ""))
   
-  output_document(doc = pre_register_doc, dir = dir, temp_dir = temp_dir, format = format, make_output = make_output, keep_tex = keep_tex,
+  output_document(doc = pre_register_doc, pre_registration_data = data, dir = dir, temp_dir = temp_dir, format = format, make_output = make_output, keep_tex = keep_tex,
                   save_r_code = save_r_code, output_format = output_format, open_output = open_output)
   
   return_object <- list(design = design, sample_frame = sample_frame, potential_outcomes = potential_outcomes, 
-                        clusters = clusters, blocks = blocks, analysis = analysis,
+                        clusters = clusters, blocks = blocks, analysis = analysis, data = data,
                         title = title, authors = authors, affiliations = affiliations,
                         acknowledgements = acknowledgements, abstract = abstract, random_seed = random_seed,
                         pre_registration_date = date())
@@ -133,7 +135,8 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
 #' @param ... Other options for the render() command to create the output file from the markdown code.
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @export
-draft_paper_from_pre_register <- function(pre_registration, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
+draft_paper_from_pre_register <- function(pre_registration, data, dir = getwd(), 
+                                          temp_dir = FALSE, format = "rmarkdown",
                                           make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                                           output_format = "pdf", open_output = TRUE){
   
@@ -142,11 +145,15 @@ draft_paper_from_pre_register <- function(pre_registration, dir = getwd(), temp_
   
   warning("Note: if you edited the pre-registration document after the pre_register() function saved it, you should start your paper draft based on the code in the final pre-registration document you submitted to a repository.")
   
+  if(missing(data))
+    stop("To make a paper draft, you must provide a data argument.")
+  
   draft_paper(design = pre_registration$design, clusters = pre_registration$clusters,
               blocks = pre_registration$blocks, sample_frame = pre_registration$sample_frame,
               potential_outcomes = pre_registration$potential_outcomes, analysis = pre_registration$analysis,
               title = pre_registration$title, authors = pre_registration$authors, 
               affiliations = pre_registration$affiliations, abstract = pre_registration$abstract,
+              pre_registration_data = pre_registration$data, data = data,
               random_seed = pre_registration$random_seed, dir = dir, temp_dir = temp_dir, format = format,
               make_output = make_output, keep_tex = keep_tex, save_r_code = save_r_code,
               output_format = output_format, open_output = open_output)
@@ -173,9 +180,9 @@ draft_paper_from_pre_register <- function(pre_registration, dir = getwd(), temp_
 #' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
 #' @export
 draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = NULL, 
-                        potential_outcomes = NULL, analysis = NULL, data = NULL,
+                        potential_outcomes = NULL, analysis = NULL, pre_registration_data = NULL,
                         title = NULL, authors = NULL, affiliations = NULL,
-                        acknowledgements = NULL, abstract = NULL,
+                        acknowledgements = NULL, abstract = NULL, data = NULL,
                         random_seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                         make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                         output_format = "pdf", open_output = TRUE, ...){
@@ -191,6 +198,9 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = N
   paper_draft_doc <- list(title_header(title = title, authors = authors, 
                                        abstract = abstract, keep_tex = keep_tex, pre_register = FALSE),
                           code_snippet("library(registration) \n library(xtable)"),
+                          ifelse(!is.null(pre_registration_data), 
+                                 code_snippet("load(\"pre_registration_data.RData\")"), ""),
+                          code_snippet("load(\"paper_data.RData\")"),
                           code_snippet("## set fixed random seed for paper reproducibility\n\nset.seed(", 
                                        random_seed, ")"),
                           code_snippet("sample_frame <- ", sample_frame$call, "\n\n", 
@@ -236,14 +246,16 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = N
                           }), collapse = ""))
   
   
-  output_document(doc = paper_draft_doc, dir = dir, temp_dir = temp_dir, format = format, make_output = make_output, keep_tex = keep_tex,
+  output_document(doc = paper_draft_doc, pre_registration_data = pre_registered_data, 
+                  data = data, dir = dir, temp_dir = temp_dir, format = format, 
+                  make_output = make_output, keep_tex = keep_tex,
                   save_r_code = save_r_code, output_format = output_format, open_output = open_output)
   
 }
 
 #' @importFrom knitr purl
 #' @importFrom rmarkdown render
-output_document <- function(doc, type = "registration",
+output_document <- function(doc, pre_registration_data = NULL, data = NULL, type = "registration",
                             title = NULL, authors = NULL, affiliations = NULL, 
                             acknowledgements = NULL, abstract = NULL,
                             random_seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
@@ -262,6 +274,15 @@ output_document <- function(doc, type = "registration",
   
   ## write EGAP template to directory
   writeLines(template, con = paste(dir, "/egap_registration_template.tex", sep = ""))
+  
+  ## if data is sent, save it
+  if(!is.null(data))
+    save(data, file = paste(dir, "/paper_data.RData", sep = ""))
+  ##  save(data, file = paste(dir, "/", file, "_paper_data.RData", sep = ""))
+  
+  if(!is.null(pre_registered_data))
+    save(pre_registration_data, file = paste(dir, "/pre_registration_data.RData", sep = ""))
+  ##  save(pre_registered_data, file = paste(dir, "/", file, "_pre_registration_data.RData", sep = ""))
   
   ## writes Rmd rmarkdown file
   ## send it a set of character objects

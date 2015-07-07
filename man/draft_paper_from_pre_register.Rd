@@ -4,7 +4,7 @@
 \alias{draft_paper_from_pre_register}
 \title{Create paper draft from a pre_registration}
 \usage{
-draft_paper_from_pre_register(pre_registration, dir = getwd(),
+draft_paper_from_pre_register(pre_registration, data, dir = getwd(),
   temp_dir = FALSE, format = "rmarkdown", make_output = TRUE,
   keep_tex = FALSE, save_r_code = FALSE, output_format = "pdf",
   open_output = TRUE)
