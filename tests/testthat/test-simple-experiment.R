@@ -8,8 +8,6 @@ test_that("test whether a simple experiment can be pre-registered", {
   
   # Still have to put in covariates because where else to specify n (it's in make_data() right now)
   smp <- declare_sample_frame(
-    individuals = list(
-      income = declare_variable(linear_mean = 3, linear_sd = 1)),
     N_per_level = c(500))
   
   po     <-  declare_potential_outcomes(

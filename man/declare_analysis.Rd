@@ -4,15 +4,18 @@
 \alias{declare_analysis}
 \title{Declare an experimental analysis}
 \usage{
-declare_analysis(formula, treatment_variable = "Z", method = "lm",
-  subset = NULL, weights = NULL, estimand = "ATE",
-  formula_estimand = NULL, outcome_variable = NULL, qoi = "ATE",
-  qoi_only = FALSE, qoi_labels = NULL, ...)
+declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
+  method = "lm", subset = NULL, weights = NULL, estimand = "ATE",
+  formula_estimand = NULL, method_estimand = NULL, subset_estimand = NULL,
+  weights_estimand = NULL, qoi = "ATE", qoi_only = FALSE,
+  qoi_labels = NULL, ...)
 }
 \arguments{
 \item{formula}{an optional formula object to define analyses such as linear regressions with covariates}
 
 \item{treatment_variable}{}
+
+\item{outcome_variable}{}
 
 \item{method}{either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm}
 
@@ -23,8 +26,6 @@ declare_analysis(formula, treatment_variable = "Z", method = "lm",
 \item{estimand}{}
 
 \item{formula_estimand}{}
-
-\item{outcome_variable}{}
 
 \item{qoi}{}
 

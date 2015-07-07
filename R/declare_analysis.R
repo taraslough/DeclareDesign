@@ -20,16 +20,13 @@
 #' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
 #' @rdname declare_analysis
 #' @export
-declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", subset = NULL, weights = NULL, 
-                             estimand = "ATE", formula_estimand = NULL, outcome_variable = NULL, 
+declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable = NULL, 
+                             method = "lm", subset = NULL, weights = NULL, 
+                             estimand = "ATE", formula_estimand = NULL, method_estimand = NULL,
+                             subset_estimand = NULL, weights_estimand = NULL,
                              qoi = "ATE", qoi_only = FALSE, qoi_labels = NULL, ...) {
   
   ## should weights be able to be different for estimate and estimand functions?
-  
-  formula_has_intercept <- attr(terms.formula(formula), "intercept")
-  formula_rhs <- attr(terms.formula(formula), "term.labels")
-  if(formula_has_intercept == 1)
-    formula_rhs <- c("(Intercept)", formula_rhs)
   
   if(is.null(qoi_labels) & class(qoi) == "character")
     qoi_labels <- qoi
@@ -80,9 +77,13 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
     if(class(qoi) == "character"){
       
       if(qoi == "ATE"){
-        ## default qoi is based on the treatment indicator coefficient 
+        
+        ## determines which coef is the treatment variable, and adds 1 if there is an intercept
+        
+        treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable) + 
+          as.numeric(attr(terms.formula(formula), "intercept") == 1)
+
         qoi <- function(x, stats = c("est", "se", "p", "ci_lower", "ci_upper", "df")){
-          treat_coef_num <- which(formula_rhs == treatment_variable)
           coef_name <- names(coef(x))[treat_coef_num]
           df <- df.residual(x)
           est <- coef(x)[treat_coef_num]
@@ -93,6 +94,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", method = "lm", s
           output <- matrix(c(est, se, p, conf_int, df), 
                            dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
                                            paste(outcome_variable, "~", coef_name, "_", qoi_labels, sep = "")))
+          
           return(output[which(rownames(output) %in% stats), , drop = FALSE])
         }
       }
@@ -140,7 +142,6 @@ truth_data_frame <- function(formula = NULL, treatment_variable = "Z",
   potential_outcome_variable_names <- paste(outcome_variable, sep, treatment_conditions, sep = "")
   
   ## create replicated data frame with only the right variables
-  ##data <- data[, all.vars(formula)]
   data <- data[, c(potential_outcome_variable_names, covariate_variable_names)]
   data_rep <- do.call("rbind", replicate(length(treatment_conditions), data, simplify = FALSE))
   

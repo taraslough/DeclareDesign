@@ -64,44 +64,39 @@ make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates
   # Make a function that generates potential outcomes as a function of 
   # all of the variables (treatment assignment, sample_frame) and some normal noise
   
+  gen_outcome  <- eval(parse(text = paste0(
+    "function(slice){y <- with(slice,{",outcome_formula[3],"});return(y)}"
+  )))
+  
   if(potential_outcomes$outcome_variable$distribution=="normal"){
-    if(is.null(sample_frame)){
-      gen_outcome  <- eval(parse(text = paste0(
-        "function(slice){y <- with(slice,{",outcome_formula[3],"});return(y)}"
-      )))
-    }else{
-      gen_outcome  <- eval(parse(text = paste0(
-        "function(slice){y <- with(slice,{",outcome_formula[3],"}) + rnorm(1,potential_outcomes$outcome_variable$mean,potential_outcomes$outcome_variable$sd);return(y)}"
-      )))}
     unit_variance <- potential_outcomes$outcome_variable$sd^2
+    epsilon <- rnorm(n = dim(X)[1], 
+                     mean = potential_outcomes$outcome_variable$mean,
+                     sd = potential_outcomes$outcome_variable$sd)
   }else{
-    gen_outcome  <- eval(parse(text = paste0(
-      "function(slice){y <- with(slice,{",outcome_formula[3],"}) + rnorm(1);return(y)}")))
     unit_variance <- 1
+    epsilon <- rnorm(n = dim(X)[1], mean=0, sd = 1)
   }
   
+  outcomes <- matrix(data = NA,
+                     nrow = dim(X)[1],
+                     ncol = length(condition_names),
+                     dimnames = list(NULL,condition_names))
   
-  # Make another function that applies the gen.outcome function across 
-  # the treatment condition indicators, generating a vector of outcomes for 
-  # each observation, conditional on assignment
-  each_treat   <- function(cov_slice){apply(
-    X      = treat_mat,
-    MARGIN = 1,
-    FUN    = function(treat_mat_slice){
-      gen_outcome(slice = as.data.frame(t(unlist(c(
-        treat_mat_slice,cov_slice)
-      ))))
-    }
-  )}
-  # Apply that function through the sample matrix to get the potential outcomes
-  if(dim(X)[2]==1){
-    X_name <- names(X)
-    X <- X[,1]
-    X <- setNames(X,rep(X_name,length(X))) 
-    outcomes     <- data.frame(t(sapply(1:length(X),function(i)each_treat(X[i]))))
-  }else{
-    outcomes     <- data.frame(t(sapply(1:dim(X)[1],function(i)each_treat(X[i,]))))} ## this line takes a really long time (perhaps two lines above as well?)
-  names(outcomes) <- paste0(outcome_name,sep,condition_names)
+  for (l in condition_names){
+    treat_mat <- matrix(data = 0,
+                        nrow = dim(X)[1],
+                        ncol = length(condition_names),
+                        dimnames = list(NULL,condition_names))
+    treat_mat[,l] <- 1
+    
+    data <- data.frame(treat_mat,X)
+    
+    outcomes[,l] <- gen_outcome(data) + epsilon
+    
+  }
+  
+  colnames(outcomes) <- paste0(outcome_name,sep,condition_names)
   
   if(!is.null(ICC)&!is.null(cluster_var_name)){
     cluster_variance <- ICC*unit_variance/(1-ICC)

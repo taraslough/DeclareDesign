@@ -24,12 +24,6 @@ compare_experiments <- function(N, m,
   if(any(comparison_counts != max(comparison_counts) & comparison_counts > 1))
     stop("Please provide either no inputs for a given option (for example, not providing any N), one input (for example a single value of N), or more than one input (for example N = c(500, 1000)). The set of varying inputs (i.e. for N and m) must be the same length (you cannot provide three values of N and two values of n).")
   
-  comparisons[[e]]$simulations <- simulate_experiment(design = design_compare, analysis = analysis_compare, 
-                                                      sample_frame = sample_frame_compare, 
-                                                      potential_outcomes = potential_outcomes_compare, 
-                                                      blocks = blocks_compare, clusters = clusters_compare, 
-                                                      data = data)
-  
   design_compare <- design
   
   ## loop over different configurations of experiments
