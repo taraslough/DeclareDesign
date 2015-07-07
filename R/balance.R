@@ -1,7 +1,11 @@
 
 
 #' @export
-balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", design, data, llr_test = TRUE, na.rm = TRUE){
+balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", design, data, 
+                    report_difference = FALSE, na.rm = TRUE){
+  
+  if(!any(colnames(data) %in% treatment_assignment))
+    stop("The treatment variable defined in the argument treatment_assignment,", treatment_assignment, ", cannot be found in the data frame given in the data argument. Please make sure to assign treatment before running balance on this dataset.")
   
   condition_names <- unique(data[,treatment_assignment])
   
@@ -19,48 +23,27 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", desig
   summ <- list()
   summ[[paste("mean")]] <- apply(data[, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
   summ[[paste("sd")]] <- apply(data[, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
-    for(cond in condition_names){
-      statistic_labels <- c(statistic_labels, paste0("Mean, ", cond), paste0("S.D., ", cond))
-      summ[[paste0("mean_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
-      summ[[paste0("sd_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, sd, na.rm = na.rm)
-    }
+  for(cond in condition_names){
+    statistic_labels <- c(statistic_labels, paste0("Mean, ", cond), paste0("S.D., ", cond))
+    summ[[paste0("mean_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
+    summ[[paste0("sd_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, sd, na.rm = na.rm)
+  }
   
   summ <- data.frame(do.call(cbind, summ))
   
-  combn <- combn(rev(condition_names), m = 2)
-  
-  for(i in 1:ncol(combn)){
-    statistic_labels <- c(statistic_labels, paste0("Difference, ", paste(combn[,i], collapse = " - ")))
-    summ[, paste0("diff_", paste(combn[,i], collapse = "-"))] <- summ[, paste0("mean_", combn[1, i])] - summ[, paste0("mean_", combn[2, i])]
-    statistic_labels <- c(statistic_labels, paste0("Std. Difference, ", paste(combn[,i], collapse = " - ")))
-    summ[, paste0("diff_std_", paste(combn[,i], collapse = "-"))] <- (summ[, paste0("mean_", combn[1, i])] - summ[, paste0("mean_", combn[2, i])]) / summ[, "sd"]
+  if(report_difference == TRUE) {
+    combn <- combn(rev(condition_names), m = 2)
+    
+    for(i in 1:ncol(combn)){
+      statistic_labels <- c(statistic_labels, paste0("Std. Difference, ", paste(combn[,i], collapse = " - ")))
+      summ[, paste0("diff_std_", paste(combn[,i], collapse = "-"))] <- (summ[, paste0("mean_", combn[1, i])] - summ[, paste0("mean_", combn[2, i])]) / summ[, "sd"]
+    }
   }
   
-  return_object <- list(summary = summ[, 3:ncol(summ)], condition_names = condition_names, statistic_labels = statistic_labels)
+  structure(list(summary = summ[, 3:ncol(summ)], condition_names = condition_names, 
+                 statistic_labels = statistic_labels), 
+            class = "balance")
   
-  if(llr_test == TRUE){
-    return_object$llr <- get_llr(covariates = covariates, treatment_assignment = treatment_assignment, design = design, data = data)
-  }
-  
-  structure(return_object, class = "balance")
-  
-}
-
-#' @importFrom nnet multinom
-#' @export 
-get_llr <- function(covariates, treatment_assignment, data, design){
-  
-  observed_probs <- observed_probs(treatment_assignment = treatment_assignment, 
-                                   design = design, data = data)
-  local_frame <- data.frame(data[,covariates], assignment = data[, treatment_assignment], 
-                            w = observed_probs)
-  formula_u <- paste0("assignment ~", paste(covariates, collapse="+"))
-  formula_r <- paste0("assignment ~ 1")
-  fit_u <- multinom(formula_u, weights = w, 
-                    data = local_frame, trace = FALSE)
-  fit_r <- multinom(formula_r, weights = w, 
-                    data = local_frame, trace = FALSE)
-  return(fit_r$deviance - fit_u$deviance)
 }
 
 #' @export
@@ -89,10 +72,8 @@ plot.balance <- function(x, covariate_labels = NULL,
 }
 
 #' @export
-print.balance <- function(x, print_llr = TRUE, ...){
+print.balance <- function(x, ...){
   colnames(x$summary) <- x$statistic_labels
   print(x$summary)
-  if(!is.null(x$llr) & print_llr == TRUE)
-    cat("\nL-R statistic:", x$llr)
 }
 
