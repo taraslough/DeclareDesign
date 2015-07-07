@@ -20,20 +20,23 @@ make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates
     outcome_name     <- all.vars(outcome_formula)[1]
     if(length(covariate_names)>0){
       model_formula    <- as.formula(paste0(outcome_name," ~ ", paste(covariate_names,collapse = "+")))
-    }else(model_formula <- NULL)
+    } else{
+      model_formula <- NULL
+    }
   }
   # Check whether sample_frame_object is sample_frame class or a user-supplied matrix
   
-  if((is.null(data) & is.null(sample_frame)) | (class(sample_frame) != c("sample_frame")))
+  if((is.null(covariates_data) & is.null(sample_frame)) | 
+     (class(sample_frame) != c("sample_frame")))
     stop("Please either send an object created with declare_sample_frame to the sample_frame argument or a data frame to the data argument.")
   
-  if(!is.null(sample_frame) | !is.null(data)){
+  if(!is.null(sample_frame) | !is.null(covariates_data)){
     
     if(!is.null(sample_frame)){
       X <- sample_frame$make_sample()
     }
-    if(!is.null(data)){
-      X <- declare_sample_frame(data = data)
+    if(!is.null(covariates_data)){
+      X <- declare_sample_frame(data = covariates_data)
     }
     
     if(is.null(potential_outcomes))
