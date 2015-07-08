@@ -4,18 +4,18 @@
 \alias{compare_experiments}
 \title{Declare the data-generating process of a variable}
 \usage{
-compare_experiments(N, m, design, analysis = NULL, sample_frame = NULL,
-  potential_outcomes = NULL, blocks = NULL, clusters = NULL,
-  data = NULL, bootstrap_data = FALSE, N_bootstrap, sims = 5)
+compare_experiments(N = NULL, N_clusters = NULL, N_per_cluster = NULL,
+  design = NULL, analysis = NULL, sample_frame = NULL,
+  potential_outcomes = NULL, blocks = NULL, clusters = NULL, sims = 5)
 }
 \arguments{
 \item{design}{design object}
 
 \item{analysis}{analysis object}
 
-\item{data}{data object}
-
 \item{sims}{number of iterations}
+
+\item{data}{data object}
 }
 \description{
 Declare the data-generating process of a variable

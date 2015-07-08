@@ -142,33 +142,3 @@ reorient <- function(x) {
   return(obj)
 }
 
-#' Plot power across values of a parameter like the sample size
-#'
-#' @param data data object
-#' @param design design object
-#' @param analysis analysis object
-#' @param vary_parameter indicating which parameter is varied, default is "N"
-#' @param vary_sequence set of values of the parameter to calculate power for
-#' @param sims number of iterations
-#' @export
-plot_power <- function(data, design, analysis, vary_parameter = "N", vary_sequence){
-  
-  if(vary_parameter != "N")
-    stop("The power analysis plot is only implemented for varying N at first.")
-  
-  if(missing(vary_sequence)){
-    vary_sequence <- seq(from = 0, to = 1, by = .1)
-  }
-  
-  power_sequence <- rep(NA, length(vary_sequence))
-  for(parameter in vary_sequence)
-    power_sequence[i] <- power(data = data, design = design, analysis = analysis,
-                               N = parameter)
-  
-  return(power_sequence)
-  ##plot(vary_sequence, power_sequence, axes = F, las = 1)
-  ##axis(1)
-  ##axis(2)
-  
-}
-
