@@ -52,7 +52,7 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   
   ## nudge to set levels of sim (determined by design)
   
-  power_1         <- simulate_experiment(sims = 5, analysis = analysis_1, design = design, 
+  power_1         <- simulate_experiment(sims = 5, analysis = list(analysis_1, analysis_2), design = design, 
                                          clusters = clusters, sample_frame = sample_frame, 
                                          potential_outcomes = potential_outcomes, blocks = blocks)
   summary(power_1)

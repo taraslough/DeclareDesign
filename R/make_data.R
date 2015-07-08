@@ -4,7 +4,7 @@
 #' @param sample_frame A sample_frame object made with declare_sample_frame(), or a pre-existing dataframe
 #' @param N If sample_frame is provided, this argument is ignored.
 #' @export
-make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates_data = NULL, 
+make_data <- function(potential_outcomes = NULL, sample_frame = NULL,
                       blocks = NULL, clusters = NULL, N = NULL, sep = "_"){
   
   if(is.null(sample_frame)&is.null(potential_outcomes))stop(
@@ -26,26 +26,21 @@ make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates
   }
   # Check whether sample_frame_object is sample_frame class or a user-supplied matrix
   
-  if((is.null(covariates_data) & is.null(sample_frame)) | 
-     (class(sample_frame) != c("sample_frame")))
-    stop("Please either send an object created with declare_sample_frame to the sample_frame argument or a data frame to the data argument.")
+  if(is.null(sample_frame) | class(sample_frame) != "sample_frame")
+    stop("Please send the sample_frame argument an object created using declare_sample_frame. You can send just a data frame to declare_sample_frame to use your own fixed data.")
   
-  if(!is.null(sample_frame) | !is.null(covariates_data)){
-    
-    if(!is.null(sample_frame)){
-      X <- sample_frame$make_sample()
-    }
-    if(!is.null(covariates_data)){
-      X <- declare_sample_frame(data = covariates_data)
-    }
-    
-    if(is.null(potential_outcomes))
-      return(X)
+  if(!is.null(sample_frame$make_sample)){
+    X <- sample_frame$make_sample()
+  } else {
+    X <- sample_frame$data
   }
   
+  if(is.null(potential_outcomes))
+    return(X)
   
-  # Check that all of the variables in the formula are in the X matrix or in the treatment names
-  # Check that the baseline is nested in the treatment formula
+  ## Check that all of the variables in the formula are in the X matrix 
+  ## or in the treatment names
+  ## Check that the baseline is nested in the treatment formula
   if( FALSE %in% (all.vars(outcome_formula)[-1] %in% c(names(X),condition_names)))
     stop("All of the variables in the formula should either be in the sample matrix or in the condition_names of the design_object.")
   treat_mat <- diag(length(condition_names))
@@ -128,15 +123,3 @@ make_data <- function(potential_outcomes = NULL, sample_frame = NULL, covariates
   
   return(return_frame)
 }
-
-
-
-
-
-
-
-
-
-
-
-
