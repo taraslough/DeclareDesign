@@ -4,11 +4,25 @@ rm(list=ls())
 library(testthat)
 library(registration)
 
+jasper_function <- function(a,b)a+b
+
 test_that("test whether a simple experiment can be pre-registered", {
   
+  jasper_function <- function(...){
+    vars <- list(...)
+    does stuff
+    return(varaible_vector)
+  }
 
   smp <- declare_sample_frame(N = 100,
-                              individuals=list(income = declare_variable()))
+                              individuals = list(
+                                income = declare_variable(),
+                                log_income = declare_variable(transformation = "recode(income, 1:5, 1:3)")
+                                custom_var = declare_variable(transformation_variables = c("attitudes1", "attitudes2"), transformation_function = jasper_function),
+                                attitudes1 = declare_variable(),
+                                attitudes2 = declare_variable(),
+                                attitudes_index = declare_variable(transformation = "attitudes1 + attitudes2") ## sum, mean, function
+                                ))
   smp2 <- declare_sample_frame(N = 1500,
                                individuals=list(income = declare_variable()))
   
@@ -30,7 +44,7 @@ test_that("test whether a simple experiment can be pre-registered", {
                                 po = po, sample_frame = smp, sims = 5)
   
   comp_3 <- compare_experiments(N = c(50, 100, 1000, 50000), design = design, analysis = analysis_1,
-                                po = po, sample_frame = smp, sims = 5)
+                                po = po, sample_frame = smp, sims = 100)
   
   summary(comp_2)
   

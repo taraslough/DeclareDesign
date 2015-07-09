@@ -246,7 +246,7 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = N
                           }), collapse = ""))
   
   
-  output_document(doc = paper_draft_doc, pre_registration_data = pre_registered_data, 
+  output_document(doc = paper_draft_doc, pre_registration_data = data, 
                   data = data, dir = dir, temp_dir = temp_dir, format = format, 
                   make_output = make_output, keep_tex = keep_tex,
                   save_r_code = save_r_code, output_format = output_format, open_output = open_output)
@@ -280,7 +280,7 @@ output_document <- function(doc, pre_registration_data = NULL, data = NULL, type
     save(data, file = paste(dir, "/paper_data.RData", sep = ""))
   ##  save(data, file = paste(dir, "/", file, "_paper_data.RData", sep = ""))
   
-  if(!is.null(pre_registered_data))
+  if(!is.null(pre_registration_data))
     save(pre_registration_data, file = paste(dir, "/pre_registration_data.RData", sep = ""))
   ##  save(pre_registered_data, file = paste(dir, "/", file, "_pre_registration_data.RData", sep = ""))
   
@@ -361,7 +361,7 @@ code_snippet <- function(..., ## takes a character string
                          echo = FALSE,
                          tidy = TRUE, tidy.opts = "list(width.cutoff = 50)",
                          strip_white = TRUE) {
-  return(paste("```{r, echo = ", echo, ", tidy = ", tidy, ", tidy.opts = ", tidy.opts, ", strip_white = ", strip_white, ", results = '", results, "'}\n", 
+  return(paste("```{r, echo = ", echo, ", tidy = ", tidy, ", tidy.opts = ", tidy.opts, ", strip_white = ", strip_white, ", warning = FALSE, results = '", results, "'}\n", 
                paste(unlist(list(...)), collapse = ""),
                "\n```", sep = ""))
 }
