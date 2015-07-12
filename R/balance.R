@@ -1,7 +1,7 @@
 
 
 #' @export
-balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", design, data, 
+get_balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", design, data, 
                     report_difference = FALSE, na.rm = TRUE){
   
   if(!any(colnames(data) %in% treatment_assignment))
@@ -24,9 +24,8 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", desig
   summ[[paste("mean")]] <- apply(data[, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
   summ[[paste("sd")]] <- apply(data[, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
   for(cond in condition_names){
-    statistic_labels <- c(statistic_labels, paste0("Mean, ", cond), paste0("S.D., ", cond))
-    summ[[paste0("mean_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
-    summ[[paste0("sd_", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, sd, na.rm = na.rm)
+    summ[[paste0("Mean, ", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, mean, na.rm = na.rm)
+    summ[[paste0("S.D., ", cond)]] <- apply(data[data[, treatment_assignment] == cond, covariates, drop = FALSE], 2, sd, na.rm = na.rm)
   }
   
   summ <- data.frame(do.call(cbind, summ))
@@ -35,23 +34,21 @@ balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", desig
     combn <- combn(rev(condition_names), m = 2)
     
     for(i in 1:ncol(combn)){
-      statistic_labels <- c(statistic_labels, paste0("Std. Difference, ", paste(combn[,i], collapse = " - ")))
-      summ[, paste0("diff_std_", paste(combn[,i], collapse = "-"))] <- (summ[, paste0("mean_", combn[1, i])] - summ[, paste0("mean_", combn[2, i])]) / summ[, "sd"]
+      summ[, paste0("Std. Difference, ", paste(combn[,i], collapse = "-"))] <- (summ[, paste0("mean_", combn[1, i])] - summ[, paste0("mean_", combn[2, i])]) / summ[, "sd"]
     }
   }
   
   structure(list(summary = summ[, 3:ncol(summ)], condition_names = condition_names, 
                  statistic_labels = statistic_labels), 
-            class = "balance")
+            class = c("balance"))
   
 }
 
 #' @export
-plot.balance <- function(x, covariate_labels = NULL,
-                         zero_line = TRUE, zero_line_lty = "dotted", ...){
-  summ <- x$summary
-  colnames(summ) <- x$statistic_labels
+plot.balance <- function(x, covariate_labels = NULL, zero_line = TRUE, zero_line_lty = "dotted", ...){
   
+  summ <- x$summary
+
   differences <- colnames(summ)[substr(colnames(summ), 1, 4) == "Diff"]
   par(mfrow = c(length(differences), 1), mar = c(4.25, 8, 0, 1))
   for(d in differences){
@@ -73,7 +70,12 @@ plot.balance <- function(x, covariate_labels = NULL,
 
 #' @export
 print.balance <- function(x, ...){
-  colnames(x$summary) <- x$statistic_labels
   print(x$summary)
 }
+
+#' @export
+xtable.balance <- function(x, ...){
+  xtable(x$summary, ... = ...)
+}
+
 

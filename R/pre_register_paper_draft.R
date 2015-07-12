@@ -328,10 +328,7 @@ cat_doc <- function(doc, filename){
 }
 
 tex_header <- function(title, level){
-  if(level==1)
-    return(paste(title, "\n==="))
-  else if(level==2)
-    return(paste(title, "\n--"))
+  paste(paste(rep("#", level), collapse = ""), title)
 } 
 
 title_header <- function(title = NULL, authors = NULL, abstract = NULL, keep_tex = FALSE, pre_register = TRUE){
@@ -366,4 +363,18 @@ code_snippet <- function(..., ## takes a character string
                "\n```", sep = ""))
 }
 
+#' @importFrom knitr kable
+#' @export
+treatment_table <- function(design, format){
+  treatment_table <- data.frame(design$condition_names, "")
+  colnames(treatment_table) <- c("Treatment condition", "Description")
+  kable(treatment_table, format = format, caption = "Description of each treatment conditions", row.names = FALSE)
+}
+
+#' @importFrom knitr kable
+#' @export
+units_table <- function(sample_frame, format){
+  units_table <- summary(sample_frame)
+  kable(units_table, format = format, caption = "Levels of analysis", row.names = FALSE)
+}
 

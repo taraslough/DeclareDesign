@@ -282,6 +282,14 @@ remaindr <- function(numerator,denominator) {
   return(m_each)
 }
 
+#' @export
+summary.sample_frame <- function(x){
+  
+  summ <- data.frame(x$level_names, x$N_per_level, "")
+  colnames(summ) <- c("Level", "Units per level", "Description")
+  summ
+  
+}
 
 
 
