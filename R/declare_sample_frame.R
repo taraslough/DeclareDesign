@@ -25,8 +25,8 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
     stop("You may not specify N_per_level and lower_units_per_level simultaneously.") 
   }
   
-  if(is.null(N_per_level) & is.null(N) & is.null(lower_units_per_level)){
-    stop("You must specify either N, lower_units_per_level or N_per_level.")
+  if(is.null(N_per_level) & is.null(N) & is.null(lower_units_per_level) & is.null(data)){
+    stop("You must either specify N, lower_units_per_level, N_per_level or provide a data.frame.")
   }
   
   if(is.null(N_per_level) & !is.null(N)){
@@ -89,7 +89,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
                                               variable_names = names(variable_list),
                                               N = N
       )} 
-      level_names <- "Only one level"
+      level_names <- "level_1"
       # data_structure_description <- "Only one level"
       variable_names <- names(variable_list)
       
@@ -119,11 +119,10 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
                                    N = N_per_level[i])
             X_mat$id <- 1:dim(X_mat)[1]
             names(X_mat)[names(X_mat)=="id"] <- paste0(level_names[i],"_id")
-            
           }else{
             X_mat <- matrix(1:N_per_level[i], 
-                            dimnames = list(NULL, paste0(level_names[i],"_id")))            }
-          
+                            dimnames = list(NULL, paste0(level_names[i],"_id")))
+          }
           return(X_mat)
         })
         
