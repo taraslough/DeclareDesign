@@ -171,7 +171,13 @@ declare_design <-
       design_type <- "blocked and clustered"
     }
     
-    condition_names <- potential_outcomes$condition_names
+    if(all(sapply(potential_outcomes, class)=="outcomes_object")){
+      condition_names <- 
+        unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$condition_names})))
+    }else{
+      condition_names <- potential_outcomes$condition_names
+    }
+    
     if(!is.null(excluded_arms)){
       condition_names <- condition_names[!condition_names %in% excluded_arms]  
     }

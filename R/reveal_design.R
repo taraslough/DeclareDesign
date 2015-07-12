@@ -76,6 +76,13 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data, sep = "_
 
   observed_y <- rep(NA, nrow(data))
   condition_names <- unique(data[,treatment_assignment])
+  all_pos <- paste(outcome, condition_names, sep = sep)
+  
+  if(!all(all_pos %in% colnames(data))){
+    stop(paste0("The following potential outcome(s) are implied by the treatment variable, but have not defined in declare_potential_outcomes(): ", 
+                all_pos[!all_pos %in% colnames(data)], ". Please either exclude a treatment arm in declare_design() or specify the missing potential outcomes in declare_potential_outcomes()."))
+  }
+  
   for(v in condition_names){
     treat_cond <- data[,treatment_assignment] == v
     observed_y[treat_cond] <- data[treat_cond, paste0(outcome, sep, v)]

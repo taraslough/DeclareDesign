@@ -12,10 +12,12 @@ test_that("test whether a simple experiment can be pre-registered", {
                                      outcome_formula = Y1 ~ .01 + 0*Z0 + .2*Z1 + .4*height)
   
   # Note that PO2 depends on PO1 !!!!
-  po_2 <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-                                     outcome_formula = Y2 ~ .01 + 0*Z0 + .2*Z1 - .4*Y1_Z0)
+  po_2 <- declare_potential_outcomes(condition_names = c("Z0","Z1", "Z2"),
+                                     outcome_formula = Y2 ~ .01 + 0*Z0 + .2*Z1  + .4*Z2- .4*Y1_Z0)
   
-  design <- declare_design(potential_outcomes = po_1)
+  
+  design <- declare_design(potential_outcomes = list(po_1, po_2),excluded_arms = "Z2")
+  #design <- declare_design(potential_outcomes = list(po_1, po_2))
   
   analysis_1 <- declare_analysis(formula = Y1 ~ Z, treatment_variable = "Z", 
                                  method = "lm")
