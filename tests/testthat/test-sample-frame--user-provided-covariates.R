@@ -1,10 +1,10 @@
-context("Basic experiment")
+context("Sample frame")
 
 rm(list=ls())
 library(testthat)
 library(registration)
 
-test_that("test whether a simple experiment can be pre-registered", {
+test_that("test the sample frame functionality with user-provided covariates", {
   
   smp <- declare_sample_frame(
     individuals = list(
@@ -20,6 +20,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
+  ## error here
   userdata          <- make_data(sample_frame = smp)
   
   smp_userdata <- declare_sample_frame(data = userdata[,c("income","development_level")])

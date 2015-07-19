@@ -7,10 +7,7 @@ library(registration)
 test_that("test permutation matrix", {
   
   # Still have to put in covariates because where else to specify n (it's in make_data() right now)
-  cov <- declare_covariates(
-    individuals = list(
-      income = declare_variable()),
-    N_per_level = c(500))
+  smp <- declare_sample_frame(N = 500)
   
   po     <-  declare_potential_outcomes(
     outcome_variable_DGP = declare_variable(linear_mean = 0, linear_sd = 1),
@@ -20,7 +17,7 @@ test_that("test permutation matrix", {
   
   design        <- declare_design(potential_outcomes = po)
   
-  mock <- make_data(potential_outcomes = po, covariates = cov)
+  mock <- make_data(potential_outcomes = po, sample_frame = smp)
   
   perms <- make_permutation_matrix(design = design, data = mock)
   

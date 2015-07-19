@@ -1,10 +1,10 @@
-context("Basic experiment")
+context("Simple experiment with blocking and clustering")
 
 rm(list=ls())
 library(testthat)
 library(registration)
 
-test_that("test whether a simple experiment with blocking can be pre-registered", {
+test_that("test a simple experiment with blocking and clustering works with various functions", {
   sample_frame <- declare_sample_frame(
     individuals = list(
       income = declare_variable()),
@@ -41,14 +41,14 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
                                    random_seed = 42, temp_dir = TRUE)
   
   ## creates paper just from a pre_registration object
-  draft_paper_from_pre_register(pre_registration = pre_registration)
+  ##draft_paper_from_pre_register(pre_registration = pre_registration, data = mock)
   
-  paper_draft <- draft_paper(design = design, sample_frame = sample_frame, clusters = clusters, blocks = blocks,
-                             potential_outcomes = potential_outcomes, analysis = analysis_1, 
-                             title = "Simplest Possible Experiment", 
-                             authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
-                             abstract = "The effect of pixie dust on productivity.",
-                             random_seed = 42, temp_dir = TRUE)
+  ##paper_draft <- draft_paper(design = design, sample_frame = sample_frame, clusters = clusters, blocks = blocks,
+  ##                           potential_outcomes = potential_outcomes, analysis = analysis_1, 
+  ##                           title = "Simplest Possible Experiment", 
+  ##                           authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
+  ##                           abstract = "The effect of pixie dust on productivity.",
+  ##                           random_seed = 42, temp_dir = TRUE)
   
   ## nudge to set levels of sim (determined by design)
   
@@ -83,9 +83,8 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   ## below here doesn't work at the moment, working on it
   obs <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
   
-  balance       <- balance(covariates = c("income", "development_level"), 
+  balance       <- get_balance(covariates = c("income", "development_level"), 
                            outcome = "Y", treatment_assignment = "Z", design = design, data = mock)
-  plot(balance, covariate_labels = c("Income", "Development Level"))
   balance
   
 })

@@ -82,7 +82,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
         
         treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable) + 
           as.numeric(attr(terms.formula(formula), "intercept") == 1)
-
+        
         qoi <- function(x, stats = c("est", "se", "p", "ci_lower", "ci_upper", "df")){
           coef_name <- names(coef(x))[treat_coef_num]
           df <- df.residual(x)
@@ -195,7 +195,18 @@ get_estimates <- function(analysis, qoi = NULL, data) {
         }
         colnames(estimates_list[[i]]) <- paste(colnames(estimates_list[[i]]), analysis_labels[i], sep = "_")
       }
-      return(do.call("cbind", estimates_list))
+      
+      ## this merges the summary statistics together such that there can be different statistics for each analysis
+      ## and they are merged and named correctly
+      estimates_matrix <- estimates_list[[1]]
+      if(length(analysis) > 1){
+        for(i in 2:length(analysis)){
+          estimates_matrix <- merge(estimates_matrix, estimates_list[[i]], by = "row.names", all.x = T, all.y = T)
+          rownames(estimates_matrix) <- estimates_matrix[,1]
+          estimates_matrix <- estimates_matrix[, 2:ncol(estimates_matrix), drop = F]
+        }
+      }
+      return(estimates_matrix)
     } else {
       if(class(analysis) != "analysis")
         stop("The object in the analysis argument must by created by the declare_analysis function.")
@@ -222,8 +233,6 @@ get_estimands <- function(analysis, qoi = NULL, data, stats = "est"){
   } else {
     ## otherwise use qoi function defined in the analysis
     if(class(analysis) == "list"){
-      warning("Need to fix this function so that it neatly handles different sets of parameters -- use merge")
-      
       ## if the user sends no qoi function but does send a list of analysis objects,
       ## run this function on each analysis object and cbind the results
       estimands_list <- list()
@@ -237,7 +246,18 @@ get_estimands <- function(analysis, qoi = NULL, data, stats = "est"){
         colnames(estimands_list[[i]]) <- paste(colnames(estimands_list[[i]]), analysis_labels[i], sep = "_")
       }
       ## when it is sent back to get_estimands() it will run truth_data_frame, so just sending it data
-      return(do.call("cbind", estimands_list))
+      
+      ## this merges the summary statistics together such that there can be different statistics for each analysis
+      ## and they are merged and named correctly
+      estimands_matrix <- estimands_list[[1]]
+      if(length(analysis) > 1){
+        for(i in 2:length(analysis)){
+          estimands_matrix <- merge(estimands_matrix, estimands_list[[i]], by = "row.names", all.x = T, all.y = T)
+          rownames(estimands_matrix) <- estimands_matrix[,1]
+          estimands_matrix <- estimands_matrix[, 2:ncol(estimands_matrix), drop = F]
+        }
+      }
+      return(estimands_matrix)
     } else {
       if(class(analysis) != "analysis")
         stop("The object in the analysis argument must by created by the declare_analysis function.")

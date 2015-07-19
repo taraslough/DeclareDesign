@@ -1,4 +1,4 @@
-context("Basic experiment")
+context("Simple experiment")
 
 rm(list=ls())
 library(testthat)
@@ -14,7 +14,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   design <- declare_design(potential_outcomes = po)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
-  
+
   sims <- simulate_experiment(potential_outcomes = po, 
                               sample_frame =  smp, 
                               design = design, 
@@ -29,6 +29,9 @@ test_that("test whether a simple experiment can be pre-registered", {
   
   estimates <- get_estimates(analysis = analysis_1,data = mock)
   estimates
+  
+  estimands <- get_estimands(analysis = analysis_1,data = mock)
+  estimands
   
   fit <- get_estimates_model(analysis = analysis_1, data = mock)
   summary(fit)

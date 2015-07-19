@@ -1,10 +1,10 @@
-context("Basic experiment")
+context("Basic experiment with clustering")
 
 rm(list=ls())
 library(testthat)
 library(registration)
 
-test_that("test whether a simple experiment with blocking can be pre-registered", {
+test_that("test whether a simple experiment with clustering can be pre-registered", {
   smp <- declare_sample_frame(
     individuals = list(
       income = declare_variable()),
@@ -46,13 +46,13 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   M1             <- get_estimates(analysis = analysis_1, data = mock)  
   summary(M1)
     
-  pre_register(design = design, covariates = cov, 
-               potential_outcomes = po, analysis = analysis_1, 
-               registration_title = "Simplest Possible Experiment", 
-               registration_authors = c("Graeme Blair", "Alexander Coppock"), 
-               registration_abstract = "The effect of pixie dust on productivity.",
-               random.seed = 42, temp_dir = TRUE, type = "rmarkdown",
-               make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
-               open_output = TRUE)
+  ##pre_register(design = design, covariates = cov, 
+  ##             potential_outcomes = po, analysis = analysis_1, 
+  ##             registration_title = "Simplest Possible Experiment", 
+  ##             registration_authors = c("Graeme Blair", "Alexander Coppock"), 
+  ##             registration_abstract = "The effect of pixie dust on productivity.",
+  ##             random.seed = 42, temp_dir = TRUE, type = "rmarkdown",
+  ##             make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
+  ##             open_output = TRUE)
   
 })

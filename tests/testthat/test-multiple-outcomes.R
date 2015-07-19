@@ -1,10 +1,10 @@
-context("Basic experiment")
+context("Multiple outcomes")
 
 rm(list=ls())
 library(testthat)
 library(registration)
 
-test_that("test whether a simple experiment can be pre-registered", {
+test_that("test whether various functions can accept multiple outcomes", {
   
   smp <- declare_sample_frame(N = 850, height=declare_variable(8, 3))
   

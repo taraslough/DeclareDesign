@@ -1,4 +1,4 @@
-context("Basic experiment")
+context("Basic experiment with blocking")
 
 rm(list=ls())
 library(testthat)
@@ -29,7 +29,6 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
                               design = design,analysis = list(analysis_1, analysis_2), sims = 10)
   summary(sims)
   
-  
   # Run analysis on a single realization
   mock          <- make_data(potential_outcomes = po, sample_frame = smp, blocks = blocks)
   mock$Z        <- assign_treatment(design, data = mock)
@@ -45,9 +44,6 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   fit_2 <- get_estimates_model(analysis = analysis_2, data = mock)
   summary(fit_2)
   
-  
-  #   ## tmp 
-#   
 #   pre_register(design = design, covariates = cov, 
 #                potential_outcomes = po, analysis = list(analysis_1, analysis_2), 
 #                registration_title = "Simplest Possible Experiment", 

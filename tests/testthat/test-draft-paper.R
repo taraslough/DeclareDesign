@@ -1,10 +1,10 @@
-context("Basic experiment")
+context("Pre-registration and draft paper")
 
 rm(list=ls())
 library(testthat)
 library(registration)
 
-test_that("test whether a simple experiment with blocking can be pre-registered", {
+test_that("test draft paper and pre_register functions", {
   sample_frame <- declare_sample_frame(
     individuals = list(
       income = declare_variable()),
@@ -48,11 +48,11 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   real_data$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = real_data)
   
   ## create paper draft just from a pre_registration object
-  draft_paper_from_pre_register(pre_registration = pre_registration)
+  draft_paper_from_pre_register(pre_registration = pre_registration, data = real_data)
   
   ## or create custom paper draft from objects
   paper_draft <- draft_paper(design = design, sample_frame = sample_frame, clusters = clusters, blocks = blocks,
-                             potential_outcomes = potential_outcomes, analysis = analysis_1, 
+                             potential_outcomes = potential_outcomes, analysis = analysis_1, data = real_data,
                              title = "Simplest Possible Experiment", 
                              authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
                              abstract = "The effect of pixie dust on productivity.",

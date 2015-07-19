@@ -1,4 +1,4 @@
-context("Basic experiment")
+context("Assignment and probability functions")
 
 rm(list=ls())
 library(testthat)
@@ -12,7 +12,6 @@ test_that("test assignment and probability functions", {
     villages = list(
       development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
     ),
-    N_per_level = c(1000,200),
     lower_units_per_level = list(
       individuals = rep(1,1000), 
       villages = rep(5,200)
@@ -111,12 +110,3 @@ test_that("test assignment and probability functions", {
   prob_obs_13 <- observed_probs(treatment_assignment = "Z13", design = design_13, data = mock) 
   prob_obs_14 <- observed_probs(treatment_assignment = "Z14", design = design_14, data = mock) 
 })
-
-
-# should throw errors
-
-design_1 <- declare_design(potential_outcomes = potential_outcomes, m_each =c(60, 940))
-Z_1 <- assign_treatment(design = design_1, data = mock)  
-
-design_3 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks, block_prob = c(.3, .7))
-Z_3 <- assign_treatment(design = design_3, data = mock) 
