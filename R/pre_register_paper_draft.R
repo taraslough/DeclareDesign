@@ -365,16 +365,16 @@ code_snippet <- function(..., ## takes a character string
 
 #' @importFrom knitr kable
 #' @export
-treatment_table <- function(design, format){
+treatment_table <- function(design, caption = "Description of each treatment condition", ...){
   treatment_table <- data.frame(design$condition_names, "")
   colnames(treatment_table) <- c("Treatment condition", "Description")
-  kable(treatment_table, format = format, caption = "Description of each treatment conditions", row.names = FALSE)
+  kable(treatment_table, caption = caption, row.names = FALSE, ... = ...)
 }
 
 #' @importFrom knitr kable
 #' @export
-units_table <- function(sample_frame, format){
+units_table <- function(sample_frame, ...){
   units_table <- summary(sample_frame)
-  kable(units_table, format = format, caption = "Levels of analysis", row.names = FALSE)
+  kable(units_table, caption = "Levels of analysis", row.names = FALSE, ... = ...)
 }
 

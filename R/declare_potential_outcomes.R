@@ -23,6 +23,14 @@ declare_potential_outcomes <-
         ICC = .01,
         call = match.call()
       )
-      class(outcomes_object) <- "outcomes_object"
+      class(outcomes_object) <- "potential_outcomes"
       return(outcomes_object)
     }
+
+
+#' @export
+outcomes_table <- function(x){
+  if(class(x) == "potential_outcomes")
+    x <- list(x)
+  cat("This will be a summary table of the distribution of each outcome. Not implemented yet.")
+}

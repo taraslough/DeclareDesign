@@ -287,4 +287,3 @@ analysis_treatment_variable <- function(analysis) {
 
 
 
-

@@ -190,7 +190,6 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
     
   }
   
-  
   sample_frame_object <- list(
     make_sample = make_sample,
     data = data,
@@ -290,7 +289,10 @@ summary.sample_frame <- function(x){
   
 }
 
-
+#' @export
+covariates_table <- function(x){
+  cat("This will be a summary table of the distribution of each covariate at each level. Not implemented yet.")
+}
 
 
 

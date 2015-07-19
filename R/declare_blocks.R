@@ -86,10 +86,15 @@ declare_blocks <- function(blocks = NULL, recode = TRUE, recode_function = NULL,
   } 
   
   return_object <- list(blocks_function = blocks_function, block_name = block_name, call = match.call())  
-  class(return_object) <- "blocks_object"
+  class(return_object) <- "blocks"
   
   return(return_object)
   
+}
+
+#' @export
+summary.blocks <- function(x){
+  cat("This is a description of blocks. Not implemented yet.")
 }
 
 

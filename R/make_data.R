@@ -11,7 +11,7 @@ make_data <- function(potential_outcomes = NULL, sample_frame = NULL,
     "You must provide at least a sample frame or a potential outcomes object."
   )
   
-  if(all(sapply(potential_outcomes, class)=="outcomes_object")){
+  if(all(sapply(potential_outcomes, class)=="potential_outcomes")){
     return_frame <- make_data(potential_outcomes = potential_outcomes[[1]],
                               sample_frame = sample_frame, 
                               blocks = blocks, 

@@ -33,7 +33,13 @@ declare_clusters <- function(clusters, cluster_name = "cluster_variable", custom
     }
   }
   return_object <- list(cluster_function = cluster_function, cluster_name = cluster_name, call = match.call())  
-  class(return_object) <- "clusters_object"
+  class(return_object) <- "clusters"
   
   return(return_object)
 }
+
+#' @export
+summary.clusters <- function(x){
+  cat("This is a description of clusters. Not implemented yet.")
+}
+
