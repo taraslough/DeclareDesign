@@ -4,9 +4,7 @@
 #' @param N_per_level description
 #' @param lower_units_per_level description
 #' @export
-declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level = NULL, 
-                                 N = NULL, data = NULL, resample = FALSE, 
-                                 level_ID_variables = NULL) {
+declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level = NULL, N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL) {
   
   # Put in checks here to check how the list is structured
   # i.e. if there are variable declarations or functions in the top level it should
@@ -90,23 +88,13 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
                                               N = N
       )} 
       level_names <- "level_1"
-      # data_structure_description <- "Only one level"
       variable_names <- names(variable_list)
       
     }else{
       
       N_levels       <- length(N_per_level)
       variable_names <- lapply(variable_list, names)
-      
-      #       # Make object here stating number of levels, which 
-      #       # looks at each variable_list and tries to figure it out:
-      #       if(is.null(N_per_level)){
-      #         # N_per_level    <- lapply(1:N_levels,level_names)
-      #       }
-      #       
-      #       if(is.null(lower_units_per_level)){
-      #         # lower_units_per_level    <- Some division
-      #       }
+    
       
       make_sample <- function(){
         
@@ -152,18 +140,8 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
         return(sample_matrix)
       }
       
-      
-      #     data_structure_description <- paste0(paste(sapply(2:N_levels,function(i){
-      #       if(nested_levels[i-1]){
-      #         paste0(level_names[i-1], " is / are nested within ",level_names[i])
-      #       }else{paste0(level_names[i-1], 
-      #                    " is / are not nested within ",
-      #                    level_names[i])}
-      #       }),collapse = ", "),".")
-      
     }
   } else { 
-    ## if resampling data
     
     variable_names <- colnames(data)
     level_names <- NULL
@@ -207,22 +185,35 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
 
 
 #' @export 
-make_X_matrix <- function(...,variable_names = NULL,N){
-  
+make_X_matrix <- function(...,variable_names = NULL,N) {
   variables  <- list(...)
   
   class_list <- sapply(variables,class)
-  if(all(c("function","list")%in%class_list)|
-     all(c("DGP_object","list")%in%class_list))stop(
-       "Function takes either direct variable declarations or a list of variable declarations, not both at once.")
-  if("list"%in%class_list){
+  
+  if (all(c("function","list") %in% class_list) |
+      all(c("DGP_object","list") %in% class_list))
+    stop(
+      "Function takes either direct variable declarations or a list of variable declarations, not both at once."
+    )
+  
+  if ("list" %in% class_list) {
     variables <- unlist(variables,recursive = F)
   }
   
+  
+  transformation_check <- sapply(variables,function(variable_elements){
+    element_names <- names(variable_elements)
+    is_transformation <- "transformation"%in%element_names
+    return(is_transformation)
+  })
+  
+  transformations <- variables[which(transformation_check)]
+  variables <- variables[which(!transformation_check)]
+  
   names_list <- names(variables)
   
+  
   fun.list <- lapply(variables,function(variable) {
-    
     if (!class(variable) %in% c("function","DGP_object")) {
       stop(
         "Variables should either be random number functions or DGP_object (see declare_variable())"
@@ -232,42 +223,71 @@ make_X_matrix <- function(...,variable_names = NULL,N){
       return(variable)
     }
     if (variable$distribution == "normal") {
-      return(function(){rnorm(n=N,mean = variable$mean, sd = variable$sd)})
+      return(function() {
+        rnorm(n = N,mean = variable$mean, sd = variable$sd)
+      })
     }
     if (variable$distribution == "binary") {
-      return(function(){binom_out <- rbinom(n = N,size = 1,prob =variable$probability)
-      if(!is.null(variable$categories)){binom_out <- 
-        factor(binom_out,c(0,1),
-               variable$categories)}
-      return(binom_out)})
+      return(function() {
+        binom_out <- rbinom(n = N,size = 1,prob = variable$probability)
+        if (!is.null(variable$categories)) {
+          binom_out <-
+            factor(binom_out,c(0,1),
+                   variable$categories)
+        }
+        return(binom_out)
+      })
     }
     if (variable$distribution == "multinomial") {
-      return(function(){multinom_out <- 
-        apply(rmultinom(n = N,size = 1,
-                        prob =variable$probability),2,function(i)which(i==1))
-      if(!is.null(variable$categories)){
-        multinom_out <- factor(multinom_out,
-                               levels = 1:length(variable$categories),
-                               labels = variable$categories)}
-      return(multinom_out)})
+      return(function() {
+        multinom_out <-
+          apply(rmultinom(
+            n = N,size = 1,
+            prob = variable$probability
+          ),2,function(i)
+            which(i == 1))
+        if (!is.null(variable$categories)) {
+          multinom_out <- factor(
+            multinom_out,
+            levels = 1:length(variable$categories),
+            labels = variable$categories
+          )
+        }
+        return(multinom_out)
+      })
     }
   })
-  x <- lapply(fun.list,function(f) f())
+  
+  x <- lapply(fun.list,function(each_function){each_function()})
+  
   X.char <- do.call(cbind.data.frame,x)
+  
   X <- data.frame(matrix(rep(NA, dim(X.char)[1] * dim(X.char)[2]),
                          nrow = dim(X.char)[1]))
   
-  for(i in 1:dim(X.char)[2]){
+  for (i in 1:dim(X.char)[2]) {
     X[,i] <- X.char[i][,1]
   }
   
-  if(!is.null(variable_names)){
+  if (!is.null(variable_names)) {
     names(X) <- variable_names
   }
-  if(is.null(variable_names)){
+  
+  if (is.null(variable_names)) {
     names(X) <- names_list
   }
   
+  if(length(transformations)>0){
+
+    transformation_names <- names(transformations)
+    transformation_calls <- sapply(transformations,function(trans){
+      trans$transformation
+    })
+    
+    for(i in 1:length(transformation_names)){
+      X[transformation_names[i]] <- with(data = X,expr = eval(parse(text = transformation_calls[i])))
+    }
+  }
   return(X)
 }
 
