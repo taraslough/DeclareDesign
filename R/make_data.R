@@ -9,7 +9,7 @@ make_data <-
     if (is.null(sample_frame) & is.null(potential_outcomes))
       stop("You must provide at least a sample frame or a potential outcomes object.")
     
-    if (all(sapply(potential_outcomes, class) == "potential_outcomes")) {
+    if(!is.null(potential_outcomes) & all(sapply(potential_outcomes, class) == "potential_outcomes")) {
       return_frame <-
         make_data(
           potential_outcomes = potential_outcomes[[1]],
