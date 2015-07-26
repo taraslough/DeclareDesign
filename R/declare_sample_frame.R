@@ -24,8 +24,9 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
     stop("You may not specify N_per_level and lower_units_per_level simultaneously.") 
   }
   
-  if(is.null(N_per_level) & is.null(N) & is.null(lower_units_per_level) & is.null(data)){
-    stop("You must either specify N, lower_units_per_level, N_per_level or provide a data.frame.")
+  if(is.null(N_per_level) & is.null(N) & is.null(lower_units_per_level) & 
+     (is.null(data) | (!is.null(data) & resample == TRUE))){
+    stop("You must either specify N, lower_units_per_level, N_per_level.")
   }
   
   if(is.null(N_per_level) & !is.null(N)){
@@ -158,7 +159,26 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
         make_sample <- function(){
           return(user_data[sample(1:nrow(user_data), N, replace = TRUE), , drop = FALSE])
         }
-      } 
+      } else if (N_levels > 1){
+        make_sample <- function(){
+          sample_by_level <- list()
+          for(j in N_levels:1){
+            if(j == N_levels){
+              sample_by_level[[j]] <- sample(user_data[, id_vars[j]], N_per_level[j], replace = TRUE)
+            } else {
+              ## now go through each of the units in the level above it
+              sample_current_level <- c()
+              for(k in sample_by_level[[j+1]]){
+                sample_current_level <- c(sample_current_level, 
+                                          sample(user_data[user_data[, id_vars[j+1]] == k, id_vars[j]], 
+                                                 round(N_per_level[j]/N_per_level[j+1]), replace = TRUE))
+              }
+              sample_by_level[[j]] <- sample_current_level
+            }
+          }
+          return(user_data[sample_by_level[[1]], , drop = FALSE])
+        }
+      }
       
       ##data <- user_data <- NULL
       
