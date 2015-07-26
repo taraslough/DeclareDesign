@@ -6,7 +6,8 @@
 \usage{
 declare_variable(linear_mean = NULL, linear_sd = NULL,
   binary_probability = NULL, binary_categories = NULL,
-  multinomial_probabilities = NULL, multinomial_categories = NULL)
+  multinomial_probabilities = NULL, multinomial_categories = NULL,
+  transformation = NULL)
 }
 \arguments{
 \item{linear_mean}{If the variable is linear}

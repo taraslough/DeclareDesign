@@ -1,18 +1,20 @@
 #' Declare an experimental analysis
 #'
 #' Description
-#' @param method either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm
-#' @param treatment_variable
-#' @param method
-#' @param subset a string indicating which subset of the data to take for analyses
-#' @param weights
-#' @param estimand
+#' @param formula A standard R formula as a string or formula object, i.e. Y ~ Z, that indicates the outcome and the treatment indicator as well as covariates, block indicators, etc. that are used to construct estimates and/or estimands. By default, the formula provided is used for estimates and estimands.
+#' @param treatment_variable The variable name of the treatment indicator as a string. Defaults to "Z".
+#' @param outcome_variable The variable name of the outcome variable as a string. Defaults to "Y".
+#' @param method The method used in the analysis to construct estimates and, by default, estimands. Indicate either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm. Defaults to "lm".
+#' @param subset A string indicating the subset of the data to take in estimates and, by default, estimands.
+#' @param weights A string indicating the name of the weights variable to be used in weighted estimators such as WLS.
+#' @param estimand defaults to "ATE".
 #' @param formula_estimand
-#' @param outcome_variable
-#' @param qoi
+#' @param method_estimand either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm
+#' @param subset_estimand A string indicating the subset of the data to take for estimands, if the user wishes to have a different subset used in calculating estimands than the subset used for the estimates.
+#' @param weights_estimand A string indicating the name of the weights variable to be used in weighted estimators such as WLS for calculating estimands only, if the user desires a different weights variable than used to calculate estimates.
+#' @param qoi defaults to "ATE".
 #' @param qoi_only
-#' @param formula an optional formula object to define analyses such as linear regressions with covariates
-#' @param ... additional options to be sent to the analysis function and the test_success function
+#' @param qoi_labels
 #' @return a list containing a function to conduct the analysis and a function to extract the result of the test
 #' @examples
 #' # these examples don't work yet
@@ -24,7 +26,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
                              method = "lm", subset = NULL, weights = NULL, 
                              estimand = "ATE", formula_estimand = NULL, method_estimand = NULL,
                              subset_estimand = NULL, weights_estimand = NULL,
-                             qoi = "ATE", qoi_only = FALSE, qoi_labels = NULL, ...) {
+                             qoi = "ATE", qoi_only = FALSE, qoi_labels = NULL) {
   
   ## should weights be able to be different for estimate and estimand functions?
   

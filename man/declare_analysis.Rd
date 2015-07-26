@@ -8,32 +8,36 @@ declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
   method = "lm", subset = NULL, weights = NULL, estimand = "ATE",
   formula_estimand = NULL, method_estimand = NULL, subset_estimand = NULL,
   weights_estimand = NULL, qoi = "ATE", qoi_only = FALSE,
-  qoi_labels = NULL, ...)
+  qoi_labels = NULL)
 }
 \arguments{
-\item{formula}{an optional formula object to define analyses such as linear regressions with covariates}
+\item{formula}{A standard R formula as a string or formula object, i.e. Y ~ Z, that indicates the outcome and the treatment indicator as well as covariates, block indicators, etc. that are used to construct estimates and/or estimands. By default, the formula provided is used for estimates and estimands.}
 
-\item{treatment_variable}{}
+\item{treatment_variable}{The variable name of the treatment indicator as a string. Defaults to "Z".}
 
-\item{outcome_variable}{}
+\item{outcome_variable}{The variable name of the outcome variable as a string. Defaults to "Y".}
 
-\item{method}{either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm}
+\item{method}{The method used in the analysis to construct estimates and, by default, estimands. Indicate either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm. Defaults to "lm".}
 
-\item{subset}{a string indicating which subset of the data to take for analyses}
+\item{subset}{A string indicating the subset of the data to take in estimates and, by default, estimands.}
 
-\item{weights}{}
+\item{weights}{A string indicating the name of the weights variable to be used in weighted estimators such as WLS.}
 
-\item{estimand}{}
+\item{estimand}{defaults to "ATE".}
 
 \item{formula_estimand}{}
 
-\item{qoi}{}
+\item{method_estimand}{either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm}
+
+\item{subset_estimand}{A string indicating the subset of the data to take for estimands, if the user wishes to have a different subset used in calculating estimands than the subset used for the estimates.}
+
+\item{weights_estimand}{A string indicating the name of the weights variable to be used in weighted estimators such as WLS for calculating estimands only, if the user desires a different weights variable than used to calculate estimates.}
+
+\item{qoi}{defaults to "ATE".}
 
 \item{qoi_only}{}
 
-\item{...}{additional options to be sent to the analysis function and the test_success function}
-
-\item{method}{}
+\item{qoi_labels}{}
 }
 \value{
 a list containing a function to conduct the analysis and a function to extract the result of the test

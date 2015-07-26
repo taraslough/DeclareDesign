@@ -1,0 +1,98 @@
+---
+title: "How to Design and Pre-Register Experimental Designs with Baseline Data"
+author: "Experiments in Governance and Politics (EGAP)"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How to Pre-Register a Simple Experimental Design using the registration package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette demonstrates how to design and pre-register an experiment after baseline data has been collected.
+
+```{r, echo = FALSE}
+library(registration)
+```
+
+```{r, echo = FALSE}
+## Note in this snippet we create the data that will be used as if it was "user data".
+
+setwd(tempdir())
+
+smp <- declare_sample_frame(
+  individuals = list(
+    income = declare_variable()),
+  villages = list(
+    development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
+  ),
+  lower_units_per_level = list(
+    individuals = rep(1,1000), 
+    villages = rep(5,200)
+  ))
+
+user_data          <- make_data(sample_frame = smp)
+
+save(user_data, file = "baseline_data.RData")
+```
+
+First, we load the baseline data created by the user, and then define a set of covariates that will be simulated to conduct power analysis and for simulated analyses.
+
+```{r covariates}
+load("baseline_data.RData")
+
+sample_frame <- declare_sample_frame(data = user_data, resample = TRUE, N = 250)
+
+smp2 <- declare_sample_frame(
+  individuals = list(
+    income = declare_variable()),
+  villages = list(
+    development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
+  ),
+  N_per_level = c(50, 10),
+  data = user_data, resample = TRUE)
+```
+  
+Second, we define the potential outcomes, which will be simulated based on the baseline covariate data.
+
+```{r}
+potential_outcomes     <-  declare_potential_outcomes(
+  condition_names = c("Z0","Z1"),
+  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income,
+  cluster_variable = "villages_id",
+  ICC = .2
+)
+```
+
+Third, we make a simulated data set and then declare the design.
+
+```{r}
+mock          <- make_data(sample_frame = sample_frame, potential_outcomes = potential_outcomes)
+```
+
+
+
+```{r}
+design <- declare_design(potential_outcomes = potential_outcomes)
+```
+
+
+
+Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
+
+
+```{r}
+analysis      <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z",
+                                  method = "lm")
+```
+
+Finally, we use the pre_register function to create the pre-registration document.
+
+```{r}
+pre_register(design = design, sample_frame = cov_object, 
+             potential_outcomes = po_object, analysis = analysis, 
+             registration_title = "Lady Tasting Tea", 
+             registration_authors = c("Ronald A. Fisher"), 
+             registration_abstract = "Description of the lady tasting tea experiment",
+             temp_dir = TRUE)
+```
