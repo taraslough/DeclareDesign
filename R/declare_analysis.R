@@ -130,8 +130,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
 #' @export
 truth_data_frame <- function(formula = NULL, treatment_variable = "Z", 
                              subset = NULL, data = data, sep = "_") {
-  ##formula <- analysis$call$formula ##_estimand
-  
+
   if(is.null(formula))
     stop("Formula must be provided.")
   
@@ -161,6 +160,7 @@ truth_data_frame <- function(formula = NULL, treatment_variable = "Z",
   
 }
 
+#' @rdname declare_analysis
 #' @export
 get_estimates_model <- function(analysis, data){
   if(class(analysis) != "analysis")
@@ -168,6 +168,7 @@ get_estimates_model <- function(analysis, data){
   return(analysis$estimate(data = data))
 }
 
+#' @rdname declare_analysis
 #' @export
 get_estimands_model <- function(analysis, data){
   if(class(analysis) != "analysis")
@@ -175,6 +176,7 @@ get_estimands_model <- function(analysis, data){
   return(analysis$estimand(data = truth_data_frame(formula = analysis$formula_estimand, data = data)))
 }
 
+#' @rdname declare_analysis
 #' @export
 get_estimates <- function(analysis, qoi = NULL, data) {
   
@@ -224,6 +226,7 @@ get_estimates <- function(analysis, qoi = NULL, data) {
   }
 }
 
+#' @rdname declare_analysis
 #' @export
 get_estimands <- function(analysis, qoi = NULL, data, stats = "est"){
   

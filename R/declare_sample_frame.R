@@ -1,8 +1,12 @@
 #' Declare the structure of the sample frame 
 #'
 #' @param ... a list either of variable declarations, or of lists of variable declarations (one per level)
-#' @param N_per_level description
+#' @param N_per_level vector of the sample sizes per level, one number per level
 #' @param lower_units_per_level description
+#' @param N total sample size of the sample frame
+#' @param data optional data frame to include variables that are not defined in the sample frame
+#' @param resample when data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.
+#' @param level_ID_variables optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")
 #' @export
 declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level = NULL, 
                                  N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL) {
@@ -146,10 +150,6 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
   
   if(!is.null(data)){
     
-    ##variable_names <- colnames(data)
-    ##level_names <- NULL
-    ##N_levels <-  NULL
-    
     if(resample == TRUE){
       
       user_data <- data
@@ -179,8 +179,6 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
           return(user_data[sample_by_level[[1]], , drop = FALSE])
         }
       }
-      
-      ##data <- user_data <- NULL
       
     } else {
       
@@ -324,6 +322,7 @@ remaindr <- function(numerator,denominator) {
   return(m_each)
 }
 
+#' @rdname declare_sample_frame
 #' @export
 summary.sample_frame <- function(x){
   
@@ -333,8 +332,11 @@ summary.sample_frame <- function(x){
   
 }
 
+#' Print a table describing covariates described in sample_frame
+#'
+#' @param sample_frame a sample_frame object created with declare_sample frame.
 #' @export
-covariates_table <- function(x){
+covariates_table <- function(sample_frame){
   cat("This will be a summary table of the distribution of each covariate at each level. Not implemented yet.")
 }
 

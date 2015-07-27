@@ -2,6 +2,10 @@
 % Please edit documentation in R/declare_analysis.R
 \name{declare_analysis}
 \alias{declare_analysis}
+\alias{get_estimands}
+\alias{get_estimands_model}
+\alias{get_estimates}
+\alias{get_estimates_model}
 \title{Declare an experimental analysis}
 \usage{
 declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
@@ -9,6 +13,14 @@ declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
   formula_estimand = NULL, method_estimand = NULL, subset_estimand = NULL,
   weights_estimand = NULL, qoi = "ATE", qoi_only = FALSE,
   qoi_labels = NULL)
+
+get_estimates_model(analysis, data)
+
+get_estimands_model(analysis, data)
+
+get_estimates(analysis, qoi = NULL, data)
+
+get_estimands(analysis, qoi = NULL, data, stats = "est")
 }
 \arguments{
 \item{formula}{A standard R formula as a string or formula object, i.e. Y ~ Z, that indicates the outcome and the treatment indicator as well as covariates, block indicators, etc. that are used to construct estimates and/or estimands. By default, the formula provided is used for estimates and estimands.}

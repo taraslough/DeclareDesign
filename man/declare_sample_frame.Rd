@@ -2,17 +2,28 @@
 % Please edit documentation in R/declare_sample_frame.R
 \name{declare_sample_frame}
 \alias{declare_sample_frame}
+\alias{summary.sample_frame}
 \title{Declare the structure of the sample frame}
 \usage{
 declare_sample_frame(..., N_per_level = NULL, lower_units_per_level = NULL,
   N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL)
+
+\method{summary}{sample_frame}(x)
 }
 \arguments{
 \item{...}{a list either of variable declarations, or of lists of variable declarations (one per level)}
 
-\item{N_per_level}{description}
+\item{N_per_level}{vector of the sample sizes per level, one number per level}
 
 \item{lower_units_per_level}{description}
+
+\item{N}{total sample size of the sample frame}
+
+\item{data}{optional data frame to include variables that are not defined in the sample frame}
+
+\item{resample}{when data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.}
+
+\item{level_ID_variables}{optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")}
 }
 \description{
 Declare the structure of the sample frame
