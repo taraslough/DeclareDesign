@@ -198,9 +198,9 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
     number_levels = N_levels,
     N_per_level = N_per_level,
     lower_units_per_level = lower_units_per_level,
-    # data_structure_description = data_structure_description,
     call = match.call()
   )
+  
   class(sample_frame_object) <- "sample_frame"
   return(sample_frame_object)
 }

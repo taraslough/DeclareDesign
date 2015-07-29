@@ -4,9 +4,10 @@
 \alias{compare_experiments}
 \title{Declare the data-generating process of a variable}
 \usage{
-compare_experiments(N = NULL, N_clusters = NULL, N_per_cluster = NULL,
-  design = NULL, analysis = NULL, sample_frame = NULL,
-  potential_outcomes = NULL, blocks = NULL, clusters = NULL, sims = 5)
+compare_experiments(N = NULL, N_per_level = NULL,
+  lower_units_per_level = NULL, design = NULL, analysis = NULL,
+  sample_frame = NULL, potential_outcomes = NULL, blocks = NULL,
+  clusters = NULL, sims = 5, labels = NULL)
 }
 \arguments{
 \item{design}{design object}
@@ -14,6 +15,8 @@ compare_experiments(N = NULL, N_clusters = NULL, N_per_cluster = NULL,
 \item{analysis}{analysis object}
 
 \item{sims}{number of iterations}
+
+\item{labels}{label names for each comparison experiment}
 
 \item{data}{data object}
 }
