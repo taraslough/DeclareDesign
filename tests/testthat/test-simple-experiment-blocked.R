@@ -21,9 +21,9 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   design        <- declare_design(potential_outcomes = po, blocks = blocks)
   
   analysis_1      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
-                                      design = design, method = "lm")
+                                      method = "lm")
   analysis_2      <- declare_analysis(formula = Y ~ Z + income, treatment_variable = "Z", 
-                                      design = design, method = "lm")
+                                      method = "lm")
   
   sims <- simulate_experiment(potential_outcomes = po, sample_frame = smp, blocks = blocks, 
                               design = design,analysis = list(analysis_1, analysis_2), sims = 10)
@@ -40,18 +40,18 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   
   fit_1 <- get_estimates_model(analysis = analysis_1, data = mock)
   summary(fit_1)
-
+  
   fit_2 <- get_estimates_model(analysis = analysis_2, data = mock)
   summary(fit_2)
   
-#   pre_register(design = design, covariates = cov, 
-#                potential_outcomes = po, analysis = list(analysis_1, analysis_2), 
-#                registration_title = "Simplest Possible Experiment", 
-#                registration_authors = c("Graeme Blair", "Alexander Coppock"), 
-#                registration_abstract = "The effect of pixie dust on productivity.",
-#                random.seed = 42, temp_dir = TRUE, type = "rmarkdown",
-#                make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
-#                open_output = TRUE)
-#   
+  #   pre_register(design = design, covariates = cov, 
+  #                potential_outcomes = po, analysis = list(analysis_1, analysis_2), 
+  #                registration_title = "Simplest Possible Experiment", 
+  #                registration_authors = c("Graeme Blair", "Alexander Coppock"), 
+  #                registration_abstract = "The effect of pixie dust on productivity.",
+  #                random.seed = 42, temp_dir = TRUE, type = "rmarkdown",
+  #                make_output = TRUE, output_format = "pdf", keep_tex = TRUE, 
+  #                open_output = TRUE)
+  #   
   
 })

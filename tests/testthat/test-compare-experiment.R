@@ -17,7 +17,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
   
-  tmp <- make_data(sample_frame = smp_lower_units_per_level, potential_outcomes = po)
+  tmp <- make_data(sample_frame = smp_N, potential_outcomes = po)
   
   sims <- compare_experiments(N = c(10000, 500, 5),
                               potential_outcomes = po, 

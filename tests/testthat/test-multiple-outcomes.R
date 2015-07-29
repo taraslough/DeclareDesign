@@ -16,7 +16,7 @@ test_that("test whether various functions can accept multiple outcomes", {
                                      outcome_formula = Y2 ~ .01 + 0*Z0 + .2*Z1  + .4*Z2- .4*Y1_Z0)
   
   
-  design <- declare_design(potential_outcomes = list(po_1, po_2),excluded_arms = "Z2")
+  design <- declare_design(potential_outcomes = list(po_1, po_2), excluded_arms = "Z2")
   #design <- declare_design(potential_outcomes = list(po_1, po_2))
   
   analysis_1 <- declare_analysis(formula = Y1 ~ Z, treatment_variable = "Z", 

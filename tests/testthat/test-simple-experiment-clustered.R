@@ -26,13 +26,10 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   
   design <- declare_design(potential_outcomes = po, clusters = clusters)
   
-  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
+  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
   
   power_1         <- simulate_experiment(sims = 100, analysis = analysis_1, design = design, clusters = clusters, sample_frame = smp, potential_outcomes = po)
   power_1
-  
-  power_2         <- simulate_experiment(sims = 100, analysis = list(analysis_1, analysis_2), design = design, clusters = clusters, sample_frame = smp, potential_outcomes = po)
-  power_2
   
   mock          <- make_data(potential_outcomes = po, sample_frame = smp, clusters = clusters)
   

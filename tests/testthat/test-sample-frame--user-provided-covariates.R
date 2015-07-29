@@ -33,9 +33,5 @@ test_that("test the sample frame functionality with user-provided covariates", {
   mock2          <- make_data(potential_outcomes = po, sample_frame = smp_userdata)
   
   mock2_rsmp         <- make_data(potential_outcomes = po, sample_frame = smp_userdata_rsmp)
-
-  mock3          <- make_data(potential_outcomes = po, 
-                             covariates_data = mock[, c("income", "development_level")])
-  
   
 })
