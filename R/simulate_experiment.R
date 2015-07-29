@@ -7,7 +7,7 @@
 #' @export
 simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_frame = NULL, 
                                 blocks = NULL, clusters = NULL, design, analysis, 
-                                bootstrap_data = FALSE, N_bootstrap, sims = 5){
+                                bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL){
   
   if(is.null(sample_frame) & is.null(data))
     stop("Please provide either a sample_frame argument or a data argument.")
@@ -69,7 +69,7 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_f
   ##estimates <- do.call("rbind", lapply(estimates_list, reorient))
   ##estimands <- do.call("rbind", lapply(estimands_list, reorient))
   
-  return_object <- list(estimates = estimates_list, estimands = estimands_list)
+  return_object <- list(estimates = estimates_list, estimands = estimands_list, label = label)
   class(return_object) <- "experiment_simulations"
   
   return(return_object)
