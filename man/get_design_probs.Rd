@@ -7,17 +7,25 @@
 get_design_probs(design, data)
 }
 \arguments{
-\item{design}{A design object created by declare_design(); or a function that assigns treatment}
+\item{design}{A design object created by \code{\link{declare_design}}; or a function that assigns treatment}
 
-\item{data}{A dataframe, often created by make_data()}
+\item{data}{A dataframe, often created by \code{\link{make_data}}.}
 }
 \value{
-a matrix of probabilities of assignment to treatment
+A matrix of probabilities of assignment to treatment.
 }
 \description{
 Description
 }
 \examples{
-# some examples go here
+smp <- declare_sample_frame(N = 850)
+po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+                                   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+design <- declare_design(potential_outcomes = po, m=200)
+mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+mock$Z        <- assign_treatment(design, data = mock)
+design_probs <- get_design_probs(design, mock)
+
+head(design_probs)
 }
 

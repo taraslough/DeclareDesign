@@ -9,13 +9,27 @@ simulate_experiment(data = NULL, potential_outcomes = NULL,
   bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL)
 }
 \arguments{
-\item{data}{data object}
+\item{data}{An optional user provided dataframe (not made with \code{\link{make_data}})}
 
-\item{design}{design object}
+\item{potential_outcomes}{A potential outcomes object, made with \code{\link{declare_potential_outcomes}}}
 
-\item{analysis}{analysis object}
+\item{sample_frame}{A sample frame object, made with \code{\link{declare_sample_frame}}}
+
+\item{blocks}{A blocks object, made with \code{\linke{declare_blocks}} (optional).}
+
+\item{clusters}{A clusters object, made with \code{\linke{declare_clusters}} (optional).}
+
+\item{design}{design object, made with \code{\link{declare_design}}.}
+
+\item{analysis}{analysis object, made with \code{\link{declare_analysis}}, or a list of such objects.}
+
+\item{N_bootstrap}{Number of bootstrap sims to conduct}
 
 \item{sims}{number of iterations}
+
+\item{label}{WHATS THIS}
+
+\item{bootstram_data}{Logical}
 }
 \description{
 Declare the data-generating process of a variable

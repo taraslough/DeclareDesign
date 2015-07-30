@@ -10,7 +10,19 @@ declare_variable(linear_mean = NULL, linear_sd = NULL,
   transformation = NULL)
 }
 \arguments{
-\item{linear_mean}{If the variable is linear}
+\item{linear_mean}{If the variable is normally distributed, its mean}
+
+\item{linear_sd}{If the variable is normally distributed, its standard deviation}
+
+\item{binary_probability}{How does this work?}
+
+\item{binary_categories}{How does this work?}
+
+\item{multinomial_probabilities}{How does this work?}
+
+\item{multinomial_categories}{How does this work?}
+
+\item{transformation}{How does this work?}
 }
 \description{
 Declare the data-generating process of a variable

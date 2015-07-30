@@ -1,8 +1,11 @@
 #' Make the full dataset or just a sample
 #'
-#' @param potential_outcomes An outcomes_object made with declare_potential_outcomes()
-#' @param sample_frame A sample_frame object made with declare_sample_frame(), or a pre-existing dataframe
+#' @param potential_outcomes An outcomes_object made with \code{\link{declare_potential_outcomes}}.
+#' @param sample_frame A sample_frame object made with \code{\link{declare_sample_frame}}, or a pre-existing dataframe
+#' @param blocks A blocks object, made with \code{\linke{declare_blocks}} (optional).
+#' @param clusters A clusters object, made with \code{\linke{declare_clusters}} (optional).
 #' @param N If sample_frame is provided, this argument is ignored.
+#' @param sep a character string used in the naming of potential outcomes. Defaults to "_".
 #' @export
 make_data <-
   function(potential_outcomes = NULL, sample_frame = NULL,blocks = NULL, clusters = NULL, N = NULL, sep = "_") {

@@ -22,6 +22,13 @@ an outcome vector of observed y
 Description
 }
 \examples{
-# some examples go here
+smp <- declare_sample_frame(N = 850)
+po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+                                   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+design <- declare_design(potential_outcomes = po, m=200)
+mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+mock$Z        <- assign_treatment(design, data = mock)
+mock$Y  <- observed_outcome("Y", "Z", mock)
+summary(lm(Y~Z, data=mock))
 }
 

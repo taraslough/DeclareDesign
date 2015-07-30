@@ -1,7 +1,15 @@
-
-
+#' Calculate Covariate Balance
+#'
+#' Description
+#' @param covariates A character vector of covariate names to be used in the balance assessment.
+#' @param treatment_assignment The name of the treatment assignment variable in data
+#' @param design A design object, created by \code{\link{declare_design}}.
+#' @param data A dataframe, often created by \code{\link{make_data}}.
+#' @return A balance object
+#' @examples
+#' examples go here.
 #' @export
-get_balance <- function(covariates, outcome = "Y", treatment_assignment = "Z", design, data, 
+get_balance <- function(covariates, treatment_assignment = "Z", design, data, 
                     report_difference = FALSE, na.rm = TRUE){
   
   if(!any(colnames(data) %in% treatment_assignment))

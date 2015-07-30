@@ -8,11 +8,17 @@ make_data(potential_outcomes = NULL, sample_frame = NULL, blocks = NULL,
   clusters = NULL, N = NULL, sep = "_")
 }
 \arguments{
-\item{potential_outcomes}{An outcomes_object made with declare_potential_outcomes()}
+\item{potential_outcomes}{An outcomes_object made with \code{\link{declare_potential_outcomes}}.}
 
-\item{sample_frame}{A sample_frame object made with declare_sample_frame(), or a pre-existing dataframe}
+\item{sample_frame}{A sample_frame object made with \code{\link{declare_sample_frame}}, or a pre-existing dataframe}
+
+\item{blocks}{A blocks object, made with \code{\linke{declare_blocks}} (optional).}
+
+\item{clusters}{A clusters object, made with \code{\linke{declare_clusters}} (optional).}
 
 \item{N}{If sample_frame is provided, this argument is ignored.}
+
+\item{sep}{a character string used in the naming of potential outcomes. Defaults to "_".}
 }
 \description{
 Make the full dataset or just a sample
