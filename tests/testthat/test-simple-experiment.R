@@ -13,6 +13,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   
   design <- declare_design(potential_outcomes = po)
   
+  
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
 
   sims <- simulate_experiment(potential_outcomes = po, 

@@ -153,6 +153,17 @@ blocked_and_clustered_ra <-
     return(as.character(merged$z_clust))
   }
 
+#' Declare the experimental design
+#'
+#' @param potential_outcomes potential_outcomes object, as created by \code{\link{declare_potential_outcomes}} (required).
+#' @param blocks blocks object, as created by \code{\link{declare_blocks}} (optional).
+#' @param clusters clusters object, as created by \code{\link{declare_clusters}} (optional).
+#' @param m the number of units (or clusters) to be assigned to treatment in a two-arm trial.
+#' @param m_each a vector describing the number of units (or clusters) to be assigned to each treatment arm in a multi-arm trial.  Must sum to N (for individually randomized experments) or N_clusters (for cluster randomized experiments).
+#' @param prob_each a vector describing the probability of units (or clusters) being assigned to each treatment arm. Must sum to 1.
+#' @param block_m a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.
+#' @param excluded_arms a character vector excluding some potential outcomes from the randomization.  Used primarily when comparing designs that feature different numbers of treatment arms.
+#' @return design object
 #' @export
 declare_design <- 
   function(potential_outcomes, 

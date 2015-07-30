@@ -7,9 +7,9 @@
 get_design_probs(design, data)
 }
 \arguments{
-\item{design}{A design object created by declare_design(); or a function that assigns treatment}
+\item{design}{A design object created by \code{\link{declare_design}}; or a function that assigns treatment}
 
-\item{data}{A dataframe, often created by make_data()}
+\item{data}{A dataframe, often created by \code{\link{make_data}}.}
 }
 \value{
 a matrix of probabilities of assignment to treatment

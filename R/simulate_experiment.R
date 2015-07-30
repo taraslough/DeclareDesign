@@ -1,9 +1,16 @@
 #' Declare the data-generating process of a variable
 #'
-#' @param data data object
-#' @param design design object
-#' @param analysis analysis object
+#' @param data An optional user provided dataframe (not made with \code{\link{make_data}})
+#' @param potential_outcomes A potential outcomes object, made with \code{\link{declare_potential_outcomes}}
+#' @param sample_frame A sample frame object, made with \code{\link{declare_sample_frame}}
+#' @param blocks A blocks object, made with \code{\linke{declare_blocks}} (optional).
+#' @param clusters A clusters object, made with \code{\linke{declare_clusters}} (optional).
+#' @param design design object, made with \code{\link{declare_design}}.
+#' @param analysis analysis object, made with \code{\link{declare_analysis}}, or a list of such objects.
+#' @param bootstram_data Logical
+#' @param N_bootstrap Number of bootstrap sims to conduct
 #' @param sims number of iterations
+#' @param label WHATS THIS
 #' @export
 simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_frame = NULL, 
                                 blocks = NULL, clusters = NULL, design, analysis, 

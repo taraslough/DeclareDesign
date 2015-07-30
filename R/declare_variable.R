@@ -1,6 +1,12 @@
 #' Declare the data-generating process of a variable
 #'
-#' @param linear_mean If the variable is linear 
+#' @param linear_mean If the variable is normally distributed, its mean
+#' @param linear_sd If the variable is normally distributed, its standard deviation
+#' @param binary_probability How does this work?
+#' @param binary_categories How does this work?
+#' @param multinomial_probabilities How does this work?
+#' @param multinomial_categories How does this work?
+#' @param transformation How does this work?
 #' @export
 declare_variable <-
   function(linear_mean = NULL,linear_sd = NULL,binary_probability = NULL, binary_categories = NULL, multinomial_probabilities = NULL, multinomial_categories = NULL, transformation = NULL) {

@@ -1,11 +1,17 @@
 #' Assign treatment status
 #'
 #' Description
-#' @param design A design object created by declare_design(); or a function that assigns treatment
-#' @param data A dataframe, often created by make_data()
-#' @return a random assignment vector of length N.
+#' @param design A design object created by \code{\link{declare_design}}; or a function that assigns treatment
+#' @param data A dataframe, often created by \code{\link{make_data}}.
+#' @return A random assignment vector of length N.
 #' @examples
-#' # some examples go here
+#' smp <- declare_sample_frame(N = 850)
+#' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+#'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+#' design <- declare_design(potential_outcomes = po, m=200)
+#' mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+#' Z        <- assign_treatment(design, data = mock)
+#' table(Z)
 #' @export
 assign_treatment <- function(design, data) {
   
@@ -67,13 +73,20 @@ assign_treatment <- function(design, data) {
 #' @param sep The character separating outcomes from condition names in the potential outcomes columns of data
 #' @return an outcome vector of observed y
 #' @examples
-#' # some examples go here
+#' smp <- declare_sample_frame(N = 850)
+#' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+#'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+#' design <- declare_design(potential_outcomes = po, m=200)
+#' mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+#' mock$Z        <- assign_treatment(design, data = mock)
+#' mock$Y  <- observed_outcome("Y", "Z", mock)
+#' summary(lm(Y~Z, data=mock))
 #' @export
 observed_outcome <- function(outcome = "Y", treatment_assignment, data, sep = "_"){
   
   if(any(is.na(data[,treatment_assignment]))>0)
     warning("There are NA's in the treatment assignment vector.")
-
+  
   observed_y <- rep(NA, nrow(data))
   condition_names <- unique(data[,treatment_assignment])
   all_pos <- paste(outcome, condition_names, sep = sep)
@@ -96,11 +109,19 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data, sep = "_
 #' Calculate probabilties of assignment
 #'
 #' Description
-#' @param design A design object created by declare_design(); or a function that assigns treatment
-#' @param data A dataframe, often created by make_data()
-#' @return a matrix of probabilities of assignment to treatment
+#' @param design A design object created by \code{\link{declare_design}}; or a function that assigns treatment
+#' @param data A dataframe, often created by \code{\link{make_data}}.
+#' @return A matrix of probabilities of assignment to treatment.
 #' @examples
-#' # some examples go here
+#' smp <- declare_sample_frame(N = 850)
+#' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+#'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+#' design <- declare_design(potential_outcomes = po, m=200)
+#' mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+#' mock$Z        <- assign_treatment(design, data = mock)
+#' design_probs <- get_design_probs(design, mock)
+#' 
+#' head(design_probs)
 #' @export
 get_design_probs <- function(design, data){
   
@@ -123,7 +144,7 @@ get_design_probs <- function(design, data){
   condition_names <- design$condition_names
   m <- design$m
   m_each <- design$m_each
-  prob_each <- m <- design$prob_each
+  prob_each <- design$prob_each
   block_m <- design$block_m
   design_type <- design$design_type
   num_arms <- length(unique(condition_names))
@@ -156,7 +177,7 @@ design_probs <- function(N= NULL,
   
   if(design_type=="complete"){
     
-    if(is.null(m_each) & is.null(condition_names) & is.null(num_arms) & is.null(prob_each)){
+    if(is.null(m_each) & is.null(prob_each) & num_arms==2){
       m_floor <- m
       m_ceiling <- m
       
@@ -166,7 +187,6 @@ design_probs <- function(N= NULL,
       }
       
       prob <- 0.5*(m_floor/N) + 0.5*(m_ceiling/N)
-      condition_names <- c(0, 1)
       prob_mat <- matrix(rep(c(1-prob, prob), N), byrow=TRUE, ncol=2, dimnames = list(NULL,  paste0("prob_",condition_names)))
       return(prob_mat)
     }
@@ -219,9 +239,9 @@ design_probs <- function(N= NULL,
     if(is.null(block_m) & is.null(prob_each) & is.null(num_arms)){
       for(i in 1:length(blocks)){
         N_block <- sum(block_var==blocks[i])
-        prob_mat[block_var==blocks[i],] <- design_probs(N = N_block, condition_names=condition_names, design_type="complete")
+        prob_mat[block_var==blocks[i],] <- design_probs(N = N_block, num_arms= num_arms, condition_names=condition_names, design_type="complete")
       }
-      colnames(prob_mat) <- colnames(design_probs(N = N_block, condition_names=condition_names, design_type="complete"))
+      colnames(prob_mat) <- colnames(design_probs(N = N_block, num_arms= num_arms, condition_names=condition_names, design_type="complete"))
       return(prob_mat)
     }
     
@@ -237,9 +257,9 @@ design_probs <- function(N= NULL,
     if(!is.null(block_m)){
       for(i in 1:length(blocks)){
         N_block <- sum(block_var==blocks[i])
-        prob_mat[block_var==blocks[i],] <- design_probs(N = N_block, m_each = block_m[i,], condition_names=condition_names, design_type="complete")
+        prob_mat[block_var==blocks[i],] <- design_probs(N = N_block, num_arms= num_arms, m_each = block_m[i,], condition_names=condition_names, design_type="complete")
       }
-      colnames(prob_mat) <- colnames(design_probs(N = N_block, m_each = block_m[i,], condition_names=condition_names, design_type="complete"))
+      colnames(prob_mat) <- colnames(design_probs(N = N_block, num_arms= num_arms, m_each = block_m[i,], condition_names=condition_names, design_type="complete"))
       return(prob_mat)
     }
     
@@ -247,9 +267,9 @@ design_probs <- function(N= NULL,
       
       for(i in 1:length(blocks)){
         N_block <- sum(block_var==blocks[i])
-        prob_mat[block_var==blocks[i],] <- design_probs(N = N_block, prob_each = prob_each, condition_names=condition_names, design_type="complete")
+        prob_mat[block_var==blocks[i],] <- design_probs(N = N_block, num_arms= num_arms, prob_each = prob_each, condition_names=condition_names, design_type="complete")
       }
-      colnames(prob_mat) <- colnames(design_probs(N = N_block, prob_each = prob_each, condition_names=condition_names, design_type="complete"))
+      colnames(prob_mat) <- colnames(design_probs(N = N_block,num_arms= num_arms,  prob_each = prob_each, condition_names=condition_names, design_type="complete"))
       return(prob_mat)
     }
     
@@ -286,6 +306,25 @@ design_probs <- function(N= NULL,
   }
 }
 
+#' Reveal probabilties of assignment to realized treatment conditions
+#'
+#' Description
+#' @param treatment_assignment The name of the treatment assignment variable in data.
+#' @param design A design object created by \code{\link{declare_design}}; or a function that assigns treatment
+#' @param data A dataframe, often created by \code{\link{make_data}}.
+#' @return A vector probabilities of assignment to treatment.
+#' @examples
+#' smp <- declare_sample_frame(N = 850)
+#' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+#'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+#' design <- declare_design(potential_outcomes = po, m=200)
+#' mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+#' mock$Z        <- assign_treatment(design, data = mock)
+#' mock$prob_obs        <- observed_probs("Z", design, mock)
+#' 
+#' table(mock$prob_obs)
+#' 
+#' 
 #' @export
 observed_probs <- function(treatment_assignment, design, data){
   prob_mat <- get_design_probs(design = design, data = data)
@@ -297,7 +336,7 @@ observed_probs <- function(treatment_assignment, design, data){
   }
   return(prob_obs)  
 }
-  
+
 #' @export
 make_permutation_matrix <- function(design, data, sims=100){
   permutation_matrix <- replicate(n = sims, expr = assign_treatment(design = design, data = data))
