@@ -208,34 +208,21 @@ make_data <-
   }
 
 
-#' @export
-make_proportions <- function(population_proportions,N) {
-  
-  counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
-  
-  con_names <- rownames(population_proportions)
-  
-  outcomes <- apply(counts,2,function(.times){
-    sample(
-      rep(con_names,.times)
-           )
-    })
-  
-  colnames(outcomes) <- colnames(population_proportions)
-  
-  return(as.data.frame(outcomes))
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# #' @export
+# make_proportions <- function(population_proportions,N) {
+#   
+#   counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
+#   
+#   con_names <- rownames(population_proportions)
+#   
+#   outcomes <- apply(counts,2,function(.times){
+#     sample(
+#       rep(con_names,.times)
+#            )
+#     })
+#   
+#   colnames(outcomes) <- colnames(population_proportions)
+#   
+#   return(as.data.frame(outcomes))
+# }
+# 
