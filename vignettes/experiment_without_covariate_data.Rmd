@@ -8,8 +8,8 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
-This vignette demonstrates how to design and pre-register an experiment after baseline data has been collected.
+  
+  This vignette demonstrates how to design and pre-register an experiment after baseline data has been collected.
 
 ```{r, echo = FALSE}
 library(registration)
@@ -18,8 +18,10 @@ set.seed(5)
 knitr::opts_knit$set(root.dir = tempdir())
 ```
 
+First, we define the sample frame from which we will draw a sample to run the experiment from. This includes defining the levels of analysis and the covariates at each level.
+
 ```{r, echo = FALSE}
-sample_frame_user <- declare_sample_frame(
+sample_frame <- declare_sample_frame(
   individuals = list(
     income = declare_variable()),
   villages = list(
@@ -29,28 +31,8 @@ sample_frame_user <- declare_sample_frame(
     individuals = rep(1,1000), 
     villages = rep(5,200)
   ))
-
-user_data <- make_data(sample_frame = sample_frame_user)
-
-save(user_data, file = "baseline_data.RData")
 ```
 
-First, we load the baseline data created by the user, and then define a set of covariates that will be simulated to conduct power analysis and for simulated analyses.
-
-```{r covariates}
-load("baseline_data.RData")
-
-## resample (bootstrap) from user data, respecting levels
-sample_frame <- declare_sample_frame(
-  individuals = list(
-    income = declare_variable()),
-  villages = list(
-    development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
-  ),
-  N_per_level = c(500, 10),
-  data = user_data, resample = TRUE)
-```
-  
 Second, we define the potential outcomes, which will be simulated based on the baseline covariate data.
 
 ```{r}
@@ -90,11 +72,11 @@ This indicates the power, `summary(simulations)[3]`, is less than the typical th
 
 ```{r}
 comparisons <- compare_experiments(N_per_level = list(c(1000, 20), c(500, 50), c(250, 100)),
-                              potential_outcomes = potential_outcomes, 
-                              sample_frame =  sample_frame, 
-                              design = design, 
-                              analysis = analysis, 
-                              sims = 100)
+                                   potential_outcomes = potential_outcomes, 
+                                   sample_frame =  sample_frame, 
+                                   design = design, 
+                                   analysis = analysis, 
+                                   sims = 100)
 print(xtable(summary(comparisons)))
 ```
 
@@ -114,9 +96,9 @@ Finally, we use the pre_register function to create the pre-registration documen
 
 ```{r}
 pre <- pre_register(design = design, sample_frame = sample_frame, 
-             potential_outcomes = potential_outcomes, analysis = analysis, 
-             title = "Lady Tasting Tea", 
-             author = c("Ronald A. Fisher"), 
-             abstract = "Description of the lady tasting tea experiment",
-             temp_dir = TRUE, open_output = FALSE)
+                    potential_outcomes = potential_outcomes, analysis = analysis, 
+                    title = "Lady Tasting Tea", 
+                    author = c("Ronald A. Fisher"), 
+                    abstract = "Description of the lady tasting tea experiment",
+                    temp_dir = TRUE, open_output = FALSE)
 ```
