@@ -13,29 +13,94 @@ make_data <-
       stop("You must provide at least a sample frame or a potential outcomes object.")
     
     
-#     if(class(potential_outcomes)=="list"){
-#       proportion_check <- sapply(potential_outcomes,function(PO){
-#         exists(x = "population_proportions",where = PO)
-#       })
-#     }else{
-#       proportion_check <- exists(x = "population_proportions",where = potential_outcomes)
-#     }
-#     
-#     if(!any(proportion_check)&any(proportion_check)){
-#       stop("Elements of a list of potential_outcomes must all be defined in terms of a unit-level data-generating process or population-level proportions, but may not feature both simultaneously.")
-#     }
-#     
-#     if(all(proportion_check)){
-#       if(is.null(N)){
-#         
-#       }
-#       
-#       # Go through list and make all of the proportion POs
-#       # Then add on the covariates, if any 
-#       
-#       
-#       
-#     }
+    if(class(potential_outcomes)=="list"){
+      proportion_check <- sapply(potential_outcomes,function(PO)"population_proportions"%in%names(PO))
+    }else{
+      proportion_check <- "population_proportions"%in%names(potential_outcomes)
+    }
+    
+    if(any(!proportion_check)&any(proportion_check)){
+      stop("Elements of a list of potential_outcomes must all be defined in terms of a unit-level data-generating process or population-level proportions, but may not feature both simultaneously.")
+    }
+    
+    
+    
+    if(all(proportion_check)){
+      
+      if(!is.null(sample_frame)){
+        covariate_frame <- make_data(sample_frame = sample_frame,
+                                     blocks = blocks,
+                                     clusters = clusters,
+                                     N = N,sep = sep)
+        if(is.null(N)){
+          N <- dim(covariate_frame)[1]
+        }else{
+          if(dim(covariate_frame)[1]!=N){
+            stop("The sample size implied by sample_frame does not match the N argument you provided to make_data, harmonize them or use only one.")
+          }
+        }
+      }
+      
+      if(is.null(N)){
+        stop("You must provide N if you supply potential outcomes objects defined with population_proportions.")
+      }
+      
+      make_proportions <- function(population_proportions,N){
+        
+        counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
+        
+        con_names <- rownames(population_proportions)
+        
+        outcomes <- apply(counts,2,function(.times){
+          sample(
+            rep(con_names,.times)
+          )
+        })
+        
+        colnames(outcomes) <- colnames(population_proportions)
+        
+        return(as.data.frame(outcomes))
+      }
+      
+      
+      
+      if(class(potential_outcomes)=="list"){
+        
+        prop_PO_list <- lapply(1:length(proportion_check),function(i){
+          prop_PO <- make_proportions(population_proportions = potential_outcomes[[i]]$population_proportions,
+                           N = N
+          )
+          names(prop_PO) <- paste0(potential_outcomes[[i]]$proportion_outcome_name,
+                                   sep,
+                                   potential_outcomes[[i]]$condition_names
+                                   )
+          return(prop_PO)
+          })
+        
+        return_frame <- data.frame(prop_PO_list[[1]])
+        
+        for(i in 2:length(prop_PO_list)){
+          
+          return_frame <- data.frame(return_frame,prop_PO_list[[i]])
+        }
+      
+      }else{
+        
+        return_frame <- make_proportions(population_proportions = potential_outcomes$population_proportions,
+                                    N = N
+        )
+        names(return_frame) <- paste0(potential_outcomes$proportion_outcome_name,
+                                 sep,
+                                 potential_outcomes$condition_names
+        )
+      }
+      if(!is.null(sample_frame)){
+        return_frame <- data.frame(return_frame,covariate_frame)
+      }
+      
+      return(return_frame)
+      
+    }
     
     
     
@@ -208,23 +273,8 @@ make_data <-
   }
 
 
-#' @export
-make_proportions <- function(population_proportions,N) {
-  
-  counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
-  
-  con_names <- rownames(population_proportions)
-  
-  outcomes <- apply(counts,2,function(.times){
-    sample(
-      rep(con_names,.times)
-    )
-  })
-  
-  colnames(outcomes) <- colnames(population_proportions)
-  
-  return(as.data.frame(outcomes))
-}
+
+
 
 
 

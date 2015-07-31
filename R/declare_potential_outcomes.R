@@ -8,7 +8,7 @@
 #' @param population_proportions what is it?
 #' @return outcomes_object
 #' @export
-declare_potential_outcomes <- function(condition_names = NULL,outcome_formula = NULL,outcome_variable_DGP = declare_variable(),cluster_variable = NULL,ICC = NULL,population_proportions = NULL){
+declare_potential_outcomes <- function(condition_names = NULL,outcome_formula = NULL,outcome_variable_DGP = declare_variable(),cluster_variable = NULL,ICC = NULL,population_proportions = NULL,proportion_outcome_name = NULL){
   
 
   
@@ -69,9 +69,15 @@ declare_potential_outcomes <- function(condition_names = NULL,outcome_formula = 
       else{stop("You must specify the names of the outcomes in the rows of population_proportions.")}
     }
     
+    if(is.null(proportion_outcome_name)){
+      warning("Outcome name not supplied, defaulting to 'Y'.")
+      proportion_outcome_name <- "Y"
+    }
+    
     outcomes_object <- list(
       condition_names  = condition_names,
       population_proportions = population_proportions,
+      proportion_outcome_name = proportion_outcome_name,
       call = match.call()
     )
     
@@ -114,3 +120,6 @@ outcomes_table <- function(x){
     x <- list(x)
   cat("This will be a summary table of the distribution of each outcome. Not implemented yet.")
 }
+
+
+
