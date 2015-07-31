@@ -4,15 +4,15 @@
 \alias{declare_variable}
 \title{Declare the data-generating process of a variable}
 \usage{
-declare_variable(linear_mean = NULL, linear_sd = NULL,
+declare_variable(normal_mean = NULL, normal_sd = NULL,
   binary_probability = NULL, binary_categories = NULL,
   multinomial_probabilities = NULL, multinomial_categories = NULL,
   transformation = NULL)
 }
 \arguments{
-\item{linear_mean}{If the variable is normally distributed, its mean}
+\item{normal_mean}{If the variable is normally distributed, its mean}
 
-\item{linear_sd}{If the variable is normally distributed, its standard deviation}
+\item{normal_sd}{If the variable is normally distributed, its standard deviation}
 
 \item{binary_probability}{How does this work?}
 

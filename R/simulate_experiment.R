@@ -133,7 +133,8 @@ summary.experiment_simulations <- function(object, ...) {
 
 #' @export
 print.summary.experiment_simulations <- function(x, ...){
-  ## prints paragraph describing design
+  print(summary.experiment_simulations(x, ... = ...))
+  return()
 }
 
 
