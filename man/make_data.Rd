@@ -12,9 +12,9 @@ make_data(potential_outcomes = NULL, sample_frame = NULL, blocks = NULL,
 
 \item{sample_frame}{A sample_frame object made with \code{\link{declare_sample_frame}}, or a pre-existing dataframe}
 
-\item{blocks}{A blocks object, made with \code{\linke{declare_blocks}} (optional).}
+\item{blocks}{A blocks object, made with \code{\link{declare_blocks}} (optional).}
 
-\item{clusters}{A clusters object, made with \code{\linke{declare_clusters}} (optional).}
+\item{clusters}{A clusters object, made with \code{\link{declare_clusters}} (optional).}
 
 \item{N}{If sample_frame is provided, this argument is ignored.}
 

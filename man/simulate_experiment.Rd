@@ -15,9 +15,9 @@ simulate_experiment(data = NULL, potential_outcomes = NULL,
 
 \item{sample_frame}{A sample frame object, made with \code{\link{declare_sample_frame}}}
 
-\item{blocks}{A blocks object, made with \code{\linke{declare_blocks}} (optional).}
+\item{blocks}{A blocks object, made with \code{\link{declare_blocks}} (optional).}
 
-\item{clusters}{A clusters object, made with \code{\linke{declare_clusters}} (optional).}
+\item{clusters}{A clusters object, made with \code{\link{declare_clusters}} (optional).}
 
 \item{design}{design object, made with \code{\link{declare_design}}.}
 
