@@ -1,8 +1,9 @@
-context("Basic experiment with blocking")
 
 rm(list=ls())
 library(testthat)
 library(registration)
+
+context("Basic experiment with blocking")
 
 test_that("test whether a simple experiment with blocking can be pre-registered", {
   smp <- declare_sample_frame(

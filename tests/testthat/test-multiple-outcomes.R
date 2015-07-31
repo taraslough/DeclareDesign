@@ -1,8 +1,9 @@
-context("Multiple outcomes")
 
 rm(list=ls())
 library(testthat)
 library(registration)
+
+context("Multiple outcomes")
 
 test_that("test whether various functions can accept multiple outcomes", {
   

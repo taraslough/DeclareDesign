@@ -20,7 +20,7 @@ library(registration)
 
 setwd(tempdir())
 
-smp <- declare_sample_frame(
+sample_frame_user <- declare_sample_frame(
   individuals = list(
     income = declare_variable()),
   villages = list(
@@ -31,7 +31,7 @@ smp <- declare_sample_frame(
     villages = rep(5,200)
   ))
 
-user_data          <- make_data(sample_frame = smp)
+user_data          <- make_data(sample_frame = sample_frame_user)
 
 save(user_data, file = "baseline_data.RData")
 ```
@@ -41,15 +41,14 @@ First, we load the baseline data created by the user, and then define a set of c
 ```{r covariates}
 load("baseline_data.RData")
 
-sample_frame <- declare_sample_frame(data = user_data, resample = TRUE, N = 250)
-
-smp2 <- declare_sample_frame(
+## resample (bootstrap) from user data, respecting levels
+sample_frame <- declare_sample_frame(
   individuals = list(
     income = declare_variable()),
   villages = list(
     development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
   ),
-  N_per_level = c(50, 10),
+  N_per_level = c(500, 10),
   data = user_data, resample = TRUE)
 ```
   
@@ -64,20 +63,6 @@ potential_outcomes     <-  declare_potential_outcomes(
 )
 ```
 
-Third, we make a simulated data set and then declare the design.
-
-```{r}
-mock          <- make_data(sample_frame = sample_frame, potential_outcomes = potential_outcomes)
-```
-
-
-
-```{r}
-design <- declare_design(potential_outcomes = potential_outcomes)
-```
-
-
-
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
 
 
@@ -86,13 +71,44 @@ analysis      <- declare_analysis(formula = Y ~ Z + income + development_level, 
                                   method = "lm")
 ```
 
+Then we declare the design of the experiment, in this case a simple one without clusters or blocking.
+
+```{r}
+design <- declare_design(potential_outcomes = potential_outcomes)
+```
+
+Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the simulate_experiment function.
+
+```{r}
+simulations <- simulate_experiment(potential_outcomes = potential_outcomes, 
+                                   sample_frame =  sample_frame, 
+                                   design = design, 
+                                   analysis = analysis)
+```
+
+```{r}
+sims <- compare_experiments(N = c(10000, 500, 5),
+                              potential_outcomes = po, 
+                              sample_frame =  smp_N, 
+                              design = design, 
+                              analysis = analysis_1, 
+                              sims = 100)
+```
+
+Third, we make a simulated data set and then declare the design.
+
+
+```{r}
+mock <- make_data(sample_frame = sample_frame, potential_outcomes = potential_outcomes)
+```
+
 Finally, we use the pre_register function to create the pre-registration document.
 
 ```{r}
-pre_register(design = design, sample_frame = cov_object, 
-             potential_outcomes = po_object, analysis = analysis, 
-             registration_title = "Lady Tasting Tea", 
-             registration_authors = c("Ronald A. Fisher"), 
-             registration_abstract = "Description of the lady tasting tea experiment",
-             temp_dir = TRUE)
+pre <- pre_register(design = design, sample_frame = sample_frame, 
+             potential_outcomes = potential_outcomes, analysis = analysis, 
+             title = "Lady Tasting Tea", 
+             author = c("Ronald A. Fisher"), 
+             abstract = "Description of the lady tasting tea experiment",
+             temp_dir = TRUE, open_output = FALSE)
 ```

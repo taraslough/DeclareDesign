@@ -1,8 +1,9 @@
-context("Simple experiment with blocking and clustering")
 
 rm(list=ls())
 library(testthat)
 library(registration)
+
+context("Simple experiment with blocking and clustering")
 
 test_that("test a simple experiment with blocking and clustering works with various functions", {
   sample_frame <- declare_sample_frame(
@@ -27,9 +28,9 @@ test_that("test a simple experiment with blocking and clustering works with vari
   
   design <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
   
-  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
+  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
   analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", 
-                                 design = design, method = "lm", weights = "prob_assign")
+                                 method = "lm")
   
   ## estimated treatment effects
   

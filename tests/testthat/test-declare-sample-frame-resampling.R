@@ -1,8 +1,9 @@
-context("Assignment and probability functions")
 
 rm(list=ls())
 library(testthat)
 library(registration)
+
+context("Assignment and probability functions")
 
 test_that("test assignment and probability functions", {
   

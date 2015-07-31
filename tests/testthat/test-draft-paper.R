@@ -1,8 +1,9 @@
-context("Pre-registration and draft paper")
 
 rm(list=ls())
 library(testthat)
 library(registration)
+
+context("Pre-registration and draft paper")
 
 test_that("test draft paper and pre_register functions", {
   sample_frame <- declare_sample_frame(
@@ -11,11 +12,7 @@ test_that("test draft paper and pre_register functions", {
     villages = list(
       development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
     ),
-    N_per_level = c(1000,200),
-    lower_units_per_level = list(
-      individuals = rep(1,1000), 
-      villages = rep(5,200)
-    ))
+    N_per_level = c(1000,200))
   
   potential_outcomes     <-  declare_potential_outcomes(
     outcome_variable_DGP = declare_variable(linear_mean = 0, linear_sd = 1),
@@ -28,9 +25,9 @@ test_that("test draft paper and pre_register functions", {
   
   design <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
   
-  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", design = design, method = "lm")
+  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
   analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", 
-                                 method = "lm", weights = "prob_assign")
+                                 method = "lm")
   
   ## pre register experiment with EGAP
   

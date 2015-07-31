@@ -1,8 +1,9 @@
-context("Permutation")
 
 rm(list=ls())
 library(testthat)
 library(registration)
+
+context("Permutation")
 
 test_that("test permutation matrix", {
   

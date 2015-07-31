@@ -1,8 +1,9 @@
-context("Simple experiment")
 
 rm(list=ls())
 library(testthat)
 library(registration)
+
+context("Simple experiment")
 
 test_that("test whether a simple experiment can be pre-registered", {
   
