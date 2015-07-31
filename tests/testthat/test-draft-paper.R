@@ -15,7 +15,7 @@ test_that("test draft paper and pre_register functions", {
     N_per_level = c(1000,200))
   
   potential_outcomes     <-  declare_potential_outcomes(
-    outcome_variable_DGP = declare_variable(linear_mean = 0, linear_sd = 1),
+    outcome_variable_DGP = declare_variable(normal_mean = 0, normal_sd = 1),
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
   )

@@ -1,7 +1,7 @@
 #' Declare the data-generating process of a variable
 #'
-#' @param linear_mean If the variable is normally distributed, its mean
-#' @param linear_sd If the variable is normally distributed, its standard deviation
+#' @param normal_mean If the variable is normally distributed, its mean
+#' @param normal_sd If the variable is normally distributed, its standard deviation
 #' @param binary_probability How does this work?
 #' @param binary_categories How does this work?
 #' @param multinomial_probabilities How does this work?
@@ -9,10 +9,10 @@
 #' @param transformation How does this work?
 #' @export
 declare_variable <-
-  function(linear_mean = NULL,linear_sd = NULL,binary_probability = NULL, binary_categories = NULL, multinomial_probabilities = NULL, multinomial_categories = NULL, transformation = NULL) {
+  function(normal_mean = NULL,normal_sd = NULL,binary_probability = NULL, binary_categories = NULL, multinomial_probabilities = NULL, multinomial_categories = NULL, transformation = NULL) {
     
     type_check <- list(
-      normal = c(linear_mean,linear_sd),
+      normal = c(normal_mean,normal_sd),
       binary = c(binary_probability,binary_categories),
       multinomial = c(multinomial_probabilities,multinomial_categories)
     )
@@ -26,15 +26,15 @@ declare_variable <-
       )
     }
     
-    if (!is.null(linear_mean)) {
-      if (!is.null(linear_sd)) {
+    if (!is.null(normal_mean)) {
+      if (!is.null(normal_sd)) {
         variable <- list(distribution = "normal",
-                         mean = linear_mean,
-                         sd = linear_sd)
+                         mean = normal_mean,
+                         sd = normal_sd)
       }else{
         variable <- list(distribution = "normal",
-                         mean = linear_mean,
-                         sd = linear_mean * .10 + 1)
+                         mean = normal_mean,
+                         sd = normal_mean * .10 + 1)
       }
     }
     
