@@ -91,8 +91,9 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
                            tex_header("Experimental Design", 1),
                            code_snippet("summary(design)"),
                            code_snippet("simulations <- summary(simulate_experiment(design = design, analysis = analysis_1,
-                                           sample_frame = sample_frame, potential_outcomes = potential_outcomes, 
-                                           clusters = clusters, blocks = blocks))", "\n\n",
+                                           sample_frame = sample_frame, potential_outcomes = potential_outcomes",
+                                        ifelse(!is.null(clusters), ", clusters = clusters", ""),
+                                        ifelse(!is.null(blocks), ", blocks = blocks", ""), "))", "\n\n",
                                         "print(xtable(simulations, caption = \"Power analysis of quantities of interest\"),
                                               include.rownames = FALSE, comment = FALSE)"),
                            code_snippet("print(xtable(with(mock, table(Z)), ",
@@ -121,6 +122,11 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
   
   structure(return_object, class = "pre_registration")
   
+}
+
+#' @export
+print.pre_registration <- function(x){
+  return()
 }
 
 #' Create paper draft from a pre_registration

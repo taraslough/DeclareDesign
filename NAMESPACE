@@ -3,6 +3,7 @@
 S3method(print,balance)
 S3method(print,experiment_comparisons)
 S3method(print,experiment_simulations)
+S3method(print,pre_registration)
 S3method(print,summary.design)
 S3method(print,summary.experiment_simulations)
 S3method(summary,blocks)
