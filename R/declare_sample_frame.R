@@ -8,8 +8,7 @@
 #' @param resample when data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.
 #' @param level_ID_variables optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")
 #' @export
-declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level = NULL, 
-                                 N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL) {
+declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level = NULL, N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL) {
   
   
   if(!is.null(N_per_level) & !is.null(N)) {
@@ -37,7 +36,17 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
   if(!all(diff(N_per_level)<0))
     stop("Each level in N_per_level should be smaller than the preceding level.")
   
+  # Logical test if a single list of variable declarations was supplied to ...
+  list_test <- function(...){
+    arguments <- list(...)
+    all(sapply(arguments,class)=="list")&length(arguments)==1
+  }
+  
   variable_list  <- list(...)
+  
+  if(list_test(variable_list)){
+    variable_list <- variable_list[[1]]
+  }
   
   # If there are no variables specified, just data structure
   if(length(variable_list)==0){
@@ -101,8 +110,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
   if(TRUE %in% (c("function","DGP_object") %in% sapply(variable_list,class))){
     N_levels <- 1
     if(is.null(data)){
-      make_sample <- function(){make_X_matrix(variables = variable_list,
-                                              variable_names = names(variable_list),
+      make_sample <- function(){make_X_matrix(variable_list,
                                               N = N
       )} 
     }
@@ -221,6 +229,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
 #' @export 
 make_X_matrix <- function(...,variable_names = NULL,N) {
   variables  <- list(...)
+  
   
   class_list <- sapply(variables,class)
   
