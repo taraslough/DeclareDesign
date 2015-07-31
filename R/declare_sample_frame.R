@@ -37,16 +37,16 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
     stop("Each level in N_per_level should be smaller than the preceding level.")
   
   # Logical test if a single list of variable declarations was supplied to ...
-  list_test <- function(...){
-    arguments <- list(...)
-    all(sapply(arguments,class)=="list")&length(arguments)==1
-  }
+#   list_test <- function(...){
+#     arguments <- list(...)
+#     all(sapply(arguments,class)=="list")&length(arguments)==1
+#   }
   
   variable_list  <- list(...)
   
-  if(list_test(variable_list)){
-    variable_list <- variable_list[[1]]
-  }
+#   if(list_test(variable_list)){
+#     variable_list <- variable_list[[1]]
+#   }
   
   # If there are no variables specified, just data structure
   if(length(variable_list)==0){
