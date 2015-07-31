@@ -126,7 +126,7 @@ make_data <-
       if (!is.null(ICC) & !is.null(cluster_var_name)) {
         cluster_variance <- ICC * unit_variance / (1 - ICC)
         cluster_shock <- rnorm(length(unique(X[,cluster_var_name])),
-                               sd = cluster_variance ^ .5)[X[,cluster_var_name]]
+                               sd = cluster_variance ^ .5)[as.numeric(as.factor(X[,cluster_var_name]))]
         outcomes <- outcomes + cluster_shock
       }
       # Check what the DGP of the outcome variable is and do necessary transformations
