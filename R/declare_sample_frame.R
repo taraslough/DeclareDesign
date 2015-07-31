@@ -11,10 +11,6 @@
 declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level = NULL, 
                                  N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL) {
   
-  # Put in checks here to check how the list is structured
-  # i.e. if there are variable declarations or functions in the top level it should
-  # only be those, no lists
-  # and if there are levels, then the levels should be named and have
   
   if(!is.null(N_per_level) & !is.null(N)) {
     stop("You may not specify N and N_per_level simultaneously.")
@@ -33,6 +29,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
     stop("You must either specify N, lower_units_per_level, N_per_level.")
   }
   
+  # If they provide N, define N_per_level
   if(is.null(N_per_level) & !is.null(N)){
     N_per_level <- N
   } 
@@ -42,8 +39,11 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
   
   variable_list  <- list(...)
   
-  if(is.null(variable_list)){
-    if(length(N_per_level) > 1 & !is.null(lower_units_per_level)){
+  # If there are no variables specified, just data structure
+  if(length(variable_list)==0){
+    # If N_per_level was multi-level and lower_units_per_level was not supplied, 
+    # make lower_units_per_level
+    if(length(N_per_level) > 1 & is.null(lower_units_per_level)){
       
       lower_units_per_level <- 
         list(rep(NA,
@@ -57,28 +57,40 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
         rep(1,N_per_level[1])
     }
   }
-  
-  if(!is.null(lower_units_per_level)){
+  # If only lower_units_per_level is supplied
+  if(!is.null(lower_units_per_level)&is.null(N_per_level)){
     N_per_level <- sapply(lower_units_per_level,length)
-  }
-  
-  if(!is.null(N_per_level)){
-    lower_units_per_level <- 
-      list(rep(NA, length(N_per_level)))
     
-    if(length(N_per_level)>1){
-      lower_units_per_level[2:length(N_per_level)] <- 
-        lapply(2:length(N_per_level),
-               function(i){
-                 remaindr(N_per_level[i-1],N_per_level[i])
-               })        
+    # Test that the lower_units structure is correct
+    lower_units_test <- sapply(length(lower_units_per_level):2,
+                               function(i){
+                                 sum(lower_units_per_level[[i]])==
+                                   length(lower_units_per_level[[i-1]])})
+    
+    if(!all(lower_units_test)){
+      stop("The argument supplied to lower_units_per_level is not logical. The sum of every higher level should be equal to the length of the preceding lower level. For example, in a study with 4 units and 2 groups, lower_units_per_level = list(c(1,1,1,1),c(2,2)).")
     }
-    lower_units_per_level[[1]] <- 
-      rep(1,N_per_level[1])   
   }
+  # Don't know why this was here: if N_per_level and N were not supplied, 
+  # then lower_units_per_level must have been supplied
+#   if(!is.null(N_per_level)){
+#     lower_units_per_level <- 
+#       list(rep(NA, length(N_per_level)))
+#     
+#     if(length(N_per_level)>1){
+#       lower_units_per_level[2:length(N_per_level)] <- 
+#         lapply(2:length(N_per_level),
+#                function(i){
+#                  remaindr(N_per_level[i-1],N_per_level[i])
+#                })        
+#     }
+#     lower_units_per_level[[1]] <- 
+#       rep(1,N_per_level[1])   
+#   }
   
   
   if(!length(variable_list)==0){
+    
     level_names <- names(variable_list)
   } else {
     level_names <- paste0("level_", 1:length(N_per_level))
@@ -100,6 +112,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
   } else {
     
     N_levels       <- length(N_per_level)
+    
     variable_names <- lapply(variable_list, names)
     
     if(is.null(data)){
@@ -110,7 +123,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
           
           if(length(variable_list) >0){
             X_mat <- make_X_matrix(variables = variable_list[[i]],
-                                   variable_names = variable_names[[i]],
+                                   # variable_names = variable_names[[i]],
                                    N = N_per_level[i])
             X_mat$id <- 1:dim(X_mat)[1]
             names(X_mat)[names(X_mat)=="id"] <- paste0(level_names[i],"_id")
@@ -118,14 +131,13 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
             X_mat <- matrix(1:N_per_level[i], 
                             dimnames = list(NULL, paste0(level_names[i],"_id")))
           }
-          return(X_mat)
+          return(data.frame(X_mat))
         })
         
         sample_matrix <- X_list[[1]]
         
         if(N_levels > 1){ 
           X_mat_joined <- NA
-          
           for(i in N_levels:2){
             X_list[[i-1]]$merge_id <- 
               sample(rep(X_list[[i]][,id_vars[i]],
