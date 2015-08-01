@@ -13,12 +13,9 @@ test_that("test assignment and probability functions", {
     villages = list(
       development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
     ),
-    lower_units_per_level = list(
-      individuals = rep(1,1000), 
-      villages = rep(5,200)
-    ))
+    N_per_level = c(1000, 100))
   
-  user_data          <- make_data(sample_frame = smp)
+  user_data <- make_data(sample_frame = smp)
   
   sample_frame_N <- declare_sample_frame(data = user_data, N = 1000, resample = TRUE)
 
