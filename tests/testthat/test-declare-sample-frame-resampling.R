@@ -24,12 +24,7 @@ test_that("test assignment and probability functions", {
 
   data_N          <- make_data(sample_frame = sample_frame_N)
     
-  sample_frame_vars <- declare_sample_frame(
-    individuals = list(
-      income = declare_variable()),
-    villages = list(
-      development_level = declare_variable()
-    ),
+  sample_frame_vars <- declare_sample_frame(level_ID_variables = c("individuals_id", "villages_id"),
     N_per_level = c(50, 10),
     data = user_data, resample = TRUE)
   
