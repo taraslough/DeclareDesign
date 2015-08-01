@@ -4,9 +4,10 @@
 \alias{declare_potential_outcomes}
 \title{Define the potential outcomes of the experiment}
 \usage{
-declare_potential_outcomes(condition_names, outcome_formula,
+declare_potential_outcomes(condition_names = NULL, outcome_formula = NULL,
   outcome_variable_DGP = declare_variable(), cluster_variable = NULL,
-  ICC = NULL)
+  ICC = NULL, population_proportions = NULL,
+  proportion_outcome_name = NULL)
 }
 \arguments{
 \item{condition_names}{A character vector indicating the names of the conditions to which subjects can be assigned. Conceptually identical to the potential outcomes that are revealed in each condition, implicitly invoking SUTVA.}
@@ -18,6 +19,8 @@ declare_potential_outcomes(condition_names, outcome_formula,
 \item{cluster_variable}{The name of the clustering variable}
 
 \item{ICC}{the intracluster correlation coefficient.  Note that if the outcome formula includes covariates, and those covariates are correlated with clusters, the true ICC may be higher or lower than is declared by this argument.}
+
+\item{population_proportions}{what is it?}
 }
 \value{
 outcomes_object

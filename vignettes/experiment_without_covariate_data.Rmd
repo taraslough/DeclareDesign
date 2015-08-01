@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
   
-  This vignette demonstrates how to design and pre-register an experiment after baseline data has been collected.
+This vignette demonstrates how to design and pre-register an experiment after baseline data has been collected.
 
 ```{r, echo = FALSE}
 library(registration)
@@ -18,19 +18,16 @@ set.seed(5)
 knitr::opts_knit$set(root.dir = tempdir())
 ```
 
+# A simple experiment
+
+## Designing the experiment
+
 First, we define the sample frame from which we will draw a sample to run the experiment from. This includes defining the levels of analysis and the covariates at each level.
 
 ```{r, echo = FALSE}
 sample_frame <- declare_sample_frame(
-  individuals = list(
-    income = declare_variable()),
-  villages = list(
-    development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
-  ),
-  lower_units_per_level = list(
-    individuals = rep(1,1000), 
-    villages = rep(5,200)
-  ))
+  income = declare_variable(),
+  N = 500)
 ```
 
 Second, we define the potential outcomes, which will be simulated based on the baseline covariate data.
@@ -38,9 +35,7 @@ Second, we define the potential outcomes, which will be simulated based on the b
 ```{r}
 potential_outcomes     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income,
-  cluster_variable = "villages_id",
-  ICC = .2
+  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income 
 )
 ```
 
@@ -48,7 +43,7 @@ Fourth, we define one or more analyses we will run based on simulated data. This
 
 
 ```{r}
-analysis      <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z",
+analysis      <- declare_analysis(formula = Y ~ Z + income, treatment_variable = "Z",
                                   method = "lm")
 ```
 
@@ -62,7 +57,7 @@ Before finalizing the design, we conduct a power analysis to determine whether 5
 
 ```{r}
 simulations <- simulate_experiment(potential_outcomes = potential_outcomes, 
-                                   sample_frame =  sample_frame, 
+                                   sample_frame = sample_frame, 
                                    design = design, 
                                    analysis = analysis)
 print(xtable(summary(simulations)))
@@ -71,14 +66,16 @@ print(xtable(summary(simulations)))
 This indicates the power, `summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
 
 ```{r}
-comparisons <- compare_experiments(N_per_level = list(c(1000, 20), c(500, 50), c(250, 100)),
+comparisons <- compare_experiments(N = c(100, 500, 750, 1000, 1250, 1500),
                                    potential_outcomes = potential_outcomes, 
                                    sample_frame =  sample_frame, 
                                    design = design, 
                                    analysis = analysis, 
                                    sims = 100)
-print(xtable(summary(comparisons)))
+print(xtable(summary(comparisons), digits = 3))
 ```
+
+## Mock analysis
 
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
 
@@ -89,8 +86,10 @@ mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = moc
 ```
 
 ```{r}
-get_estimates(analysis = analysis, data = mock)
+xtable(get_estimates(analysis = analysis, data = mock))
 ```
+
+## Pre-registering the experiment
 
 Finally, we use the pre_register function to create the pre-registration document.
 
@@ -102,3 +101,118 @@ pre <- pre_register(design = design, sample_frame = sample_frame,
                     abstract = "Description of the lady tasting tea experiment",
                     temp_dir = TRUE, open_output = FALSE)
 ```
+
+## Writing a paper based on the experiment
+
+```{r}
+##draft_paper_from_pre_register(pre, data = mock, temp_dir = TRUE)
+```
+
+# A cluster-randomized experiment with pair blocking
+
+## Designing the experiment
+
+The set up of the sample frame, potential outcomes, and analysis is similar. In this case, we add to the potential outcomes an intra-cluster correlation of .2 using the variable villages_id as the cluster variable.
+
+```{r}
+sample_frame_block_cluster <- declare_sample_frame(
+  individuals = list(
+    income = declare_variable()),
+  villages = list(
+    development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
+  ),
+  N_per_level = c(500, 10))
+
+potential_outcomes_block_cluster <- declare_potential_outcomes(
+  condition_names = c("Z0","Z1"),
+  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income,
+  cluster_variable = "villages_id",
+  ICC = .2
+)
+
+analysis_block_cluster <- declare_analysis(formula = Y ~ Z + income + development_level, 
+                                           treatment_variable = "Z", method = "lm")
+```
+
+To initiate the clustering in the design, we use the declare_cluster function,
+
+```{r}
+clusters <- declare_clusters(clusters = "villages_id")
+```
+
+To define a simple blocking scheme, where units are blocked according to the value of the covariate development_level, we use the declare_blocks function. 
+
+```{r}
+blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
+```
+
+Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
+
+
+Then we declare the design of the experiment, adding in the information about clusters and blocks declared above.
+
+```{r}
+design_block_cluster <- declare_design(potential_outcomes = potential_outcomes, 
+                                       clusters = clusters, blocks = blocks)
+```
+
+Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the simulate_experiment function.
+
+```{r}
+simulations_block_cluster <- simulate_experiment(potential_outcomes = potential_outcomes_block_cluster, 
+                                   sample_frame = sample_frame_block_cluster, 
+                                   clusters = clusters,
+                                   blocks = blocks,
+                                   design = design_block_cluster, 
+                                   analysis = analysis_block_cluster)
+print(xtable(summary(simulations_block_cluster )))
+```
+
+This indicates the power, `summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
+
+```{r}
+comparisons_block_cluster  <- compare_experiments(N_per_level = list(c(1000, 20), c(500, 50), c(250, 100)),
+                                   potential_outcomes = potential_outcomes_block_cluster, 
+                                   sample_frame =  sample_frame_block_cluster, 
+                                   design = design_block_cluster, 
+                                   clusters = clusters,
+                                   blocks = blocks,
+                                   analysis = analysis_block_cluster, 
+                                   sims = 100)
+print(xtable(summary(comparisons_block_cluster)))
+```
+
+## Mock analysis
+
+After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
+
+```{r}
+mock <- make_data(sample_frame = sample_frame_block_cluster, potential_outcomes = potential_outcomes_block_cluster, 
+                  clusters = clusters, blocks = blocks)
+mock$Z <- assign_treatment(design = design, data = mock)
+mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
+```
+
+```{r}
+print(xtable(get_estimates(analysis = analysis, data = mock)))
+```
+
+## Pre-registering the experiment
+
+Finally, we use the pre_register function to create the pre-registration document.
+
+```{r}
+pre <- pre_register(design = design, sample_frame = sample_frame, blocks = blocks, clusters = clusters,
+                    potential_outcomes = potential_outcomes, analysis = analysis, 
+                    title = "Lady Tasting Tea", 
+                    author = c("Ronald A. Fisher"), 
+                    abstract = "Description of the lady tasting tea experiment",
+                    temp_dir = TRUE, open_output = FALSE)
+```
+
+## Writing a paper based on the experiment
+
+```{r, echo = TRUE, eval = FALSE}
+##draft_paper_from_pre_register(pre, data = mock)
+```
+
