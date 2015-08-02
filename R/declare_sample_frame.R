@@ -13,6 +13,9 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
   # Check whether the user has supplied data
   no_data <- is.null(data)
   
+  if(!no_data & (!is.null(N) | !is.null(N_per_level) | !is.null(group_sizes_by_level)))
+    stop("Please do not provide N, N_per_level, or group_sizes_by_level when resample is set to FALSE and you provided a dataframe.")
+  
   # N_per_level and N should not be provided simultaneously
   if(!is.null(N_per_level) & !is.null(N)) {
     stop("You may not specify N and N_per_level simultaneously.")
@@ -32,13 +35,13 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
   if(is.null(N_per_level) & is.null(N) & is.null(group_sizes_by_level) & 
      (no_data | (!no_data & resample == TRUE))){
     stop("You must either specify N, group_sizes_by_level, N_per_level.")
-     }
+  }
   
   # Generate N from data if there is no resampling 
   if(is.null(N_per_level) & is.null(N) & is.null(group_sizes_by_level) & 
      (!no_data & resample == FALSE)){
-       N <- dim(data)[1]
-     }
+    N <- dim(data)[1]
+  }
   
   # If group_sizes_by_level is supplied
   if(!is.null(group_sizes_by_level)){
@@ -114,7 +117,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
   if(no_variables){
     N_levels <- length(N_per_level)
     if(is.null(level_names)){
-    level_names <- paste0("level_", 1:N_levels)
+      level_names <- paste0("level_", 1:N_levels)
     }
     if(is.null(level_ids)){
       level_ids <- paste0(level_names,"_id")
@@ -167,7 +170,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
       # there is just one level
       if(all(variable_classes %in% c("function","DGP_object"))&!no_variables){
         one_level <- TRUE
-
+        
         N_levels <- 1
         
         if(is.null(level_names)){
@@ -175,11 +178,11 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
         }
         
         if(is.null(level_ids)){
-        level_ids <- paste0(level_names,"_id")
+          level_ids <- paste0(level_names,"_id")
         }
-      
-        }else{stop("You must supply ... with variable declarations or lists of variable declarations.")}
-      }
+        
+      }else{stop("You must supply ... with variable declarations or lists of variable declarations.")}
+    }
   }
   
   
@@ -190,7 +193,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
   if(length(N_per_level)<N_levels){
     stop("The argument supplied to N_per_level or group_sizes_by_level implies fewer levels than you have allowed for in the variable declarations or user data provided to declare_sample_frame().")
   }
-
+  
   # Now generate the make_sample() function when there is...
   
   # ... no data, one level, and variables
@@ -257,7 +260,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
       return(sample_matrix)
     }
   }
-
+  
   
   
   if(!no_data){
@@ -293,9 +296,6 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
       }
       
     } else {
-      
-      if(!is.null(N) | !is.null(N_per_level) | !is.null(group_sizes_by_level))
-        stop("Please do not provide N, N_per_level, or group_sizes_by_level when resample is set to FALSE and you provided a dataframe.")
       make_sample <- NULL
     }
   }
