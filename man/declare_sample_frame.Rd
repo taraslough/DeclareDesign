@@ -5,7 +5,7 @@
 \alias{summary.sample_frame}
 \title{Declare the structure of the sample frame}
 \usage{
-declare_sample_frame(..., N_per_level = NULL, lower_units_per_level = NULL,
+declare_sample_frame(..., N_per_level = NULL, group_sizes_by_level = NULL,
   N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL)
 
 \method{summary}{sample_frame}(x)
@@ -15,7 +15,7 @@ declare_sample_frame(..., N_per_level = NULL, lower_units_per_level = NULL,
 
 \item{N_per_level}{vector of the sample sizes per level, one number per level}
 
-\item{lower_units_per_level}{description}
+\item{group_sizes_by_level}{description}
 
 \item{N}{total sample size of the sample frame}
 

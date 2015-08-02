@@ -31,6 +31,11 @@ test_that("test whether a simple experiment with blocking can be pre-registered"
   summary(sims)
   
   # Run analysis on a single realization
+  
+  ## makes a data set with too few units
+  mock          <- make_data(potential_outcomes = po, sample_frame = smp)
+  
+  ## does not work as a result (with blocks)
   mock          <- make_data(potential_outcomes = po, sample_frame = smp, blocks = blocks)
   mock$Z        <- assign_treatment(design, data = mock)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
