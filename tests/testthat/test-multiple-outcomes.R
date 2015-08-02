@@ -34,13 +34,10 @@ test_that("test whether various functions can accept multiple outcomes", {
   mock$Y2 <- observed_outcome(outcome = "Y2", treatment_assignment = "Z", 
                               data = mock, sep = "_")
   
-  estimates <- get_estimates(analysis = list(analysis_1, analysis_2) ,data = mock)
+  estimates <- get_estimates(analysis = list(analysis_1) ,data = mock)
   estimates
   
   fit_1 <- get_estimates_model(analysis = analysis_1, data = mock)
   summary(fit_1)
-  
-  fit_2 <- get_estimates_model(analysis = analysis_1, data = mock)
-  summary(fit_2)
   
 })

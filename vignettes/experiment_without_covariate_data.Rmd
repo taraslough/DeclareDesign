@@ -125,11 +125,10 @@ sample_frame_block_cluster <- declare_sample_frame(
   ),
   N_per_level = c(500, 10))
 
-potential_outcomes_block_cluster <- declare_potential_outcomes(
+potential_outcomes_block_cluster     <-  declare_potential_outcomes(
+  outcome_variable_DGP = declare_variable(normal_mean = 0, normal_sd = 1),
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income,
-  cluster_variable = "villages_id",
-  ICC = .2
+  outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
 )
 
 analysis_block_cluster <- declare_analysis(formula = Y ~ Z + income + development_level, 
@@ -154,7 +153,7 @@ Fourth, we define one or more analyses we will run based on simulated data. This
 Then we declare the design of the experiment, adding in the information about clusters and blocks declared above.
 
 ```{r}
-design_block_cluster <- declare_design(potential_outcomes = potential_outcomes, 
+design_block_cluster <- declare_design(potential_outcomes = potential_outcomes_block_cluster, 
                                        clusters = clusters, blocks = blocks)
 ```
 
@@ -208,7 +207,7 @@ After settling on a sample size and a final design, we can conduct a mock analys
 ```{r}
 mock <- make_data(sample_frame = sample_frame_block_cluster, potential_outcomes = potential_outcomes_block_cluster, 
                   clusters = clusters, blocks = blocks)
-mock$Z <- assign_treatment(design = design, data = mock)
+mock$Z <- assign_treatment(design = design_block_cluster, data = mock)
 mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
 ```
 
