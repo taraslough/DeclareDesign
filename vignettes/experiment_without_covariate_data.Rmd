@@ -110,6 +110,8 @@ pre <- pre_register(design = design, sample_frame = sample_frame,
 
 # A cluster-randomized experiment with pair blocking
 
+Instead of pre-registering and using this simple design, we may want to consider a more complex one that accounts for clustering in the outcomes, for example within neighborhoods or villages. We may also want to block on certain cluster-level characteristics, such as demographic characteristics, before randomizing clusters into treatment conditions.
+
 ## Designing the experiment
 
 The set up of the sample frame, potential outcomes, and analysis is similar. In this case, we add to the potential outcomes an intra-cluster correlation of .2 using the variable villages_id as the cluster variable.
@@ -182,6 +184,23 @@ comparisons_block_cluster  <- compare_experiments(N_per_level = list(c(1000, 20)
 print(xtable(summary(comparisons_block_cluster)))
 ```
 
+## Comparing the simple and complex designs
+
+Before deciding on the complex design, we can compare the two designs in terms of power. We can use the compare_experiments function to do this, providing the appropriate objects representing each different design.
+
+```{r}
+comparisons_block_cluster  <- compare_experiments(
+  potential_outcomes = list(potential_outcomes, potential_outcomes_block_cluster), 
+  sample_frame = list(sample_frame, sample_frame_block_cluster), 
+  design = list(design, design_block_cluster), 
+  clusters = list(NULL, clusters),
+  blocks = list(NULL, blocks),
+  analysis = list(analysis, analysis_block_cluster), 
+  sims = 100)
+
+print(xtable(summary(comparisons_block_cluster)))
+```
+
 ## Mock analysis
 
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
@@ -199,7 +218,7 @@ print(xtable(get_estimates(analysis = analysis, data = mock)))
 
 ## Pre-registering the experiment
 
-Finally, we use the pre_register function to create the pre-registration document.
+Finally, we use the pre_register function again to create the pre-registration document based on the blocked and clustered design.
 
 ```{r}
 pre <- pre_register(design = design, sample_frame = sample_frame, blocks = blocks, clusters = clusters,
