@@ -13,59 +13,58 @@ This vignette demonstrates how to pre-register a simple experimental design usin
 
 ```{r, echo = FALSE}
 library(registration)
+library(xtable)
+set.seed(5)
+knitr::opts_knit$set(root.dir = tempdir())
 ```
 
-First, we define a set of covariates that will be simulated to conduct power analysis and for simulated analyses.
+# Defining the experiment
 
-```{r covariates}
-cov_object <- declare_covariates(
-  individuals = list(
-    income = declare_variable(),
-    female = declare_variable(binary_probability = .5)),
-  villages = list(
-    development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
-    ),
-  N_per_level = c(100,20),
-  group_sizes_by_level = list(
-    individuals = rep(1,100), 
-    villages = rep(5,20)
-    ))
+First, we define the sample frame from which we will draw a sample to run the experiment from. This includes defining the levels of analysis and the covariates at each level.
+
+```{r, echo = FALSE}
+sample_frame <- declare_sample_frame(
+  income = declare_variable(),
+  N = 500)
 ```
 
-Second, we define the potential outcomes, which will also be simulated.
+Second, we define the potential outcomes, which will be simulated based on the baseline covariate data.
 
 ```{r}
-po_object     <-  declare_potential_outcomes(
+potential_outcomes     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income + .1*female,
-  cluster_variable = "villages_id",
-  ICC = .2
+  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income 
 )
-```
-
-Third, we make a simulated data set and then declare the design.
-
-```{r}
-mock          <- make_data(potential_outcomes = po_object, covariates = cov_object)
-design        <- declare_design(clust_var = mock$villages_id, 
-                                condition_names = po_object$condition_names)
 ```
 
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
 
+```{r}
+analysis      <- declare_analysis(formula = Y ~ Z + income, treatment_variable = "Z",
+                                  method = "lm")
+```
+
+Then we declare the design of the experiment, in this case a simple one without clusters or blocking.
 
 ```{r}
-analysis      <- declare_analysis(formula = Y ~ Z + income + female, treatment_variable = "Z",
-                                    design = design, method = "lm")
+design <- declare_design(potential_outcomes = potential_outcomes)
 ```
+
+# Pre-registering the experiment
 
 Finally, we use the pre_register function to create the pre-registration document.
 
 ```{r}
-pre_register(design = design, covariates = cov_object, 
-             potential_outcomes = po_object, analysis = analysis, 
-             registration_title = "Lady Tasting Tea", 
-             registration_authors = c("Ronald A. Fisher"), 
-             registration_abstract = "Description of the lady tasting tea experiment",
-             temp_dir = TRUE)
+pre <- pre_register(design = design, sample_frame = sample_frame, 
+                    potential_outcomes = potential_outcomes, analysis = analysis, 
+                    title = "Lady Tasting Tea", 
+                    author = c("Ronald A. Fisher"), 
+                    abstract = "Description of the lady tasting tea experiment",
+                    temp_dir = TRUE, open_output = FALSE)
+```
+
+# Writing a paper based on the experiment
+
+```{r}
+##draft_paper_from_pre_register(pre, data = mock, temp_dir = TRUE)
 ```
