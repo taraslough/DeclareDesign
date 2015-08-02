@@ -77,14 +77,14 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
         group_sizes_by_level[[1]] <- 
           rep(1,N_per_level[1])
       }else{
-        group_sizes_by_level <- rep(1,N_per_level[1])
+        group_sizes_by_level <- list(rep(1,N_per_level[1]))
       }
       # Generate N
       N <- sum(group_sizes_by_level[[1]])
     }else{
       if(!is.null(N)){
-        N_per_level <- N
-        group_sizes_by_level <- rep(1,N)
+        N_per_level <- c(N)
+        group_sizes_by_level <- list(rep(1,N))
       }
       
       
