@@ -13,7 +13,7 @@ test_that("test assignment and probability functions", {
     villages = list(
       development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
     ),
-    lower_units_per_level = list(
+    group_sizes_by_level = list(
       individuals = rep(1,1000), 
       villages = rep(5,200)
     ))

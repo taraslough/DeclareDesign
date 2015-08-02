@@ -26,7 +26,7 @@ cov_object <- declare_covariates(
     development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
     ),
   N_per_level = c(100,20),
-  lower_units_per_level = list(
+  group_sizes_by_level = list(
     individuals = rep(1,100), 
     villages = rep(5,20)
     ))

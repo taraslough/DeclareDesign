@@ -2,13 +2,13 @@
 #'
 #' @param ... a list either of variable declarations, or of lists of variable declarations (one per level)
 #' @param N_per_level vector of the sample sizes per level, one number per level
-#' @param lower_units_per_level description
+#' @param group_sizes_by_level description
 #' @param N total sample size of the sample frame
 #' @param data optional data frame to include variables that are not defined in the sample frame
 #' @param resample when data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.
 #' @param level_ID_variables optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")
 #' @export
-declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level = NULL, N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL) {
+declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level = NULL, N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL) {
   
   # Check whether the user has supplied data
   no_data <- is.null(data)
@@ -18,42 +18,42 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
     stop("You may not specify N and N_per_level simultaneously.")
   }
   
-  # lower_units_per_level and N should not be provided simultaneously
-  if(!is.null(lower_units_per_level) & !is.null(N)){
-    stop("You may not specify N and lower_units_per_level simultaneously.")
+  # group_sizes_by_level and N should not be provided simultaneously
+  if(!is.null(group_sizes_by_level) & !is.null(N)){
+    stop("You may not specify N and group_sizes_by_level simultaneously.")
   }
   
-  # N_per_level and lower_units_per_level should not be provided simultaneously
-  if(!is.null(lower_units_per_level) & !is.null(N_per_level)){
-    stop("You may not specify N_per_level and lower_units_per_level simultaneously.") 
+  # N_per_level and group_sizes_by_level should not be provided simultaneously
+  if(!is.null(group_sizes_by_level) & !is.null(N_per_level)){
+    stop("You may not specify N_per_level and group_sizes_by_level simultaneously.") 
   }
   
   # Check that the necessary data structure info has been provided
-  if(is.null(N_per_level) & is.null(N) & is.null(lower_units_per_level) & 
+  if(is.null(N_per_level) & is.null(N) & is.null(group_sizes_by_level) & 
      (no_data | (!no_data & resample == TRUE))){
-    stop("You must either specify N, lower_units_per_level, N_per_level.")
+    stop("You must either specify N, group_sizes_by_level, N_per_level.")
      }
   
   # Generate N from data if there is no resampling 
-  if(is.null(N_per_level) & is.null(N) & is.null(lower_units_per_level) & 
+  if(is.null(N_per_level) & is.null(N) & is.null(group_sizes_by_level) & 
      (!no_data & resample == FALSE)){
        N <- dim(data)[1]
      }
   
-  # If lower_units_per_level is supplied
-  if(!is.null(lower_units_per_level)){
+  # If group_sizes_by_level is supplied
+  if(!is.null(group_sizes_by_level)){
     # Test that the structure is logical
-    lower_units_test <- sapply(length(lower_units_per_level):2,
+    lower_units_test <- sapply(length(group_sizes_by_level):2,
                                function(i){
-                                 sum(lower_units_per_level[[i]])==
-                                   length(lower_units_per_level[[i-1]])})
+                                 sum(group_sizes_by_level[[i]])==
+                                   length(group_sizes_by_level[[i-1]])})
     
     if(!all(lower_units_test)){
-      stop("The argument supplied to lower_units_per_level is not logical. The sum of every higher level should be equal to the length of the preceding lower level. For example, in a study with 4 units and 2 groups, lower_units_per_level = list(c(1,1,1,1),c(2,2)).")
+      stop("The argument supplied to group_sizes_by_level is not logical. The sum of every higher level should be equal to the length of the preceding lower level. For example, in a study with 4 units and 2 groups, group_sizes_by_level = list(c(1,1,1,1),c(2,2)).")
     }
     # Generate N_per_level and N
-    N_per_level <- sapply(lower_units_per_level,length)
-    N <- sum(lower_units_per_level[[1]])
+    N_per_level <- sapply(group_sizes_by_level,length)
+    N <- sum(group_sizes_by_level[[1]])
   }else{
     # If N_per_level is supplied
     if(!is.null(N_per_level)){
@@ -62,26 +62,26 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
         # Make sure it is logical
         if(!all(diff(N_per_level)<0))
           stop("Each level in N_per_level should be smaller than the preceding level.")
-        # Generate lower_units_per_level
-        lower_units_per_level <- 
+        # Generate group_sizes_by_level
+        group_sizes_by_level <- 
           list(rep(NA,
                    length(N_per_level)))
-        lower_units_per_level[2:length(N_per_level)] <- 
+        group_sizes_by_level[2:length(N_per_level)] <- 
           lapply(2:length(N_per_level),
                  function(i){
                    remaindr(N_per_level[i-1],N_per_level[i])
                  })
-        lower_units_per_level[[1]] <- 
+        group_sizes_by_level[[1]] <- 
           rep(1,N_per_level[1])
       }else{
-        lower_units_per_level <- rep(1,N_per_level[1])
+        group_sizes_by_level <- rep(1,N_per_level[1])
       }
       # Generate N
-      N <- sum(lower_units_per_level[[1]])
+      N <- sum(group_sizes_by_level[[1]])
     }else{
       if(!is.null(N)){
         N_per_level <- N
-        lower_units_per_level <- rep(1,N)
+        group_sizes_by_level <- rep(1,N)
       }
       
       
@@ -184,11 +184,11 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
   
   
   if(length(N_per_level)>N_levels){
-    stop("The argument supplied to N_per_level or lower_units_per_level implies more levels than you have allowed for in the variable declarations or user data provided to declare_sample_frame().")
+    stop("The argument supplied to N_per_level or group_sizes_by_level implies more levels than you have allowed for in the variable declarations or user data provided to declare_sample_frame().")
   }
   
   if(length(N_per_level)<N_levels){
-    stop("The argument supplied to N_per_level or lower_units_per_level implies fewer levels than you have allowed for in the variable declarations or user data provided to declare_sample_frame().")
+    stop("The argument supplied to N_per_level or group_sizes_by_level implies fewer levels than you have allowed for in the variable declarations or user data provided to declare_sample_frame().")
   }
 
   # Now generate the make_sample() function when there is...
@@ -241,7 +241,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
         for(i in N_levels:2){
           X_list[[i-1]]$merge_id <- 
             sample(rep(X_list[[i]][,level_ids[i]],
-                       lower_units_per_level[[i]]))
+                       group_sizes_by_level[[i]]))
           
           names(X_list[[i-1]])[names(X_list[[i-1]])=="merge_id"] <- level_ids[i]
           
@@ -294,8 +294,8 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
       
     } else {
       
-      if(!is.null(N) | !is.null(N_per_level) | !is.null(lower_units_per_level))
-        stop("Please do not provide N, N_per_level, or lower_units_per_level when resample is set to FALSE and you provided a dataframe.")
+      if(!is.null(N) | !is.null(N_per_level) | !is.null(group_sizes_by_level))
+        stop("Please do not provide N, N_per_level, or group_sizes_by_level when resample is set to FALSE and you provided a dataframe.")
       make_sample <- NULL
     }
   }
@@ -312,7 +312,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
     level_ids = level_ids,
     number_levels = N_levels,
     N_per_level = N_per_level,
-    lower_units_per_level = lower_units_per_level,
+    group_sizes_by_level = group_sizes_by_level,
     call = match.call()
   )
   

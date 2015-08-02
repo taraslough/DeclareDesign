@@ -13,7 +13,7 @@
 #'   ## ideas: 
 #'   ## if user wants to change N and provides data, bootstrap data to that size
 #' @export
-compare_experiments <- function(N = NULL, N_per_level = NULL, lower_units_per_level = NULL,
+compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_level = NULL,
                                 design = NULL, analysis = NULL, sample_frame = NULL, potential_outcomes = NULL,
                                 blocks = NULL, clusters = NULL, sims = 5, labels = NULL){
   
@@ -30,13 +30,13 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, lower_units_per_le
   if(class(clusters) == "clusters")
     clusters <- list(clusters)
   
-  if(sum(!is.null(N), !is.null(N_per_level), !is.null(lower_units_per_level)) > 1)
-    stop("Please provide either N, N_per_level, or lower_units_per_level (not more than one).")
+  if(sum(!is.null(N), !is.null(N_per_level), !is.null(group_sizes_by_level)) > 1)
+    stop("Please provide either N, N_per_level, or group_sizes_by_level (not more than one).")
   
   if(is.null(design))
     stop("Please provide a design object created using the declare_design() function.")
   
-  comparison_counts <- c(length(N), length(N_per_level), length(lower_units_per_level), 
+  comparison_counts <- c(length(N), length(N_per_level), length(group_sizes_by_level), 
                          length(design), length(analysis), length(sample_frame), 
                          length(potential_outcomes))
   if(any(comparison_counts != max(comparison_counts) & comparison_counts > 1))
@@ -57,14 +57,14 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, lower_units_per_le
         exists_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "N")) | 
        (!is.null(N_per_level) & 
         exists_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "N_per_level")) | 
-       (!is.null(lower_units_per_level) & 
-        exists_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "lower_units_per_level")))
-      stop("When N, N_per_level, or lower_units_per_level is specified in compare_experiment, you can only specify the one that was used in the original declare_sample_frame call. For instance, if you specified N in declare_sample_frame, you can only vary N in compare_experiment.")
+       (!is.null(group_sizes_by_level) & 
+        exists_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "group_sizes_by_level")))
+      stop("When N, N_per_level, or group_sizes_by_level is specified in compare_experiment, you can only specify the one that was used in the original declare_sample_frame call. For instance, if you specified N in declare_sample_frame, you can only vary N in compare_experiment.")
     
-    if(!(is.null(N) & is.null(N_per_level) & is.null(lower_units_per_level))){
+    if(!(is.null(N) & is.null(N_per_level) & is.null(group_sizes_by_level))){
       sample_frame_compare[[min(length(sample_frame_compare), e)]] <- substitute_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "N", N[e])
       sample_frame_compare[[min(length(sample_frame_compare), e)]] <- substitute_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "N_per_level", N_per_level[[e]])
-      sample_frame_compare[[min(length(sample_frame_compare), e)]] <- substitute_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "lower_units_per_level", lower_units_per_level[[e]])
+      sample_frame_compare[[min(length(sample_frame_compare), e)]] <- substitute_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "group_sizes_by_level", group_sizes_by_level[[e]])
     }
     
     comparisons[[e]] <- list()
