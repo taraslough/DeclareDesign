@@ -10,67 +10,39 @@
 #' @export
 declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level = NULL, N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL) {
   
+  # Check whether the user has supplied data
+  no_data <- is.null(data)
   
+  # N_per_level and N should not be provided simultaneously
   if(!is.null(N_per_level) & !is.null(N)) {
     stop("You may not specify N and N_per_level simultaneously.")
   }
   
+  # lower_units_per_level and N should not be provided simultaneously
   if(!is.null(lower_units_per_level) & !is.null(N)){
     stop("You may not specify N and lower_units_per_level simultaneously.")
   }
   
+  # N_per_level and lower_units_per_level should not be provided simultaneously
   if(!is.null(lower_units_per_level) & !is.null(N_per_level)){
     stop("You may not specify N_per_level and lower_units_per_level simultaneously.") 
   }
   
+  # Check that the necessary data structure info has been provided
   if(is.null(N_per_level) & is.null(N) & is.null(lower_units_per_level) & 
-     (is.null(data) | (!is.null(data) & resample == TRUE))){
+     (no_data | (!no_data & resample == TRUE))){
     stop("You must either specify N, lower_units_per_level, N_per_level.")
-  }
+     }
   
-  # If they provide N, define N_per_level
-  if(is.null(N_per_level) & !is.null(N)){
-    N_per_level <- N
-  } 
+  # Generate N from data if there is no resampling 
+  if(is.null(N_per_level) & is.null(N) & is.null(lower_units_per_level) & 
+     (!no_data & resample == FALSE)){
+       N <- dim(data)[1]
+     }
   
-  if(!all(diff(N_per_level)<0))
-    stop("Each level in N_per_level should be smaller than the preceding level.")
-  
-  # Logical test if a single list of variable declarations was supplied to ...
-#   list_test <- function(...){
-#     arguments <- list(...)
-#     all(sapply(arguments,class)=="list")&length(arguments)==1
-#   }
-  
-  variable_list  <- list(...)
-  
-#   if(list_test(variable_list)){
-#     variable_list <- variable_list[[1]]
-#   }
-  
-  # If there are no variables specified, just data structure
-  if(length(variable_list)==0){
-    # If N_per_level was multi-level and lower_units_per_level was not supplied, 
-    # make lower_units_per_level
-    if(length(N_per_level) > 1 & is.null(lower_units_per_level)){
-      
-      lower_units_per_level <- 
-        list(rep(NA,
-                 length(N_per_level)))
-      lower_units_per_level[2:length(N_per_level)] <- 
-        lapply(2:length(N_per_level),
-               function(i){
-                 remaindr(N_per_level[i-1],N_per_level[i])
-               })
-      lower_units_per_level[[1]] <- 
-        rep(1,N_per_level[1])
-    }
-  }
-  # If only lower_units_per_level is supplied
-  if(!is.null(lower_units_per_level)&is.null(N_per_level)){
-    N_per_level <- sapply(lower_units_per_level,length)
-    
-    # Test that the lower_units structure is correct
+  # If lower_units_per_level is supplied
+  if(!is.null(lower_units_per_level)){
+    # Test that the structure is logical
     lower_units_test <- sapply(length(lower_units_per_level):2,
                                function(i){
                                  sum(lower_units_per_level[[i]])==
@@ -79,96 +51,216 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
     if(!all(lower_units_test)){
       stop("The argument supplied to lower_units_per_level is not logical. The sum of every higher level should be equal to the length of the preceding lower level. For example, in a study with 4 units and 2 groups, lower_units_per_level = list(c(1,1,1,1),c(2,2)).")
     }
-  }
-  # Don't know why this was here: if N_per_level and N were not supplied, 
-  # then lower_units_per_level must have been supplied
-#   if(!is.null(N_per_level)){
-#     lower_units_per_level <- 
-#       list(rep(NA, length(N_per_level)))
-#     
-#     if(length(N_per_level)>1){
-#       lower_units_per_level[2:length(N_per_level)] <- 
-#         lapply(2:length(N_per_level),
-#                function(i){
-#                  remaindr(N_per_level[i-1],N_per_level[i])
-#                })        
-#     }
-#     lower_units_per_level[[1]] <- 
-#       rep(1,N_per_level[1])   
-#   }
-  
-  
-  if(!length(variable_list)==0){
-    
-    level_names <- names(variable_list)
-  } else {
-    level_names <- paste0("level_", 1:length(N_per_level))
-  }
-  
-  id_vars <- paste0(level_names,"_id")
-  
-  if(TRUE %in% (c("function","DGP_object") %in% sapply(variable_list,class))){
-    N_levels <- 1
-    if(is.null(data)){
-      make_sample <- function(){make_X_matrix(variable_list,
-                                              N = N
-      )} 
+    # Generate N_per_level and N
+    N_per_level <- sapply(lower_units_per_level,length)
+    N <- sum(lower_units_per_level[[1]])
+  }else{
+    # If N_per_level is supplied
+    if(!is.null(N_per_level)){
+      # Check if it is multi-level
+      if(length(N_per_level) > 1){
+        # Make sure it is logical
+        if(!all(diff(N_per_level)<0))
+          stop("Each level in N_per_level should be smaller than the preceding level.")
+        # Generate lower_units_per_level
+        lower_units_per_level <- 
+          list(rep(NA,
+                   length(N_per_level)))
+        lower_units_per_level[2:length(N_per_level)] <- 
+          lapply(2:length(N_per_level),
+                 function(i){
+                   remaindr(N_per_level[i-1],N_per_level[i])
+                 })
+        lower_units_per_level[[1]] <- 
+          rep(1,N_per_level[1])
+      }else{
+        lower_units_per_level <- rep(1,N_per_level[1])
+      }
+      # Generate N
+      N <- sum(lower_units_per_level[[1]])
+    }else{
+      if(!is.null(N)){
+        N_per_level <- N
+        lower_units_per_level <- rep(1,N)
+      }
+      
+      
     }
-    level_names <- "level_1"
-    variable_names <- names(variable_list)
     
-  } else {
+  }
+  
+  # Make the objects used to generate data 
+  
+  variable_list  <- list(...)
+  level_ids <- level_names <- NULL
+  
+  if(!is.null(level_ID_variables)){
+    level_ids <- level_ID_variables
+  }
+  
+  # Check whether the user has supplied variables
+  no_variables <- length(variable_list)==0
+  
+  if(!no_variables&all(sapply(variable_list,length)==0)){
+    no_variables <- TRUE
+    level_names <- names(variable_list)
+    if(is.null(level_ids)){
+      level_ids <- paste0(level_names,"_id")
+    }
+  }
+  
+  
+  # If there are no variables specified, just data structure
+  if(no_variables){
+    N_levels <- length(N_per_level)
+    if(is.null(level_names)){
+    level_names <- paste0("level_", 1:N_levels)
+    }
+    if(is.null(level_ids)){
+      level_ids <- paste0(level_names,"_id")
+    }
+    one_level <- N_levels==1
+  }else{
     
-    N_levels       <- length(N_per_level)
+    # Get the classes of the variables
+    variable_classes <- sapply(variable_list,class)
     
-    variable_names <- lapply(variable_list, names)
-    
-    if(is.null(data)){
-      make_sample <- function(){
+    # If all of the variables are list objects, then they are levels
+    if(all(variable_classes=="list")){
+      
+      level_names <- names(variable_list)
+      
+      # If there are no level names, generate them
+      if(is.null(level_names)){
+        level_names <- paste0("level_",1:length(variable_list))
+        warning(paste0("You have not supplied level_names  (i.e. level_1 = list(variables)), using the following defaults: \n", level_names))
+      }
+      
+      # If some level names not provided
+      if( "" %in% level_names ){
+        N_missing_names <- sum(level_names=="")
         
-        X_list <- lapply(1:N_levels,function(i){
-          # When there's variables
-          
-          if(length(variable_list) >0){
-            X_mat <- make_X_matrix(variables = variable_list[[i]],
-                                   # variable_names = variable_names[[i]],
-                                   N = N_per_level[i])
-            X_mat$id <- 1:dim(X_mat)[1]
-            names(X_mat)[names(X_mat)=="id"] <- paste0(level_names[i],"_id")
-          }else{
-            X_mat <- matrix(1:N_per_level[i], 
-                            dimnames = list(NULL, paste0(level_names[i],"_id")))
-          }
-          return(data.frame(X_mat))
-        })
+        level_names[level_names==""] <- paste0("level_",LETTERS[1:N_missing_names])
+        warning(paste0("You have not supplied level_names for all levels, using the following defaults for some levels: \n", level_names))
+      }
+      
+      # Indicator for whether there is just one level
+      one_level <- FALSE
+      
+      # in the case of just one level, bring it back to the no-list case
+      if(length(variable_list)==1){
+        # variable_list <- unlist(variable_list,recursive = F)
+        variable_list <- variable_list[[1]]
+        variable_classes <- sapply(variable_list,class)
+        one_level <- TRUE
+      }
+      
+      # Create this as a consistency check
+      N_levels <- length(level_names)
+      
+      if(is.null(level_ids)){
+        level_ids <- paste0(level_names,"_id")
+      }
+      
+    }else{
+      # In this case the user didn't provide a multi-level data structure, 
+      # there is just one level
+      if(all(variable_classes %in% c("function","DGP_object"))&!no_variables){
+        one_level <- TRUE
+
+        N_levels <- 1
         
-        sample_matrix <- X_list[[1]]
-        
-        if(N_levels > 1){ 
-          X_mat_joined <- NA
-          for(i in N_levels:2){
-            X_list[[i-1]]$merge_id <- 
-              sample(rep(X_list[[i]][,id_vars[i]],
-                         lower_units_per_level[[i]]))
-            
-            names(X_list[[i-1]])[names(X_list[[i-1]])=="merge_id"] <- id_vars[i]
-            
-            X_mat_joined <- 
-              merge(x  = X_list[[i-1]],
-                    y  = X_list[[i]],
-                    by = id_vars[i])
-          }
-          sample_matrix <- X_mat_joined
+        if(is.null(level_names)){
+          level_names <- "level_1"
         }
         
-        sample_matrix <- sample_matrix[order(sample_matrix[,id_vars[1]]), , drop=FALSE]
-        return(sample_matrix)
+        if(is.null(level_ids)){
+        level_ids <- paste0(level_names,"_id")
+        }
+      
+        }else{stop("You must supply ... with variable declarations or lists of variable declarations.")}
       }
-    }
-    
   }
   
-  if(!is.null(data)){
+  
+  if(length(N_per_level)>N_levels){
+    stop("The argument supplied to N_per_level or lower_units_per_level implies more levels than you have allowed for in the variable declarations or user data provided to declare_sample_frame().")
+  }
+  
+  if(length(N_per_level)<N_levels){
+    stop("The argument supplied to N_per_level or lower_units_per_level implies fewer levels than you have allowed for in the variable declarations or user data provided to declare_sample_frame().")
+  }
+
+  # Now generate the make_sample() function when there is...
+  
+  # ... no data, one level, and variables
+  if(no_data & one_level & !no_variables){
+    make_sample <- function(){
+      X_mat <- make_X_matrix(variable_list,
+                             N = N)
+      X_mat[,level_ids] <- 1:dim(X_mat)[1]
+      return(X_mat)
+    }
+  }
+  
+  
+  
+  # ... no data, one level and no variables
+  if(no_data & one_level & no_variables){
+    make_sample <- function(){
+      X_mat <- data.frame(1:N)
+      names(X_mat) <- level_ids
+      return(X_mat)
+    }
+  } 
+  
+  # ... no data, multiple levels and either variables or no variables
+  if(no_data & !one_level){
+    
+    make_sample <- function(){
+      
+      X_list <- lapply(1:N_levels,function(i){
+        # Case when variables are supplied
+        if(!no_variables){
+          X_mat <- make_X_matrix(variables = variable_list[[i]],
+                                 N = N_per_level[i])
+          X_mat$id <- 1:dim(X_mat)[1]
+          names(X_mat)[names(X_mat)=="id"] <- level_ids[i]
+          # Case when variables not supplied
+        }else{
+          X_mat <- matrix(1:N_per_level[i], 
+                          dimnames = list(NULL, level_ids[i]))
+        }
+        return(data.frame(X_mat))
+      })
+      
+      sample_matrix <- X_list[[1]]
+      
+      if(N_levels > 1){ 
+        X_mat_joined <- NA
+        for(i in N_levels:2){
+          X_list[[i-1]]$merge_id <- 
+            sample(rep(X_list[[i]][,level_ids[i]],
+                       lower_units_per_level[[i]]))
+          
+          names(X_list[[i-1]])[names(X_list[[i-1]])=="merge_id"] <- level_ids[i]
+          
+          X_mat_joined <- 
+            merge(x  = X_list[[i-1]],
+                  y  = X_list[[i]],
+                  by = level_ids[i])
+        }
+        sample_matrix <- X_mat_joined
+      }
+      
+      sample_matrix <- sample_matrix[order(sample_matrix[,level_ids[1]]), , drop=FALSE]
+      return(sample_matrix)
+    }
+  }
+
+  
+  
+  if(!no_data){
     
     if(resample == TRUE){
       
@@ -184,13 +276,13 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
           sample_by_level <- list()
           for(j in N_levels:1){
             if(j == N_levels){
-              sample_by_level[[j]] <- sample(user_data[, id_vars[j]], N_per_level[j], replace = TRUE)
+              sample_by_level[[j]] <- sample(user_data[, level_ids[j]], N_per_level[j], replace = TRUE)
             } else {
               ## now go through each of the units in the level above it
               sample_current_level <- c()
               for(k in sample_by_level[[j+1]]){
                 sample_current_level <- c(sample_current_level, 
-                                          sample(user_data[user_data[, id_vars[j+1]] == k, id_vars[j]], 
+                                          sample(user_data[user_data[, level_ids[j+1]] == k, level_ids[j]], 
                                                  round(N_per_level[j]/N_per_level[j+1]), replace = TRUE))
               }
               sample_by_level[[j]] <- sample_current_level
@@ -205,16 +297,19 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
       if(!is.null(N) | !is.null(N_per_level) | !is.null(lower_units_per_level))
         stop("Please do not provide N, N_per_level, or lower_units_per_level when resample is set to FALSE and you provided a dataframe.")
       make_sample <- NULL
-      
     }
-    
   }
+  
+  test_mat <- make_sample()
+  
+  covariate_names <- names(test_mat)
   
   sample_frame_object <- list(
     make_sample = make_sample,
     data = data,
-    covariate_names = variable_names,
+    covariate_names = covariate_names,
     level_names = level_names,
+    level_ids = level_ids,
     number_levels = N_levels,
     N_per_level = N_per_level,
     lower_units_per_level = lower_units_per_level,
@@ -228,8 +323,8 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
 
 #' @export 
 make_X_matrix <- function(...,N) {
-  variables  <- list(...)
   
+  variables  <- list(...)
   
   class_list <- sapply(variables,class)
   
@@ -240,12 +335,18 @@ make_X_matrix <- function(...,N) {
     )
   
   if ("list" %in% class_list) {
-    variables <- unlist(variables,recursive = F)
+    if(length(class_list)>1){
+      stop("You should provide one single list of variables to make_X_matrix()")
+    }
+    variables <- variables[[1]]
   }
   
   # Get the variable names
   variable_names <- names(variables)
   
+  if(is.null(variable_names)){
+    variable_names <- ""
+  }
   variable_name_missing <- variable_names == ""
   
   if(any(variable_name_missing)){
@@ -268,11 +369,9 @@ make_X_matrix <- function(...,N) {
   var_names <- names(variables)
   trans_names <- names(transformations)
   
-
-  # names_list <- names(variables)
-  
   
   fun.list <- lapply(variables,function(variable) {
+    
     if (!class(variable) %in% c("function","DGP_object")) {
       stop(
         "Variables should either be random number functions or DGP_object (see declare_variable())"
@@ -328,17 +427,10 @@ make_X_matrix <- function(...,N) {
     X[,i] <- X.char[i][,1]
   }
   
-#   if (!is.null(variable_names)) {
-#     names(X) <- variable_names
-#   }
-  
-  
   names(X) <- var_names
-  
   
   if(length(transformations)>0){
     
-    # transformation_names <- names(transformations)
     transformation_calls <- sapply(transformations,function(trans){
       trans$transformation
     })
