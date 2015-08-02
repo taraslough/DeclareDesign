@@ -13,7 +13,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
   # Check whether the user has supplied data
   no_data <- is.null(data)
   
-  if(!no_data & (!is.null(N) | !is.null(N_per_level) | !is.null(group_sizes_by_level)))
+  if(!no_data & resample == FALSE & (!is.null(N) | !is.null(N_per_level) | !is.null(group_sizes_by_level)))
     stop("Please do not provide N, N_per_level, or group_sizes_by_level when resample is set to FALSE and you provided a dataframe.")
   
   # N_per_level and N should not be provided simultaneously
@@ -297,12 +297,15 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
       
     } else {
       make_sample <- NULL
+      covariate_names <- names(data)
     }
   }
   
-  test_mat <- make_sample()
-  
-  covariate_names <- names(test_mat)
+  if(!is.null(make_sample)){
+    test_mat <- make_sample()
+    
+    covariate_names <- names(test_mat)
+  }
   
   sample_frame_object <- list(
     make_sample = make_sample,
