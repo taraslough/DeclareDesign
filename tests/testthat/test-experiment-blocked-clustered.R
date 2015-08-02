@@ -39,7 +39,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
                                    title = "Simplest Possible Experiment", 
                                    authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
                                    abstract = "The effect of pixie dust on productivity.",
-                                   random_seed = 42, temp_dir = TRUE)
+                                   random_seed = 42, temp_dir = TRUE, open_output = FALSE)
   
   ## creates paper just from a pre_registration object
   ##draft_paper_from_pre_register(pre_registration = pre_registration, data = mock)
@@ -85,7 +85,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
   obs <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
   
   balance       <- get_balance(covariates = c("income", "development_level"), 
-                           outcome = "Y", treatment_assignment = "Z", design = design, data = mock)
+                           treatment_assignment = "Z", design = design, data = mock)
   balance
   
 })

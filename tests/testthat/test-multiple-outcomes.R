@@ -7,7 +7,7 @@ context("Multiple outcomes")
 
 test_that("test whether various functions can accept multiple outcomes", {
   
-  smp <- declare_sample_frame(N = 850, height=declare_variable(8, 3))
+  smp <- declare_sample_frame(height = declare_variable(8, 3), N = 850)
   
   po_1 <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                      outcome_formula = Y1 ~ .01 + 0*Z0 + .2*Z1 + .4*height)
@@ -21,8 +21,6 @@ test_that("test whether various functions can accept multiple outcomes", {
   #design <- declare_design(potential_outcomes = list(po_1, po_2))
   
   analysis_1 <- declare_analysis(formula = Y1 ~ Z, treatment_variable = "Z", 
-                                 method = "lm")
-  analysis_2 <- declare_analysis(formula = Y2 ~ Z, treatment_variable = "Z", 
                                  method = "lm")
   
   # Run analysis on a single realization

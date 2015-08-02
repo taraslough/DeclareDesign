@@ -36,7 +36,7 @@ test_that("test draft paper and pre_register functions", {
                                    title = "Simplest Possible Experiment", 
                                    authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
                                    abstract = "The effect of pixie dust on productivity.",
-                                   random_seed = 42, temp_dir = TRUE)
+                                   random_seed = 42, temp_dir = TRUE, open_output = FALSE)
   
   ## run the experiment, and create real_data (simulated here to demonstrate draft_paper)
   real_data          <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, 
@@ -45,7 +45,7 @@ test_that("test draft paper and pre_register functions", {
   real_data$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = real_data)
   
   ## create paper draft just from a pre_registration object
-  draft_paper_from_pre_register(pre_registration = pre_registration, data = real_data)
+  draft_paper_from_pre_register(pre_registration = pre_registration, data = real_data, open_output = FALSE)
   
   ## or create custom paper draft from objects
   paper_draft <- draft_paper(design = design, sample_frame = sample_frame, clusters = clusters, blocks = blocks,
@@ -53,7 +53,7 @@ test_that("test draft paper and pre_register functions", {
                              title = "Simplest Possible Experiment", 
                              authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
                              abstract = "The effect of pixie dust on productivity.",
-                             random_seed = 42, temp_dir = TRUE)
+                             random_seed = 42, temp_dir = TRUE, open_output = FALSE)
   
   
 
