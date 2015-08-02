@@ -227,7 +227,7 @@ declare_sample_frame <- function(..., N_per_level = NULL, lower_units_per_level 
 
 
 #' @export 
-make_X_matrix <- function(...,variable_names = NULL,N) {
+make_X_matrix <- function(...,N) {
   variables  <- list(...)
   
   
@@ -243,6 +243,16 @@ make_X_matrix <- function(...,variable_names = NULL,N) {
     variables <- unlist(variables,recursive = F)
   }
   
+  # Get the variable names
+  variable_names <- names(variables)
+  
+  variable_name_missing <- variable_names == ""
+  
+  if(any(variable_name_missing)){
+    N_varname_missing <- sum(variable_name_missing)
+    variable_names[variable_name_missing] <-
+      paste0("variable_",letters[1:N_varname_missing])
+  }
   
   transformation_check <- sapply(variables,function(variable_elements){
     element_names <- names(variable_elements)
@@ -250,10 +260,16 @@ make_X_matrix <- function(...,variable_names = NULL,N) {
     return(is_transformation)
   })
   
+  names(variables) <- variable_names
+  
   transformations <- variables[which(transformation_check)]
   variables <- variables[which(!transformation_check)]
   
-  names_list <- names(variables)
+  var_names <- names(variables)
+  trans_names <- names(transformations)
+  
+
+  # names_list <- names(variables)
   
   
   fun.list <- lapply(variables,function(variable) {
@@ -312,23 +328,23 @@ make_X_matrix <- function(...,variable_names = NULL,N) {
     X[,i] <- X.char[i][,1]
   }
   
-  if (!is.null(variable_names)) {
-    names(X) <- variable_names
-  }
+#   if (!is.null(variable_names)) {
+#     names(X) <- variable_names
+#   }
   
-  if (is.null(variable_names)) {
-    names(X) <- names_list
-  }
+  
+  names(X) <- var_names
+  
   
   if(length(transformations)>0){
     
-    transformation_names <- names(transformations)
+    # transformation_names <- names(transformations)
     transformation_calls <- sapply(transformations,function(trans){
       trans$transformation
     })
     
-    for(i in 1:length(transformation_names)){
-      X[transformation_names[i]] <- with(data = X,expr = eval(parse(text = transformation_calls[i])))
+    for(i in 1:length(trans_names)){
+      X[trans_names[i]] <- with(data = X,expr = eval(parse(text = transformation_calls[i])))
     }
   }
   return(X)
