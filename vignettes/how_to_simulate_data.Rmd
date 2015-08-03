@@ -1,0 +1,516 @@
+---
+title: "How to Simulate Data"
+author: "Experiments in Governance and Politics"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How to Simulate Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r,echo=FALSE}
+library(registration)
+```
+
+This vignette demonstrates how to simulate data for use in power analysis. 
+
+# Making Covariates
+
+## Simple User-Defined Covariates with `declare_variable()`
+
+To make user-defined covariates, we can provide `declare_sample_frame()` 
+a list of `DGP_object`s created with `declare_variable`. 
+From there, we can make new random draws of the covariates either by 
+supplying the `sample_frame` object to `make_data()`, or by calling the 
+`make_sample()` function that is created inside the `sample_frame` object:
+
+```{r}
+# The sample size
+N <- 10
+# An unnamed, standard normal variable:
+sample_frame_1 <- declare_sample_frame(
+  declare_variable(),
+  N = N
+)
+make_data(sample_frame = sample_frame_1)
+sample_frame_1$make_sample()
+# Multinomial, binomial and normal covariates
+sample_frame_2 <- declare_sample_frame(
+  income = declare_variable(normal_mean = 1000,normal_sd = 10),
+  gender = declare_variable(binary_probability = .5,
+                            binary_categories = c("male","female")),
+  region = declare_variable(multinomial_probabilities = c(.25,.25,.25,.25),
+                            multinomial_categories = c("North","South","East","West")),
+  employed = declare_variable(binary_probability = .7),
+  N = N
+)
+
+make_data(sample_frame = sample_frame_2)
+```
+
+We can also generate data using custom functions, provided that a) 
+the function(s) generate vectors (often randomly) of a given size, and b)
+that the functions do not take arguments. 
+For this reason, using 
+`declare_variable()` is often more flexible, as it allows the user to change
+the size of the covariate matrix.
+
+```{r}
+
+sample_frame_3 <- declare_sample_frame(
+  # Using functions
+  change_1 = function(){rnorm(n = N,mean = 0,sd = 1)},
+  success_1 = function(){rbinom(n = N,size = 1,prob = .5)},
+  # Using declare_variable
+  change_2 = declare_variable(),
+  success_2 = declare_variable(binary_probability = .5),
+  N = N
+)
+
+make_data(sample_frame = sample_frame_3)
+
+```
+
+## Transformations of Covariates
+
+Variables can be generated as a function of other variables using
+`declare_variable()`. The user can perform a very wide range of custom 
+transformations, provided that: a) the variables that are transformed have 
+already been declared; b) the transformations output vectors of the right 
+length; and c) the transformations take place on the same 'level' 
+(more on levels below).
+
+
+```{r}
+
+# Here we create 'age' as a rounded draw from a normal distribution
+sample_frame_4 <- declare_sample_frame(
+  # Declare the raw variables 
+  age_raw = declare_variable(normal_mean = 30,normal_sd = 5),
+  # Declare the transformation
+  age_rounded = declare_variable(transformation = "round(age_raw,0)"),
+  N = N
+)
+
+make_data(sample_frame = sample_frame_4)
+
+# Here use two transformations to create an 'index' of three other variables
+sample_frame_5 <- declare_sample_frame(
+  # Declare the raw variables 
+  fitness = declare_variable(normal_mean = 10,normal_sd = 5),
+  diet = declare_variable(normal_mean = 10,normal_sd = 5),
+  stress = declare_variable(normal_mean = 10,normal_sd = 5), 
+  # Declare the first transformation (means)
+  health_mean = declare_variable(transformation = "rowMeans(cbind(fitness,diet,stress))"),
+  # Declare the second transformation (integers or categories)
+  health_index = declare_variable(transformation = "cut(health_mean,breaks = 4,labels = 1:4)"),
+  N = N
+)
+
+make_data(sample_frame = sample_frame_5)
+
+# Here we generate wide-format temporal data 
+sample_frame_6 <- declare_sample_frame(
+  firm = list(
+    # Firm profit is i.i.d in year 1
+    year_1 = declare_variable(normal_mean = 10,normal_sd = 3),
+    # Firm profit in subsequent years is a function of the group's profit
+    year_2 = declare_variable(transformation = "year_1 + .01*sum(year_1) + rnorm(1)"),
+    year_3 = declare_variable(transformation = "year_2 + .01*sum(year_2) + rnorm(1)"),
+    year_4 = declare_variable(transformation = "year_3 + .01*sum(year_3) + rnorm(1)")),
+  N = N
+)
+
+make_data(sample_frame = sample_frame_6)
+
+```
+
+Note that, if the list is named as above, the ID variable inherits this name
+(here, `firm` becomes `firm_id`). We have here declared `firm` as a 'level'. 
+
+## Multi-Level Covariate Structures
+
+It is possible to declare data structures that have multi-level covariates,
+such as individuals within schools within cities. 
+However, *each level must be nested within the next one*. 
+For this reason, 'time' cannot be thought of as a level, but should be 
+declared in wide-format as above (`sample_frame_6`).
+
+In order to create levels, the user simply provides `declare_sample_frame()`
+with (preferably named) lists of variables, one per level, and describes the
+data structure using either `N_per_level` or `group_sizes_by_level`. 
+`N_per_level` is the simplest way to specify the data structure: it tells 
+us how many units or groups of units are at each level. For example, 
+a study with 8 students, selected from 4 classrooms in 2 different schools would 
+be represented as `c(students = 8,classes = 4,schools = 2)`.
+
+```{r}
+
+N_per_level <- c(students = 8,
+                 classrooms = 4,
+                 schools = 2)
+
+# Note: level names are inhereted from the variable declarations, not 
+# from the the N_per_level vector
+
+sample_frame_7 <- declare_sample_frame(
+ student = list(
+   math_score = declare_variable(),
+   lang_score = declare_variable()
+ ),
+ classroom = list(
+   N_students_raw = declare_variable(normal_mean = 20,normal_sd = 1),
+   N_students = declare_variable(transformation = "round(N_students_raw,0)")
+ ),
+ school = list(
+   poor_area = declare_variable(binary_probability = .5)
+ ),
+ N_per_level = N_per_level
+)
+
+make_data(sample_frame = sample_frame_7)
+
+```
+
+However, if the user wants to specify specify structures with unequal group 
+sizes, it is necessary to use `group_sizes_by_level`, which is a list of vectors
+containing group sizes at each level. The first level should always be an 
+$N$-length vector of ones, to represent the 'groups' at the unit level.
+Thus, `N_per_level = 5`, `N = 5`, and `group_sizes_by_level = list(c(1,1,1,1,1))`
+imply identical data structures. We repeat the example above, but with 
+different class sizes:
+
+
+```{r}
+
+group_sizes_by_level <- list(
+  students = rep(1,8),
+  students_per_class = c(1,2,3,2),
+  classes_per_school = c(3,1)
+)
+
+sample_frame_8 <- declare_sample_frame(
+ student = list(
+   math_score = declare_variable(),
+   lang_score = declare_variable()
+ ),
+ classroom = list(
+   N_students_raw = declare_variable(normal_mean = 20,normal_sd = 1),
+   N_students = declare_variable(transformation = "round(N_students_raw,0)")
+ ),
+ school = list(
+   poor_area = declare_variable(binary_probability = .5)
+ ),
+ group_sizes_by_level = group_sizes_by_level
+)
+
+make_data(sample_frame = sample_frame_8)
+
+```
+
+
+# Making Potential Outcomes 
+
+## Simple Linear Outcomes
+
+The potential outcomes that result from an experiment are created 
+using `declare_potential_outcomes()`, which produces an object given 
+One outcome is made for every combination of treatment condition and outcome, 
+even if the experiment only reveals a subset of these. 
+If you wish to simply create linear potential outcomes, you must specify 
+the different conditions, and include a function that specifies how they 
+are generated in a linear model.
+
+```{r}
+# Make a very simple sample frame
+simple_frame <- declare_sample_frame(N = 10)
+
+outcomes_1 <- declare_potential_outcomes(
+  # Specify the conditions of the experiment
+  condition_names = c("control","treatment"),
+  # Here the average treatment effect is .5
+  outcome_formula = outcome ~ 0*control + .5*treatment
+    )
+
+(linear_PO_1 <- make_data(potential_outcomes = outcomes_1,sample_frame = simple_frame))
+
+with(linear_PO_1,outcome_treatment - outcome_control)
+
+```
+
+
+## Simple Changes in Proportions
+
+Some users may want to specify potential outcomes at the group-level, especially
+when the outcome is binary or categorical. For example, we might want to 
+specify that the treatment increases uptake of a service by 5\%, or we might 
+want to specify that it increases the probability of voting for candidate A
+by 10\%, while reducing that of voting for B and C by 6\% and 4\%, 
+respectively. This is easily achieved with `declare_potential_outcomes()`, 
+however, it means that we cannot specify outcomes as the function of covariates.
+
+The simplest case is the binary one, where we simply provide a vector 
+with the proportion of successes for each condition of the experiment. 
+
+```{r,warning=FALSE}
+# A simple yes-no difference
+success_proportions <- c(control = .5, treatment_1 = .7, treatment_2 = .3)
+# Treatment effects
+c(True_ATE = success_proportions["treatment_1"]-
+    success_proportions["control"],
+  True_ATE = success_proportions["treatment_2"]-
+    success_proportions["control"]
+  )
+
+proportion_PO_1 <- declare_potential_outcomes(
+  condition_names = c("control","treatment_1","treatment_2"),
+  population_proportions = success_proportions)
+
+make_data(potential_outcomes = proportion_PO_1,N = 10)
+
+```
+
+Users can also provide more complicated proportional outcome structures.
+For example, it is possible to specify $J$ different choices across $K$
+treatment conditions by creating a $J \times K$ matrix whose columns sum to
+one and bear the names of the treatment conditions, and whose rows bear
+the names of the choices. It is also possible to attach a matrix of covariates.
+Although the covariates are unrelated to the potential outcomes in the 
+population-proportions setup, this may be useful in order to specify
+clustered randomization schemes.
+
+```{r}
+
+treatment_conditions <- c("C","T1","T2","T3")
+choices <- c("Party_A","Party_B","Party_C")
+
+# Make the matrix of proportions
+proportion_mat <- matrix(
+  data = c(.7,.6,.3,.6,
+           .2,.3,.3,.3,
+           .1,.1,.4,.1),
+  nrow = 3,ncol = 4,
+  byrow = TRUE,
+  dimnames = list(
+    choices,
+    treatment_conditions
+    )
+)
+
+proportion_mat
+
+proportion_PO_2 <- declare_potential_outcomes(
+  population_proportions = proportion_mat,
+  proportion_outcome_name = "vote_choice"
+)
+
+make_data(potential_outcomes = proportion_PO_2,N = 10)
+
+# With a simple data structure for clustering 
+
+voter_sample <- declare_sample_frame(
+  N_per_level = c(10,2),
+  level_ID_variables = c("voter_id","city_id"))
+
+make_data(potential_outcomes = proportion_PO_2,sample_frame = voter_sample)
+
+```
+
+## Outcomes as a Function of Covariates
+
+We can also define outcomes as a function of unit-level covariates. 
+We will use the schoole example from above (`sample_frame_7`). 
+Students' 
+final exam score is a function of their math score, their language score,
+the number of students in the classroom, a school-level fixed effect
+and one of four treatment conditions:
+control, private tutoring, financial incentives, and a combination 
+of private tutoring and financial incentives. 
+
+```{r,warning=FALSE}
+
+make_data(sample_frame = sample_frame_7)
+
+outcomes_2 <- declare_potential_outcomes(
+  condition_names = c("control","tuition","money","tuitionxmoney"),
+  outcome_formula = 
+    exam_score ~ 13 + control * 0 + tuition * 3 + money * 2 + tuitionxmoney * 4 +
+                 8 * math_score + 4 * lang_score + N_students * -.2 + 
+                 I(school_id == 2) * 5
+    )
+
+make_data(potential_outcomes = outcomes_2,sample_frame = sample_frame_7)
+
+
+```
+
+## Clustered Outcomes 
+
+It may sometimes be desirable to induce intra-cluster correlation into the 
+data. The easiest way to do so is to generate a `cluster shock' that 
+affects all units within the cluster. 
+
+The ICC of a given variable is typically calculated as 
+
+$$ \text{ICC} = \frac{\sigma_i^2}{\sigma_i^2 + \sigma_j^2} $$, 
+
+where $\sigma_i^2$ is the variance among units and $\sigma_j^2$ is the variance
+among the variable defined at the cluster level. If we thought the standard 
+deviation in the outcome was, for example, 10, then we could create scenarios
+in which the ICC was low, say .1, and high, say .6, by setting the 
+cluster-level standard deviation to $\sigma_j =$ 
+$\sqrt{\frac{\sigma_i^2(1 - \text{ICC})}{\text{ICC}}} =$ $\sqrt{10^2(1 - .1)/.1}$ or 
+$\sqrt{10^2(1 - .6)/.6}$ 
+
+```{r}
+# Set the standard deviation of the outcome
+sigma_i <- 10
+# Set the two ICC you would like to compare
+ICC_1 <- .1
+ICC_2 <- .6
+# Set the two cluster shocks
+sigma_j_1 <- sqrt((sigma_i^2 * (1 - ICC_1))/ICC_1)
+sigma_j_2 <- sqrt((sigma_i^2 * (1 - ICC_2))/ICC_2)
+
+sigma_i^2 / (sigma_j_1^2 + sigma_i^2)
+sigma_i^2 / (sigma_j_2^2 + sigma_i^2)
+
+# Make a clustered sample frames
+cluster_frame <- declare_sample_frame(
+  unit = list(
+    baseline = declare_variable(normal_mean = 0,normal_sd = sigma_i)
+  ),
+  # The shocks that create the ICC go here
+  cluster = list(
+    cluster_shock_1 = declare_variable(normal_mean = 0,normal_sd = sigma_j_1),
+    cluster_shock_2 = declare_variable(normal_mean = 0,normal_sd = sigma_j_2)
+  ),
+  N_per_level = c(1000,50)
+)
+
+# We now specify potential outcomes that are generated by the low- and 
+# high-ICC scenarios
+cluster_PO_1 <- declare_potential_outcomes(
+  condition_names = c("Z0","Z1"),
+  outcome_formula = Y ~ baseline + cluster_shock_1 + Z0*0 + Z1*.2,
+  outcome_variable_DGP = declare_variable(normal_mean = 0,normal_sd = .00001)
+)
+cluster_PO_2 <- declare_potential_outcomes(
+  condition_names = c("Z0","Z1"),
+  outcome_formula = Y ~ baseline + cluster_shock_2 + Z0*0 + Z1*.2,
+  outcome_variable_DGP = declare_variable(normal_mean = 0,normal_sd = .00001)
+)
+
+# Make both datasets
+data_1 <- make_data(potential_outcomes = cluster_PO_1,sample_frame = cluster_frame)
+data_2 <- make_data(potential_outcomes = cluster_PO_2,sample_frame = cluster_frame)
+
+```
+
+## Multiple Outcomes 
+
+Often users will want to compare multiple outcomes in an experiment.
+To create (independent) outcomes using the population-proportions approach,
+we can simply provide make_data() with a list of potential outcomes. 
+
+```{r,warning=FALSE}
+treatments <- c("T0","T1","T2")
+multi_prop_PO <- list(
+  declare_potential_outcomes(
+    condition_names = treatments,
+    population_proportions = c(.2,.4,.5),
+    proportion_outcome_name = "outcome_1"
+  ),
+  declare_potential_outcomes(
+    condition_names = treatments,
+    population_proportions = c(.2,.9,.4),
+    proportion_outcome_name = "outcome_2"
+  ),
+  declare_potential_outcomes(
+    condition_names = treatments,
+    population_proportions = c(.2,.9,.2),
+    proportion_outcome_name = "outcome_2"
+  )
+)
+
+make_data(potential_outcomes = multi_prop_PO,N = 10)
+
+```
+
+We can also define multiple outcomes that are a function of the same 
+covariates, by supplying `make_data()` with a list of potential outcomes
+and a single sample frame. This has the advantage of inducing correlation
+across outcomes within units.
+
+```{r}
+# We will use our health sample_frame, created as sample_frame_5
+conditions <- c("T0","T1")
+
+race_km <- declare_potential_outcomes(
+  condition_names = conditions,
+  outcome_formula = km ~ T0*0 + T1*5 + fitness + diet*.5 + I(as.integer(health_index)>1)*.3
+)
+
+
+hours_sleep <- declare_potential_outcomes(
+  condition_names = conditions,
+  outcome_formula = hours ~ T0*0 + T1*.3 + fitness*.01 + diet*.9 + I(as.integer(health_index)>1)*.3
+)
+
+health_outcomes_1 <- list(race_km,hours_sleep)
+
+make_data(potential_outcomes = health_outcomes_1,sample_frame = sample_frame_5)
+
+```
+
+## Outcomes as a Function of Other Outcomes
+
+Users may want to specify outcomes as a function of other outcomes. 
+For example, they might want to create an index of two outcomes. 
+This is very straightforward: the relationship of the new outcomes to the 
+preceding outcomes simply needs to be specified in the `outcome_formula`,
+and the outcomes should be declared in succession. Continuing the previous
+example:
+
+
+```{r}
+# Make a new potential outcome that is a function of the preceding two
+
+index_outcome <- declare_potential_outcomes(
+  condition_names = conditions,
+  outcome_formula = new_index ~ I((hours_T0+km_T0)/2)*T0 + I((hours_T1+km_T1)/2)*T1
+)
+
+# Append it to the preceding outcome list
+health_outcomes_2 <- c(health_outcomes_1,list(index_outcome))
+
+make_data(potential_outcomes = health_outcomes_2,sample_frame = sample_frame_5)
+
+```
+
+
+# Using Pre-Existing Data
+
+## Potential Outcomes as a Function of Pre-Existing Data
+
+... To be continued
+
+## Re-Sampling from Pre-Existing Data
+
+... To be continued
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
