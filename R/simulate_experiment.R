@@ -16,6 +16,11 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_f
                                 blocks = NULL, clusters = NULL, design, analysis, 
                                 bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL){
   
+  if(is.null(blocks))
+    blocks <- design$blocks
+  if(is.null(clusters))
+    clusters <- design$clusters
+  
   if(is.null(sample_frame) & is.null(data))
     stop("Please provide either a sample_frame argument or a data argument.")
   if(!is.null(sample_frame) & is.null(potential_outcomes))

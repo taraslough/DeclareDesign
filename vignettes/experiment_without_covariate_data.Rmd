@@ -169,8 +169,6 @@ Before finalizing the design, we conduct a power analysis to determine whether 5
 ```{r}
 simulations_block_cluster <- simulate_experiment(potential_outcomes = potential_outcomes_block_cluster, 
                                    sample_frame = sample_frame_block_cluster, 
-                                   clusters = clusters,
-                                   blocks = blocks,
                                    design = design_block_cluster, 
                                    analysis = analysis_block_cluster)
 print(xtable(summary(simulations_block_cluster )))
@@ -183,8 +181,6 @@ comparisons_block_cluster  <- compare_experiments(N_per_level = list(c(1000, 50)
                                    potential_outcomes = potential_outcomes_block_cluster, 
                                    sample_frame =  sample_frame_block_cluster, 
                                    design = design_block_cluster, 
-                                   clusters = clusters,
-                                   blocks = blocks,
                                    analysis = analysis_block_cluster, 
                                    sims = 100)
 print(xtable(summary(comparisons_block_cluster)))
@@ -228,7 +224,6 @@ Finally, we use the pre_register function again to create the pre-registration d
 
 ```{r, eval = FALSE}
 pre <- pre_register(design = design_block_cluster, sample_frame = sample_frame_block_cluster, 
-                    blocks = blocks, clusters = clusters,
                     potential_outcomes = potential_outcomes_block_cluster, analysis = analysis_block_cluster, 
                     title = "Lady Tasting Tea", 
                     author = c("Ronald A. Fisher"), 
@@ -237,7 +232,6 @@ pre <- pre_register(design = design_block_cluster, sample_frame = sample_frame_b
 
 ```{r, echo = FALSE}
 pre <- pre_register(design = design_block_cluster, sample_frame = sample_frame_block_cluster, 
-                    blocks = blocks, clusters = clusters,
                     potential_outcomes = potential_outcomes_block_cluster, analysis = analysis_block_cluster, 
                     title = "Lady Tasting Tea", 
                     author = c("Ronald A. Fisher"), 

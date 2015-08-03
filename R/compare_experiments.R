@@ -19,6 +19,11 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_lev
                                 design = NULL, analysis = NULL, sample_frame = NULL, potential_outcomes = NULL,
                                 blocks = NULL, clusters = NULL, sims = 5, labels = NULL){
   
+  if(is.null(blocks))
+    blocks <- design$blocks
+  if(is.null(clusters))
+    clusters <- design$clusters
+  
   if(class(design) == "design")
     design <- list(design)
   if(class(analysis) == "analysis")

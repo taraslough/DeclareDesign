@@ -207,6 +207,8 @@ declare_design <-
                           prob_each = prob_each,
                           block_m = block_m,
                           design_type = design_type,
+                          blocks = blocks,
+                          clusters = clusters,
                           call = match.call())
     class(return.object) <- "design"
     return(return.object)

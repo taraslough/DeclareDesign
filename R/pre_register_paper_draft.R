@@ -39,6 +39,11 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
   if(missing(design))
     stop("Please provide a design object created using the declare_design() function.")
   
+  if(is.null(blocks))
+    blocks <- design$blocks
+  if(is.null(clusters))
+    clusters <- design$clusters
+  
   if(class(analysis) != "list")
     analysis <- list(analysis)
   if(class(analysis) != "list" & class(analysis) != "analysis")
@@ -194,6 +199,11 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = N
   
   if(missing(design))
     stop("Please provide a design object created using the declare_design() function.")
+  
+  if(is.null(blocks))
+    blocks <- design$blocks
+  if(is.null(clusters))
+    clusters <- design$clusters
   
   if(class(analysis) != "list")
     analysis <- list(analysis)
