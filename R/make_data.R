@@ -126,9 +126,9 @@ make_data <-
     }else{
       if (!is.null(potential_outcomes)) {
         condition_names  <- potential_outcomes$condition_names
-        cluster_var_name <- potential_outcomes$cluster_variable
+        # cluster_var_name <- potential_outcomes$cluster_variable
         outcome_formula  <- potential_outcomes$outcome_formula
-        ICC              <- potential_outcomes$ICC
+        # ICC              <- potential_outcomes$ICC
         outcome_variable <- potential_outcomes$outcome_variable
         covariate_names  <-
           all.vars(outcome_formula)[!all.vars(outcome_formula) %in% condition_names][-1]
@@ -180,18 +180,18 @@ make_data <-
         )
       ))
       
-      if (potential_outcomes$outcome_variable$distribution == "normal") {
-        unit_variance <- potential_outcomes$outcome_variable$sd ^ 2
-        epsilon <- rnorm(
-          n = dim(X)[1],
-          mean = potential_outcomes$outcome_variable$mean,
-          sd = potential_outcomes$outcome_variable$sd
-        )
-      } else {
-        unit_variance <- 1
-        epsilon <- rnorm(n = dim(X)[1], mean = 0, sd = 1)
-      }
-      
+#       if (potential_outcomes$outcome_variable$distribution == "normal") {
+#         unit_variance <- potential_outcomes$outcome_variable$sd ^ 2
+#         epsilon <- rnorm(
+#           n = dim(X)[1],
+#           mean = potential_outcomes$outcome_variable$mean,
+#           sd = potential_outcomes$outcome_variable$sd
+#         )
+#       } else {
+#         unit_variance <- 1
+#         epsilon <- rnorm(n = dim(X)[1], mean = 0, sd = 1)
+#       }
+#       
       outcomes <- matrix(
         data = NA,
         nrow = dim(X)[1],
@@ -210,27 +210,27 @@ make_data <-
         
         data <- data.frame(treat_mat,X)
         
-        outcomes[,l] <- gen_outcome(data) + epsilon
+        outcomes[,l] <- gen_outcome(data) #+ epsilon
         
       }
       
       colnames(outcomes) <- paste0(outcome_name,sep,condition_names)
       
-      if (!is.null(ICC) & !is.null(cluster_var_name)) {
-        cluster_variance <- ICC * unit_variance / (1 - ICC)
-        cluster_shock <- rnorm(length(unique(X[,cluster_var_name])),
-                               sd = cluster_variance ^ .5)[as.numeric(as.factor(X[,cluster_var_name]))]
-        outcomes <- outcomes + cluster_shock
-      }
+#       if (!is.null(ICC) & !is.null(cluster_var_name)) {
+#         cluster_variance <- ICC * unit_variance / (1 - ICC)
+#         cluster_shock <- rnorm(length(unique(X[,cluster_var_name])),
+#                                sd = cluster_variance ^ .5)[as.numeric(as.factor(X[,cluster_var_name]))]
+#         outcomes <- outcomes + cluster_shock
+#       }
       # Check what the DGP of the outcome variable is and do necessary transformations
-      if (potential_outcomes$outcome_variable$distribution == "binary") {
-        outcomes <-
-          apply(outcomes,2,function(i)
-            rbinom(
-              n = dim(outcomes)[1],size = 1,prob = 1 / (1 + exp(-i))
-            ))
-      }
-      
+#       if (potential_outcomes$outcome_variable$distribution == "binary") {
+#         outcomes <-
+#           apply(outcomes,2,function(i)
+#             rbinom(
+#               n = dim(outcomes)[1],size = 1,prob = 1 / (1 + exp(-i))
+#             ))
+#       }
+#       
       return_frame <- data.frame(outcomes)
       return_frame$make_data_sort_id <- 1:nrow(return_frame)
       if (!is.null(sample_frame)) {
