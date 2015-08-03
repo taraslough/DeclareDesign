@@ -6,9 +6,12 @@
 #' @param cluster_variable The name of the clustering variable
 #' @param ICC the intracluster correlation coefficient.  Note that if the outcome formula includes covariates, and those covariates are correlated with clusters, the true ICC may be higher or lower than is declared by this argument.
 #' @param population_proportions what is it?
+#' @param proportion_outcome_name what is it?
 #' @return outcomes_object
 #' @export
-declare_potential_outcomes <- function(condition_names = NULL,outcome_formula = NULL,outcome_variable_DGP = declare_variable(),cluster_variable = NULL,ICC = NULL,population_proportions = NULL,proportion_outcome_name = NULL){
+declare_potential_outcomes <- function(condition_names = NULL, outcome_formula = NULL,
+                                       outcome_variable_DGP = declare_variable(), cluster_variable = NULL, 
+                                       ICC = NULL, population_proportions = NULL, proportion_outcome_name = NULL){
   
 
   

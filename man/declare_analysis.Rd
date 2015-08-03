@@ -6,6 +6,7 @@
 \alias{get_estimands_model}
 \alias{get_estimates}
 \alias{get_estimates_model}
+\alias{truth_data_frame}
 \title{Declare an experimental analysis}
 \usage{
 declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
@@ -14,13 +15,16 @@ declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
   weights_estimand = NULL, qoi = "ATE", qoi_only = FALSE,
   qoi_labels = NULL)
 
+truth_data_frame(formula = NULL, treatment_variable = "Z", subset = NULL,
+  data = data, sep = "_")
+
 get_estimates_model(analysis, data)
 
 get_estimands_model(analysis, data)
 
 get_estimates(analysis, qoi = NULL, data)
 
-get_estimands(analysis, qoi = NULL, data, stats = "est")
+get_estimands(analysis, qoi = NULL, data, statistics = "est")
 }
 \arguments{
 \item{formula}{A standard R formula as a string or formula object, i.e. Y ~ Z, that indicates the outcome and the treatment indicator as well as covariates, block indicators, etc. that are used to construct estimates and/or estimands. By default, the formula provided is used for estimates and estimands.}
@@ -37,7 +41,7 @@ get_estimands(analysis, qoi = NULL, data, stats = "est")
 
 \item{estimand}{defaults to "ATE".}
 
-\item{formula_estimand}{}
+\item{formula_estimand}{desc}
 
 \item{method_estimand}{either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm}
 
@@ -47,9 +51,37 @@ get_estimands(analysis, qoi = NULL, data, stats = "est")
 
 \item{qoi}{defaults to "ATE".}
 
-\item{qoi_only}{}
+\item{qoi_only}{desc}
 
-\item{qoi_labels}{}
+\item{qoi_labels}{desc}
+
+\item{data}{what is it?}
+
+\item{sep}{what is it?}
+
+\item{analysis}{what is it?}
+
+\item{statistics}{what is it?}
+
+\item{formula}{what is it?}
+
+\item{treatment_variable}{what is it?}
+
+\item{subset}{what is it?}
+
+\item{data}{what is it?}
+
+\item{analysis}{what is it?}
+
+\item{qoi}{what is it?}
+
+\item{data}{what is it?}
+
+\item{analysis}{what is it?}
+
+\item{qoi}{what is it?}
+
+\item{data}{what is it?}
 }
 \value{
 a list containing a function to conduct the analysis and a function to extract the result of the test

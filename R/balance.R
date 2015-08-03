@@ -5,9 +5,11 @@
 #' @param treatment_assignment The name of the treatment assignment variable in data
 #' @param design A design object, created by \code{\link{declare_design}}.
 #' @param data A dataframe, often created by \code{\link{make_data}}.
+#' @param report_difference what is it?
+#' @param na.rm what is it?
 #' @return A balance object
 #' @examples
-#' examples go here.
+#' ##examples go here.
 #' @export
 get_balance <- function(covariates, treatment_assignment = "Z", design, data, 
                     report_difference = FALSE, na.rm = TRUE){
@@ -57,6 +59,7 @@ print.balance <- function(x, ...){
   print(x$summary)
 }
 
+#' @importFrom xtable xtable
 #' @export
 xtable.balance <- function(x, ...){
   xtable(x$summary, ... = ...)

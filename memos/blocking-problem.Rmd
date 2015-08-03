@@ -1,12 +1,6 @@
 ---
-  title: "How to Design and Pre-Register Experimental Designs with Baseline Data"
+title: "How to Design and Pre-Register Experimental Designs with Baseline Data"
 author: "Experiments in Governance and Politics (EGAP)"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{How to Pre-Register a Simple Experimental Design using the registration package}
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteEncoding{UTF-8}
 ---
   
   This vignette demonstrates how to design and pre-register an experiment after baseline data has been collected.
@@ -144,6 +138,6 @@ pre <- pre_register(design = design, sample_frame = sample_frame, blocks = block
 ## Writing a paper based on the experiment
 
 ```{r, echo = TRUE, eval = FALSE}
-##draft_paper_from_pre_register(pre, data = mock)
+##draft_paper_from_pre_registration(pre, data = mock)
 ```
 

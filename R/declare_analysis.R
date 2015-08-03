@@ -8,13 +8,13 @@
 #' @param subset A string indicating the subset of the data to take in estimates and, by default, estimands.
 #' @param weights A string indicating the name of the weights variable to be used in weighted estimators such as WLS.
 #' @param estimand defaults to "ATE".
-#' @param formula_estimand
+#' @param formula_estimand desc
 #' @param method_estimand either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm
 #' @param subset_estimand A string indicating the subset of the data to take for estimands, if the user wishes to have a different subset used in calculating estimands than the subset used for the estimates.
 #' @param weights_estimand A string indicating the name of the weights variable to be used in weighted estimators such as WLS for calculating estimands only, if the user desires a different weights variable than used to calculate estimates.
 #' @param qoi defaults to "ATE".
-#' @param qoi_only
-#' @param qoi_labels
+#' @param qoi_only desc
+#' @param qoi_labels desc
 #' @return a list containing a function to conduct the analysis and a function to extract the result of the test
 #' @examples
 #' # these examples don't work yet
@@ -85,7 +85,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
         treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable) + 
           as.numeric(attr(terms.formula(formula), "intercept") == 1)
         
-        qoi <- function(x, stats = c("est", "se", "p", "ci_lower", "ci_upper", "df")){
+        qoi <- function(x, statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df")){
           coef_name <- names(coef(x))[treat_coef_num]
           df <- df.residual(x)
           est <- coef(x)[treat_coef_num]
@@ -97,7 +97,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
                            dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
                                            paste(outcome_variable, "~", coef_name, "_", qoi_labels, sep = "")))
           
-          return(output[which(rownames(output) %in% stats), , drop = FALSE])
+          return(output[which(rownames(output) %in% statistics), , drop = FALSE])
         }
       }
       
@@ -127,6 +127,12 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
   
 }
 
+#' @param formula  what is it?
+#' @param treatment_variable  what is it?
+#' @param subset  what is it?
+#' @param data  what is it?
+#' @param sep  what is it?
+#' @rdname declare_analysis
 #' @export
 truth_data_frame <- function(formula = NULL, treatment_variable = "Z", 
                              subset = NULL, data = data, sep = "_") {
@@ -160,6 +166,8 @@ truth_data_frame <- function(formula = NULL, treatment_variable = "Z",
   
 }
 
+#' @param analysis what is it?
+#' @param data what is it?
 #' @rdname declare_analysis
 #' @export
 get_estimates_model <- function(analysis, data){
@@ -176,6 +184,9 @@ get_estimands_model <- function(analysis, data){
   return(analysis$estimand(data = truth_data_frame(formula = analysis$formula_estimand, data = data)))
 }
 
+#' @param analysis what is it?
+#' @param qoi what is it?
+#' @param data what is it?
 #' @rdname declare_analysis
 #' @export
 get_estimates <- function(analysis, qoi = NULL, data) {
@@ -226,9 +237,13 @@ get_estimates <- function(analysis, qoi = NULL, data) {
   }
 }
 
+#' @param analysis what is it?
+#' @param qoi  what is it?
+#' @param data  what is it?
+#' @param statistics  what is it?
 #' @rdname declare_analysis
 #' @export
-get_estimands <- function(analysis, qoi = NULL, data, stats = "est"){
+get_estimands <- function(analysis, qoi = NULL, data, statistics = "est"){
   
   analysis_labels <- paste0("analysis", sprintf(paste0("%0",nchar(as.character(length(analysis))),"d"),(1:length(analysis))))
   
@@ -243,7 +258,7 @@ get_estimands <- function(analysis, qoi = NULL, data, stats = "est"){
       estimands_list <- list()
       for(i in 1:length(analysis)){
         if(analysis[[i]]$qoi_only == FALSE){
-          estimands_list[[i]] <- analysis[[i]]$qoi(get_estimands_model(analysis = analysis[[i]], data = data), stats = stats)
+          estimands_list[[i]] <- analysis[[i]]$qoi(get_estimands_model(analysis = analysis[[i]], data = data), statistics = statistics)
           ## get_estimands_model does truth_data_frame, so just sending it data
         } else {
           estimands_list[[i]] <- analysis[[i]]$qoi(truth_data_frame(formula = analysis[[i]]$formula_estimand, data = data))
@@ -268,7 +283,7 @@ get_estimands <- function(analysis, qoi = NULL, data, stats = "est"){
         stop("The object in the analysis argument must by created by the declare_analysis function.")
       ## otherwise process the one analysis function
       if(analysis$qoi_only == FALSE){
-        estimands_matrix <- analysis$qoi(get_estimands_model(analysis = analysis, data = data), stats = stats)
+        estimands_matrix <- analysis$qoi(get_estimands_model(analysis = analysis, data = data), statistics = statistics)
         ## get_estimands_model does truth_data_frame, so just sending it data
       } else {
         estimands_matrix <- analysis$qoi(truth_data_frame(formula = analysis$formula_estimand, data = data))

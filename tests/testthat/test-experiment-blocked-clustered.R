@@ -42,7 +42,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
                                    random_seed = 42, temp_dir = TRUE, open_output = FALSE)
   
   ## creates paper just from a pre_registration object
-  ##draft_paper_from_pre_register(pre_registration = pre_registration, data = mock)
+  ##draft_paper_from_pre_registration(pre_registration = pre_registration, data = mock)
   
   ##paper_draft <- draft_paper(design = design, sample_frame = sample_frame, clusters = clusters, blocks = blocks,
   ##                           potential_outcomes = potential_outcomes, analysis = analysis_1, 

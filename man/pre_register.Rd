@@ -15,36 +15,52 @@ pre_register(design, clusters = NULL, blocks = NULL, sample_frame = NULL,
 \arguments{
 \item{design}{A design object from the declare_design function.}
 
-\item{analysis}{An analysis object from the declare_analysis function, or a list of analysis objects.}
+\item{clusters}{what is it?}
 
-\item{data}{A data object from the make_y function.}
+\item{blocks}{what is it?}
+
+\item{sample_frame}{what is it?}
+
+\item{potential_outcomes}{what is it?}
+
+\item{analysis}{what is it?}
+
+\item{data}{A data object from the make_data function.}
+
+\item{title}{Title of the pre-registration.}
+
+\item{authors}{List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.}
+
+\item{affiliations}{what is it?}
+
+\item{acknowledgements}{what is it?}
+
+\item{abstract}{General description of the experiment.}
 
 \item{random_seed}{Random seed to ensure reproducibility of the design.}
 
-\item{check_registration}{Indicates whether the design is evaluated for consistency with declared analyses.}
+\item{dir}{what is it?}
+
+\item{temp_dir}{what is it?}
+
+\item{format}{what is it?}
+
+\item{check_registration}{what is it?}
 
 \item{make_output}{Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document}
+
+\item{keep_tex}{what is it?}
+
+\item{save_r_code}{what is it?}
 
 \item{output_format}{String indicating which type of output file is created, "pdf" (default), "word", or "html"}
 
 \item{open_output}{Indicator for whether the output file is opened after it is compiled.}
-
-\item{registration_title}{Title of the pre-registration.}
-
-\item{registration_authors}{List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.}
-
-\item{registration_abstract}{General description of the experiment.}
-
-\item{file}{File name where object is saved.}
-
-\item{type}{Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.}
-
-\item{...}{Other options for the render() command to create the output file from the markdown code.}
 }
 \value{
-Filename and location where .Rmd or .Rnw and PDF file are saved.
+what does it return?
 }
 \description{
-Create pre-registration document
+Description
 }
 

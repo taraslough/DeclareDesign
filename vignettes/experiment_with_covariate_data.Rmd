@@ -88,7 +88,7 @@ print(xtable(summary(simulations)))
 
 This indicates the power, `summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
 
-```{r}
+```{r, results = 'verbatim'}
 comparisons <- compare_experiments(N_per_level = list(c(1000, 20), c(500, 50), c(250, 100)),
                               potential_outcomes = potential_outcomes, 
                               sample_frame =  sample_frame, 
@@ -106,17 +106,26 @@ mock$Z <- assign_treatment(design = design, data = mock)
 mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
 ```
 
-```{r}
-get_estimates(analysis = analysis, data = mock)
+```{r, results = 'verbatim'}
+print(xtable(get_estimates(analysis = analysis, data = mock)))
 ```
 
 Finally, we use the pre_register function to create the pre-registration document.
 
-```{r}
+
+```{r, eval = FALSE}
+pre <- pre_register(design = design, sample_frame = sample_frame, 
+             potential_outcomes = potential_outcomes, analysis = analysis, 
+             title = "Lady Tasting Tea", 
+             author = c("Ronald A. Fisher"), 
+             abstract = "Description of the lady tasting tea experiment")
+```
+
+```{r, echo = FALSE}
 pre <- pre_register(design = design, sample_frame = sample_frame, 
              potential_outcomes = potential_outcomes, analysis = analysis, 
              title = "Lady Tasting Tea", 
              author = c("Ronald A. Fisher"), 
              abstract = "Description of the lady tasting tea experiment",
-             temp_dir = TRUE, open_output = FALSE)
+             temp_dir = TRUE, make_output = FALSE)
 ```

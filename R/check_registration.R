@@ -1,12 +1,14 @@
 #' Check a pre-registration for consistency between design and analysis
 #'
 #' @param design design object
-#' @param covariates covariates object
+#' @param sample_frame covariates object
 #' @param potential_outcomes potential outcomes object
+#' @param blocks what is it?
+#' @param clusters what is it?
 #' @param analysis analysis object
 #' @param sims number of iterations
 #' @export
-check_registration <- function(design, covariates, potential_outcomes, analysis){
+check_registration <- function(design, sample_frame, potential_outcomes, blocks, clusters, analysis, sims){
   
   ##-- You have a blocked design but are not taking account of blocks in your analysis
   ##-- Your randomization scheme implies unequal propensities but you are not taking account of this in your analysis

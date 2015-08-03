@@ -4,7 +4,8 @@
 \alias{plot_power}
 \title{Plot power across values of a parameter like the sample size}
 \usage{
-plot_power(data, design, analysis, vary_parameter = "N", vary_sequence)
+plot_power(data, design, analysis, vary_parameter = "N", vary_sequence,
+  sims = 100)
 }
 \arguments{
 \item{data}{data object}

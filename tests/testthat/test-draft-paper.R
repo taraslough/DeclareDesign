@@ -45,7 +45,7 @@ test_that("test draft paper and pre_register functions", {
   real_data$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = real_data)
   
   ## create paper draft just from a pre_registration object
-  draft_paper_from_pre_register(pre_registration = pre_registration, data = real_data, 
+  draft_paper_from_pre_registration(pre_registration = pre_registration, data = real_data, 
                                 temp_dir = TRUE, open_output = FALSE)
   
   ## or create custom paper draft from objects

@@ -1,44 +1,31 @@
-## plan for the function:
-
-## take meta-data, design object, power object, and fake data object
-## and turn each into a block of text and/or plots
-
-## construct, based on one or more standard templates, an .Rmd markdown file
-## (in the future also make a .Rnw knitr file for those that prefer Knitr)
-
-## the user can then edit this file manually and compile on their own
-
-## the file will be constructed by creating markdown snippets using the 
-## calls to the design, power, and fake data functions rather than including
-## those objects, so the code runs again each time
-
-## then, optionally, compile into either PDF, Word doc, or html
-
-## each snippet of R code is constructed using match.call() from the relevant function
-## and the associated print() or plot() function for that type of object, i.e.
-## print(design(arguments)) spits out text from that R code snippet
-
-## output to user is (1) the .Rmd file, which includes R code snippets and template text
-## (2) the "output" = compiled file in pdf, word, or html format
-
 
 #' Create pre-registration document
-#'
+#' 
+#' Description
+#' 
 #' @param design A design object from the declare_design function.
-#' @param data A data object from the make_y function.
-#' @param analysis An analysis object from the declare_analysis function, or a list of analysis objects.
-#' @param registration_title Title of the pre-registration.
-#' @param registration_authors List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.
-#' @param registration_abstract General description of the experiment.
+#' @param clusters what is it?
+#' @param blocks what is it?
+#' @param sample_frame what is it?
+#' @param potential_outcomes what is it?
+#' @param analysis what is it?
+#' @param data A data object from the make_data function.
+#' @param title Title of the pre-registration.
+#' @param authors List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.
+#' @param affiliations what is it?
+#' @param acknowledgements what is it?
+#' @param abstract General description of the experiment.
 #' @param random_seed Random seed to ensure reproducibility of the design.
-#' @param file File name where object is saved.
-#' @param type Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.
-#' @param check_registration Indicates whether the design is evaluated for consistency with declared analyses.
+#' @param dir what is it?
+#' @param temp_dir what is it?
+#' @param format what is it?
+#' @param check_registration what is it?
 #' @param make_output Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document
+#' @param keep_tex what is it?
+#' @param save_r_code what is it?
 #' @param output_format String indicating which type of output file is created, "pdf" (default), "word", or "html"
 #' @param open_output Indicator for whether the output file is opened after it is compiled.
-#' @param ... Other options for the render() command to create the output file from the markdown code.
-#' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
+#' @return what does it return?
 #' @export
 pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = NULL, 
                          potential_outcomes = NULL, analysis = NULL, data = NULL,
@@ -58,8 +45,8 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
     stop("Analysis must be either a list of analysis objects or a single object created by declare_analysis.")
   
   if(check_registration == TRUE)
-    check_registration(design = design, analysis = analysis, covariates = covariates, 
-                       potential_outcomes = potential_outcomes)
+    check_registration(design = design, analysis = analysis, sample_frame = sample_frame, 
+                       potential_outcomes = potential_outcomes, blocks = blocks, clusters = clusters)
   
   pre_register_doc <- list(title_header(title = title, authors = authors, 
                                         abstract = abstract, keep_tex = keep_tex),
@@ -125,26 +112,28 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
 }
 
 #' @export
-print.pre_registration <- function(x){
+print.pre_registration <- function(x, ...){
   return()
 }
 
 #' Create paper draft from a pre_registration
 #'
 #' @param pre_registration Object created by pre_register() function. The inputs to create a paper draft are extracted exactly from the pre-registered descriptions of the experiment.
-#' @param file File name where object is saved.
-#' @param type Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.
-#' @param check_registration Indicates whether the design is evaluated for consistency with declared analyses.
+#' @param data what is it?
+#' @param dir what is it?
+#' @param temp_dir what is it?
+#' @param format Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.
 #' @param make_output Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document
+#' @param keep_tex what is it?
+#' @param save_r_code what is it?
 #' @param output_format String indicating which type of output file is created, "pdf" (default), "word", or "html"
 #' @param open_output Indicator for whether the output file is opened after it is compiled.
-#' @param ... Other options for the render() command to create the output file from the markdown code.
-#' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
+#' @return what is it?
 #' @export
-draft_paper_from_pre_register <- function(pre_registration, data, dir = getwd(), 
-                                          temp_dir = FALSE, format = "rmarkdown",
-                                          make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
-                                          output_format = "pdf", open_output = TRUE){
+draft_paper_from_pre_registration <- function(pre_registration, data, dir = getwd(), 
+                                              temp_dir = FALSE, format = "rmarkdown",
+                                              make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
+                                              output_format = "pdf", open_output = TRUE){
   
   if(missing(pre_registration))
     stop("Please provide a pre_registration object created using the pre_register() function, or you can create a paper draft directly using the draft_paper() function without a pre_registration object.")
@@ -168,22 +157,32 @@ draft_paper_from_pre_register <- function(pre_registration, data, dir = getwd(),
 
 
 #' Create paper draft
+#' 
+#' Description
 #'
 #' @param design A design object from the declare_design function.
-#' @param data A data object from the make_y function.
-#' @param analysis An analysis object from the declare_analysis function, or a list of analysis objects.
-#' @param registration_title Title of the pre-registration.
-#' @param registration_authors List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.
-#' @param registration_abstract General description of the experiment.
+#' @param clusters what is it?
+#' @param blocks what is it?
+#' @param sample_frame what is it?
+#' @param potential_outcomes what is it?
+#' @param analysis what is it?
+#' @param pre_registration_data A data object from the make_data function.
+#' @param title Title of the pre-registration.
+#' @param authors List of authors, consisting of vectors of two strings -- one for the author's name and one for her affiliation. e.g. \code{list(c("Alan Gerber", "Yale University"), c("Donald Green", "Columbia University"))}. Optionally, a third item in the vector can be the text for a footnote with author contact information.
+#' @param affiliations what is it?
+#' @param acknowledgements what is it?
+#' @param abstract General description of the experiment.
+#' @param data what is it?
 #' @param random_seed Random seed to ensure reproducibility of the design.
-#' @param file File name where object is saved.
-#' @param type Type of document that is created, either \code{knitr} or \code{rmarkdown}, the default.
-#' @param check_registration Indicates whether the design is evaluated for consistency with declared analyses.
+#' @param dir what is it?
+#' @param temp_dir what is it?
+#' @param format what is it?
 #' @param make_output Indicator for whether code for registration document is compiled into a PDF, Microsoft Word, or HTML document
+#' @param keep_tex what is it?
+#' @param save_r_code what is it?
 #' @param output_format String indicating which type of output file is created, "pdf" (default), "word", or "html"
 #' @param open_output Indicator for whether the output file is opened after it is compiled.
-#' @param ... Other options for the render() command to create the output file from the markdown code.
-#' @return Filename and location where .Rmd or .Rnw and PDF file are saved.
+#' @return what does it return
 #' @export
 draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = NULL, 
                         potential_outcomes = NULL, analysis = NULL, pre_registration_data = NULL,
@@ -191,7 +190,7 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = N
                         acknowledgements = NULL, abstract = NULL, data = NULL,
                         random_seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
                         make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
-                        output_format = "pdf", open_output = TRUE, ...){
+                        output_format = "pdf", open_output = TRUE){
   
   if(missing(design))
     stop("Please provide a design object created using the declare_design() function.")

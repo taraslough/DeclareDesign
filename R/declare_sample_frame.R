@@ -8,7 +8,8 @@
 #' @param resample when data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.
 #' @param level_ID_variables optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")
 #' @export
-declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level = NULL, N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL) {
+declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level = NULL, N = NULL, data = NULL, 
+                                 resample = FALSE, level_ID_variables = NULL) {
   
   # Check whether the user has supplied data
   no_data <- is.null(data)
@@ -454,11 +455,12 @@ remaindr <- function(numerator,denominator) {
   return(m_each)
 }
 
+#' @param object what is it?
 #' @rdname declare_sample_frame
 #' @export
-summary.sample_frame <- function(x){
+summary.sample_frame <- function(object, ...){
   
-  summ <- data.frame(x$level_names, x$N_per_level, "")
+  summ <- data.frame(object$level_names, object$N_per_level, "")
   colnames(summ) <- c("Level", "Units per level", "Description")
   summ
   

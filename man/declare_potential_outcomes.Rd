@@ -21,6 +21,8 @@ declare_potential_outcomes(condition_names = NULL, outcome_formula = NULL,
 \item{ICC}{the intracluster correlation coefficient.  Note that if the outcome formula includes covariates, and those covariates are correlated with clusters, the true ICC may be higher or lower than is declared by this argument.}
 
 \item{population_proportions}{what is it?}
+
+\item{proportion_outcome_name}{what is it?}
 }
 \value{
 outcomes_object

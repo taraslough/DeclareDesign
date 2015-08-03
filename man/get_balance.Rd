@@ -15,6 +15,10 @@ get_balance(covariates, treatment_assignment = "Z", design, data,
 \item{design}{A design object, created by \code{\link{declare_design}}.}
 
 \item{data}{A dataframe, often created by \code{\link{make_data}}.}
+
+\item{report_difference}{what is it?}
+
+\item{na.rm}{what is it?}
 }
 \value{
 A balance object
@@ -23,6 +27,6 @@ A balance object
 Description
 }
 \examples{
-examples go here.
+##examples go here.
 }
 

@@ -7,7 +7,7 @@
 #' @param clusters A clusters object, made with \code{\link{declare_clusters}} (optional).
 #' @param design design object, made with \code{\link{declare_design}}.
 #' @param analysis analysis object, made with \code{\link{declare_analysis}}, or a list of such objects.
-#' @param bootstram_data Logical
+#' @param bootstrap_data Logical
 #' @param N_bootstrap Number of bootstrap sims to conduct
 #' @param sims number of iterations
 #' @param label WHATS THIS
@@ -44,7 +44,7 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_f
     if(resample == "potential_outcomes"){
       data_sim <- make_data(potential_outcomes = potential_outcomes, sample_frame = data, 
                             blocks = blocks, clusters = clusters)
-      if(resample_data == TRUE){
+      if(bootstrap_data == TRUE){
         ## for now N_resample is preset, but could be set according to a design object
         N_bootstrap <- nrow(data_sim) 
         data_sim <- data_sim[sample(1:nrow(data_sim), N_bootstrap, replace = TRUE)]

@@ -23,13 +23,13 @@ simulate_experiment(data = NULL, potential_outcomes = NULL,
 
 \item{analysis}{analysis object, made with \code{\link{declare_analysis}}, or a list of such objects.}
 
+\item{bootstrap_data}{Logical}
+
 \item{N_bootstrap}{Number of bootstrap sims to conduct}
 
 \item{sims}{number of iterations}
 
 \item{label}{WHATS THIS}
-
-\item{bootstram_data}{Logical}
 }
 \description{
 Declare the data-generating process of a variable

@@ -8,7 +8,7 @@
 declare_sample_frame(..., N_per_level = NULL, group_sizes_by_level = NULL,
   N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL)
 
-\method{summary}{sample_frame}(x)
+\method{summary}{sample_frame}(object, ...)
 }
 \arguments{
 \item{...}{a list either of variable declarations, or of lists of variable declarations (one per level)}
@@ -24,6 +24,8 @@ declare_sample_frame(..., N_per_level = NULL, group_sizes_by_level = NULL,
 \item{resample}{when data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.}
 
 \item{level_ID_variables}{optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")}
+
+\item{object}{what is it?}
 }
 \description{
 Declare the structure of the sample frame

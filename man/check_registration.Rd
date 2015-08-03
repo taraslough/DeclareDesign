@@ -4,14 +4,19 @@
 \alias{check_registration}
 \title{Check a pre-registration for consistency between design and analysis}
 \usage{
-check_registration(design, covariates, potential_outcomes, analysis)
+check_registration(design, sample_frame, potential_outcomes, blocks, clusters,
+  analysis, sims)
 }
 \arguments{
 \item{design}{design object}
 
-\item{covariates}{covariates object}
+\item{sample_frame}{covariates object}
 
 \item{potential_outcomes}{potential outcomes object}
+
+\item{blocks}{what is it?}
+
+\item{clusters}{what is it?}
 
 \item{analysis}{analysis object}
 

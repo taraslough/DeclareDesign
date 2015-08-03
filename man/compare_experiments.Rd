@@ -10,24 +10,32 @@ compare_experiments(N = NULL, N_per_level = NULL,
   clusters = NULL, sims = 5, labels = NULL)
 }
 \arguments{
-\item{design}{design object}
+\item{N}{what is it?}
 
-\item{analysis}{analysis object}
+\item{N_per_level}{what is it?}
 
-\item{sims}{number of iterations}
+\item{group_sizes_by_level}{what is it?}
 
-\item{labels}{label names for each comparison experiment}
+\item{design}{what is it?}
 
-\item{data}{data object}
+\item{analysis}{what is it?}
+
+\item{sample_frame}{what is it?}
+
+\item{potential_outcomes}{what is it?}
+
+\item{blocks}{what is it?}
+
+\item{clusters}{what is it?}
+
+\item{sims}{what is it?}
+
+\item{labels}{what is it?}
 }
 \description{
 Declare the data-generating process of a variable
 }
 \examples{
-## imagined options:
-  ## compare_experiments(N = c(500, 1000, 2000), m = 5, design = design, etc.)
-  ## compare_experiments(N = c(500, 1000, 2000), m = c(5, 10, 15), design = design, etc.)
-  ## ideas:
-  ## if user wants to change N and provides data, bootstrap data to that size
+## here are examples
 }
 

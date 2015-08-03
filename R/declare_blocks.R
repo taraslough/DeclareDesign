@@ -49,10 +49,11 @@ multi_blocks_function_generic <- function(blocks, sample, block_name = block_nam
 #' @param recode logical.  If TRUE (the default), principal components analysis used to make equally sized blocks, where the number of blocks is defined by block_count
 #' @param recode_function A user-supplied function that creates blocks. If NULL (the default), principal components will be used to make blocks.
 #' @param block_count The total number of blocks.  If the blocking variables imply fewer than this number, nothing changes. If the variables supplied in blocks imply more possible categories, then the variable is recoded (if recode=TRUE).
+#' @param clusters desc
 #' @param blocks_function Function to take multiple variables and construct blocks from them. Must take blocks, sample, and block_name and return
 #' @param block_name A character string that gives the name of the blocking variable.
 #' @export
-declare_blocks <- function(blocks = NULL, recode = TRUE, recode_function = NULL, block_count = 5, clusters=NULL,
+declare_blocks <- function(blocks = NULL, recode = TRUE, recode_function = NULL, block_count = 5, clusters = NULL,
                            blocks_function = NULL, block_name = "block_variable"){
   
   if(!is.null(blocks) & !is.null(blocks_function)){
@@ -93,7 +94,7 @@ declare_blocks <- function(blocks = NULL, recode = TRUE, recode_function = NULL,
 }
 
 #' @export
-summary.blocks <- function(x){
+summary.blocks <- function(object, ...){
   cat("This is a description of blocks. Not implemented yet.")
 }
 

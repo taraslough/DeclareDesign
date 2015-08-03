@@ -17,6 +17,8 @@ declare_blocks(blocks = NULL, recode = TRUE, recode_function = NULL,
 
 \item{block_count}{The total number of blocks.  If the blocking variables imply fewer than this number, nothing changes. If the variables supplied in blocks imply more possible categories, then the variable is recoded (if recode=TRUE).}
 
+\item{clusters}{desc}
+
 \item{blocks_function}{Function to take multiple variables and construct blocks from them. Must take blocks, sample, and block_name and return}
 
 \item{block_name}{A character string that gives the name of the blocking variable.}

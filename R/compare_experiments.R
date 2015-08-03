@@ -1,17 +1,19 @@
 
 #' Declare the data-generating process of a variable
 #'
-#' @param data data object
-#' @param design design object
-#' @param analysis analysis object
-#' @param sims number of iterations
-#' @param labels label names for each comparison experiment
+#' @param N what is it?
+#' @param N_per_level  what is it?
+#' @param group_sizes_by_level  what is it?
+#' @param design what is it?
+#' @param analysis  what is it?
+#' @param sample_frame what is it?
+#' @param potential_outcomes what is it?
+#' @param blocks what is it?
+#' @param clusters what is it?
+#' @param sims what is it?
+#' @param labels what is it?
 #' @examples 
-#'   ## imagined options:
-#'   ## compare_experiments(N = c(500, 1000, 2000), m = 5, design = design, etc.)
-#'   ## compare_experiments(N = c(500, 1000, 2000), m = c(5, 10, 15), design = design, etc.)
-#'   ## ideas: 
-#'   ## if user wants to change N and provides data, bootstrap data to that size
+#'   ## here are examples
 #' @export
 compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_level = NULL,
                                 design = NULL, analysis = NULL, sample_frame = NULL, potential_outcomes = NULL,
@@ -92,8 +94,6 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_lev
   
 }
 
-
-
 #' @export
 summary.experiment_comparisons <- function(object, ...) {
   
@@ -128,7 +128,7 @@ print.experiment_comparisons <- function(x, ...){
 #' @param vary_sequence set of values of the parameter to calculate power for
 #' @param sims number of iterations
 #' @export
-plot_power <- function(data, design, analysis, vary_parameter = "N", vary_sequence){
+plot_power <- function(data, design, analysis, vary_parameter = "N", vary_sequence, sims = 100){
   
   if(vary_parameter != "N")
     stop("The power analysis plot is only implemented for varying N at first.")
@@ -139,8 +139,8 @@ plot_power <- function(data, design, analysis, vary_parameter = "N", vary_sequen
   
   power_sequence <- rep(NA, length(vary_sequence))
   for(parameter in vary_sequence)
-    power_sequence[i] <- power(data = data, design = design, analysis = analysis,
-                               N = parameter)
+    power_sequence[parameter] <- power(data = data, design = design, analysis = analysis,
+                                       N = parameter)
   
   return(power_sequence)
   ##plot(vary_sequence, power_sequence, axes = F, las = 1)

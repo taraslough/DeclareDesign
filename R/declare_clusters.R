@@ -39,7 +39,7 @@ declare_clusters <- function(clusters, cluster_name = "cluster_variable", custom
 }
 
 #' @export
-summary.clusters <- function(x){
+summary.clusters <- function(object, ...){
   cat("This is a description of clusters. Not implemented yet.")
 }
 
