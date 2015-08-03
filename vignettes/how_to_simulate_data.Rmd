@@ -230,7 +230,7 @@ outcomes_1 <- declare_potential_outcomes(
   # Specify the conditions of the experiment
   condition_names = c("control","treatment"),
   # Here the average treatment effect is .5
-  outcome_formula = outcome ~ 0*control + .5*treatment
+  outcome_formula = outcome ~ 0*control + .5*treatment 
     )
 
 (linear_PO_1 <- make_data(potential_outcomes = outcomes_1,sample_frame = simple_frame))
@@ -239,6 +239,47 @@ with(linear_PO_1,outcome_treatment - outcome_control)
 
 ```
 
+## Simple Non-Linear Outcomes
+
+Except for the case in which the user specifies the potential outcomes as 
+changes in population-level proportions (discussed below), 
+non-linear dependent variables need to be specified using a predictive 
+equation or function in the `outcome_formula` argument of 
+`make_potential_outcomes()`. This of course requires that you specify 
+coefficients in a non-linear model, which can be difficult. 
+
+* <font color='red'> *I think in the future we could just make a set of functions that they just
+  give a formula to, and it does it for them* </font>
+
+```{r}
+# For a probit data-generating process, write a predictive probit function  
+probit_outcome <- function(Z0,Z1){
+  rbinom(n = length(Z0), size = 1, prob = pnorm(q = Z0*0 + Z1*.2))
+}
+
+# Insert the function into the outcome formula
+probit_PO <- declare_potential_outcomes(
+  condition_names = c("Z0","Z1"),
+  outcome_formula = Y ~ probit_outcome(Z1,Z0)
+)
+
+# Make data
+make_data(potential_outcomes = probit_PO,sample_frame = simple_frame)
+
+# For a Poisson data-generating process, write a predictive poisson function  
+poisson_outcome <- function(Z0,Z1){
+  rpois(n = length(Z0), lambda = exp(Z0*0 + Z1*.2))
+}
+
+# Insert the function into the outcome formula
+pois_PO <- declare_potential_outcomes(
+  condition_names = c("Z0","Z1"),
+  outcome_formula = Y ~ poisson_outcome(Z1,Z0)
+)
+# Make data
+make_data(potential_outcomes = pois_PO,sample_frame = simple_frame)
+
+```
 
 ## Simple Changes in Proportions
 
@@ -320,6 +361,31 @@ make_data(potential_outcomes = proportion_PO_2,sample_frame = voter_sample)
 ## Outcomes as a Function of Covariates
 
 We can also define outcomes as a function of unit-level covariates. 
+A simple application might involve adding an error term. 
+
+```{r}
+
+# Adding error to outcomes_1
+simple_frame_2 <- declare_sample_frame(
+  error = declare_variable(normal_mean = 0,normal_sd = 1),
+  N = 10
+)
+
+outcomes_1_2 <- declare_potential_outcomes(
+  condition_names = c("control","treatment"),
+  # Here we add error to the DGP of the outcome
+  outcome_formula = outcome ~ 0*control + .5*treatment + error
+    )
+
+linear_PO_2 <- make_data(potential_outcomes = outcomes_1_2,simple_frame_2) 
+
+with(linear_PO_1,outcome_treatment - outcome_control)
+with(linear_PO_2,outcome_treatment - outcome_control)
+
+
+```
+
+
 We will use the schoole example from above (`sample_frame_7`). 
 Students' 
 final exam score is a function of their math score, their language score,
@@ -344,6 +410,10 @@ make_data(potential_outcomes = outcomes_2,sample_frame = sample_frame_7)
 
 
 ```
+
+## Non Linear Outcomes
+
+As long as the 
 
 ## Clustered Outcomes 
 
@@ -393,19 +463,26 @@ cluster_frame <- declare_sample_frame(
 # high-ICC scenarios
 cluster_PO_1 <- declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y ~ baseline + cluster_shock_1 + Z0*0 + Z1*.2,
-  outcome_variable_DGP = declare_variable(normal_mean = 0,normal_sd = .00001)
+  outcome_formula = Y ~ baseline + cluster_shock_1 + Z0*0 + Z1*.2
 )
 cluster_PO_2 <- declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y ~ baseline + cluster_shock_2 + Z0*0 + Z1*.2,
-  outcome_variable_DGP = declare_variable(normal_mean = 0,normal_sd = .00001)
+  outcome_formula = Y ~ baseline + cluster_shock_2 + Z0*0 + Z1*.2
 )
 
 # Make both datasets
 data_1 <- make_data(potential_outcomes = cluster_PO_1,sample_frame = cluster_frame)
 data_2 <- make_data(potential_outcomes = cluster_PO_2,sample_frame = cluster_frame)
 
+### SOMETHING WRONG HERE, ICC should be .1:
+sigmasq_i_1 <- var(data_1$Y_Z0)
+sigmasq_j_1 <- var(tapply(data_1$Y_Z0,data_1$cluster_id,mean))
+sigmasq_i_1/(sigmasq_i_1+sigmasq_j_1)    
+
+# This looks *better*, ICC should be .6:
+sigmasq_i_2 <- var(data_2$Y_Z0)
+sigmasq_j_2 <- var(tapply(data_2$Y_Z0,data_2$cluster_id,mean))
+sigmasq_i_2/(sigmasq_i_2+sigmasq_j_2)    
 ```
 
 ## Multiple Outcomes 
