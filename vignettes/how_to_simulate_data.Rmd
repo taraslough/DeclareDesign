@@ -411,9 +411,6 @@ make_data(potential_outcomes = outcomes_2,sample_frame = sample_frame_7)
 
 ```
 
-## Non Linear Outcomes
-
-As long as the 
 
 ## Clustered Outcomes 
 
@@ -528,7 +525,6 @@ race_km <- declare_potential_outcomes(
   condition_names = conditions,
   outcome_formula = km ~ T0*0 + T1*5 + fitness + diet*.5 + I(as.integer(health_index)>1)*.3
 )
-
 
 hours_sleep <- declare_potential_outcomes(
   condition_names = conditions,
