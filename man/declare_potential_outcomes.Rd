@@ -5,20 +5,12 @@
 \title{Define the potential outcomes of the experiment}
 \usage{
 declare_potential_outcomes(condition_names = NULL, outcome_formula = NULL,
-  outcome_variable_DGP = declare_variable(), cluster_variable = NULL,
-  ICC = NULL, population_proportions = NULL,
-  proportion_outcome_name = NULL)
+  population_proportions = NULL, proportion_outcome_name = NULL)
 }
 \arguments{
 \item{condition_names}{A character vector indicating the names of the conditions to which subjects can be assigned. Conceptually identical to the potential outcomes that are revealed in each condition, implicitly invoking SUTVA.}
 
 \item{outcome_formula}{A regression-like expression for declaring the relationship between the outcome, treatments, and optionally, the covariates.}
-
-\item{outcome_variable_DGP}{using \code{\link{declare_variable}}, a function for describing the data-generating process of the outcome variable.}
-
-\item{cluster_variable}{The name of the clustering variable}
-
-\item{ICC}{the intracluster correlation coefficient.  Note that if the outcome formula includes covariates, and those covariates are correlated with clusters, the true ICC may be higher or lower than is declared by this argument.}
 
 \item{population_proportions}{what is it?}
 

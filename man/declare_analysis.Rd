@@ -10,10 +10,12 @@
 \title{Declare an experimental analysis}
 \usage{
 declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
-  method = "lm", subset = NULL, weights = NULL, estimand = "ATE",
-  formula_estimand = NULL, method_estimand = NULL, subset_estimand = NULL,
-  weights_estimand = NULL, qoi = "ATE", qoi_only = FALSE,
-  qoi_labels = NULL)
+  method = lm, method_custom = FALSE, subset = NULL, weights = NULL,
+  formula_estimand = formula, method_estimand = method,
+  method_estimand_custom = method_custom,
+  method_estimand_options = list(...), subset_estimand = subset,
+  weights_estimand = weights, qoi = "ATE", qoi_only = FALSE,
+  qoi_labels = NULL, ...)
 
 truth_data_frame(formula = NULL, treatment_variable = "Z", subset = NULL,
   data = data, sep = "_")
@@ -39,8 +41,6 @@ get_estimands(analysis, qoi = NULL, data, statistics = "est")
 
 \item{weights}{A string indicating the name of the weights variable to be used in weighted estimators such as WLS.}
 
-\item{estimand}{defaults to "ATE".}
-
 \item{formula_estimand}{desc}
 
 \item{method_estimand}{either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm}
@@ -62,6 +62,8 @@ get_estimands(analysis, qoi = NULL, data, statistics = "est")
 \item{analysis}{what is it?}
 
 \item{statistics}{what is it?}
+
+\item{estimand}{defaults to "ATE".}
 
 \item{formula}{what is it?}
 

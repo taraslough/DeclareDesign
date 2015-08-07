@@ -15,6 +15,8 @@ This vignette demonstrates how to design and pre-register an experiment after ba
 library(registration)
 library(xtable)
 set.seed(20)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = TRUE, message = FALSE, eval = TRUE, tidy = TRUE, tidy.opts = list(width.cutoff = 50),
+                      strip_white = TRUE, results = 'asis', fix.ext = 'pdf')
 ```
 
 # A simple experiment
@@ -23,7 +25,7 @@ set.seed(20)
 
 First, we define the sample frame from which we will draw a sample to run the experiment from. This includes defining the levels of analysis and the covariates at each level.
 
-```{r, echo = FALSE}
+```{r}
 sample_frame <- declare_sample_frame(
   income = declare_variable(),
   N = 500)
@@ -67,7 +69,7 @@ This indicates the power, `summary(simulations)[3]`, is less than the typical th
 ```{r}
 comparisons <- compare_experiments(N = c(100, 500, 750, 1000, 1250, 1500),
                                    potential_outcomes = potential_outcomes, 
-                                   sample_frame =  sample_frame, 
+                                   sample_frame = sample_frame, 
                                    design = design, 
                                    analysis = analysis, 
                                    sims = 100)
@@ -85,7 +87,7 @@ mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = moc
 ```
 
 ```{r}
-xtable(get_estimates(analysis = analysis, data = mock))
+print(xtable(get_estimates(analysis = analysis, data = mock)))
 ```
 
 ## Pre-registering the experiment

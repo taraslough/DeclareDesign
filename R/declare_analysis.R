@@ -1,3 +1,38 @@
+
+v <- data.frame(Y = runif(10000), T = sample(c(0, 1), 10000, replace = TRUE))
+v$Y[v$T == 1] <- v$Y[v$T == 1] + 1.5
+data <- v
+
+difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
+  
+  if(length(all.vars(formula[[3]]))>1)
+    stop("The formula should only include one variable on the right-hand side: the treatment variable.")
+  
+  d_i_m <- function(Y, T, w, cond1, cond2){
+    diff <- mean(Y[T == cond1]) - mean(Y[T == cond2])
+    se <- sqrt(var(Y[T == cond1])/sum(T==cond1) + var(Y[T == cond2])/sum(T==cond2))
+    return(c(diff, se))
+  }
+  
+  condition_names <- unique(data[,all.vars(formula[[3]])])
+  combn <- combn(rev(condition_names), m = 2)
+  
+  if(!is.null(subset))
+    data <- data[subset, ]
+  Y <- data[, all.vars(formula[[2]])]
+  T <- data[, all.vars(formula[[3]])]
+  if(!is.null(weights))
+    w <- weights[subset]
+  
+  return_matrix <- matrix(NA, ncol = 2, nrow = ncol(combn), 
+                          dimnames = list(NULL, c("est", "se")))
+  for(c in 1:ncol(combn)){
+    return_matrix[c, ] <- d_i_m(Y = Y, T = T, w = w, cond1 = combn[1, c], cond2 = combn[2, c])
+  }
+  
+  return(return_matrix)
+}
+
 #' Declare an experimental analysis
 #'
 #' Description
@@ -23,64 +58,65 @@
 #' @rdname declare_analysis
 #' @export
 declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable = NULL, 
-                             method = "lm", subset = NULL, weights = NULL, 
-                             estimand = "ATE", formula_estimand = NULL, method_estimand = NULL,
-                             subset_estimand = NULL, weights_estimand = NULL,
-                             qoi = "ATE", qoi_only = FALSE, qoi_labels = NULL) {
-  
-  ## should weights be able to be different for estimate and estimand functions?
+                             method = difference_in_means, method_custom = FALSE,
+                             subset = NULL, weights = NULL, 
+                             formula_estimand = formula, method_estimand = method,
+                             method_estimand_custom = method_custom, 
+                             method_estimand_options = list(...),
+                             subset_estimand = subset, weights_estimand = weights,
+                             qoi = "ATE", qoi_only = FALSE, qoi_labels = NULL, ...) {
   
   if(is.null(qoi_labels) & class(qoi) == "character")
     qoi_labels <- qoi
   
   outcome_variable <- all.vars(formula[[2]])
   
-  if(is.null(formula_estimand))
-    formula_estimand <- formula
-  
   if(is.null(treatment_variable))
     stop("The treatment variable must be declared in the treatment_variable argument.")
   
+  method_options <- list(...)
+  
+  if(method == difference_in_means & (length(all.vars(formula)) > 2 | all.vars(formula[[3]]) != treatment_variable))
+    stop("When using the difference_in_means method, there should only be one covariate listed in the formula on the right-hand side: the treatment variable.")
+  
   if(qoi_only == FALSE){
     
-    if(class(method) == "character") {
-      
-      if(method == "lm") {
-        ## default estimate function is lm
-        estimate <- function(data) {
-          ## change this so it can take any R model function and send the ... options to it
-          if(!is.null(subset))
-            data <- subset(data, eval(parse(text = subset)))
-          if(!is.null(weights)){
-            lm(formula = stats::formula(unclass(formula)), data = data, weights = data[, weights])
-          } else {
-            lm(formula = formula, data = data)
-          }
-        }
+    if(method_custom == FALSE){
+      estimate <- function(data){
+        formula <- stats::formula(unclass(formula))
+        if(!is.null(subset))
+          method_options$subset <- with(data, eval(parse(text = subset)))
+        if(!is.null(weights))
+          method_options$weights <- data[, weights]
+        
+        return(do.call(method, args = c(method_options, list(formula = stats::formula(unclass(formula)),
+                                                             data = data))))
       }
-      
+    } else {
+      estimate <- method
     }
     
-    if(class(estimand) == "character"){ 
-      
-      if(estimand == "ATE"){
-        ## default estimand function is exactly the same as estimate
-        estimand <- function(data) {
-          if(!is.null(weights)){
-            lm(formula = formula_estimand, data = data, weights = data[, weights])
-          } else {
-            lm(formula = formula_estimand, data = data)
-          }
-        }
+    if(method_estimand_custom == FALSE) {
+      estimand <- function(data){
+        formula <- stats::formula(unclass(formula_estimand))
+        if(!is.null(subset_estimand))
+          method_estimand_options$subset_estimand <- with(data, eval(parse(text = subset_estimand)))
+        if(!is.null(weights_estimand))
+          method_estimand_options$weights <- data[, weights_estimand]
+        
+        return(do.call(method_estimand, args = c(method_estimand_options, 
+                                                 list(formula = stats::formula(unclass(formula)),
+                                                      data = data))))
       }
-      
+    } else {
+      estimand <- method_estimand
     }
+    
+    ## }
     
     if(class(qoi) == "character"){
       
       if(qoi == "ATE"){
-        
-        ## determines which coef is the treatment variable, and adds 1 if there is an intercept
         
         treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable) + 
           as.numeric(attr(terms.formula(formula), "intercept") == 1)
@@ -95,7 +131,8 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
           
           output <- matrix(c(est, se, p, conf_int, df), 
                            dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                           paste(outcome_variable, "~", coef_name, "_", qoi_labels, sep = "")))
+                                           paste(outcome_variable, "~", coef_name, "_", 
+                                                 qoi_labels, sep = "")))
           
           return(output[which(rownames(output) %in% statistics), , drop = FALSE])
         }
@@ -136,7 +173,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
 #' @export
 truth_data_frame <- function(formula = NULL, treatment_variable = "Z", 
                              subset = NULL, data = data, sep = "_") {
-
+  
   if(is.null(formula))
     stop("Formula must be provided.")
   
