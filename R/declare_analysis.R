@@ -1,7 +1,142 @@
 
-v <- data.frame(Y = runif(10000), T = sample(c(0, 1), 10000, replace = TRUE))
-v$Y[v$T == 1] <- v$Y[v$T == 1] + 1.5
-data <- v
+##v <- data.frame(Y = runif(10000), T = sample(c(0, 1), 10000, replace = TRUE))
+##v$Y[v$T == 1] <- v$Y[v$T == 1] + 1.5
+##data <- v
+
+#' Declare an experimental analysis
+#'
+#' Description
+#' @param formula A standard R formula as a string or formula object, i.e. Y ~ Z, that indicates the outcome and the treatment indicator as well as covariates, block indicators, etc. that are used to construct estimates and/or estimands. By default, the formula provided is used for estimates and estimands.
+#' @param treatment_variable The variable name of the treatment indicator as a string. Defaults to "Z".
+#' @param outcome_variable The variable name of the outcome variable as a string. Defaults to "Y".
+#' @param method The method used in the analysis to construct estimates and, by default, estimands. Indicate either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm. Defaults to "lm".
+#' @param subset A string indicating the subset of the data to take in estimates and, by default, estimands.
+#' @param weights A string indicating the name of the weights variable to be used in weighted estimators such as WLS.
+#' @param estimand defaults to "ATE".
+#' @param formula_estimand desc
+#' @param method_estimand either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm
+#' @param subset_estimand A string indicating the subset of the data to take for estimands, if the user wishes to have a different subset used in calculating estimands than the subset used for the estimates.
+#' @param weights_estimand A string indicating the name of the weights variable to be used in weighted estimators such as WLS for calculating estimands only, if the user desires a different weights variable than used to calculate estimates.
+#' @param qoi defaults to "ATE".
+#' @param qoi_only desc
+#' @param qoi_labels desc
+#' @return a list containing a function to conduct the analysis and a function to extract the result of the test
+#' @examples
+#' # these examples don't work yet
+#' # declare_analysis(analysis = "diff-in-means")
+#' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
+#' @rdname declare_analysis
+#' @export
+declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable = NULL, 
+                             estimator = difference_in_means, subset = NULL, weights = NULL, ...,
+                             quantity_of_interest = NULL, quantity_of_interest_labels = substitute(quantity_of_interest), 
+                             estimand_formula = formula, estimand = estimator, 
+                             estimand_subset = subset, estimand_weights = weights, 
+                             estimand_options = NULL, estimand_quantity_of_interest = quantity_of_interest, 
+                             estimand_quantity_of_interest_labels = substitute(estimand_quantity_of_interest)) {
+  
+  estimator_options <- list(...)
+  
+  arguments <- mget(names(formals()),sys.frame(sys.nframe()))
+  arguments$... <- NULL
+  if(length(estimator_options) > 0) {
+    for(k in 1:length(estimator_options))
+      arguments[[names(estimator_options)[[k]]]] <- estimator_options[[k]]
+  }
+  
+  outcome_variable <- all.vars(formula[[2]])
+  
+  if(is.null(treatment_variable))
+    stop("The treatment variable must be declared in the treatment_variable argument.")
+  
+  treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable) + 
+    as.numeric(attr(terms.formula(formula), "intercept") == 1)
+  
+  if(substitute(estimator) == "difference_in_means" & (length(all.vars(formula)) > 2 | all.vars(formula[[3]]) != treatment_variable))
+    stop("When using the difference_in_means method, there should only be one covariate listed in the formula on the right-hand side: the treatment variable.")
+  
+  if(is.null(outcome_variable) & is.null(formula))
+    stop("If you do not declare a formula, you must declare the outcome using the outcome_variable field.")
+  
+  estimate_function <- function(data){
+    argument_names <- names(formals(estimator))
+    if(!is.null(formula) & "formula" %in% argument_names)
+      estimator_options$formula <- stats::formula(unclass(formula))
+    if(!is.null(subset) & "subset" %in% argument_names)
+      estimator_options$subset <- with(data, eval(parse(text = subset)))
+    if(!is.null(weights) & "weights" %in% argument_names)
+      estimator_options$weights <- data[, weights]
+    estimator_options$data <- data
+    
+    return(do.call(estimator, args = estimator_options)) ##, list(formula = stats::formula(unclass(formula)), data = data))))
+  }
+  
+  estimand_function <- function(data){
+    argument_names <- names(formals(estimand))
+    if(!is.null(estimand_formula) & "formula" %in% argument_names)
+      estimand_options$formula <- stats::formula(unclass(estimand_formula))
+    if(!is.null(estimand_subset) & "subset" %in% argument_names)
+      estimand_options$subset <- with(data, eval(parse(text = estimand_subset)))
+    if(!is.null(estimand_weights) & "weights" %in% argument_names)
+      estimand_options$weights <- data[, estimand_weights]
+    estimand_options$data <- data
+    
+    return(do.call(estimand, args = estimand_options)) ##, list(formula = stats::formula(unclass(formula)), data = data))))
+  }
+  
+  if(!is.null(quantity_of_interest))
+    environment(quantity_of_interest) <- environment()
+  if(!is.null(estimand_quantity_of_interest))
+    environment(estimand_quantity_of_interest) <- environment()
+  
+  return_object <- list(estimate = estimate_function, estimand = estimand_function, 
+                        quantity_of_interest = quantity_of_interest, 
+                        estimand_quantity_of_interest = estimand_quantity_of_interest,
+                        treatment_variable = treatment_variable,
+                        outcome_variable = outcome_variable, arguments = arguments,
+                        call = match.call())
+  if(is.null(quantity_of_interest))
+    return_object$quantity_of_interest <- NULL
+  if(is.null(estimand_quantity_of_interest))
+    return_object$estimand_quantity_of_interest <- NULL  
+  
+  structure(return_object, class = "analysis")
+  
+}
+
+#' @export
+linear_regression <- lm
+
+#' @export
+logistic_regression <- function(formula, subset = NULL, weights = NULL, data, ...){
+  args_list <- c(list(formula = formula, subset = subset, weights = weights, data = data), list(...))
+  args_list$family <- binomial(link = "logit")
+  do.call(glm, args = args_list)
+}
+
+#' @export
+probit_regression <- function(formula, subset = NULL, weights = NULL, data, ...){
+  args_list <- c(list(formula = formula, subset = subset, weights = weights, data = data), list(...))
+  args_list$family <- binomial(link = "probit")
+  do.call(glm, args = args_list)
+}
+
+#' @export
+average_treatment_effect <- function(x, statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df")){
+  coef_name <- names(coef(x))[treat_coef_num]
+  df <- df.residual(x)
+  est <- coef(x)[treat_coef_num]
+  se <- sqrt(diag(vcov(x)))[treat_coef_num]
+  p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
+  conf_int <- suppressMessages(confint(x))[treat_coef_num, ]
+  
+  output <- matrix(c(est, se, p, conf_int, df), 
+                   dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                   paste(outcome_variable, "~", coef_name, "_", 
+                                         quantity_of_interest_labels, sep = "")))
+  
+  return(output[which(rownames(output) %in% statistics), , drop = FALSE])
+}
 
 difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
   
@@ -31,137 +166,6 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
   }
   
   return(return_matrix)
-}
-
-#' Declare an experimental analysis
-#'
-#' Description
-#' @param formula A standard R formula as a string or formula object, i.e. Y ~ Z, that indicates the outcome and the treatment indicator as well as covariates, block indicators, etc. that are used to construct estimates and/or estimands. By default, the formula provided is used for estimates and estimands.
-#' @param treatment_variable The variable name of the treatment indicator as a string. Defaults to "Z".
-#' @param outcome_variable The variable name of the outcome variable as a string. Defaults to "Y".
-#' @param method The method used in the analysis to construct estimates and, by default, estimands. Indicate either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm. Defaults to "lm".
-#' @param subset A string indicating the subset of the data to take in estimates and, by default, estimands.
-#' @param weights A string indicating the name of the weights variable to be used in weighted estimators such as WLS.
-#' @param estimand defaults to "ATE".
-#' @param formula_estimand desc
-#' @param method_estimand either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm
-#' @param subset_estimand A string indicating the subset of the data to take for estimands, if the user wishes to have a different subset used in calculating estimands than the subset used for the estimates.
-#' @param weights_estimand A string indicating the name of the weights variable to be used in weighted estimators such as WLS for calculating estimands only, if the user desires a different weights variable than used to calculate estimates.
-#' @param qoi defaults to "ATE".
-#' @param qoi_only desc
-#' @param qoi_labels desc
-#' @return a list containing a function to conduct the analysis and a function to extract the result of the test
-#' @examples
-#' # these examples don't work yet
-#' # declare_analysis(analysis = "diff-in-means")
-#' # declare_analysis(analysis = function(Y, Z, data) lm(paste(Y, "~", Z), data = data))
-#' @rdname declare_analysis
-#' @export
-declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable = NULL, 
-                             method = difference_in_means, method_custom = FALSE,
-                             subset = NULL, weights = NULL, 
-                             formula_estimand = formula, method_estimand = method,
-                             method_estimand_custom = method_custom, 
-                             method_estimand_options = list(...),
-                             subset_estimand = subset, weights_estimand = weights,
-                             qoi = "ATE", qoi_only = FALSE, qoi_labels = NULL, ...) {
-  
-  if(is.null(qoi_labels) & class(qoi) == "character")
-    qoi_labels <- qoi
-  
-  outcome_variable <- all.vars(formula[[2]])
-  
-  if(is.null(treatment_variable))
-    stop("The treatment variable must be declared in the treatment_variable argument.")
-  
-  method_options <- list(...)
-  
-  if(method == difference_in_means & (length(all.vars(formula)) > 2 | all.vars(formula[[3]]) != treatment_variable))
-    stop("When using the difference_in_means method, there should only be one covariate listed in the formula on the right-hand side: the treatment variable.")
-  
-  if(qoi_only == FALSE){
-    
-    if(method_custom == FALSE){
-      estimate <- function(data){
-        formula <- stats::formula(unclass(formula))
-        if(!is.null(subset))
-          method_options$subset <- with(data, eval(parse(text = subset)))
-        if(!is.null(weights))
-          method_options$weights <- data[, weights]
-        
-        return(do.call(method, args = c(method_options, list(formula = stats::formula(unclass(formula)),
-                                                             data = data))))
-      }
-    } else {
-      estimate <- method
-    }
-    
-    if(method_estimand_custom == FALSE) {
-      estimand <- function(data){
-        formula <- stats::formula(unclass(formula_estimand))
-        if(!is.null(subset_estimand))
-          method_estimand_options$subset_estimand <- with(data, eval(parse(text = subset_estimand)))
-        if(!is.null(weights_estimand))
-          method_estimand_options$weights <- data[, weights_estimand]
-        
-        return(do.call(method_estimand, args = c(method_estimand_options, 
-                                                 list(formula = stats::formula(unclass(formula)),
-                                                      data = data))))
-      }
-    } else {
-      estimand <- method_estimand
-    }
-    
-    ## }
-    
-    if(class(qoi) == "character"){
-      
-      if(qoi == "ATE"){
-        
-        treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable) + 
-          as.numeric(attr(terms.formula(formula), "intercept") == 1)
-        
-        qoi <- function(x, statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df")){
-          coef_name <- names(coef(x))[treat_coef_num]
-          df <- df.residual(x)
-          est <- coef(x)[treat_coef_num]
-          se <- sqrt(diag(vcov(x)))[treat_coef_num]
-          p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
-          conf_int <- confint(x)[treat_coef_num, ]
-          
-          output <- matrix(c(est, se, p, conf_int, df), 
-                           dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                           paste(outcome_variable, "~", coef_name, "_", 
-                                                 qoi_labels, sep = "")))
-          
-          return(output[which(rownames(output) %in% statistics), , drop = FALSE])
-        }
-      }
-      
-    }
-    
-    return_object <- list(estimate = estimate, estimand = estimand, qoi = qoi, 
-                          formula_estimand = formula_estimand, treatment_variable = treatment_variable,
-                          outcome_variable = outcome_variable,
-                          method = method, qoi_only = qoi_only, call = match.call())
-    
-  } else {
-    
-    ## case where it is qoi only -- they define one function that does estimates and qoi's
-    
-    if(is.null(outcome_variable))
-      stop("If you declare a custom quantity of interest (qoi) function, you must set declare both the treatment_variable and outcome_variable arguments.")
-    
-    return_object <- list(qoi = qoi, qoi_only = TRUE, call = match.call())
-    ## this must take as arguments an analysis object created by declare_analysis and a data frame
-    ## this must return a matrix of rows # of statistics and columns # of qoi's
-    
-  }
-  
-  class(return_object) <- "analysis"
-  
-  return(return_object)
-  
 }
 
 #' @param formula  what is it?
@@ -210,6 +214,8 @@ truth_data_frame <- function(formula = NULL, treatment_variable = "Z",
 get_estimates_model <- function(analysis, data){
   if(class(analysis) != "analysis")
     stop("The analysis argument must be an object created by the declare_analysis function")
+  if(is.null(analysis$estimate))
+    stop("This analysis function does not have a model associated with it. Try get_estimates to obtain the quantities of interest.")
   return(analysis$estimate(data = data))
 }
 
@@ -218,7 +224,9 @@ get_estimates_model <- function(analysis, data){
 get_estimands_model <- function(analysis, data){
   if(class(analysis) != "analysis")
     stop("The analysis argument must be an object created by the declare_analysis function")
-  return(analysis$estimand(data = truth_data_frame(formula = analysis$formula_estimand, data = data)))
+  if(is.null(analysis$estimand))
+    stop("This analysis function does not have a model associated with it. Try get_estimands to obtain the quantities of interest for the estimand.")
+  return(analysis$estimand(data = truth_data_frame(formula = analysis$arguments$estimand_formula, data = data)))
 }
 
 #' @param analysis what is it?
@@ -226,13 +234,17 @@ get_estimands_model <- function(analysis, data){
 #' @param data what is it?
 #' @rdname declare_analysis
 #' @export
-get_estimates <- function(analysis, qoi = NULL, data) {
+get_estimates <- function(analysis, quantity_of_interest = NULL, data) {
   
-  analysis_labels <- paste0("analysis", sprintf(paste0("%0",nchar(as.character(length(analysis))),"d"),(1:length(analysis))))
-  
-  if(!is.null(qoi)) {
+  ## extract names of arguments analysis objects
+  if(class(analysis) == "list")
+    analysis_labels <- paste(substitute(analysis)[-1L])
+  else
+    analysis_labels <- paste(substitute(analysis))
+
+  if(!is.null(quantity_of_interest)) {
     ## if there is a user-defined qoi function, use that to extract qoi from analysis object or list of them
-    return(qoi(analysis, data = data))
+    return(quantity_of_interest(analysis, data = data))
   } else {
     ## otherwise use qoi function defined in the analysis
     if(class(analysis) == "list"){
@@ -240,10 +252,10 @@ get_estimates <- function(analysis, qoi = NULL, data) {
       ## run this function on each analysis object and cbind the results
       estimates_list <- list()
       for(i in 1:length(analysis)) {
-        if(analysis[[i]]$qoi_only == FALSE){
-          estimates_list[[i]] <- analysis[[i]]$qoi(get_estimates_model(analysis = analysis[[i]], data = data))
+        if(!is.null(analysis[[i]]$quantity_of_interest)){
+          estimates_list[[i]] <- analysis[[i]]$quantity_of_interest(get_estimates_model(analysis = analysis[[i]], data = data))
         } else {
-          estimates_list[[i]] <- analysis[[i]]$qoi(data = data)
+          estimates_list[[i]] <- analysis[[i]]$estimate(data = data)
         }
         colnames(estimates_list[[i]]) <- paste(colnames(estimates_list[[i]]), analysis_labels[i], sep = "_")
       }
@@ -263,10 +275,10 @@ get_estimates <- function(analysis, qoi = NULL, data) {
       if(class(analysis) != "analysis")
         stop("The object in the analysis argument must by created by the declare_analysis function.")
       ## otherwise process the one analysis function
-      if(analysis$qoi_only == FALSE){
-        estimates_matrix <- analysis$qoi(get_estimates_model(analysis = analysis, data = data))
+      if(!is.null(analysis$quantity_of_interest)){
+        estimates_matrix <- analysis$quantity_of_interest(get_estimates_model(analysis = analysis, data = data))
       } else {
-        estimates_matrix <- analysis$qoi(data = data)
+        estimates_matrix <- analysis$estimate(data = data)
       }
       colnames(estimates_matrix) <- paste(colnames(estimates_matrix), analysis_labels[1], sep = "_")
       return(estimates_matrix)
@@ -282,11 +294,14 @@ get_estimates <- function(analysis, qoi = NULL, data) {
 #' @export
 get_estimands <- function(analysis, qoi = NULL, data, statistics = "est"){
   
-  analysis_labels <- paste0("analysis", sprintf(paste0("%0",nchar(as.character(length(analysis))),"d"),(1:length(analysis))))
+  if(class(analysis) == "list")
+    analysis_labels <- paste(substitute(analysis)[-1L])
+  else
+    analysis_labels <- paste(substitute(analysis))
   
   if(!is.null(qoi)) {
     ## if there is a user-defined qoi function, use that to extract qoi from analysis object or list of them
-    return(qoi(analysis, data = truth_data_frame(formula = analysis$formula_estimand, data = data)))
+    return(qoi(analysis, data = truth_data_frame(formula = analysis$arguments$estimand_formula, data = data)))
   } else {
     ## otherwise use qoi function defined in the analysis
     if(class(analysis) == "list"){
@@ -294,11 +309,11 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est"){
       ## run this function on each analysis object and cbind the results
       estimands_list <- list()
       for(i in 1:length(analysis)){
-        if(analysis[[i]]$qoi_only == FALSE){
-          estimands_list[[i]] <- analysis[[i]]$qoi(get_estimands_model(analysis = analysis[[i]], data = data), statistics = statistics)
+        if(!is.null(analysis[[i]]$estimand_quantity_of_interest)){
+          estimands_list[[i]] <- analysis[[i]]$estimand_quantity_of_interest(get_estimands_model(analysis = analysis[[i]], data = data), statistics = statistics)
           ## get_estimands_model does truth_data_frame, so just sending it data
         } else {
-          estimands_list[[i]] <- analysis[[i]]$qoi(truth_data_frame(formula = analysis[[i]]$formula_estimand, data = data))
+          estimands_list[[i]] <- analysis[[i]]$estimand(truth_data_frame(formula = analysis[[i]]$arguments$estimand_formula, data = data))
         }
         colnames(estimands_list[[i]]) <- paste(colnames(estimands_list[[i]]), analysis_labels[i], sep = "_")
       }
@@ -319,11 +334,11 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est"){
       if(class(analysis) != "analysis")
         stop("The object in the analysis argument must by created by the declare_analysis function.")
       ## otherwise process the one analysis function
-      if(analysis$qoi_only == FALSE){
-        estimands_matrix <- analysis$qoi(get_estimands_model(analysis = analysis, data = data), statistics = statistics)
+      if(!is.null(analysis$estimand_quantity_of_interest)){
+        estimands_matrix <- analysis$estimand_quantity_of_interest(get_estimands_model(analysis = analysis, data = data), statistics = statistics)
         ## get_estimands_model does truth_data_frame, so just sending it data
       } else {
-        estimands_matrix <- analysis$qoi(truth_data_frame(formula = analysis$formula_estimand, data = data))
+        estimands_matrix <- analysis$estimand(truth_data_frame(formula = analysis$arguments$estimand_formula, data = data))
       }
       colnames(estimands_matrix) <- paste(colnames(estimands_matrix), analysis_labels[1], sep = "_")
       return(estimands_matrix)

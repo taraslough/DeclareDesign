@@ -10,12 +10,14 @@
 \title{Declare an experimental analysis}
 \usage{
 declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
-  method = lm, method_custom = FALSE, subset = NULL, weights = NULL,
-  formula_estimand = formula, method_estimand = method,
-  method_estimand_custom = method_custom,
-  method_estimand_options = list(...), subset_estimand = subset,
-  weights_estimand = weights, qoi = "ATE", qoi_only = FALSE,
-  qoi_labels = NULL, ...)
+  estimator = difference_in_means, subset = NULL, weights = NULL, ...,
+  quantity_of_interest = NULL,
+  quantity_of_interest_labels = substitute(quantity_of_interest),
+  estimand_formula = formula, estimand = estimator,
+  estimand_subset = subset, estimand_weights = weights,
+  estimand_options = NULL,
+  estimand_quantity_of_interest = quantity_of_interest,
+  estimand_quantity_of_interest_labels = substitute(estimand_quantity_of_interest))
 
 truth_data_frame(formula = NULL, treatment_variable = "Z", subset = NULL,
   data = data, sep = "_")
@@ -24,7 +26,7 @@ get_estimates_model(analysis, data)
 
 get_estimands_model(analysis, data)
 
-get_estimates(analysis, qoi = NULL, data)
+get_estimates(analysis, quantity_of_interest = NULL, data)
 
 get_estimands(analysis, qoi = NULL, data, statistics = "est")
 }
@@ -35,11 +37,23 @@ get_estimands(analysis, qoi = NULL, data, statistics = "est")
 
 \item{outcome_variable}{The variable name of the outcome variable as a string. Defaults to "Y".}
 
-\item{method}{The method used in the analysis to construct estimates and, by default, estimands. Indicate either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm. Defaults to "lm".}
-
 \item{subset}{A string indicating the subset of the data to take in estimates and, by default, estimands.}
 
 \item{weights}{A string indicating the name of the weights variable to be used in weighted estimators such as WLS.}
+
+\item{estimand}{defaults to "ATE".}
+
+\item{data}{what is it?}
+
+\item{sep}{what is it?}
+
+\item{analysis}{what is it?}
+
+\item{qoi}{defaults to "ATE".}
+
+\item{statistics}{what is it?}
+
+\item{method}{The method used in the analysis to construct estimates and, by default, estimands. Indicate either string (i.e. "lm" or "glm") or a function object that takes as arguments data, design and spits out a standard R class such as lm or glm. Defaults to "lm".}
 
 \item{formula_estimand}{desc}
 
@@ -49,21 +63,9 @@ get_estimands(analysis, qoi = NULL, data, statistics = "est")
 
 \item{weights_estimand}{A string indicating the name of the weights variable to be used in weighted estimators such as WLS for calculating estimands only, if the user desires a different weights variable than used to calculate estimates.}
 
-\item{qoi}{defaults to "ATE".}
-
 \item{qoi_only}{desc}
 
 \item{qoi_labels}{desc}
-
-\item{data}{what is it?}
-
-\item{sep}{what is it?}
-
-\item{analysis}{what is it?}
-
-\item{statistics}{what is it?}
-
-\item{estimand}{defaults to "ATE".}
 
 \item{formula}{what is it?}
 

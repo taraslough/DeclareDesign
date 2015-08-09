@@ -14,8 +14,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   
   design <- declare_design(potential_outcomes = po)
   
-  
-  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
+  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = linear_regression)
 
   sims <- simulate_experiment(potential_outcomes = po, 
                               sample_frame =  smp, 
@@ -25,11 +24,11 @@ test_that("test whether a simple experiment can be pre-registered", {
   summary(sims)
   
   # Run analysis on a single realization
-  mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+  mock          <- make_data(potential_outcomes = po, sample_frame = smp)
   mock$Z        <- assign_treatment(design, data = mock)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   
-  estimates <- get_estimates(analysis = analysis_1,data = mock)
+  estimates <- get_estimates(analysis_1, data = mock)
   estimates
   
   estimands <- get_estimands(analysis = analysis_1,data = mock)
@@ -38,4 +37,6 @@ test_that("test whether a simple experiment can be pre-registered", {
   fit <- get_estimates_model(analysis = analysis_1, data = mock)
   summary(fit)
   
+  fit <- get_estimands_model(analysis = analysis_1, data = mock)
+  summary(fit)
 })
