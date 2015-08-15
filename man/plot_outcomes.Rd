@@ -8,7 +8,19 @@ plot_outcomes(data, outcome_names, color_palette = NULL, barplot = FALSE,
   density = FALSE, histogram = FALSE, ...)
 }
 \arguments{
-\item{put}{in params}
+\item{data}{What is it?}
+
+\item{outcome_names}{What is it?}
+
+\item{color_palette}{What is it?}
+
+\item{barplot}{What is it?}
+
+\item{density}{What is it?}
+
+\item{histogram}{What is it?}
+
+\item{...}{What is it?}
 }
 \description{
 Plot the frequency or density of potential outcomes
