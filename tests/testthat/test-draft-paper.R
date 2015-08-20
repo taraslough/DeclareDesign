@@ -1,7 +1,7 @@
 
 rm(list=ls())
 library(testthat)
-library(registration)
+library(experimentr)
 
 context("Pre-registration and draft paper")
 

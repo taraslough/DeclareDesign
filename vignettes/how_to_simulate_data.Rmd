@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r,echo=FALSE}
-library(registration)
+library(experimentr)
 ```
 
 This vignette demonstrates how to simulate data for use in power analysis. 
@@ -423,35 +423,25 @@ The ICC of a given variable is typically calculated as
 $$ \text{ICC} = \frac{\sigma_i^2}{\sigma_i^2 + \sigma_j^2} $$, 
 
 where $\sigma_i^2$ is the variance among units and $\sigma_j^2$ is the variance
-among the variable defined at the cluster level. If we thought the standard 
-deviation in the outcome was, for example, 10, then we could create scenarios
-in which the ICC was low, say .1, and high, say .6, by setting the 
-cluster-level standard deviation to $\sigma_j =$ 
-$\sqrt{\frac{\sigma_i^2(1 - \text{ICC})}{\text{ICC}}} =$ $\sqrt{10^2(1 - .1)/.1}$ or 
-$\sqrt{10^2(1 - .6)/.6}$ 
+among the variable defined at the cluster level. It is possible to compare
+different levels of ICC by generating "cluster shocks" that are added on to
+the unit-level outcomes. 
 
 ```{r}
-# Set the standard deviation of the outcome
-sigma_i <- 10
 # Set the two ICC you would like to compare
 ICC_1 <- .1
 ICC_2 <- .6
-# Set the two cluster shocks
-sigma_j_1 <- sqrt((sigma_i^2 * (1 - ICC_1))/ICC_1)
-sigma_j_2 <- sqrt((sigma_i^2 * (1 - ICC_2))/ICC_2)
-
-sigma_i^2 / (sigma_j_1^2 + sigma_i^2)
-sigma_i^2 / (sigma_j_2^2 + sigma_i^2)
 
 # Make a clustered sample frames
 cluster_frame <- declare_sample_frame(
   unit = list(
-    baseline = declare_variable(normal_mean = 0,normal_sd = sigma_i)
+    baseline_1 = declare_variable(normal_mean = 0,normal_sd = sqrt(1-ICC_1)),
+    baseline_2 = declare_variable(normal_mean = 0,normal_sd = sqrt(1-ICC_2))
   ),
   # The shocks that create the ICC go here
   cluster = list(
-    cluster_shock_1 = declare_variable(normal_mean = 0,normal_sd = sigma_j_1),
-    cluster_shock_2 = declare_variable(normal_mean = 0,normal_sd = sigma_j_2)
+    cluster_shock_1 = declare_variable(normal_mean = 0,normal_sd = sqrt(ICC_1)),
+    cluster_shock_2 = declare_variable(normal_mean = 0,normal_sd = sqrt(ICC_2))
   ),
   N_per_level = c(1000,50)
 )
@@ -460,26 +450,21 @@ cluster_frame <- declare_sample_frame(
 # high-ICC scenarios
 cluster_PO_1 <- declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y ~ baseline + cluster_shock_1 + Z0*0 + Z1*.2
+  outcome_formula = Y ~ baseline_1 + cluster_shock_1 + Z0*0 + Z1*.2
 )
 cluster_PO_2 <- declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y ~ baseline + cluster_shock_2 + Z0*0 + Z1*.2
+  outcome_formula = Y ~ baseline_2 + cluster_shock_2 + Z0*0 + Z1*.2
 )
 
 # Make both datasets
 data_1 <- make_data(potential_outcomes = cluster_PO_1,sample_frame = cluster_frame)
 data_2 <- make_data(potential_outcomes = cluster_PO_2,sample_frame = cluster_frame)
 
-### SOMETHING WRONG HERE, ICC should be .1:
-sigmasq_i_1 <- var(data_1$Y_Z0)
-sigmasq_j_1 <- var(tapply(data_1$Y_Z0,data_1$cluster_id,mean))
-sigmasq_i_1/(sigmasq_i_1+sigmasq_j_1)    
+# Estimate the ICC
+estimate_ICC(variable = data_1$Y_Z0,cluster = data_1$cluster_id)
+estimate_ICC(variable = data_2$Y_Z0,cluster = data_2$cluster_id)
 
-# This looks *better*, ICC should be .6:
-sigmasq_i_2 <- var(data_2$Y_Z0)
-sigmasq_j_2 <- var(tapply(data_2$Y_Z0,data_2$cluster_id,mean))
-sigmasq_i_2/(sigmasq_i_2+sigmasq_j_2)    
 ```
 
 ## Multiple Outcomes 

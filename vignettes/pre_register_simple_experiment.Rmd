@@ -12,7 +12,7 @@ vignette: >
 This vignette demonstrates how to pre-register a simple experimental design using the registration package. 
 
 ```{r, echo = FALSE}
-library(registration)
+library(experimentr)
 library(xtable)
 set.seed(5)
 ```

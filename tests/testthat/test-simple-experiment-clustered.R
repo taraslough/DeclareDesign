@@ -1,7 +1,7 @@
 
 rm(list=ls())
 library(testthat)
-library(registration)
+library(experimentr)
 
 context("Basic experiment with clustering")
 
