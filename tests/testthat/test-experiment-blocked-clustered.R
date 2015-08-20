@@ -1,7 +1,7 @@
 
 rm(list=ls())
 library(testthat)
-library(registration)
+library(experimentr)
 
 context("Simple experiment with blocking and clustering")
 
@@ -18,7 +18,6 @@ test_that("test a simple experiment with blocking and clustering works with vari
     ))
   
   potential_outcomes     <-  declare_potential_outcomes(
-    outcome_variable_DGP = declare_variable(normal_mean = 0, normal_sd = 1),
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
   )
@@ -28,9 +27,9 @@ test_that("test a simple experiment with blocking and clustering works with vari
   
   design <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
   
-  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
+  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = "linear_model")
   analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", 
-                                 method = "lm")
+                                 estimator = "linear_model")
   
   ## estimated treatment effects
   
@@ -53,7 +52,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
   
   ## nudge to set levels of sim (determined by design)
   
-  power_1         <- simulate_experiment(sims = 5, analysis = list(analysis_1, analysis_2), design = design, 
+  power_1         <- simulate_experiment(sims = 5, analysis = list(analysis_1), design = design, 
                                          clusters = clusters, sample_frame = sample_frame, 
                                          potential_outcomes = potential_outcomes, blocks = blocks)
   summary(power_1)

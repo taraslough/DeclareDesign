@@ -1,5 +1,5 @@
-Package: registration
-Title: Tools to simplify the design and pre-registration of experiments, including generating simulated data and conducting power analyses
+Package: experimentr
+Title: Tools for Power Analysis, Design and Pre-registration of Experimental and Quasi-experimental Studies
 Version: 0.2
 Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@columbia.edu", role = c("aut", "cre")),
              person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = c("aut")),

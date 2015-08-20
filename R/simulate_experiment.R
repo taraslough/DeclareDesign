@@ -78,9 +78,6 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_f
     
   }
   
-  ##estimates <- do.call("rbind", lapply(estimates_list, reorient))
-  ##estimands <- do.call("rbind", lapply(estimands_list, reorient))
-  
   return_object <- list(estimates = estimates_list, estimands = estimands_list, label = label)
   class(return_object) <- "experiment_simulations"
   
@@ -105,8 +102,10 @@ summary.experiment_simulations <- function(object, ...) {
       sate_hat <- estimates[[i]]["est", q]
       error <- sate_hat - sate
       p <- estimates[[i]]["p", q]
+      ci_covers_est <- estimates[[i]]["est", q] <= estimates[[i]]["ci_upper", q] & 
+        estimates[[i]]["est", q] >= estimates[[i]]["ci_lower", q]
       
-      summary_array[q, , i] <- c(sate, sate_hat, error, p)
+      summary_array[q, , i] <- c(sate, sate_hat, error, p, ci_covers_est)
       
     }
   }
@@ -117,8 +116,9 @@ summary.experiment_simulations <- function(object, ...) {
     power <- mean(summary_array[,4,] < 0.05)
     RMSE <- sqrt(mean((summary_array[,1,] - summary_array[,2,])^2))
     bias <- mean(summary_array[,1,] - PATE)
+    coverage <- mean(summary_array[,5,])
     
-    summ <- cbind(PATE, simulation_error, power, RMSE, bias)
+    summ <- cbind(PATE, simulation_error, power, RMSE, bias, coverage)
     
     #structure(summ, class = c("summary.experiment_simulations", class(summ)))
     return(summ)
@@ -129,10 +129,10 @@ summary.experiment_simulations <- function(object, ...) {
   power <- apply(summary_array[,4,], 1 , function(x) mean(x < 0.05))
   RMSE <- apply(summary_array[,1,] - summary_array[,2,], 1 , function(x) sqrt(mean(x^2)))
   bias <- apply(summary_array[,2,] - PATE, 1, mean)
+  coverage <- apply(summary_array[,5,], 1, mean)
   
-  summ <- cbind(PATE, simulation_error, power, RMSE, bias)
+  summ <- cbind(PATE, simulation_error, power, RMSE, bias, coverage)
   
-  #structure(summ, class = c("summary.experiment_simulations", class(summ)))
   return(summ)
 }
 

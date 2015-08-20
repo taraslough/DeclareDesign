@@ -55,7 +55,7 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
   
   pre_register_doc <- list(title_header(title = title, authors = authors, 
                                         abstract = abstract, keep_tex = keep_tex),
-                           code_snippet("library(registration) \n library(xtable)"),
+                           code_snippet("library(experimentr) \n library(xtable)"),
                            ifelse(!is.null(data), 
                                   code_snippet("load(\"pre_registration_data.RData\")"), ""),
                            code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
@@ -212,7 +212,7 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = N
   
   paper_draft_doc <- list(title_header(title = title, authors = authors, 
                                        abstract = abstract, keep_tex = keep_tex, pre_register = FALSE),
-                          code_snippet("library(registration) \n library(xtable)"),
+                          code_snippet("library(experimentr) \n library(xtable)"),
                           ifelse(!is.null(pre_registration_data), 
                                  code_snippet("load(\"pre_registration_data.RData\")"), ""),
                           code_snippet("load(\"paper_data.RData\")"),
