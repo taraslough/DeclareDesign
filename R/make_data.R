@@ -93,9 +93,18 @@ make_data <-
                                  sep,
                                  potential_outcomes$condition_names
         )
+        
       }
       if(!is.null(sample_frame)){
         return_frame <- data.frame(return_frame,covariate_frame)
+      }
+      
+      # convert factors to integers
+      for(i in 1:ncol(return_frame)){
+        numeric_check <- identical(return_frame[,i],as.factor(as.integer(as.character(return_frame[,i]))))
+        if(numeric_check){
+          return_frame[,i] <- as.integer(as.character(return_frame[,i]))
+        }
       }
       
       return(return_frame)
