@@ -29,20 +29,23 @@ assign_treatment <- function(design, data) {
   prob_each <- design$prob_each
   block_m <- design$block_m
   design_type <- design$design_type
+  baseline_condition <- design$baseline_condition
   
   if(design_type=="complete"){
     Z <- complete_ra(N = N,
                      m = m,
                      m_each = m_each,
                      prob_each = prob_each, 
-                     condition_names = condition_names)
+                     condition_names = condition_names,
+                     baseline_condition=baseline_condition)
   }
   
   if(design_type=="blocked"){
     Z <- block_ra(block_var=block_var, 
                   block_m = block_m,
                   prob_each = prob_each,
-                  condition_names = condition_names)
+                  condition_names = condition_names,
+                  baseline_condition=baseline_condition)
   }
   
   
@@ -51,7 +54,8 @@ assign_treatment <- function(design, data) {
                     m = m, 
                     m_each = m_each,
                     prob_each = prob_each,
-                    condition_names = condition_names)
+                    condition_names = condition_names,
+                    baseline_condition=baseline_condition)
   }
   
   if(design_type=="blocked and clustered"){
@@ -59,7 +63,8 @@ assign_treatment <- function(design, data) {
                                   block_var=block_var, 
                                   block_m=block_m,
                                   prob_each = prob_each,
-                                  condition_names = condition_names)
+                                  condition_names = condition_names,
+                                  baseline_condition=baseline_condition)
   }
   return(Z)
 }

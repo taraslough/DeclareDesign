@@ -3,7 +3,7 @@
 
 #' @export
 complete_ra <- 
-  function(N, m = NULL, m_each = NULL, prob_each = NULL, condition_names = NULL) {
+  function(N, m = NULL, m_each = NULL, prob_each = NULL, condition_names = NULL, baseline_condition=NULL) {
     if(!is.null(prob_each) & !is.null(m_each)) {
       stop("Do not specify prob_each and m_each together. Use one or the other.")
     }
@@ -26,7 +26,12 @@ complete_ra <-
     
     num_arms <- length(condition_names)
     
-    if(is.null(m_each) & is.null(prob_each) & num_arms ==2) {
+    if(is.null(m_each) & is.null(prob_each) & num_arms ==2 & N ==1) {
+      assign <- sample(condition_names, N, replace = FALSE)
+      return(assign)
+    }
+    
+    if(is.null(m_each) & is.null(prob_each) & num_arms ==2 & N >1) {
       if(is.null(m)) {
         coin_flip <- rbinom(1, 1, 0.5)
         if (coin_flip == 0) 
@@ -35,10 +40,9 @@ complete_ra <-
           m <- ceiling(N/2)
       }
       if (m >= N) {
-        stop("The number of units assigned to treatment (m) must be smaller than the total number of units (N)")
+        stop("The number of units assigned to treatment (m) must be less than the total number of units (N)")
       }
-      assign <- ifelse(1:N %in% sample(1:N, m), condition_names[2], condition_names[1])
-      warning("Assuming that the second condition in condition_names is the treatment condition.")
+      assign <- ifelse(1:N %in% sample(1:N, m),  condition_names[condition_names!=baseline_condition], baseline_condition)
       return(assign)
     }
     if(all(!is.null(m_each), sum(m_each) != N)) {
@@ -70,7 +74,7 @@ complete_ra <-
   }
 #' @export
 block_ra <- 
-  function(block_var, block_m=NULL, prob_each = NULL,condition_names = NULL){
+  function(block_var, block_m=NULL, prob_each = NULL,condition_names = NULL, baseline_condition=NULL){
     
     if(!is.null(block_m) & !is.null(prob_each)){
       stop("Do not specify both block_m and prob_each at the same time.")      
@@ -82,7 +86,7 @@ block_ra <-
     if(is.null(block_m) & is.null(prob_each)){
       for(i in 1:length(blocks)){
         N_block <- sum(block_var==blocks[i])
-        assign[block_var==blocks[i]] <- complete_ra(N = N_block, condition_names=condition_names)
+        assign[block_var==blocks[i]] <- complete_ra(N = N_block, condition_names=condition_names, baseline_condition = baseline_condition)
       }
       return(assign)
     }
@@ -93,7 +97,7 @@ block_ra <-
           stop("block_m should have the same number of rows as there are unique blocks in block_var")
         }
         N_block <- sum(block_var==blocks[i])
-        assign[block_var==blocks[i]] <- complete_ra(N = N_block, m_each = block_m[i,], condition_names=condition_names)
+        assign[block_var==blocks[i]] <- complete_ra(N = N_block, m_each = block_m[i,], condition_names=condition_names, baseline_condition = baseline_condition)
       }
       return(assign)
     }
@@ -105,21 +109,22 @@ block_ra <-
           stop("prob_each must sum to 1.")
         }
         N_block <- sum(block_var==blocks[i])
-        assign[block_var==blocks[i]] <- complete_ra(N = N_block, prob_each = prob_each, condition_names=condition_names)
+        assign[block_var==blocks[i]] <- complete_ra(N = N_block, prob_each = prob_each, condition_names=condition_names, baseline_condition = baseline_condition)
       }
       return(assign)
     }
   }
 
 #' @export
-cluster_ra <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL){
+cluster_ra <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL, baseline_condition=NULL){
   unique_clus <- unique(clust_var)
   n_clus <- length(unique_clus)
   z_clus <- complete_ra(N = n_clus, 
                         m = m,
                         m_each = m_each, 
                         prob_each = prob_each,
-                        condition_names = condition_names)
+                        condition_names = condition_names,
+                        baseline_condition = baseline_condition)
   merged <- merge(x = data.frame(clust_var, init_order = 1:length(clust_var)), 
                   y = data.frame(clust_var=unique_clus, z_clus, stringsAsFactors=FALSE), by="clust_var")
   merged <- merged[order(merged$init_order),]
@@ -128,7 +133,7 @@ cluster_ra <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condi
 
 #' @export
 blocked_and_clustered_ra <- 
-  function(clust_var, block_var, block_m=NULL, prob_each=NULL, condition_names = NULL) {
+  function(clust_var, block_var, block_m=NULL, prob_each=NULL, condition_names = NULL, baseline_condition=NULL) {
     
     # confirm that all units within clusters are in the same block
     if(!all(rowSums(table(clust_var, block_var) != 0)==1)){
@@ -146,7 +151,8 @@ blocked_and_clustered_ra <-
     z_clust <- block_ra(block_var = clust_blocks, 
                         block_m = block_m, 
                         prob_each = prob_each,
-                        condition_names = condition_names)
+                        condition_names = condition_names, 
+                        baseline_condition = baseline_condition)
     merged <- merge(x = data.frame(clust_var, init_order = 1:length(clust_var)), 
                     y = data.frame(clust_var=unique_clust, z_clust), by="clust_var")
     merged <- merged[order(merged$init_order),]
@@ -173,7 +179,8 @@ declare_design <-
            m_each = NULL, 
            prob_each = NULL, 
            block_m = NULL, 
-           excluded_arms = NULL) {
+           excluded_arms = NULL,
+           baseline_condition = "default") {
     
     design_type <- "complete"   
     if(!is.null(blocks)) {design_type <- "blocked"}
@@ -193,6 +200,13 @@ declare_design <-
       condition_names <- condition_names[!condition_names %in% excluded_arms]  
     }
     
+    if(baseline_condition != "default" & !baseline_condition %in% condition_names){
+      stop("The baseline condition must match one of the conditions specified in declare_potential_outcomes().")
+    }
+    if(baseline_condition =="default"){
+      baseline_condition <- condition_names[1]
+    }
+    
     if(is.null(blocks)){block_name=NULL}
     if(is.null(clusters)){cluster_name=NULL}
     
@@ -209,6 +223,7 @@ declare_design <-
                           design_type = design_type,
                           blocks = blocks,
                           clusters = clusters,
+                          baseline_condition = baseline_condition,
                           call = match.call())
     class(return.object) <- "design"
     return(return.object)
