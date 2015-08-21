@@ -141,6 +141,7 @@ average_treatment_effect <- function(x, statistics = c("est", "se", "p", "ci_low
   return(output[which(rownames(output) %in% statistics), , drop = FALSE])
 }
 
+#' @export
 difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
   
   if(length(all.vars(formula[[3]]))>1)
@@ -157,7 +158,7 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
   }
   
   condition_names <- unique(data[,all.vars(formula[[3]])])
-  combn <- combn(rev(condition_names), m = 2)
+  combn <- combn(rev(sort(condition_names)), m = 2)
   combn_names <- apply(combn, 2, function(x) paste(x, collapse = "-"))
   
   if(!is.null(subset))
@@ -169,7 +170,8 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
   
   return_matrix <- matrix(NA, nrow = 6, ncol = ncol(combn), 
                           dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                          paste0(all.vars(formula[[2]]), combn_names, "_diff_in_means")))
+                                          paste0(all.vars(formula[[2]]), "~", combn_names, 
+                                                 "_diff_in_means")))
   for(c in 1:ncol(combn)){
     return_matrix[, c] <- d_i_m(Y = Y, T = T, w = w, cond1 = combn[1, c], cond2 = combn[2, c])
   }
