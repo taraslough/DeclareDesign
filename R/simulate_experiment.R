@@ -100,8 +100,9 @@ summary.experiment_simulations <- function(object, ...) {
   estimates <- object$estimates
   estimands <- object$estimands
   
-  summary_array <- array(NA, dim = c(ncol(estimates[[1]]), 4, length(estimates)),
-                         dimnames = list(colnames(estimates[[1]]),c("sate", "sate_hat", "error", "p"), 
+  summary_array <- array(NA, dim = c(ncol(estimates[[1]]), 5, length(estimates)),
+                         dimnames = list(colnames(estimates[[1]]),
+                                         c("sate", "sate_hat", "error", "p", "ci_covers_est"), 
                                          1:length(estimates)))
   for(i in 1:length(object$estimates)){
     

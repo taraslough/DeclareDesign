@@ -46,6 +46,9 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
   
   outcome_variable <- all.vars(formula[[2]])
   
+  if(is.null(quantity_of_interest) & substitute(estimator) == "linear_regression" | substitute(estimator) == "probit_regression" | substitute(estimator) == "logistic_regression" | substitute(estimator) == "lm" | substitute(estimator) == "glm" | substitute(estimator) == "vglm")
+    stop("If you choose linear, logistic, or probit regression or another standard R modeling function such as glm as the estimator, you must set quantity_of_interest to a function that extracts the QOI from the regression output, such as average_treatment_effect.")
+  
   if(is.null(treatment_variable))
     stop("The treatment variable must be declared in the treatment_variable argument.")
   
