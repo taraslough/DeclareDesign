@@ -11,7 +11,6 @@ test_that("test permutation matrix", {
   smp <- declare_sample_frame(N = 500)
   
   po     <-  declare_potential_outcomes(
-    outcome_variable_DGP = declare_variable(normal_mean = 0, normal_sd = 1),
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 
   )

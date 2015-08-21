@@ -18,7 +18,6 @@ test_that("test whether a simple experiment with clustering can be pre-registere
     ))
   
   po     <-  declare_potential_outcomes(
-    outcome_variable_DGP = declare_variable(normal_mean = 0, normal_sd = 1),
     condition_names = c("Z0","Z1"),
     outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income
   )
