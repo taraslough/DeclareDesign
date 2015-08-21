@@ -6,7 +6,8 @@
 \usage{
 simulate_experiment(data = NULL, potential_outcomes = NULL,
   sample_frame = NULL, blocks = NULL, clusters = NULL, design, analysis,
-  bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL)
+  bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
+  analysis_labels = NULL)
 }
 \arguments{
 \item{data}{An optional user provided dataframe (not made with \code{\link{make_data}})}
@@ -29,7 +30,9 @@ simulate_experiment(data = NULL, potential_outcomes = NULL,
 
 \item{sims}{number of iterations}
 
-\item{label}{WHATS THIS}
+\item{label}{label for the simulation}
+
+\item{analysis_labels}{labels for each analysis}
 }
 \description{
 Declare the data-generating process of a variable

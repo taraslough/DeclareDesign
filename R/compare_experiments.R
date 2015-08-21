@@ -11,13 +11,14 @@
 #' @param blocks what is it?
 #' @param clusters what is it?
 #' @param sims what is it?
-#' @param labels what is it?
+#' @param labels labels for each simulation
+#' @param analysis_labels labels for each analysis
 #' @examples 
 #'   ## here are examples
 #' @export
 compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_level = NULL,
                                 design = NULL, analysis = NULL, sample_frame = NULL, potential_outcomes = NULL,
-                                blocks = NULL, clusters = NULL, sims = 5, labels = NULL){
+                                blocks = NULL, clusters = NULL, sims = 5, labels = NULL, analysis_labels = NULL){
   
   if(is.null(blocks))
     blocks <- design$blocks
@@ -42,6 +43,13 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_lev
   
   if(is.null(design))
     stop("Please provide a design object created using the declare_design() function.")
+  
+  if(is.null(analysis_labels)){
+    if(class(analysis) == "list")
+      analysis_labels <- paste(substitute(analysis)[-1L])
+    else
+      analysis_labels <- paste(substitute(analysis))
+  }
   
   comparison_counts <- c(length(N), length(N_per_level), length(group_sizes_by_level), 
                          length(design), length(analysis), length(sample_frame), 
@@ -82,7 +90,7 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_lev
                                                           potential_outcomes = potential_outcomes_compare[[min(length(potential_outcomes_compare), e)]], 
                                                           blocks = blocks_compare[[min(length(blocks_compare), e)]], 
                                                           clusters = clusters_compare[[min(length(clusters_compare), e)]],
-                                                          sims=sims, label = labels[[e]])
+                                                          sims=sims, label = labels[[e]], analysis_labels = analysis_labels)
     
     comparisons[[e]]$values <- list(design = design_compare[[min(length(design_compare), e)]], 
                                     analysis = analysis_compare[[min(length(analysis_compare), e)]], 

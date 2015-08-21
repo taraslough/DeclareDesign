@@ -10,11 +10,13 @@
 #' @param bootstrap_data Logical
 #' @param N_bootstrap Number of bootstrap sims to conduct
 #' @param sims number of iterations
-#' @param label WHATS THIS
+#' @param label label for the simulation
+#' @param analysis_labels labels for each analysis
 #' @export
 simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_frame = NULL, 
                                 blocks = NULL, clusters = NULL, design, analysis, 
-                                bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL){
+                                bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
+                                analysis_labels = NULL){
   
   if(is.null(blocks))
     blocks <- design$blocks
@@ -62,6 +64,13 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_f
     
     z_sim <- assign_treatment(design = design, data = data_sim)
     
+    if(is.null(analysis_labels)){
+      if(class(analysis) == "list")
+        analysis_labels <- paste(substitute(analysis)[-1L])
+      else
+        analysis_labels <- paste(substitute(analysis))
+    }
+    
     if(class(analysis)=="analysis"){analysis <- list(analysis)}
     
     for(j in 1:length(analysis)){
@@ -73,8 +82,8 @@ simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_f
                          data = data_sim)
     }
     
-    estimates_list[[i]] <- get_estimates(analysis, data = data_sim)
-    estimands_list[[i]] <- get_estimands(analysis, data = data_sim)
+    estimates_list[[i]] <- get_estimates(analysis, data = data_sim, analysis_labels = analysis_labels)
+    estimands_list[[i]] <- get_estimands(analysis, data = data_sim, analysis_labels = analysis_labels)
     
   }
   

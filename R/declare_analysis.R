@@ -52,7 +52,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
   treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable) + 
     as.numeric(attr(terms.formula(formula), "intercept") == 1)
   
-  if(substitute(estimator) == "difference_in_means" & (length(all.vars(formula)) > 2 | all.vars(formula[[3]]) != treatment_variable))
+  if(substitute(estimator) == "difference_in_means" & (length(all.vars(formula)) > 2 | !(treatment_variable %in% all.vars(formula[[3]])) ))
     stop("When using the difference_in_means method, there should only be one covariate listed in the formula on the right-hand side: the treatment variable.")
   
   if(is.null(outcome_variable) & is.null(formula))
@@ -146,11 +146,16 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
   d_i_m <- function(Y, T, w, cond1, cond2){
     diff <- mean(Y[T == cond1]) - mean(Y[T == cond2])
     se <- sqrt(var(Y[T == cond1])/sum(T==cond1) + var(Y[T == cond2])/sum(T==cond2))
-    return(c(diff, se))
+    df <- length(Y) - 2
+    p <- 2 * pt(abs(diff/se), df, lower=FALSE)
+    ci_lower <- diff - qt(p = .025, df = df, lower.tail = FALSE) * se
+    ci_upper <- diff + qt(p = .025, df = df, lower.tail = FALSE) * se
+    return(c(diff, se, p, ci_lower, ci_upper, df))
   }
   
   condition_names <- unique(data[,all.vars(formula[[3]])])
   combn <- combn(rev(condition_names), m = 2)
+  combn_names <- apply(combn, 2, function(x) paste(x, collapse = "-"))
   
   if(!is.null(subset))
     data <- data[subset, ]
@@ -159,10 +164,11 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
   if(!is.null(weights))
     w <- weights[subset]
   
-  return_matrix <- matrix(NA, ncol = 2, nrow = ncol(combn), 
-                          dimnames = list(NULL, c("est", "se")))
+  return_matrix <- matrix(NA, nrow = 6, ncol = ncol(combn), 
+                          dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                          paste0(all.vars(formula[[2]]), combn_names, "_diff_in_means")))
   for(c in 1:ncol(combn)){
-    return_matrix[c, ] <- d_i_m(Y = Y, T = T, w = w, cond1 = combn[1, c], cond2 = combn[2, c])
+    return_matrix[, c] <- d_i_m(Y = Y, T = T, w = w, cond1 = combn[1, c], cond2 = combn[2, c])
   }
   
   return(return_matrix)
@@ -234,14 +240,16 @@ get_estimands_model <- function(analysis, data){
 #' @param data what is it?
 #' @rdname declare_analysis
 #' @export
-get_estimates <- function(analysis, quantity_of_interest = NULL, data) {
+get_estimates <- function(analysis, quantity_of_interest = NULL, data, analysis_labels = NULL) {
   
   ## extract names of arguments analysis objects
-  if(class(analysis) == "list")
-    analysis_labels <- paste(substitute(analysis)[-1L])
-  else
-    analysis_labels <- paste(substitute(analysis))
-
+  if(is.null(analysis_labels)){
+    if(class(analysis) == "list")
+      analysis_labels <- paste(substitute(analysis)[-1L])
+    else
+      analysis_labels <- paste(substitute(analysis))
+  }
+  
   if(!is.null(quantity_of_interest)) {
     ## if there is a user-defined qoi function, use that to extract qoi from analysis object or list of them
     return(quantity_of_interest(analysis, data = data))
@@ -257,6 +265,8 @@ get_estimates <- function(analysis, quantity_of_interest = NULL, data) {
         } else {
           estimates_list[[i]] <- analysis[[i]]$estimate(data = data)
         }
+        if(class(estimates_list[[i]]) != "matrix" & class(estimates_list[[i]]) != "data.frame")
+          stop(paste("The quantity_of_interest function you set, or in its absence the estimate function, for analysis named", analysis_labels[i], "did not produce a matrix or data frame of results."))
         colnames(estimates_list[[i]]) <- paste(colnames(estimates_list[[i]]), analysis_labels[i], sep = "_")
       }
       
@@ -280,6 +290,8 @@ get_estimates <- function(analysis, quantity_of_interest = NULL, data) {
       } else {
         estimates_matrix <- analysis$estimate(data = data)
       }
+      if(class(estimates_matrix) != "matrix" & class(estimates_matrix) != "data.frame")
+        stop(paste("The quantity_of_interest function you set, or in its absence the estimate function, for analysis named", analysis_labels, "did not produce a matrix or data frame of results."))
       colnames(estimates_matrix) <- paste(colnames(estimates_matrix), analysis_labels[1], sep = "_")
       return(estimates_matrix)
     }
@@ -292,12 +304,14 @@ get_estimates <- function(analysis, quantity_of_interest = NULL, data) {
 #' @param statistics  what is it?
 #' @rdname declare_analysis
 #' @export
-get_estimands <- function(analysis, qoi = NULL, data, statistics = "est"){
+get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analysis_labels = NULL){
   
-  if(class(analysis) == "list")
-    analysis_labels <- paste(substitute(analysis)[-1L])
-  else
-    analysis_labels <- paste(substitute(analysis))
+  if(is.null(analysis_labels)){
+    if(class(analysis) == "list")
+      analysis_labels <- paste(substitute(analysis)[-1L])
+    else
+      analysis_labels <- paste(substitute(analysis))
+  }
   
   if(!is.null(qoi)) {
     ## if there is a user-defined qoi function, use that to extract qoi from analysis object or list of them

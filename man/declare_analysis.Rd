@@ -26,9 +26,11 @@ get_estimates_model(analysis, data)
 
 get_estimands_model(analysis, data)
 
-get_estimates(analysis, quantity_of_interest = NULL, data)
+get_estimates(analysis, quantity_of_interest = NULL, data,
+  analysis_labels = NULL)
 
-get_estimands(analysis, qoi = NULL, data, statistics = "est")
+get_estimands(analysis, qoi = NULL, data, statistics = "est",
+  analysis_labels = NULL)
 }
 \arguments{
 \item{formula}{A standard R formula as a string or formula object, i.e. Y ~ Z, that indicates the outcome and the treatment indicator as well as covariates, block indicators, etc. that are used to construct estimates and/or estimands. By default, the formula provided is used for estimates and estimands.}

@@ -27,9 +27,9 @@ test_that("test a simple experiment with blocking and clustering works with vari
   
   design <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
   
-  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = "linear_model")
+  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
   analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", 
-                                 estimator = "linear_model")
+                                 estimator = "linear_regression", quantity_of_interest = average_treatment_effect)
   
   ## estimated treatment effects
   
@@ -77,7 +77,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
   
   mock$prob_assign <- runif(nrow(mock))
   
-  M1_est             <- get_estimates(analysis = analysis_2, data = mock)  
+  M1_est             <- get_estimates(analysis = analysis_1, data = mock)  
   summary(M1_est)
   
   ## below here doesn't work at the moment, working on it

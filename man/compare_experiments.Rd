@@ -7,7 +7,7 @@
 compare_experiments(N = NULL, N_per_level = NULL,
   group_sizes_by_level = NULL, design = NULL, analysis = NULL,
   sample_frame = NULL, potential_outcomes = NULL, blocks = NULL,
-  clusters = NULL, sims = 5, labels = NULL)
+  clusters = NULL, sims = 5, labels = NULL, analysis_labels = NULL)
 }
 \arguments{
 \item{N}{what is it?}
@@ -30,7 +30,9 @@ compare_experiments(N = NULL, N_per_level = NULL,
 
 \item{sims}{what is it?}
 
-\item{labels}{what is it?}
+\item{labels}{labels for each simulation}
+
+\item{analysis_labels}{labels for each analysis}
 }
 \description{
 Declare the data-generating process of a variable
