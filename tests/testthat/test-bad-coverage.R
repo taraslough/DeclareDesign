@@ -40,7 +40,7 @@ test_that("test permutation matrix", {
   mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
   a <- get_estimates(analysis = analysis, data = mock)
-  a <- get_estimates(analysis = analysis, data = mock)
+  a <- get_estimates(analysis = analysis_lsdv, data = mock)
   
   
 })

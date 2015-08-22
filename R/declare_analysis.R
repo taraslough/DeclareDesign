@@ -151,9 +151,9 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
     diff <- mean(Y[T == cond1]) - mean(Y[T == cond2])
     se <- sqrt(var(Y[T == cond1])/sum(T==cond1) + var(Y[T == cond2])/sum(T==cond2))
     df <- length(Y) - 2
-    p <- 2 * pt(abs(diff/se), df, lower=FALSE)
-    ci_lower <- diff - qt(p = .025, df = df, lower.tail = FALSE) * se
-    ci_upper <- diff + qt(p = .025, df = df, lower.tail = FALSE) * se
+    p <- 2 * pnorm(abs(diff/se), lower.tail = FALSE)
+    ci_lower <- diff - qnorm(p = .025, lower.tail = FALSE) * se
+    ci_upper <- diff + qnorm(p = .025, lower.tail = FALSE) * se
     return(c(diff, se, p, ci_lower, ci_upper, df))
   }
   
