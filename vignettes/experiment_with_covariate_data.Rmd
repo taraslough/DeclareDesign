@@ -73,10 +73,10 @@ Then we declare the design of the experiment, in this case a simple one without 
 design <- declare_design(potential_outcomes = potential_outcomes)
 ```
 
-Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the simulate_experiment function.
+Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the get_diagnostics function.
 
 ```{r}
-simulations <- simulate_experiment(potential_outcomes = potential_outcomes, 
+simulations <- get_diagnostics(potential_outcomes = potential_outcomes, 
                                    sample_frame =  sample_frame, 
                                    design = design, 
                                    analysis = analysis)

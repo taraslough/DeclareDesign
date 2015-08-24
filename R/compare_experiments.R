@@ -84,7 +84,7 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_lev
     
     comparisons[[e]] <- list()
     
-    comparisons[[e]]$simulations <-   simulate_experiment(design = design_compare[[min(length(design_compare), e)]], 
+    comparisons[[e]]$simulations <-   get_diagnostics(design = design_compare[[min(length(design_compare), e)]], 
                                                           analysis = analysis_compare[[min(length(analysis_compare), e)]], 
                                                           sample_frame = sample_frame_compare[[min(length(sample_frame_compare), e)]], 
                                                           potential_outcomes = potential_outcomes_compare[[min(length(potential_outcomes_compare), e)]], 

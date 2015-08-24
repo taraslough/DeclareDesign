@@ -13,7 +13,7 @@
 #' @param label label for the simulation
 #' @param analysis_labels labels for each analysis
 #' @export
-simulate_experiment <- function(data = NULL, potential_outcomes = NULL, sample_frame = NULL, 
+get_diagnostics <- function(data = NULL, potential_outcomes = NULL, sample_frame = NULL, 
                                 blocks = NULL, clusters = NULL, design, analysis, 
                                 bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
                                 analysis_labels = NULL){
@@ -112,8 +112,8 @@ summary.experiment_simulations <- function(object, ...) {
       sate_hat <- estimates[[i]]["est", q]
       error <- sate_hat - sate
       p <- estimates[[i]]["p", q]
-      ci_covers_est <- estimates[[i]]["est", q] <= estimates[[i]]["ci_upper", q] & 
-        estimates[[i]]["est", q] >= estimates[[i]]["ci_lower", q]
+      ci_covers_est <- estimands[[i]]["est", q] <= estimates[[i]]["ci_upper", q] & 
+        estimands[[i]]["est", q] >= estimates[[i]]["ci_lower", q]
       
       summary_array[q, , i] <- c(sate, sate_hat, error, p, ci_covers_est)
       
