@@ -180,7 +180,7 @@ declare_design <-
            prob_each = NULL, 
            block_m = NULL, 
            excluded_arms = NULL,
-           baseline_condition = "default") {
+           baseline_condition = NULL) {
     
     design_type <- "complete"   
     if(!is.null(blocks)) {design_type <- "blocked"}
@@ -200,10 +200,11 @@ declare_design <-
       condition_names <- condition_names[!condition_names %in% excluded_arms]  
     }
     
-    if(baseline_condition != "default" & !baseline_condition %in% condition_names){
-      stop("The baseline condition must match one of the conditions specified in declare_potential_outcomes().")
+    if(!is.null(baseline_condition)){
+      if(!(baseline_condition %in% condition_names))
+        stop("The baseline condition must match one of the conditions specified in declare_potential_outcomes().")
     }
-    if(baseline_condition =="default"){
+    if(is.null(baseline_condition)){
       baseline_condition <- condition_names[1]
     }
     

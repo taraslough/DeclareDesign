@@ -9,38 +9,54 @@ test_that("test permutation matrix", {
   
   sample_frame <- declare_sample_frame(
     individuals = list(
-      income = declare_variable(normal_mean = 3, normal_sd = 1)),
-    N_per_level = c(10))
+      income = declare_variable(normal_mean = 3, normal_sd = 1),
+      ethnicity = declare_variable(multinomial_probabilities = c(.1, .2, .3, .4), multinomial_categories = 1:4)
+      ),
+    N_per_level = c(5000))
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income
+    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + -.1*Z1*income
   )
   
-  blocks <- declare_blocks(blocks = "income", block_name = "income_groups", block_count = 10)
+  blocks <- declare_blocks(blocks = "ethnicity", block_name = "income_groups")
   
-  design <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks)
+  design_blocked <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks, prob_each = c(.9, .1))
+  design_notblocked <- declare_design(potential_outcomes = potential_outcomes)
   
   analysis_lsdv <- declare_analysis(formula = Y ~ Z + factor(income_groups), estimator = linear_regression,
-                                    quantity_of_interest = average_treatment_effect)
+                                    quantity_of_interest = average_treatment_effect,
+                                    estimand_formula = Y ~ Z)
+  
+  analysis_lm <- declare_analysis(formula = Y ~ Z, estimator = linear_regression,
+                                  quantity_of_interest = average_treatment_effect,
+                                  estimand_formula = Y ~ Z)
   
   analysis <- declare_analysis(formula = Y ~ Z)
   
-  power         <- simulate_experiment(sims = 5, analysis = list(analysis, analysis_lsdv), design = design, 
-                                       clusters = clusters, sample_frame = sample_frame, 
-                                       potential_outcomes = potential_outcomes)
-  summary(power_1)
+  power_test        <- get_diagnostics(sims = 500, 
+                                  analysis = list(analysis_lsdv, analysis_lm, analysis), 
+                                  design = design_blocked, 
+                                  blocks = blocks, sample_frame = sample_frame, 
+                                  potential_outcomes = potential_outcomes)
+  
+  
+  power        <- get_diagnostics(sims = 1000, 
+                                  analysis = list(analysis, analysis_lsdv, analysis_lm), 
+                                  design = design_blocked, 
+                                  blocks = blocks, sample_frame = sample_frame, 
+                                  potential_outcomes = potential_outcomes)
   
   
   
-  mock <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, 
-                    blocks = blocks)
+  mock <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, blocks = blocks)
   
-  mock$Z <- assign_treatment(design = design, data = mock)
+  mock$Z <- assign_treatment(design = design_blocked, data = mock)
   mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
-  a <- get_estimates(analysis = analysis, data = mock)
-  a <- get_estimates(analysis = analysis_lsdv, data = mock)
+  dimM <- get_estimates(analysis = analysis, data = mock)
+  lsdvM <- get_estimates_model(analysis = analysis_lsdv, data = mock)
+  lmM <- get_estimates_model(analysis = analysis_lm, data = mock)
   
   
 })

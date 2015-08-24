@@ -142,18 +142,19 @@ average_treatment_effect <- function(x, statistics = c("est", "se", "p", "ci_low
 }
 
 #' @export
-difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
+difference_in_means <- function(formula, data, weights = NULL, subset = NULL, alpha = .05) {
   
   if(length(all.vars(formula[[3]]))>1)
     stop("The formula should only include one variable on the right-hand side: the treatment variable.")
   
-  d_i_m <- function(Y, T, w, cond1, cond2){
+  d_i_m <- function(Y, T, w, cond1, cond2, alpha){
+    N <- length(Y)
     diff <- mean(Y[T == cond1]) - mean(Y[T == cond2])
     se <- sqrt(var(Y[T == cond1])/sum(T==cond1) + var(Y[T == cond2])/sum(T==cond2))
     df <- length(Y) - 2
-    p <- 2 * pnorm(abs(diff/se), lower.tail = FALSE)
-    ci_lower <- diff - qnorm(p = .025, lower.tail = FALSE) * se
-    ci_upper <- diff + qnorm(p = .025, lower.tail = FALSE) * se
+    p <- 2 * pt(abs(diff/se), df = N - 2, lower.tail = FALSE)
+    ci_lower <- diff - qt(1 - alpha/2, df = N - 2) * se
+    ci_upper <- diff + qt(1 - alpha/2, df = N - 2) * se
     return(c(diff, se, p, ci_lower, ci_upper, df))
   }
   
@@ -173,7 +174,7 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL) {
                                           paste0(all.vars(formula[[2]]), "~", combn_names, 
                                                  "_diff_in_means")))
   for(c in 1:ncol(combn)){
-    return_matrix[, c] <- d_i_m(Y = Y, T = T, w = w, cond1 = combn[1, c], cond2 = combn[2, c])
+    return_matrix[, c] <- d_i_m(Y = Y, T = T, w = w, cond1 = combn[1, c], cond2 = combn[2, c], alpha = alpha)
   }
   
   return(return_matrix)

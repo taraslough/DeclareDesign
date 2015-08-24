@@ -14,9 +14,9 @@
 #' @param analysis_labels labels for each analysis
 #' @export
 get_diagnostics <- function(data = NULL, potential_outcomes = NULL, sample_frame = NULL, 
-                                blocks = NULL, clusters = NULL, design, analysis, 
-                                bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
-                                analysis_labels = NULL){
+                            blocks = NULL, clusters = NULL, design, analysis, 
+                            bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
+                            analysis_labels = NULL){
   
   if(is.null(blocks))
     blocks <- design$blocks
@@ -120,28 +120,14 @@ summary.experiment_simulations <- function(object, ...) {
     }
   }
   
-  if(dim(summary_array)[1]==1){
-    PATE <- mean(summary_array[,1,])
-    simulation_error <- sd(summary_array[,1,])
-    power <- mean(summary_array[,4,] < 0.05)
-    RMSE <- sqrt(mean((summary_array[,1,] - summary_array[,2,])^2))
-    bias <- mean(summary_array[,1,] - PATE)
-    coverage <- mean(summary_array[,5,])
-    
-    summ <- cbind(PATE, simulation_error, power, RMSE, bias, coverage)
-    
-    #structure(summ, class = c("summary.experiment_simulations", class(summ)))
-    return(summ)
-  }
+  PATE <- apply(summary_array[,"sate",, drop = FALSE], 1 , mean)
+  sd_sate <- apply(summary_array[,"sate",, drop = FALSE], 1 , sd)
+  power <- apply(summary_array[,"p", , drop = FALSE], 1 , function(x) mean(x < 0.05))
+  RMSE <- apply(summary_array[,"sate", , drop = FALSE] - summary_array[,"sate_hat", , drop = FALSE], 1 , function(x) sqrt(mean(x^2)))
+  bias <- apply(summary_array[,"sate_hat", , drop = FALSE] - PATE, 1, mean)
+  coverage <- apply(summary_array[,"ci_covers_est", , drop = FALSE], 1, mean)
   
-  PATE <- apply(summary_array[,1,], 1 , mean)
-  simulation_error <- apply(summary_array[,1,], 1 , sd)
-  power <- apply(summary_array[,4,], 1 , function(x) mean(x < 0.05))
-  RMSE <- apply(summary_array[,1,] - summary_array[,2,], 1 , function(x) sqrt(mean(x^2)))
-  bias <- apply(summary_array[,2,] - PATE, 1, mean)
-  coverage <- apply(summary_array[,5,], 1, mean)
-  
-  summ <- cbind(PATE, simulation_error, power, RMSE, bias, coverage)
+  summ <- cbind(PATE, sd_sate, power, RMSE, bias, coverage)
   
   return(summ)
 }
