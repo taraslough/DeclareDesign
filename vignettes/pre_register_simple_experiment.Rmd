@@ -39,10 +39,7 @@ potential_outcomes     <-  declare_potential_outcomes(
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
 
 ```{r}
-analysis      <- declare_analysis(formula = Y ~ Z + income,
-                                  treatment_variable = "Z",
-                                  outcome_variable = "Y",
-                                  estimator = "lm")
+analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means)
 ```
 
 Then we declare the design of the experiment, in this case a simple one without clusters or blocking.

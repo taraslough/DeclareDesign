@@ -44,8 +44,7 @@ Fourth, we define one or more analyses we will run based on simulated data. This
 
 
 ```{r}
-analysis      <- declare_analysis(formula = Y ~ Z + income, treatment_variable = "Z",
-                                  method = "lm")
+analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means)
 ```
 
 Then we declare the design of the experiment, in this case a simple one without clusters or blocking.
@@ -135,13 +134,11 @@ sample_frame_block_cluster <- declare_sample_frame(
   N_per_level = c(500, 100))
 
 potential_outcomes_block_cluster     <-  declare_potential_outcomes(
-  outcome_variable_DGP = declare_variable(normal_mean = 0, normal_sd = 1),
   condition_names = c("Z0","Z1"),
   outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
 )
 
-analysis_block_cluster <- declare_analysis(formula = Y ~ Z + income + development_level, 
-                                           treatment_variable = "Z", method = "lm")
+analysis_block_cluster <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means)
 ```
 
 To initiate the clustering in the design, we use the declare_cluster function,

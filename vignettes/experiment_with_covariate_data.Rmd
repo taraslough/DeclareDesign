@@ -56,18 +56,15 @@ Second, we define the potential outcomes, which will be simulated based on the b
 ```{r}
 potential_outcomes     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income,
-  cluster_variable = "villages_id",
-  ICC = .2
-)
+  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income
+  )
 ```
 
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
 
 
 ```{r}
-analysis      <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z",
-                                  method = "lm")
+analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means)
 ```
 
 Then we declare the design of the experiment, in this case a simple one without clusters or blocking.
