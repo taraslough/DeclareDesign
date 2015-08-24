@@ -139,18 +139,18 @@ my.mock.data$Z &lt;-<span class="st"> </span><span class="kw">assign_treatment</
 my.mock.data$Y &lt;-<span class="st"> </span><span class="kw">observed_outcome</span>(<span class="dt">outcome =</span> <span class="st">&quot;Y&quot;</span>, <span class="dt">treatment_assignment =</span> <span class="st">&quot;Z&quot;</span>, <span class="dt">data =</span> my.mock.data)
 <span class="kw">head</span>(my.mock.data)</code></pre>
 <pre><code>##   Y_Z0 Y_Z1 type individuals_id my_blocks  Z Y
-## 1    0    3    A              1   block_1 Z0 0
-## 2    0    3    A              2   block_1 Z0 0
-## 3    2    1    B              3   block_2 Z0 2
-## 4    2    1    B              4   block_2 Z0 2
-## 5    0    3    A              5   block_1 Z1 3
-## 6    2    1    B              6   block_2 Z1 1</code></pre>
+## 1    2    1    B              1   block_2 Z0 2
+## 2    2    1    B              2   block_2 Z1 1
+## 3    0    3    A              3   block_1 Z1 3
+## 4    2    1    B              4   block_2 Z1 1
+## 5    2    1    B              5   block_2 Z0 2
+## 6    2    1    B              6   block_2 Z0 2</code></pre>
 <p>That looks right. lets double check that things are properly blocked:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(my.mock.data$my_blocks, my.mock.data$Z)</code></pre>
 <pre><code>##          
 ##           Z0 Z1
-##   block_1  6  5
-##   block_2  5  4</code></pre>
+##   block_1  5  4
+##   block_2  5  6</code></pre>
 <p>Looks good. Note that there is no guarantee in this example that the blocks will be of the same size. What is guaranteed here is that the treatment will be as balanced as possible across the blocks. In other designs you can of coues make sure that the blocks themselves are of equal size.</p>
 <p>Sharing mock data like this helps people understand your data structure.</p>
 </div>
@@ -160,29 +160,29 @@ my.mock.data$Y &lt;-<span class="st"> </span><span class="kw">observed_outcome</
 <pre class="sourceCode r"><code class="sourceCode r">my.estimates &lt;-<span class="st"> </span><span class="kw">get_estimates</span>(<span class="dt">analysis =</span> my.lsdv.analysis, <span class="dt">data =</span> my.mock.data)
 my.estimates</code></pre>
 <pre><code>##          Y~ZZ1_average_treatment_effect_my.lsdv.analysis
-## est                                           1.20408163
-## se                                            0.48253928
-## p                                             0.02316942
-## ci_lower                                      0.18601274
-## ci_upper                                      2.22215053
-## df                                           17.00000000</code></pre>
+## est                                            0.7959184
+## se                                             0.4825393
+## p                                              0.1174121
+## ci_lower                                      -0.2221505
+## ci_upper                                       1.8139873
+## df                                            17.0000000</code></pre>
 </div>
 <div id="diagnostics" class="section level2">
 <h2><span class="header-section-number">3.3</span> Diagnostics</h2>
-<p>Now things get more interesting. Let’s see how good this design is. Note that given the potential outcomes is it indeed the case that the true treatment effect is +2 for one group and -1 for another. With even sized groups that means an average treatment effect of +1.</p>
-<pre class="sourceCode r"><code class="sourceCode r">my.diagnostics         &lt;-<span class="st"> </span><span class="kw">simulate_experiment</span>(<span class="dt">sims =</span> <span class="dv">1000</span>, <span class="dt">analysis =</span> <span class="kw">list</span>(my.lsdv.analysis), 
+<p>Now things get more interesting. Let’s see how good this design is. Note that given the potential outcomes the true treatment effect is +2 for one group and -1 for another. With even sized groups that means an average treatment effect of +1.</p>
+<pre class="sourceCode r"><code class="sourceCode r">my.diagnostics         &lt;-<span class="st"> </span><span class="kw">get_diagnostics</span>(<span class="dt">sims =</span> <span class="dv">1000</span>, <span class="dt">analysis =</span> <span class="kw">list</span>(my.lsdv.analysis), 
                           <span class="dt">design =</span> my.design, 
                           <span class="dt">sample_frame =</span> my.sample.frame, 
                           <span class="dt">potential_outcomes =</span> my.potential.outcomes)
 
 <span class="kw">summary</span>(my.diagnostics)</code></pre>
 <pre><code>##        PATE simulation_error power        RMSE         bias coverage
-## [1,] 1.0474        0.4630417  0.47 0.008105747 8.887211e-17        1</code></pre>
+## [1,] 1.0174        0.4570625 0.438 0.008616494 6.577042e-17        1</code></pre>
 <p>What do we see?</p>
 <ul>
 <li><p>First the PATE is what we thought it was; we have set things up correctly.</p></li>
-<li><p>Second the “simulation error” is quite large; here this is the standard deviation of the SATE: or the difference between the SATE and the PATE given a design in which we draw just 20 units from a larger population.</p></li>
-<li><p>Third the power is <code>0.47</code> which is not great.</p></li>
+<li><p>Second the “simulation error” or better “sampling error” is quite large; here this is the standard deviation of the SATE: or the difference between the SATE and the PATE given a design in which we draw just 20 units from a larger population.</p></li>
+<li><p>Third the power is <code>0.438</code> which is not great.</p></li>
 <li><p>The root mean square error is the expected deviation of the estimate from the SATE.</p></li>
 <li><p>There is good news on bias: this design yields an unbiased estimate.</p></li>
 <li><p>But there is bad news on the 95% confidence interval – it has the wrong coverage. This suggests that the standard errors are not being calculated correctly. This is something that happens often but that people are not aware of. Note that fact that the coverage is 1 rather than .95 means that the standard errors are too large and in fact the power is better than we think (or would be, for the right estimator). Can you see why the coverage is wrong here?</p></li>
