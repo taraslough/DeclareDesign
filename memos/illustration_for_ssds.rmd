@@ -1,0 +1,134 @@
+---
+title: 'Simple analysis with experimentr'
+author: 'Blair, Cooper, Coppock, and Humphreys'
+output:
+  html_document:
+    highlight: tango
+    number_sections: yes
+    theme: cerulean
+---
+
+# The key elements of a design
+Your four main steps in describing a design are to describe:
+
+1. the **environment**: how many cases are there? what sort of data do you have on these, etc
+
+2. the **potential outcomes**: how do you expect units to respond under different types of treatment
+
+3. your **design**: what are the  treatments? what is the randomization scheme? what do you treat as a block and what as a cluster?
+
+4. your **analysis plan**: how do you plan to analyze this data?
+
+We now work through these with a simple example.
+
+# First Characterize Your Design
+Lets go. First lets load up the package
+
+```{r}
+rm(list=ls())
+# devtools::install_github(repo = "egap/experimentr", auth_token = "c5a7798ff2bc621f161f6e6a8155a4ecc1985045")
+library(experimentr)
+```
+
+## The Environment
+Here is a simple environment; in this case we indicate that there are 20 units and they are of two types. eg men, women; north south, whatever it is. 
+These types may or may not later affect the potential outcomes, the randomization scheme, or the analysis strategy. you can describe much more complex types of data if you like.
+
+
+```{r}
+my.sample.frame <- declare_sample_frame(
+  individuals = list(
+    type = declare_variable(binary_probability = .5, binary_categories = c("A","B"))),
+    N = 20)
+```
+
+## The Potential Outcomes
+Next we describe the potential outcomes. This is a guess about what will happen under different conditions. Your description of potential outcomes do not have to match the treatment arms exactly; in a sense when you choose your treatments you decide which potential outcomes will be observed. 
+
+```{r}
+my.potential.outcomes     <-  declare_potential_outcomes(
+    condition_names = c("Z0","Z1"),
+    outcome_formula = Y ~ 0*Z0*(type=="A") + 2*Z0*(type=="B") + 3*Z1*(type=="A") + 1*Z1*(type=="B")
+    )  
+```
+
+## The Design
+Next describe the design. Here we are going to do a block randomization, using the types as blocks. Note in this fraework the blocks are not part of the world; they are part of your design. Likewise with the potential outcomes -- in your choice of treatments you *decide* what the relevant potential outcomes are.
+
+```{r}
+my.design <- declare_design(potential_outcomes = my.potential.outcomes, 
+                  blocks = declare_blocks(blocks = "type", block_name = "my_blocks", block_count = 2))
+```
+
+## The Analysis 
+Last we say how we plan to analyze. Here we are proposing using a fixed effects model because of the two groups. This is a very common approach, especially with a blocked design. However it  is not a very good approach. Soon we will see why.
+
+```{r}
+my.lsdv.analysis <- declare_analysis(
+                    formula = Y ~ Z + factor(type), 
+                    estimator = linear_regression,
+                    quantity_of_interest = average_treatment_effect
+                    )
+```
+
+# Now Evaluate It
+Now that you have declared the design and analysis strategy you can look at some output.
+
+## Mock Data
+Let's look first at  some mock data to see if this is looking like we want it to look
+
+```{r}
+my.mock.data <- make_data(potential_outcomes = my.potential.outcomes, sample_frame = my.sample.frame, 
+                  blocks = declare_blocks(blocks = "type", block_name = "my_blocks", block_count = 2))
+my.mock.data$Z <- assign_treatment(design = my.design, data = my.mock.data)
+my.mock.data$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = my.mock.data)
+head(my.mock.data)
+```
+
+That looks right. lets double check that things are properly blocked:
+
+```{r}
+table(my.mock.data$my_blocks, my.mock.data$Z)
+```
+
+Looks good. Note that there is no guarantee in this example that the blocks will be of the same size. What is guaranteed here is that the treatment will be as balanced as possible across the blocks. In other designs you can of coues make sure that the blocks themselves are of equal size. 
+
+Sharing mock data like this helps people understand your data structure.
+
+## Mock Analysis
+Now lets look at a dummy analysis. Doing the analysis in advance leaves no ambiguity about your intentions. You can also check that you have set things up the way you meant to. 
+```{r}
+my.estimates <- get_estimates(analysis = my.lsdv.analysis, data = my.mock.data)
+my.estimates
+```
+
+## Diagnostics
+Now things get more interesting.  Let's see how good this design is. Note that given the potential outcomes is it indeed the case that the true treatment effect is +2 for one group and -1 for another. With even sized groups that means an average treatment effect of +1.
+
+
+```{r}
+my.diagnostics         <- simulate_experiment(sims = 1000, analysis = list(my.lsdv.analysis), 
+                          design = my.design, 
+                          sample_frame = my.sample.frame, 
+                          potential_outcomes = my.potential.outcomes)
+
+summary(my.diagnostics)
+```
+
+What do we see? 
+
+* First the PATE is what we thought it was; we have set things up correctly. 
+
+* Second the "simulation error" is quite large; here this is the standard deviation of the SATE: or the difference between the SATE and the PATE given a design in which we draw just 20 units from a larger population. 
+
+* Third the  power is ```r summary(my.diagnostics)[3]``` which is not great. 
+
+* The root mean square error is the expected deviation of the estimate from the SATE.
+
+* There is good news on bias: this design yields an unbiased estimate. 
+
+* But there is bad news on the 95\% confidence interval -- it has the wrong coverage. This suggests that the standard errors are not being calculated correctly. This is something that happens often but that people are not aware of. Note that fact that the coverage is 1 rather than .95 means that the standard errors are too large and in fact the power is better than we think (or would be, for the right estimator). Can you see why the coverage is wrong here?
+
+
+# Onwards
+That's just the beginning. Once you characterize a design like this you can go on to *compare* designs, see how they perform under different assignment strategies, different analysis strategies and so on. Of course you can also use this to analyze historical designs from your favorite papers. And with a formal description of your design in hand as an R object you can output your results to produce the core elements of a pre-analysis plan.  
