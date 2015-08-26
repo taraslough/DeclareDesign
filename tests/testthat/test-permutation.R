@@ -8,7 +8,7 @@ context("Permutation")
 test_that("test permutation matrix", {
   
   # Still have to put in covariates because where else to specify n (it's in make_data() right now)
-  smp <- declare_sample_frame(N = 500)
+  smp <- declare_sample(N = 500)
   
   po     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),

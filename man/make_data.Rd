@@ -10,7 +10,7 @@ make_data(potential_outcomes = NULL, sample_frame = NULL, blocks = NULL,
 \arguments{
 \item{potential_outcomes}{An outcomes_object made with \code{\link{declare_potential_outcomes}}.}
 
-\item{sample_frame}{A sample_frame object made with \code{\link{declare_sample_frame}}, or a pre-existing dataframe}
+\item{sample_frame}{A sample_frame object made with \code{\link{declare_sample}}, or a pre-existing dataframe}
 
 \item{blocks}{A blocks object, made with \code{\link{declare_blocks}} (optional).}
 

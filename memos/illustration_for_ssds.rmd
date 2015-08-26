@@ -36,7 +36,7 @@ These types may or may not later affect the potential outcomes, the randomizatio
 
 
 ```{r}
-my.sample.frame <- declare_sample_frame(
+my.sample.frame <- declare_sample(
   individuals = list(
     type = declare_variable(binary_probability = .5, binary_categories = c("A","B"))),
     N = 20)

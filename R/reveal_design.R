@@ -5,7 +5,7 @@
 #' @param data A dataframe, often created by \code{\link{make_data}}.
 #' @return A random assignment vector of length N.
 #' @examples
-#' smp <- declare_sample_frame(N = 850)
+#' smp <- declare_sample(N = 850)
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' design <- declare_design(potential_outcomes = po, m=200)
@@ -78,7 +78,7 @@ assign_treatment <- function(design, data) {
 #' @param sep The character separating outcomes from condition names in the potential outcomes columns of data
 #' @return an outcome vector of observed y
 #' @examples
-#' smp <- declare_sample_frame(N = 850)
+#' smp <- declare_sample(N = 850)
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' design <- declare_design(potential_outcomes = po, m=200)
@@ -118,7 +118,7 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data, sep = "_
 #' @param data A dataframe, often created by \code{\link{make_data}}.
 #' @return A matrix of probabilities of assignment to treatment.
 #' @examples
-#' smp <- declare_sample_frame(N = 850)
+#' smp <- declare_sample(N = 850)
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' design <- declare_design(potential_outcomes = po, m=200)
@@ -319,7 +319,7 @@ design_probs <- function(N= NULL,
 #' @param data A dataframe, often created by \code{\link{make_data}}.
 #' @return A vector probabilities of assignment to treatment.
 #' @examples
-#' smp <- declare_sample_frame(N = 850)
+#' smp <- declare_sample(N = 850)
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' design <- declare_design(potential_outcomes = po, m=200)

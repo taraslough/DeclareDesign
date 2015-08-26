@@ -8,8 +8,8 @@
 #' @param resample when data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.
 #' @param level_ID_variables optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")
 #' @export
-declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level = NULL, N = NULL, data = NULL, 
-                                 resample = FALSE, level_ID_variables = NULL) {
+declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL, N = NULL, data = NULL, 
+                           resample = FALSE, level_ID_variables = NULL) {
   
   # Check whether the user has supplied data
   no_data <- is.null(data)
@@ -188,11 +188,11 @@ declare_sample_frame <- function(..., N_per_level = NULL, group_sizes_by_level =
   
   
   if(length(N_per_level)>N_levels){
-    stop("The argument supplied to N_per_level or group_sizes_by_level implies more levels than you have allowed for in the variable declarations or user data provided to declare_sample_frame().")
+    stop("The argument supplied to N_per_level or group_sizes_by_level implies more levels than you have allowed for in the variable declarations or user data provided to declare_sample().")
   }
   
   if(length(N_per_level)<N_levels){
-    stop("The argument supplied to N_per_level or group_sizes_by_level implies fewer levels than you have allowed for in the variable declarations or user data provided to declare_sample_frame().")
+    stop("The argument supplied to N_per_level or group_sizes_by_level implies fewer levels than you have allowed for in the variable declarations or user data provided to declare_sample().")
   }
   
   # Now generate the make_sample() function when there is...
@@ -456,7 +456,7 @@ remaindr <- function(numerator,denominator) {
 }
 
 #' @param object what is it?
-#' @rdname declare_sample_frame
+#' @rdname declare_sample
 #' @export
 summary.sample_frame <- function(object, ...){
   

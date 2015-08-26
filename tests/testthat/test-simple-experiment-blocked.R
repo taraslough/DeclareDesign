@@ -6,7 +6,7 @@ library(experimentr)
 context("Basic experiment with blocking")
 
 test_that("test whether a simple blocked experiment can be pre-registered", {
-  smp <- declare_sample_frame(
+  smp <- declare_sample(
     individuals = list(
       income = declare_variable(normal_mean = 3, normal_sd = 1)),
     N_per_level = c(10))

@@ -2,7 +2,7 @@
 #'
 #' @param data An optional user provided dataframe (not made with \code{\link{make_data}})
 #' @param potential_outcomes A potential outcomes object, made with \code{\link{declare_potential_outcomes}}
-#' @param sample_frame A sample frame object, made with \code{\link{declare_sample_frame}}
+#' @param sample_frame A sample frame object, made with \code{\link{declare_sample}}
 #' @param blocks A blocks object, made with \code{\link{declare_blocks}} (optional).
 #' @param clusters A clusters object, made with \code{\link{declare_clusters}} (optional).
 #' @param design design object, made with \code{\link{declare_design}}.

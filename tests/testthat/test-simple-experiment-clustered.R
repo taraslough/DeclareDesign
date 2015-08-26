@@ -6,7 +6,7 @@ library(experimentr)
 context("Basic experiment with clustering")
 
 test_that("test whether a simple experiment with clustering can be pre-registered", {
-  smp <- declare_sample_frame(
+  smp <- declare_sample(
     individuals = list(
       income = declare_variable()),
     villages = list(

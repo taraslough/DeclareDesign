@@ -98,7 +98,7 @@ img {
 <div id="the-environment" class="section level2">
 <h2><span class="header-section-number">2.1</span> The Environment</h2>
 <p>Here is a simple environment; in this case we indicate that there are 20 units and they are of two types. eg men, women; north south, whatever it is. These types may or may not later affect the potential outcomes, the randomization scheme, or the analysis strategy. you can describe much more complex types of data if you like.</p>
-<pre class="sourceCode r"><code class="sourceCode r">my.sample.frame &lt;-<span class="st"> </span><span class="kw">declare_sample_frame</span>(
+<pre class="sourceCode r"><code class="sourceCode r">my.sample.frame &lt;-<span class="st"> </span><span class="kw">declare_sample</span>(
   <span class="dt">individuals =</span> <span class="kw">list</span>(
     <span class="dt">type =</span> <span class="kw">declare_variable</span>(<span class="dt">binary_probability =</span> .<span class="dv">5</span>, <span class="dt">binary_categories =</span> <span class="kw">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>))),
     <span class="dt">N =</span> <span class="dv">20</span>)</code></pre>

@@ -7,8 +7,8 @@ context("Simple experiment")
 
 test_that("test whether a simple experiment can be pre-registered", {
   
-  smp_N <- declare_sample_frame(N = 850)
-  smp_N_per_level <- declare_sample_frame(N_per_level = c(850, 50, 5))
+  smp_N <- declare_sample(N = 850)
+  smp_N_per_level <- declare_sample(N_per_level = c(850, 50, 5))
   
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)

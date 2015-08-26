@@ -7,7 +7,7 @@ context("Sample frame")
 
 test_that("test the sample frame functionality with user-provided covariates", {
   
-  smp <- declare_sample_frame(
+  smp <- declare_sample(
     individuals = list(
       income = declare_variable()),
     villages = list(
@@ -23,10 +23,10 @@ test_that("test the sample frame functionality with user-provided covariates", {
   
   userdata          <- make_data(sample_frame = smp)
   
-  smp_userdata <- declare_sample_frame(data = userdata[,c("income","development_level")])
+  smp_userdata <- declare_sample(data = userdata[,c("income","development_level")])
   
   
-  smp_userdata_rsmp <- declare_sample_frame(data = userdata[,c("income","development_level")], 
+  smp_userdata_rsmp <- declare_sample(data = userdata[,c("income","development_level")], 
                                             resample = TRUE, N = 250)
   
   # Run analysis on a single realization

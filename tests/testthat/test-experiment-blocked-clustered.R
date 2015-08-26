@@ -6,7 +6,7 @@ library(experimentr)
 context("Simple experiment with blocking and clustering")
 
 test_that("test a simple experiment with blocking and clustering works with various functions", {
-  sample_frame <- declare_sample_frame(
+  sample_frame <- declare_sample(
     individuals = list(
       income = declare_variable()),
     villages = list(

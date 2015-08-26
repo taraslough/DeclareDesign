@@ -1,7 +1,7 @@
 #' Make the full dataset or just a sample
 #'
 #' @param potential_outcomes An outcomes_object made with \code{\link{declare_potential_outcomes}}.
-#' @param sample_frame A sample_frame object made with \code{\link{declare_sample_frame}}, or a pre-existing dataframe
+#' @param sample_frame A sample_frame object made with \code{\link{declare_sample}}, or a pre-existing dataframe
 #' @param blocks A blocks object, made with \code{\link{declare_blocks}} (optional).
 #' @param clusters A clusters object, made with \code{\link{declare_clusters}} (optional).
 #' @param N If sample_frame is provided, this argument is ignored.
@@ -128,7 +128,7 @@ make_data <-
         return_frame <-
           make_data(
             potential_outcomes = potential_outcomes[[i]],
-            sample_frame = declare_sample_frame(data = return_frame)
+            sample_frame = declare_sample(data = return_frame)
           )
       }
       return(return_frame)
@@ -156,7 +156,7 @@ make_data <-
       if (is.null(sample_frame) |
           class(sample_frame) != "sample_frame")
         stop(
-          "Please send the sample_frame argument an object created using declare_sample_frame. You can send just a data frame to declare_sample_frame to use your own fixed data."
+          "Please send the sample_frame argument an object created using declare_sample. You can send just a data frame to declare_sample to use your own fixed data."
         )
       
       if (!is.null(sample_frame$make_sample)) {

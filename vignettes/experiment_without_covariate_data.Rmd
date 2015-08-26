@@ -26,7 +26,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = TRUE, message = FALS
 First, we define the sample frame from which we will draw a sample to run the experiment from. This includes defining the levels of analysis and the covariates at each level.
 
 ```{r}
-sample_frame <- declare_sample_frame(
+sample_frame <- declare_sample(
   income = declare_variable(),
   N = 500)
 ```
@@ -125,7 +125,7 @@ Instead of pre-registering and using this simple design, we may want to consider
 The set up of the sample frame, potential outcomes, and analysis is similar. In this case, we add to the potential outcomes an intra-cluster correlation of .2 using the variable villages_id as the cluster variable.
 
 ```{r}
-sample_frame_block_cluster <- declare_sample_frame(
+sample_frame_block_cluster <- declare_sample(
   individuals = list(
     income = declare_variable()),
   villages = list(

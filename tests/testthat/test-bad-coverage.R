@@ -7,7 +7,7 @@ context("Permutation")
 
 test_that("test permutation matrix", {
   
-  sample_frame <- declare_sample_frame(
+  sample_frame <- declare_sample(
     individuals = list(
       income = declare_variable(normal_mean = 3, normal_sd = 1),
       ethnicity = declare_variable(multinomial_probabilities = c(.1, .2, .3, .4), multinomial_categories = 1:4)

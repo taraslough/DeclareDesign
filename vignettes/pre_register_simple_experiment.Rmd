@@ -22,7 +22,7 @@ set.seed(5)
 First, we define the sample frame from which we will draw a sample to run the experiment from. This includes defining the levels of analysis and the covariates at each level.
 
 ```{r, echo = FALSE}
-sample_frame <- declare_sample_frame(
+sample_frame <- declare_sample(
   income = declare_variable(),
   N = 500)
 ```

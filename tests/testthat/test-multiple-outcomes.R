@@ -7,7 +7,7 @@ context("Multiple outcomes")
 
 test_that("test whether various functions can accept multiple outcomes", {
   
-  smp <- declare_sample_frame(height = declare_variable(8, 3), N = 850)
+  smp <- declare_sample(height = declare_variable(8, 3), N = 850)
   
   po_1 <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                      outcome_formula = Y1 ~ .01 + 0*Z0 + .2*Z1 + .4*height)

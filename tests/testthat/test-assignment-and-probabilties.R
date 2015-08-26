@@ -7,7 +7,7 @@ context("Assignment and probability functions")
 
 test_that("test assignment and probability functions", {
   
-  smp <- declare_sample_frame(
+  smp <- declare_sample(
     individuals = list(
       income = declare_variable()),
     villages = list(

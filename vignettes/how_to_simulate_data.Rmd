@@ -19,7 +19,7 @@ This vignette demonstrates how to simulate data for use in power analysis.
 
 ## Simple User-Defined Covariates with `declare_variable()`
 
-To make user-defined covariates, we can provide `declare_sample_frame()` 
+To make user-defined covariates, we can provide `declare_sample()` 
 a list of `DGP_object`s created with `declare_variable`. 
 From there, we can make new random draws of the covariates either by 
 supplying the `sample_frame` object to `make_data()`, or by calling the 
@@ -29,14 +29,14 @@ supplying the `sample_frame` object to `make_data()`, or by calling the
 # The sample size
 N <- 10
 # An unnamed, standard normal variable:
-sample_frame_1 <- declare_sample_frame(
+sample_frame_1 <- declare_sample(
   declare_variable(),
   N = N
 )
 make_data(sample_frame = sample_frame_1)
 sample_frame_1$make_sample()
 # Multinomial, binomial and normal covariates
-sample_frame_2 <- declare_sample_frame(
+sample_frame_2 <- declare_sample(
   income = declare_variable(normal_mean = 1000,normal_sd = 10),
   gender = declare_variable(binary_probability = .5,
                             binary_categories = c("male","female")),
@@ -58,7 +58,7 @@ the size of the covariate matrix.
 
 ```{r}
 
-sample_frame_3 <- declare_sample_frame(
+sample_frame_3 <- declare_sample(
   # Using functions
   change_1 = function(){rnorm(n = N,mean = 0,sd = 1)},
   success_1 = function(){rbinom(n = N,size = 1,prob = .5)},
@@ -85,7 +85,7 @@ length; and c) the transformations take place on the same 'level'
 ```{r}
 
 # Here we create 'age' as a rounded draw from a normal distribution
-sample_frame_4 <- declare_sample_frame(
+sample_frame_4 <- declare_sample(
   # Declare the raw variables 
   age_raw = declare_variable(normal_mean = 30,normal_sd = 5),
   # Declare the transformation
@@ -96,7 +96,7 @@ sample_frame_4 <- declare_sample_frame(
 make_data(sample_frame = sample_frame_4)
 
 # Here use two transformations to create an 'index' of three other variables
-sample_frame_5 <- declare_sample_frame(
+sample_frame_5 <- declare_sample(
   # Declare the raw variables 
   fitness = declare_variable(normal_mean = 10,normal_sd = 5),
   diet = declare_variable(normal_mean = 10,normal_sd = 5),
@@ -111,7 +111,7 @@ sample_frame_5 <- declare_sample_frame(
 make_data(sample_frame = sample_frame_5)
 
 # Here we generate wide-format temporal data 
-sample_frame_6 <- declare_sample_frame(
+sample_frame_6 <- declare_sample(
   firm = list(
     # Firm profit is i.i.d in year 1
     year_1 = declare_variable(normal_mean = 10,normal_sd = 3),
@@ -137,7 +137,7 @@ However, *each level must be nested within the next one*.
 For this reason, 'time' cannot be thought of as a level, but should be 
 declared in wide-format as above (`sample_frame_6`).
 
-In order to create levels, the user simply provides `declare_sample_frame()`
+In order to create levels, the user simply provides `declare_sample()`
 with (preferably named) lists of variables, one per level, and describes the
 data structure using either `N_per_level` or `group_sizes_by_level`. 
 `N_per_level` is the simplest way to specify the data structure: it tells 
@@ -154,7 +154,7 @@ N_per_level <- c(students = 8,
 # Note: level names are inhereted from the variable declarations, not 
 # from the the N_per_level vector
 
-sample_frame_7 <- declare_sample_frame(
+sample_frame_7 <- declare_sample(
  student = list(
    math_score = declare_variable(),
    lang_score = declare_variable()
@@ -190,7 +190,7 @@ group_sizes_by_level <- list(
   classes_per_school = c(3,1)
 )
 
-sample_frame_8 <- declare_sample_frame(
+sample_frame_8 <- declare_sample(
  student = list(
    math_score = declare_variable(),
    lang_score = declare_variable()
@@ -224,7 +224,7 @@ are generated in a linear model.
 
 ```{r}
 # Make a very simple sample frame
-simple_frame <- declare_sample_frame(N = 10)
+simple_frame <- declare_sample(N = 10)
 
 outcomes_1 <- declare_potential_outcomes(
   # Specify the conditions of the experiment
@@ -350,7 +350,7 @@ make_data(potential_outcomes = proportion_PO_2,N = 10)
 
 # With a simple data structure for clustering 
 
-voter_sample <- declare_sample_frame(
+voter_sample <- declare_sample(
   N_per_level = c(10,2),
   level_ID_variables = c("voter_id","city_id"))
 
@@ -366,7 +366,7 @@ A simple application might involve adding an error term.
 ```{r}
 
 # Adding error to outcomes_1
-simple_frame_2 <- declare_sample_frame(
+simple_frame_2 <- declare_sample(
   error = declare_variable(normal_mean = 0,normal_sd = 1),
   N = 10
 )
@@ -433,7 +433,7 @@ ICC_1 <- .1
 ICC_2 <- .6
 
 # Make a clustered sample frames
-cluster_frame <- declare_sample_frame(
+cluster_frame <- declare_sample(
   unit = list(
     baseline_1 = declare_variable(normal_mean = 0,normal_sd = sqrt(1-ICC_1)),
     baseline_2 = declare_variable(normal_mean = 0,normal_sd = sqrt(1-ICC_2))

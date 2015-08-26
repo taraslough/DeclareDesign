@@ -6,7 +6,7 @@ library(experimentr)
 context("Pre-registration and draft paper")
 
 test_that("test draft paper and pre_register functions", {
-  sample_frame <- declare_sample_frame(
+  sample_frame <- declare_sample(
     individuals = list(
       income = declare_variable()),
     villages = list(

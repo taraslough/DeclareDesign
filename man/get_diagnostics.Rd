@@ -14,7 +14,7 @@ get_diagnostics(data = NULL, potential_outcomes = NULL,
 
 \item{potential_outcomes}{A potential outcomes object, made with \code{\link{declare_potential_outcomes}}}
 
-\item{sample_frame}{A sample frame object, made with \code{\link{declare_sample_frame}}}
+\item{sample_frame}{A sample frame object, made with \code{\link{declare_sample}}}
 
 \item{blocks}{A blocks object, made with \code{\link{declare_blocks}} (optional).}
 

@@ -19,7 +19,7 @@ knitr::opts_knit$set(root.dir = tempdir())
 ```
 
 ```{r, echo = FALSE}
-sample_frame_user <- declare_sample_frame(
+sample_frame_user <- declare_sample(
   individuals = list(
     income = declare_variable()),
   villages = list(
@@ -41,7 +41,7 @@ First, we load the baseline data created by the user, and then define a set of c
 load("baseline_data.RData")
 
 ## resample (bootstrap) from user data, respecting levels
-sample_frame <- declare_sample_frame(
+sample_frame <- declare_sample(
   individuals = list(
     income = declare_variable()),
   villages = list(

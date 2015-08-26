@@ -74,7 +74,7 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_lev
         exists_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "N_per_level")) | 
        (!is.null(group_sizes_by_level) & 
         exists_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "group_sizes_by_level")))
-      stop("When N, N_per_level, or group_sizes_by_level is specified in compare_experiment, you can only specify the one that was used in the original declare_sample_frame call. For instance, if you specified N in declare_sample_frame, you can only vary N in compare_experiment.")
+      stop("When N, N_per_level, or group_sizes_by_level is specified in compare_experiment, you can only specify the one that was used in the original declare_sample call. For instance, if you specified N in declare_sample, you can only vary N in compare_experiment.")
     
     if(!(is.null(N) & is.null(N_per_level) & is.null(group_sizes_by_level))){
       sample_frame_compare[[min(length(sample_frame_compare), e)]] <- substitute_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "N", N[e])
