@@ -147,10 +147,10 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, al
   if(length(all.vars(formula[[3]]))>1)
     stop("The formula should only include one variable on the right-hand side: the treatment variable.")
   
-  d_i_m <- function(Y, T, w, cond1, cond2, alpha){
+  d_i_m <- function(Y, t, w, cond1, cond2, alpha){
     N <- length(Y)
-    diff <- mean(Y[T == cond1]) - mean(Y[T == cond2])
-    se <- sqrt(var(Y[T == cond1])/sum(T==cond1) + var(Y[T == cond2])/sum(T==cond2))
+    diff <- mean(Y[t == cond1]) - mean(Y[t == cond2])
+    se <- sqrt(var(Y[t == cond1])/sum(t == cond1) + var(Y[t == cond2])/sum(t == cond2))
     df <- length(Y) - 2
     p <- 2 * pt(abs(diff/se), df = N - 2, lower.tail = FALSE)
     ci_lower <- diff - qt(1 - alpha/2, df = N - 2) * se
@@ -165,7 +165,7 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, al
   if(!is.null(subset))
     data <- data[subset, ]
   Y <- data[, all.vars(formula[[2]])]
-  T <- data[, all.vars(formula[[3]])]
+  t <- data[, all.vars(formula[[3]])]
   if(!is.null(weights))
     w <- weights[subset]
   
@@ -174,11 +174,68 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, al
                                           paste0(all.vars(formula[[2]]), "~", combn_names, 
                                                  "_diff_in_means")))
   for(c in 1:ncol(combn)){
-    return_matrix[, c] <- d_i_m(Y = Y, T = T, w = w, cond1 = combn[1, c], cond2 = combn[2, c], alpha = alpha)
+    return_matrix[, c] <- d_i_m(Y = Y, t = t, w = w, cond1 = combn[1, c], cond2 = combn[2, c], alpha = alpha)
   }
   
   return(return_matrix)
 }
+
+#' @export
+difference_in_means_blocked <- function(formula, data, block_variable = NULL, subset = NULL, alpha = .05) {
+  
+  if(is.null(block_variable))
+    stop("This difference-in-means estimator can only be used if you specify block_variable, a string indicating which variable in the data frame contains the blocks.")
+  
+  if(length(all.vars(formula[[3]]))>1)
+    stop("The formula should only include one variable on the right-hand side: the treatment variable.")
+  
+  d_i_m_blocked <- function(Y, t, b, cond1, cond2, alpha){
+    
+    N <- length(Y)
+    
+    block_names <- sort(unique(b))
+    
+    block_weights <- (sapply(block_names, function(i) sum(b==i)))/N
+    
+    f <- function(x){
+      t = tapply(Y,list(t, b), mean,na.rm=TRUE)
+      (block_weights %*% (t[2,]-t[1,]))[1,1]
+    }
+    
+    diff <- f(X) 
+    vars <- sapply(block_names, function(i)  {
+      var(Y[b==i & t == cond1], na.rm = TRUE )/sum(b==i & t == cond1)+
+        var(Y[b==i & t == cond2], na.rm = TRUE )/sum(b==i & t == cond2)})
+    se  <- (block_weights^2 %*% vars)^.5
+
+    df <- length(Y) - 2
+    p <- 2 * pt(abs(diff/se), df = N - 2, lower.tail = FALSE)
+    ci_lower <- diff - qt(1 - alpha/2, df = N - 2) * se
+    ci_upper <- diff + qt(1 - alpha/2, df = N - 2) * se
+    return(c(diff, se, p, ci_lower, ci_upper, df))
+  }
+  
+  condition_names <- unique(data[,all.vars(formula[[3]])])
+  combn <- combn(rev(sort(condition_names)), m = 2)
+  combn_names <- apply(combn, 2, function(x) paste(x, collapse = "-"))
+  
+  if(!is.null(subset))
+    data <- data[subset, ]
+  Y <- data[, all.vars(formula[[2]])]
+  t <- data[, all.vars(formula[[3]])]
+  b <- data[, blocks_variable]
+  
+  return_matrix <- matrix(NA, nrow = 6, ncol = ncol(combn), 
+                          dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                          paste0(all.vars(formula[[2]]), "~", combn_names, 
+                                                 "_diff_in_means")))
+  for(c in 1:ncol(combn)){
+    return_matrix[, c] <- d_i_m_blocked(Y = Y, t = t, b = b, cond1 = combn[1, c], cond2 = combn[2, c], alpha = alpha)
+  }
+  
+  return(return_matrix)
+}
+
 
 #' @param formula  what is it?
 #' @param treatment_variable  what is it?
@@ -375,6 +432,8 @@ analysis_outcome_variable <- function(analysis) {
 analysis_treatment_variable <- function(analysis) {
   return(analysis$treatment_variable)
 }
+
+
 
 
 
