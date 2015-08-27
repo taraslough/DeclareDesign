@@ -4,8 +4,8 @@
 \alias{get_diagnostics}
 \title{Declare the data-generating process of a variable}
 \usage{
-get_diagnostics(data = NULL, potential_outcomes = NULL,
-  sample_frame = NULL, blocks = NULL, clusters = NULL, design, analysis,
+get_diagnostics(data = NULL, potential_outcomes = NULL, sample = NULL,
+  blocks = NULL, clusters = NULL, design, analysis,
   bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
   analysis_labels = NULL)
 }
@@ -14,7 +14,7 @@ get_diagnostics(data = NULL, potential_outcomes = NULL,
 
 \item{potential_outcomes}{A potential outcomes object, made with \code{\link{declare_potential_outcomes}}}
 
-\item{sample_frame}{A sample frame object, made with \code{\link{declare_sample}}}
+\item{sample}{A sample frame object, made with \code{\link{declare_sample}}}
 
 \item{blocks}{A blocks object, made with \code{\link{declare_blocks}} (optional).}
 

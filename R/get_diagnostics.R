@@ -2,7 +2,7 @@
 #'
 #' @param data An optional user provided dataframe (not made with \code{\link{make_data}})
 #' @param potential_outcomes A potential outcomes object, made with \code{\link{declare_potential_outcomes}}
-#' @param sample_frame A sample frame object, made with \code{\link{declare_sample}}
+#' @param sample A sample frame object, made with \code{\link{declare_sample}}
 #' @param blocks A blocks object, made with \code{\link{declare_blocks}} (optional).
 #' @param clusters A clusters object, made with \code{\link{declare_clusters}} (optional).
 #' @param design design object, made with \code{\link{declare_design}}.
@@ -13,7 +13,7 @@
 #' @param label label for the simulation
 #' @param analysis_labels labels for each analysis
 #' @export
-get_diagnostics <- function(data = NULL, potential_outcomes = NULL, sample_frame = NULL, 
+get_diagnostics <- function(data = NULL, potential_outcomes = NULL, sample = NULL, 
                             blocks = NULL, clusters = NULL, design, analysis, 
                             bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
                             analysis_labels = NULL){
@@ -23,18 +23,18 @@ get_diagnostics <- function(data = NULL, potential_outcomes = NULL, sample_frame
   if(is.null(clusters))
     clusters <- design$clusters
   
-  if(is.null(sample_frame) & is.null(data))
-    stop("Please provide either a sample_frame argument or a data argument.")
-  if(!is.null(sample_frame) & is.null(potential_outcomes))
-    stop("If you provide a sample_frame argument, please also provide a potential_outcomes argument.")
-  if(!is.null(data) & !is.null(sample_frame) & !is.null(potential_outcomes))
-    warning("You provided arguments for sample_frame, potential_outcomes, and data. The function will resample the covariates from the sample_frame argument, resample the potential_outcomes from the potential_outcomes argument, and ignore the data argument. To avoid this warning, please do not specify the data argument.")
+  if(is.null(sample) & is.null(data))
+    stop("Please provide either a sample argument or a data argument.")
+  if(!is.null(sample) & is.null(potential_outcomes))
+    stop("If you provide a sample argument, please also provide a potential_outcomes argument.")
+  if(!is.null(data) & !is.null(sample) & !is.null(potential_outcomes))
+    warning("You provided arguments for sample, potential_outcomes, and data. The function will resample the covariates from the sample argument, resample the potential_outcomes from the potential_outcomes argument, and ignore the data argument. To avoid this warning, please do not specify the data argument.")
   
-  if(!is.null(data) & is.null(sample_frame) & !is.null(potential_outcomes))
+  if(!is.null(data) & is.null(sample) & !is.null(potential_outcomes))
     resample <- "potential_outcomes"
-  if(!is.null(sample_frame) & !is.null(potential_outcomes))
+  if(!is.null(sample) & !is.null(potential_outcomes))
     resample <- "both"
-  if(is.null(sample_frame) & is.null(potential_outcomes) & !is.null(data))
+  if(is.null(sample) & is.null(potential_outcomes) & !is.null(data))
     resample <- "neither"
   
   if(bootstrap_data == TRUE & is.null(data))
@@ -49,7 +49,7 @@ get_diagnostics <- function(data = NULL, potential_outcomes = NULL, sample_frame
   for(i in 1:sims){
     
     if(resample == "potential_outcomes"){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, sample_frame = data, 
+      data_sim <- make_data(potential_outcomes = potential_outcomes, sample = data, 
                             blocks = blocks, clusters = clusters)
       if(bootstrap_data == TRUE){
         ## for now N_resample is preset, but could be set according to a design object
@@ -57,7 +57,7 @@ get_diagnostics <- function(data = NULL, potential_outcomes = NULL, sample_frame
         data_sim <- data_sim[sample(1:nrow(data_sim), N_bootstrap, replace = TRUE)]
       }
     } else if (resample == "both"){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, blocks = blocks, clusters = clusters)
+      data_sim <- make_data(potential_outcomes = potential_outcomes, sample = sample, blocks = blocks, clusters = clusters)
     } else if (resample == "neither"){
       stop("Neither is not yet implemented. Please fix make_data.")
     }

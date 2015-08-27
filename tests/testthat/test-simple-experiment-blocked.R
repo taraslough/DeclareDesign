@@ -20,7 +20,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   design        <- declare_design(potential_outcomes = po, blocks = blocks)
   
-  mock          <- make_data(potential_outcomes = po, sample_frame = smp, blocks = blocks)
+  mock          <- make_data(potential_outcomes = po, sample = smp, blocks = blocks)
   mock$Z        <- assign_treatment(design, data = mock)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   
@@ -33,7 +33,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   power_test        <- get_diagnostics(sims = 1000, 
                                        analysis = analysis_1, 
                                        design = design, 
-                                       blocks = blocks, sample_frame = smp, 
+                                       blocks = blocks, sample = smp, 
                                        potential_outcomes = po)
   
   

@@ -6,7 +6,7 @@
 #' @param group_sizes_by_level  what is it?
 #' @param design what is it?
 #' @param analysis  what is it?
-#' @param sample_frame what is it?
+#' @param sample what is it?
 #' @param potential_outcomes what is it?
 #' @param blocks what is it?
 #' @param clusters what is it?
@@ -17,7 +17,7 @@
 #'   ## here are examples
 #' @export
 compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_level = NULL,
-                                design = NULL, analysis = NULL, sample_frame = NULL, potential_outcomes = NULL,
+                                design = NULL, analysis = NULL, sample = NULL, potential_outcomes = NULL,
                                 blocks = NULL, clusters = NULL, sims = 5, labels = NULL, analysis_labels = NULL){
   
   if(is.null(blocks))
@@ -29,8 +29,8 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_lev
     design <- list(design)
   if(class(analysis) == "analysis")
     analysis <- list(analysis)
-  if(class(sample_frame) == "sample_frame")
-    sample_frame <- list(sample_frame)
+  if(class(sample) == "sample")
+    sample <- list(sample)
   if(class(potential_outcomes) == "potential_outcomes")
     potential_outcomes <- list(potential_outcomes)
   if(class(blocks) == "blocks")
@@ -52,14 +52,14 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_lev
   }
   
   comparison_counts <- c(length(N), length(N_per_level), length(group_sizes_by_level), 
-                         length(design), length(analysis), length(sample_frame), 
+                         length(design), length(analysis), length(sample), 
                          length(potential_outcomes))
   if(any(comparison_counts != max(comparison_counts) & comparison_counts > 1))
     stop("Please provide either no inputs for a given option (for example, not providing any N), one input (for example a single value of N), or more than one input (for example N = c(500, 1000)). The set of varying inputs (i.e. for N and m) must be the same length (you cannot provide three values of N and two values of n).")
   
   design_compare <- design
   analysis_compare <-  analysis
-  sample_frame_compare <- sample_frame
+  sample_compare <- sample
   potential_outcomes_compare <- potential_outcomes
   blocks_compare <- blocks
   clusters_compare <- clusters
@@ -69,24 +69,24 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_lev
   for(e in 1:max(comparison_counts)){
     
     if((!is.null(N) & 
-        exists_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "N")) | 
+        exists_input(sample_compare[[min(length(sample_compare), e)]], "N")) | 
        (!is.null(N_per_level) & 
-        exists_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "N_per_level")) | 
+        exists_input(sample_compare[[min(length(sample_compare), e)]], "N_per_level")) | 
        (!is.null(group_sizes_by_level) & 
-        exists_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "group_sizes_by_level")))
+        exists_input(sample_compare[[min(length(sample_compare), e)]], "group_sizes_by_level")))
       stop("When N, N_per_level, or group_sizes_by_level is specified in compare_experiment, you can only specify the one that was used in the original declare_sample call. For instance, if you specified N in declare_sample, you can only vary N in compare_experiment.")
     
     if(!(is.null(N) & is.null(N_per_level) & is.null(group_sizes_by_level))){
-      sample_frame_compare[[min(length(sample_frame_compare), e)]] <- substitute_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "N", N[e])
-      sample_frame_compare[[min(length(sample_frame_compare), e)]] <- substitute_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "N_per_level", N_per_level[[e]])
-      sample_frame_compare[[min(length(sample_frame_compare), e)]] <- substitute_input(sample_frame_compare[[min(length(sample_frame_compare), e)]], "group_sizes_by_level", group_sizes_by_level[[e]])
+      sample_compare[[min(length(sample_compare), e)]] <- substitute_input(sample_compare[[min(length(sample_compare), e)]], "N", N[e])
+      sample_compare[[min(length(sample_compare), e)]] <- substitute_input(sample_compare[[min(length(sample_compare), e)]], "N_per_level", N_per_level[[e]])
+      sample_compare[[min(length(sample_compare), e)]] <- substitute_input(sample_compare[[min(length(sample_compare), e)]], "group_sizes_by_level", group_sizes_by_level[[e]])
     }
     
     comparisons[[e]] <- list()
     
     comparisons[[e]]$simulations <-   get_diagnostics(design = design_compare[[min(length(design_compare), e)]], 
                                                           analysis = analysis_compare[[min(length(analysis_compare), e)]], 
-                                                          sample_frame = sample_frame_compare[[min(length(sample_frame_compare), e)]], 
+                                                          sample = sample_compare[[min(length(sample_compare), e)]], 
                                                           potential_outcomes = potential_outcomes_compare[[min(length(potential_outcomes_compare), e)]], 
                                                           blocks = blocks_compare[[min(length(blocks_compare), e)]], 
                                                           clusters = clusters_compare[[min(length(clusters_compare), e)]],
@@ -94,7 +94,7 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_by_lev
     
     comparisons[[e]]$values <- list(design = design_compare[[min(length(design_compare), e)]], 
                                     analysis = analysis_compare[[min(length(analysis_compare), e)]], 
-                                    sample_frame = sample_frame_compare[[min(length(sample_frame_compare), e)]], 
+                                    sample = sample_compare[[min(length(sample_compare), e)]], 
                                     potential_outcomes = potential_outcomes_compare[[min(length(potential_outcomes_compare), e)]], 
                                     blocks = blocks_compare[[min(length(blocks_compare), e)]], 
                                     clusters = clusters_compare[[min(length(clusters_compare), e)]])

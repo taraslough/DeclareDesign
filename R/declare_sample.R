@@ -308,7 +308,7 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
     covariate_names <- names(test_mat)
   }
   
-  sample_frame_object <- list(
+  sample_object <- list(
     make_sample = make_sample,
     data = data,
     covariate_names = covariate_names,
@@ -320,8 +320,8 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
     call = match.call()
   )
   
-  class(sample_frame_object) <- "sample_frame"
-  return(sample_frame_object)
+  class(sample_object) <- "sample"
+  return(sample_object)
 }
 
 
@@ -458,7 +458,7 @@ remaindr <- function(numerator,denominator) {
 #' @param object what is it?
 #' @rdname declare_sample
 #' @export
-summary.sample_frame <- function(object, ...){
+summary.sample <- function(object, ...){
   
   summ <- data.frame(object$level_names, object$N_per_level, "")
   colnames(summ) <- c("Level", "Units per level", "Description")
@@ -466,11 +466,11 @@ summary.sample_frame <- function(object, ...){
   
 }
 
-#' Print a table describing covariates described in sample_frame
+#' Print a table describing covariates described in sample
 #'
-#' @param sample_frame a sample_frame object created with declare_sample frame.
+#' @param sample a sample object created with declare_sample frame.
 #' @export
-covariates_table <- function(sample_frame){
+covariates_table <- function(sample){
   cat("This will be a summary table of the distribution of each covariate at each level. Not implemented yet.")
 }
 

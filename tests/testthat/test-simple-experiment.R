@@ -17,14 +17,14 @@ test_that("test whether a simple experiment can be pre-registered", {
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
 
   sims <- get_diagnostics(potential_outcomes = po, 
-                              sample_frame =  smp, 
+                              sample =  smp, 
                               design = design, 
                               analysis = analysis_1, 
                               sims = 100)
   summary(sims)
   
   # Run analysis on a single realization
-  mock          <- make_data(potential_outcomes = po, sample_frame = smp)
+  mock          <- make_data(potential_outcomes = po, sample = smp)
   mock$Z        <- assign_treatment(design, data = mock)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   

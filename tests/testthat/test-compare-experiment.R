@@ -17,11 +17,11 @@ test_that("test whether a simple experiment can be pre-registered", {
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
   
-  tmp <- make_data(sample_frame = smp_N, potential_outcomes = po)
+  tmp <- make_data(sample = smp_N, potential_outcomes = po)
   
   sims <- compare_experiments(N = c(10000, 500, 5),
                               potential_outcomes = po, 
-                              sample_frame =  smp_N, 
+                              sample =  smp_N, 
                               design = design, 
                               analysis = analysis_1, 
                               sims = 100)
@@ -29,7 +29,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   ## pending bug fix this isn't working (issued)
   ##sims <- compare_experiments(N_per_level = list(c(10000, 500, 5), c(50, 5), c(100, 50, 2)),
   ##                            potential_outcomes = po, 
-  ##                            sample_frame =  smp_N_per_level, 
+  ##                            sample =  smp_N_per_level, 
   ##                            design = design, 
   ##                            analysis = analysis_1, 
   ##                            sims = 100)

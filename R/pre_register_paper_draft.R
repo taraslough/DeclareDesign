@@ -6,7 +6,7 @@
 #' @param design A design object from the declare_design function.
 #' @param clusters what is it?
 #' @param blocks what is it?
-#' @param sample_frame what is it?
+#' @param sample what is it?
 #' @param potential_outcomes what is it?
 #' @param analysis what is it?
 #' @param data A data object from the make_data function.
@@ -27,7 +27,7 @@
 #' @param open_output Indicator for whether the output file is opened after it is compiled.
 #' @return what does it return?
 #' @export
-pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = NULL, 
+pre_register <- function(design, clusters = NULL, blocks = NULL, sample = NULL, 
                          potential_outcomes = NULL, analysis = NULL, data = NULL,
                          title = NULL, authors = NULL, affiliations = NULL,
                          acknowledgements = NULL, abstract = NULL,
@@ -50,7 +50,7 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
     stop("Analysis must be either a list of analysis objects or a single object created by declare_analysis.")
   
   if(check_registration == TRUE)
-    check_registration(design = design, analysis = analysis, sample_frame = sample_frame, 
+    check_registration(design = design, analysis = analysis, sample = sample, 
                        potential_outcomes = potential_outcomes, blocks = blocks, clusters = clusters)
   
   pre_register_doc <- list(title_header(title = title, authors = authors, 
@@ -60,7 +60,7 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
                                   code_snippet("load(\"pre_registration_data.RData\")"), ""),
                            code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
                                         random_seed, ")"),
-                           code_snippet("sample_frame <- ", sample_frame$call, "\n\n", 
+                           code_snippet("sample <- ", sample$call, "\n\n", 
                                         "potential_outcomes <- ", potential_outcomes$call, "\n\n", 
                                         ifelse(!is.null(clusters), paste0("clusters <- ", list(clusters$call)), ""), "\n\n", 
                                         ifelse(!is.null(blocks), paste0("blocks <- ", list(blocks$call)), ""), "\n\n", 
@@ -69,7 +69,7 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
                                                      function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
                                               collapse = ""),
                                         echo = T),
-                           code_snippet("mock <- make_data(sample_frame = sample_frame, potential_outcomes = potential_outcomes", 
+                           code_snippet("mock <- make_data(sample = sample, potential_outcomes = potential_outcomes", 
                                         ifelse(!is.null(clusters), ", clusters = clusters", ""),
                                         ifelse(!is.null(blocks), ", blocks = blocks", ""), ")\n\n", 
                                         paste(sapply(1:length(analysis), 
@@ -83,7 +83,7 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
                            tex_header("Experimental Design", 1),
                            code_snippet("summary(design)"),
                            code_snippet("simulations <- summary(get_diagnostics(design = design, analysis = analysis_1,
-                                           sample_frame = sample_frame, potential_outcomes = potential_outcomes",
+                                           sample = sample, potential_outcomes = potential_outcomes",
                                         ifelse(!is.null(clusters), ", clusters = clusters", ""),
                                         ifelse(!is.null(blocks), ", blocks = blocks", ""), "))", "\n\n",
                                         "print(xtable(simulations, caption = \"Power analysis of quantities of interest\"),
@@ -106,7 +106,7 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample_frame = 
   output_document(doc = pre_register_doc, pre_registration_data = data, dir = dir, temp_dir = temp_dir, format = format, make_output = make_output, keep_tex = keep_tex,
                   save_r_code = save_r_code, output_format = output_format, open_output = open_output)
   
-  return_object <- list(design = design, sample_frame = sample_frame, potential_outcomes = potential_outcomes, 
+  return_object <- list(design = design, sample = sample, potential_outcomes = potential_outcomes, 
                         clusters = clusters, blocks = blocks, analysis = analysis, data = data,
                         title = title, authors = authors, affiliations = affiliations,
                         acknowledgements = acknowledgements, abstract = abstract, random_seed = random_seed,
@@ -149,7 +149,7 @@ draft_paper_from_pre_registration <- function(pre_registration, data, dir = getw
     stop("To make a paper draft, you must provide a data argument.")
   
   draft_paper(design = pre_registration$design, clusters = pre_registration$clusters,
-              blocks = pre_registration$blocks, sample_frame = pre_registration$sample_frame,
+              blocks = pre_registration$blocks, sample = pre_registration$sample,
               potential_outcomes = pre_registration$potential_outcomes, analysis = pre_registration$analysis,
               title = pre_registration$title, authors = pre_registration$authors, 
               affiliations = pre_registration$affiliations, abstract = pre_registration$abstract,
@@ -168,7 +168,7 @@ draft_paper_from_pre_registration <- function(pre_registration, data, dir = getw
 #' @param design A design object from the declare_design function.
 #' @param clusters what is it?
 #' @param blocks what is it?
-#' @param sample_frame what is it?
+#' @param sample what is it?
 #' @param potential_outcomes what is it?
 #' @param analysis what is it?
 #' @param pre_registration_data A data object from the make_data function.
@@ -189,7 +189,7 @@ draft_paper_from_pre_registration <- function(pre_registration, data, dir = getw
 #' @param open_output Indicator for whether the output file is opened after it is compiled.
 #' @return what does it return
 #' @export
-draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = NULL, 
+draft_paper <- function(design, clusters = NULL, blocks = NULL, sample = NULL, 
                         potential_outcomes = NULL, analysis = NULL, pre_registration_data = NULL,
                         title = NULL, authors = NULL, affiliations = NULL,
                         acknowledgements = NULL, abstract = NULL, data = NULL,
@@ -218,7 +218,7 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = N
                           code_snippet("load(\"paper_data.RData\")"),
                           code_snippet("## set fixed random seed for paper reproducibility\n\nset.seed(", 
                                        random_seed, ")"),
-                          code_snippet("sample_frame <- ", sample_frame$call, "\n\n", 
+                          code_snippet("sample <- ", sample$call, "\n\n", 
                                        "potential_outcomes <- ", potential_outcomes$call, "\n\n", 
                                        ifelse(!is.null(clusters), paste0("clusters <- ", list(clusters$call)), ""), "\n\n", 
                                        ifelse(!is.null(blocks), paste0("blocks <- ", list(blocks$call)), ""), "\n\n", 
@@ -227,7 +227,7 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = N
                                                     function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
                                              collapse = ""),
                                        echo = T),
-                          code_snippet("mock <- make_data(sample_frame = sample_frame, potential_outcomes = potential_outcomes", 
+                          code_snippet("mock <- make_data(sample = sample, potential_outcomes = potential_outcomes", 
                                        ifelse(!is.null(clusters), ", clusters = clusters", ""),
                                        ifelse(!is.null(blocks), ", blocks = blocks", ""), ")\n\n", 
                                        paste(sapply(1:length(analysis), 
@@ -241,7 +241,7 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample_frame = N
                           tex_header("Experimental Design", 1),
                           code_snippet("summary(design)"),
                           code_snippet("simulations <- summary(get_diagnostics(design = design, analysis = analysis_1,
-                                           sample_frame = sample_frame, potential_outcomes = potential_outcomes, 
+                                           sample = sample, potential_outcomes = potential_outcomes, 
                                            clusters = clusters, blocks = blocks))", "\n\n",
                                        "print(xtable(simulations, caption = \"Power analysis of quantities of interest\"),
                                               include.rownames = FALSE, comment = FALSE)"),
@@ -388,8 +388,8 @@ treatment_table <- function(design, caption = "Description of each treatment con
 
 #' @importFrom knitr kable
 #' @export
-units_table <- function(sample_frame, ...){
-  units_table <- summary(sample_frame)
+units_table <- function(sample, ...){
+  units_table <- summary(sample)
   kable(units_table, caption = "Levels of analysis", row.names = FALSE, ... = ...)
 }
 

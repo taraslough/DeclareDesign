@@ -4,7 +4,7 @@
 \alias{pre_register}
 \title{Create pre-registration document}
 \usage{
-pre_register(design, clusters = NULL, blocks = NULL, sample_frame = NULL,
+pre_register(design, clusters = NULL, blocks = NULL, sample = NULL,
   potential_outcomes = NULL, analysis = NULL, data = NULL, title = NULL,
   authors = NULL, affiliations = NULL, acknowledgements = NULL,
   abstract = NULL, random_seed = 42, dir = getwd(), temp_dir = FALSE,
@@ -19,7 +19,7 @@ pre_register(design, clusters = NULL, blocks = NULL, sample_frame = NULL,
 
 \item{blocks}{what is it?}
 
-\item{sample_frame}{what is it?}
+\item{sample}{what is it?}
 
 \item{potential_outcomes}{what is it?}
 

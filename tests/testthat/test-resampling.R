@@ -15,16 +15,16 @@ test_that("test assignment and probability functions", {
     ),
     N_per_level = c(1000, 100))
   
-  user_data <- make_data(sample_frame = smp)
+  user_data <- make_data(sample = smp)
   
-  sample_frame_N <- declare_sample(data = user_data, N = 1000, resample = TRUE)
+  sample_N <- declare_sample(data = user_data, N = 1000, resample = TRUE)
 
-  data_N          <- make_data(sample_frame = sample_frame_N)
+  data_N          <- make_data(sample = sample_N)
     
-  sample_frame_vars <- declare_sample(level_ID_variables = c("individuals_id", "villages_id"),
+  sample_vars <- declare_sample(level_ID_variables = c("individuals_id", "villages_id"),
     N_per_level = c(50, 10),
     data = user_data, resample = TRUE)
   
-  data_vars          <- make_data(sample_frame = sample_frame_vars)
+  data_vars          <- make_data(sample = sample_vars)
   
 })

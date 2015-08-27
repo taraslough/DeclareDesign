@@ -2,13 +2,13 @@
 % Please edit documentation in R/declare_sample.R
 \name{declare_sample}
 \alias{declare_sample}
-\alias{summary.sample_frame}
+\alias{summary.sample}
 \title{Declare the structure of the sample frame}
 \usage{
 declare_sample(..., N_per_level = NULL, group_sizes_by_level = NULL,
   N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL)
 
-\method{summary}{sample_frame}(object, ...)
+\method{summary}{sample}(object, ...)
 }
 \arguments{
 \item{...}{a list either of variable declarations, or of lists of variable declarations (one per level)}

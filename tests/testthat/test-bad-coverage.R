@@ -7,7 +7,7 @@ context("Permutation")
 
 test_that("test permutation matrix", {
   
-  sample_frame <- declare_sample(
+  sample <- declare_sample(
     individuals = list(
       income = declare_variable(normal_mean = 3, normal_sd = 1),
       ethnicity = declare_variable(multinomial_probabilities = c(.1, .2, .3, .4), multinomial_categories = 1:4)
@@ -38,19 +38,19 @@ test_that("test permutation matrix", {
   power_test        <- get_diagnostics(sims = 1000, 
                                   analysis = list(analysis_lsdv, analysis_lm, analysis), 
                                   design = design_blocked, 
-                                  blocks = blocks, sample_frame = sample_frame, 
+                                  blocks = blocks, sample = sample, 
                                   potential_outcomes = potential_outcomes)
   
   
   power        <- get_diagnostics(sims = 1000, 
                                   analysis = list(analysis, analysis_lsdv, analysis_lm), 
                                   design = design_blocked, 
-                                  blocks = blocks, sample_frame = sample_frame, 
+                                  blocks = blocks, sample = sample, 
                                   potential_outcomes = potential_outcomes)
   
   
   
-  mock <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, blocks = blocks)
+  mock <- make_data(potential_outcomes = potential_outcomes, sample = sample, blocks = blocks)
   
   mock$Z <- assign_treatment(design = design_blocked, data = mock)
   mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)

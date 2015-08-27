@@ -9,7 +9,7 @@
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' design <- declare_design(potential_outcomes = po, m=200)
-#' mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+#' mock          <- make_data(potential_outcomes = po, sample =  smp)
 #' Z        <- assign_treatment(design, data = mock)
 #' table(Z)
 #' @export
@@ -82,7 +82,7 @@ assign_treatment <- function(design, data) {
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' design <- declare_design(potential_outcomes = po, m=200)
-#' mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+#' mock          <- make_data(potential_outcomes = po, sample =  smp)
 #' mock$Z        <- assign_treatment(design, data = mock)
 #' mock$Y  <- observed_outcome("Y", "Z", mock)
 #' summary(lm(Y~Z, data=mock))
@@ -122,7 +122,7 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data, sep = "_
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' design <- declare_design(potential_outcomes = po, m=200)
-#' mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+#' mock          <- make_data(potential_outcomes = po, sample =  smp)
 #' mock$Z        <- assign_treatment(design, data = mock)
 #' design_probs <- get_design_probs(design, mock)
 #' 
@@ -323,7 +323,7 @@ design_probs <- function(N= NULL,
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' design <- declare_design(potential_outcomes = po, m=200)
-#' mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+#' mock          <- make_data(potential_outcomes = po, sample =  smp)
 #' mock$Z        <- assign_treatment(design, data = mock)
 #' mock$prob_obs        <- observed_probs("Z", design, mock)
 #' 

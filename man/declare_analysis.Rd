@@ -19,8 +19,8 @@ declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
   estimand_quantity_of_interest = quantity_of_interest,
   estimand_quantity_of_interest_labels = substitute(estimand_quantity_of_interest))
 
-truth_data_frame(formula = NULL, treatment_variable = "Z", subset = NULL,
-  data = data, sep = "_")
+truth_data_frame(formula = NULL, treatment_variable = "Z", weights = NULL,
+  subset = NULL, data = data, sep = "_", ...)
 
 get_estimates_model(analysis, data)
 

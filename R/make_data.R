@@ -1,15 +1,15 @@
 #' Make the full dataset or just a sample
 #'
 #' @param potential_outcomes An outcomes_object made with \code{\link{declare_potential_outcomes}}.
-#' @param sample_frame A sample_frame object made with \code{\link{declare_sample}}, or a pre-existing dataframe
+#' @param sample A sample object made with \code{\link{declare_sample}}, or a pre-existing dataframe
 #' @param blocks A blocks object, made with \code{\link{declare_blocks}} (optional).
 #' @param clusters A clusters object, made with \code{\link{declare_clusters}} (optional).
-#' @param N If sample_frame is provided, this argument is ignored.
+#' @param N If sample is provided, this argument is ignored.
 #' @param sep a character string used in the naming of potential outcomes. Defaults to "_".
 #' @export
 make_data <-
-  function(potential_outcomes = NULL, sample_frame = NULL,blocks = NULL, clusters = NULL, N = NULL, sep = "_") {
-    if (is.null(sample_frame) & is.null(potential_outcomes))
+  function(potential_outcomes = NULL, sample = NULL,blocks = NULL, clusters = NULL, N = NULL, sep = "_") {
+    if (is.null(sample) & is.null(potential_outcomes))
       stop("You must provide at least a sample frame or a potential outcomes object.")
     
     
@@ -27,8 +27,8 @@ make_data <-
     
     if(all(proportion_check)){
       
-      if(!is.null(sample_frame)){
-        covariate_frame <- make_data(sample_frame = sample_frame,
+      if(!is.null(sample)){
+        covariate_frame <- make_data(sample = sample,
                                      blocks = blocks,
                                      clusters = clusters,
                                      N = N,sep = sep)
@@ -36,7 +36,7 @@ make_data <-
           N <- dim(covariate_frame)[1]
         }else{
           if(dim(covariate_frame)[1]!=N){
-            stop("The sample size implied by sample_frame does not match the N argument you provided to make_data, harmonize them or use only one.")
+            stop("The sample size implied by sample does not match the N argument you provided to make_data, harmonize them or use only one.")
           }
         }
       }
@@ -95,7 +95,7 @@ make_data <-
         )
         
       }
-      if(!is.null(sample_frame)){
+      if(!is.null(sample)){
         return_frame <- data.frame(return_frame,covariate_frame)
       }
       
@@ -117,7 +117,7 @@ make_data <-
       return_frame <-
         make_data(
           potential_outcomes = potential_outcomes[[1]],
-          sample_frame = sample_frame,
+          sample = sample,
           blocks = blocks,
           clusters = clusters,
           N = N,
@@ -128,7 +128,7 @@ make_data <-
         return_frame <-
           make_data(
             potential_outcomes = potential_outcomes[[i]],
-            sample_frame = declare_sample(data = return_frame)
+            sample = declare_sample(data = return_frame)
           )
       }
       return(return_frame)
@@ -151,19 +151,19 @@ make_data <-
           model_formula <- NULL
         }
       }
-      # Check whether sample_frame_object is sample_frame class or a user-supplied matrix
+      # Check whether sample_object is sample class or a user-supplied matrix
       
-      if (is.null(sample_frame) |
-          class(sample_frame) != "sample_frame")
+      if (is.null(sample) |
+          class(sample) != "sample")
         stop(
-          "Please send the sample_frame argument an object created using declare_sample. You can send just a data frame to declare_sample to use your own fixed data."
+          "Please send the sample argument an object created using declare_sample. You can send just a data frame to declare_sample to use your own fixed data."
         )
       
-      if (!is.null(sample_frame$make_sample)) {
-        X <- sample_frame$make_sample()
+      if (!is.null(sample$make_sample)) {
+        X <- sample$make_sample()
         
       } else {
-        X <- sample_frame$data
+        X <- sample$data
       }
       
       if (is.null(potential_outcomes)){
@@ -181,7 +181,7 @@ make_data <-
       colnames(treat_mat) <- condition_names
       
       # Make a function that generates potential outcomes as a function of
-      # all of the variables (treatment assignment, sample_frame) and some normal noise
+      # all of the variables (treatment assignment, sample) and some normal noise
       
       gen_outcome  <- eval(parse(
         text = paste0(
@@ -242,7 +242,7 @@ make_data <-
 #       
       return_frame <- data.frame(outcomes)
       return_frame$make_data_sort_id <- 1:nrow(return_frame)
-      if (!is.null(sample_frame)) {
+      if (!is.null(sample)) {
         return_frame <- cbind(return_frame, X)
       }
       if (!is.null(clusters)) {

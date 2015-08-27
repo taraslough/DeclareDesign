@@ -6,7 +6,7 @@ library(experimentr)
 context("Pre-registration and draft paper")
 
 test_that("test draft paper and pre_register functions", {
-  sample_frame <- declare_sample(
+  sample <- declare_sample(
     individuals = list(
       income = declare_variable()),
     villages = list(
@@ -30,7 +30,7 @@ test_that("test draft paper and pre_register functions", {
   
   ## pre register experiment with EGAP
   
-  pre_registration <- pre_register(design = design, sample_frame = sample_frame, clusters = clusters, blocks = blocks,
+  pre_registration <- pre_register(design = design, sample = sample, clusters = clusters, blocks = blocks,
                                    potential_outcomes = potential_outcomes, analysis = analysis_1, 
                                    title = "Simplest Possible Experiment", 
                                    authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
@@ -38,7 +38,7 @@ test_that("test draft paper and pre_register functions", {
                                    random_seed = 42, temp_dir = TRUE, open_output = FALSE)
   
   ## run the experiment, and create real_data (simulated here to demonstrate draft_paper)
-  real_data          <- make_data(potential_outcomes = potential_outcomes, sample_frame = sample_frame, 
+  real_data          <- make_data(potential_outcomes = potential_outcomes, sample = sample, 
                                   blocks = blocks, clusters = clusters)
   real_data$Z        <- assign_treatment(design, data = real_data)
   real_data$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = real_data)
@@ -48,7 +48,7 @@ test_that("test draft paper and pre_register functions", {
                                 temp_dir = TRUE, open_output = FALSE)
   
   ## or create custom paper draft from objects
-  paper_draft <- draft_paper(design = design, sample_frame = sample_frame, clusters = clusters, blocks = blocks,
+  paper_draft <- draft_paper(design = design, sample = sample, clusters = clusters, blocks = blocks,
                              potential_outcomes = potential_outcomes, analysis = analysis_1, data = real_data,
                              title = "Simplest Possible Experiment", 
                              authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 

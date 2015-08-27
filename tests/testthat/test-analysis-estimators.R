@@ -19,7 +19,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   analysis_logit <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = logistic_regression, quantity_of_interest = average_treatment_effect)
   analysis_probit <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = probit_regression, quantity_of_interest = average_treatment_effect)
 
-  mock          <- make_data(potential_outcomes = po, sample_frame = smp)
+  mock          <- make_data(potential_outcomes = po, sample = smp)
   mock$Z        <- assign_treatment(design, data = mock)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   

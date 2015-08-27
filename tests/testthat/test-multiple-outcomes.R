@@ -24,7 +24,7 @@ test_that("test whether various functions can accept multiple outcomes", {
                                  method = "lm")
   
   # Run analysis on a single realization
-  mock <- make_data(potential_outcomes = list(po_1, po_2), sample_frame =  smp)
+  mock <- make_data(potential_outcomes = list(po_1, po_2), sample =  smp)
   
   mock$Z <- assign_treatment(design, data = mock)
   

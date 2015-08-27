@@ -24,7 +24,7 @@ smp <- declare_sample(N = 850)
 po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 design <- declare_design(potential_outcomes = po, m=200)
-mock          <- make_data(potential_outcomes = po, sample_frame =  smp)
+mock          <- make_data(potential_outcomes = po, sample =  smp)
 mock$Z        <- assign_treatment(design, data = mock)
 mock$prob_obs        <- observed_probs("Z", design, mock)
 

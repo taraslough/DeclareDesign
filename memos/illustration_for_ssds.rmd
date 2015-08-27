@@ -78,7 +78,7 @@ Now that you have declared the design and analysis strategy you can look at some
 Let's look first at  some mock data to see if this is looking like we want it to look
 
 ```{r}
-my.mock.data <- make_data(potential_outcomes = my.potential.outcomes, sample_frame = my.sample.frame, 
+my.mock.data <- make_data(potential_outcomes = my.potential.outcomes, sample = my.sample.frame, 
                   blocks = declare_blocks(blocks = "type", block_name = "my_blocks", block_count = 2))
 my.mock.data$Z <- assign_treatment(design = my.design, data = my.mock.data)
 my.mock.data$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = my.mock.data)
@@ -109,7 +109,7 @@ Now things get more interesting.  Let's see how good this design is. Note that g
 ```{r}
 my.diagnostics         <- simulate_experiment(sims = 1000, analysis = list(my.lsdv.analysis), 
                           design = my.design, 
-                          sample_frame = my.sample.frame, 
+                          sample = my.sample.frame, 
                           potential_outcomes = my.potential.outcomes)
 
 summary(my.diagnostics)

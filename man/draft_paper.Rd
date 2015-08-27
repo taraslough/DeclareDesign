@@ -4,7 +4,7 @@
 \alias{draft_paper}
 \title{Create paper draft}
 \usage{
-draft_paper(design, clusters = NULL, blocks = NULL, sample_frame = NULL,
+draft_paper(design, clusters = NULL, blocks = NULL, sample = NULL,
   potential_outcomes = NULL, analysis = NULL,
   pre_registration_data = NULL, title = NULL, authors = NULL,
   affiliations = NULL, acknowledgements = NULL, abstract = NULL,
@@ -19,7 +19,7 @@ draft_paper(design, clusters = NULL, blocks = NULL, sample_frame = NULL,
 
 \item{blocks}{what is it?}
 
-\item{sample_frame}{what is it?}
+\item{sample}{what is it?}
 
 \item{potential_outcomes}{what is it?}
 

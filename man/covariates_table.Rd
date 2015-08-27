@@ -2,14 +2,14 @@
 % Please edit documentation in R/declare_sample.R
 \name{covariates_table}
 \alias{covariates_table}
-\title{Print a table describing covariates described in sample_frame}
+\title{Print a table describing covariates described in sample}
 \usage{
-covariates_table(sample_frame)
+covariates_table(sample)
 }
 \arguments{
-\item{sample_frame}{a sample_frame object created with declare_sample frame.}
+\item{sample}{a sample object created with declare_sample frame.}
 }
 \description{
-Print a table describing covariates described in sample_frame
+Print a table describing covariates described in sample
 }
 

@@ -17,7 +17,7 @@ test_that("test permutation matrix", {
   
   design        <- declare_design(potential_outcomes = po)
   
-  mock <- make_data(potential_outcomes = po, sample_frame = smp)
+  mock <- make_data(potential_outcomes = po, sample = smp)
   
   perms <- make_permutation_matrix(design = design, data = mock)
   
