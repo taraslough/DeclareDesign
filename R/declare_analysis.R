@@ -1,8 +1,3 @@
-
-##v <- data.frame(Y = runif(10000), T = sample(c(0, 1), 10000, replace = TRUE))
-##v$Y[v$T == 1] <- v$Y[v$T == 1] + 1.5
-##data <- v
-
 #' Declare an experimental analysis
 #'
 #' Description
@@ -36,6 +31,9 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
                              estimand_quantity_of_interest_labels = substitute(estimand_quantity_of_interest)) {
   
   estimator_options <- list(...)
+  
+  if(is.null(estimand_options) & substitute(estimand) == "estimator")
+    estimand_options <- estimator_options
   
   arguments <- mget(names(formals()),sys.frame(sys.nframe()))
   arguments$... <- NULL
@@ -223,7 +221,7 @@ difference_in_means_blocked <- function(formula, data, block_variable = NULL, su
     data <- data[subset, ]
   Y <- data[, all.vars(formula[[2]])]
   t <- data[, all.vars(formula[[3]])]
-  b <- data[, blocks_variable]
+  b <- data[, block_variable]
   
   return_matrix <- matrix(NA, nrow = 6, ncol = ncol(combn), 
                           dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
@@ -245,21 +243,27 @@ difference_in_means_blocked <- function(formula, data, block_variable = NULL, su
 #' @rdname declare_analysis
 #' @export
 truth_data_frame <- function(formula = NULL, treatment_variable = "Z", 
-                             subset = NULL, data = data, sep = "_") {
+                             weights = NULL, subset = NULL, data = data, sep = "_", ...) {
   
   if(is.null(formula))
     stop("Formula must be provided.")
   
   outcome_variable <- all.vars(formula[[2]])
   
-  covariate_variable_names <- all.vars(formula[[3]])[!(all.vars(formula[[3]]) %in% treatment_variable)]
+  other_variable_names <- all.vars(formula[[3]])[!(all.vars(formula[[3]]) %in% treatment_variable)]
+  
+  if(!missing(cluster_variable))
+    other_variable_names <- c(other_variable_names, cluster_variable)
+  
+  if(!missing(block_variable))
+    other_variable_names <- c(other_variable_names, block_variable)
   
   treatment_conditions <- unique(data[, treatment_variable])
   
   potential_outcome_variable_names <- paste(outcome_variable, sep, treatment_conditions, sep = "")
   
   ## create replicated data frame with only the right variables
-  data <- data[, c(potential_outcome_variable_names, covariate_variable_names)]
+  data <- data[, c(potential_outcome_variable_names, other_variable_names)]
   data_rep <- do.call("rbind", replicate(length(treatment_conditions), data, simplify = FALSE))
   
   ## replace treatment with the replicated treatment

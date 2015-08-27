@@ -19,7 +19,7 @@ test_that("test permutation matrix", {
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + -.1*Z1*income
   )
   
-  blocks <- declare_blocks(blocks = "ethnicity", block_name = "income_groups")
+  blocks <- declare_blocks(blocks = "ethnicity", block_name = "income_groups", block_count = 4)
   
   design_blocked <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks, prob_each = c(.9, .1))
   design_notblocked <- declare_design(potential_outcomes = potential_outcomes)
@@ -32,9 +32,10 @@ test_that("test permutation matrix", {
                                   quantity_of_interest = average_treatment_effect,
                                   estimand_formula = Y ~ Z)
   
-  analysis <- declare_analysis(formula = Y ~ Z)
+  analysis <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means_blocked, 
+                               block_variable = "income_groups")
   
-  power_test        <- get_diagnostics(sims = 500, 
+  power_test        <- get_diagnostics(sims = 1000, 
                                   analysis = list(analysis_lsdv, analysis_lm, analysis), 
                                   design = design_blocked, 
                                   blocks = blocks, sample_frame = sample_frame, 
