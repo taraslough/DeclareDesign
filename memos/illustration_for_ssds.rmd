@@ -1,6 +1,6 @@
 ---
 title: 'Simple analysis with experimentr'
-author: 'Blair, Cooper, Coppock, and Humphreys'
+author: 'Graeme Blair, Jasper Cooper, Alex Coppock, and Macartan Humphreys'
 output:
   html_document:
     highlight: tango
@@ -9,11 +9,11 @@ output:
 ---
 
 # The key elements of a design
-Your four main steps in describing a design are to describe:
+Your four main steps in characterizing a design are to describe:
 
-1. the **environment**: how many cases are there? what sort of data do you have on these, etc
+1. the **sample**: how many cases are there? what sort of data do you have on these? etc
 
-2. the **potential outcomes**: how do you expect units to respond under different types of treatment
+2. the **potential outcomes**: how do you expect units to respond under different types of treatment?
 
 3. your **design**: what are the  treatments? what is the randomization scheme? what do you treat as a block and what as a cluster?
 
@@ -30,7 +30,7 @@ rm(list=ls())
 library(experimentr)
 ```
 
-## The Environment
+## The Sample
 Here is a simple environment; in this case we indicate that there are 20 units and they are of two types. eg men, women; north south, whatever it is. 
 These types may or may not later affect the potential outcomes, the randomization scheme, or the analysis strategy. you can describe much more complex types of data if you like.
 
