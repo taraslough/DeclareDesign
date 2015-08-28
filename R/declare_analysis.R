@@ -252,11 +252,11 @@ truth_data_frame <- function(formula = NULL, treatment_variable = "Z",
   
   other_variable_names <- all.vars(formula[[3]])[!(all.vars(formula[[3]]) %in% treatment_variable)]
   
-  if(!missing(cluster_variable))
-    other_variable_names <- c(other_variable_names, cluster_variable)
+  ##if(!missing(cluster_variable))
+  ##  other_variable_names <- c(other_variable_names, cluster_variable)
   
-  if(!missing(block_variable))
-    other_variable_names <- c(other_variable_names, block_variable)
+  ##if(!missing(block_variable))
+  ##  other_variable_names <- c(other_variable_names, block_variable)
   
   treatment_conditions <- unique(data[, treatment_variable])
   
