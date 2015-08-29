@@ -102,6 +102,8 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
     level_ids <- level_ID_variables
   }
   
+  any_empty <- FALSE
+  
   # Check whether the user has supplied variables
   no_variables <- length(variable_list)==0
   

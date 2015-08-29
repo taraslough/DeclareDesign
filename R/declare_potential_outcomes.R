@@ -79,7 +79,7 @@ declare_potential_outcomes <- function(condition_names = NULL, outcome_formula =
     outcomes_object <- list(
       condition_names  = condition_names,
       population_proportions = population_proportions,
-      proportion_outcome_name = proportion_outcome_name,
+      outcome_name = proportion_outcome_name,
       call = match.call()
     )
     

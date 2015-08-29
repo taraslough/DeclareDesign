@@ -8,7 +8,20 @@
 #' @param sep a character string used in the naming of potential outcomes. Defaults to "_".
 #' @export
 make_data <-
-  function(potential_outcomes = NULL, sample = NULL,blocks = NULL, clusters = NULL, N = NULL, sep = "_") {
+  function(potential_outcomes = NULL, sample = NULL,blocks = NULL, clusters = NULL, N = NULL, sep = "_", do_treatment_assignment = FALSE, design = NULL,treatment_variable = NULL) {
+    
+    if(is.null(potential_outcomes)&do_treatment_assignment){
+      stop("If you want to assign treatment, you must provide a potential_outcomes object (see declare_potential_outcomes()).")
+    }
+    
+    if((is.null(design) | is.null(treatment_variable)) & do_treatment_assignment){
+      stop("If do_treatment_assignment = TRUE, you must supply both the name of the treatment variable (i.e. 'Z', or 'treatment_status') and the design object, declared using declare_design().")
+    }
+    
+    if(!do_treatment_assignment & (!is.null(design) | !is.null(treatment_variable))){
+      warning("The design and the treatment_variable arguments will only be used if do_treatment_assignment = TRUE.")
+    }
+    
     if (is.null(sample) & is.null(potential_outcomes))
       stop("You must provide at least a sample frame or a potential outcomes object.")
     
@@ -23,6 +36,9 @@ make_data <-
       stop("Elements of a list of potential_outcomes must all be defined in terms of a unit-level data-generating process or population-level proportions, but may not feature both simultaneously.")
     }
     
+    if(!is.null(potential_outcomes)){
+      outcome_variable <- potential_outcomes$outcome_name
+    }
     
     
     if(all(proportion_check)){
@@ -44,7 +60,7 @@ make_data <-
       if(is.null(N)){
         stop("You must provide N if you supply potential outcomes objects defined with population_proportions.")
       }
-      
+
       make_proportions <- function(population_proportions,N){
         
         counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
@@ -60,6 +76,8 @@ make_data <-
         colnames(outcomes) <- colnames(population_proportions)
         
         outcomes <- integerize(as.data.frame(outcomes))
+        
+        outcomes <- with_treatment(outcomes,design=design,do_treatment_assignment=do_treatment_assignment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
         
         return(outcomes)
       }
@@ -77,6 +95,7 @@ make_data <-
                                    potential_outcomes[[i]]$condition_names
                                    )
           prop_PO <- integerize(prop_PO)
+          prop_PO <- with_treatment(prop_PO,design=design,do_treatment_assignment=do_treatment_assignment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
           return(prop_PO)
           })
         
@@ -105,6 +124,7 @@ make_data <-
       # convert factors to integers
       
       return_frame <- integerize(return_frame)
+      return_frame <- with_treatment(return_frame,design=design,do_treatment_assignment=do_treatment_assignment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
       
       return(return_frame)
       
@@ -140,7 +160,7 @@ make_data <-
         # cluster_var_name <- potential_outcomes$cluster_variable
         outcome_formula  <- potential_outcomes$outcome_formula
         # ICC              <- potential_outcomes$ICC
-        outcome_variable <- potential_outcomes$outcome_variable
+        # outcome_variable <- potential_outcomes$outcome_variable
         covariate_names  <-
           all.vars(outcome_formula)[!all.vars(outcome_formula) %in% condition_names][-1]
         outcome_name     <- all.vars(outcome_formula)[1]
@@ -191,18 +211,6 @@ make_data <-
         )
       ))
       
-#       if (potential_outcomes$outcome_variable$distribution == "normal") {
-#         unit_variance <- potential_outcomes$outcome_variable$sd ^ 2
-#         epsilon <- rnorm(
-#           n = dim(X)[1],
-#           mean = potential_outcomes$outcome_variable$mean,
-#           sd = potential_outcomes$outcome_variable$sd
-#         )
-#       } else {
-#         unit_variance <- 1
-#         epsilon <- rnorm(n = dim(X)[1], mean = 0, sd = 1)
-#       }
-#       
       outcomes <- matrix(
         data = NA,
         nrow = dim(X)[1],
@@ -227,21 +235,6 @@ make_data <-
       
       colnames(outcomes) <- paste0(outcome_name,sep,condition_names)
       
-#       if (!is.null(ICC) & !is.null(cluster_var_name)) {
-#         cluster_variance <- ICC * unit_variance / (1 - ICC)
-#         cluster_shock <- rnorm(length(unique(X[,cluster_var_name])),
-#                                sd = cluster_variance ^ .5)[as.numeric(as.factor(X[,cluster_var_name]))]
-#         outcomes <- outcomes + cluster_shock
-#       }
-      # Check what the DGP of the outcome variable is and do necessary transformations
-#       if (potential_outcomes$outcome_variable$distribution == "binary") {
-#         outcomes <-
-#           apply(outcomes,2,function(i)
-#             rbinom(
-#               n = dim(outcomes)[1],size = 1,prob = 1 / (1 + exp(-i))
-#             ))
-#       }
-#       
       return_frame <- data.frame(outcomes)
       return_frame$make_data_sort_id <- 1:nrow(return_frame)
       if (!is.null(sample)) {
@@ -280,10 +273,13 @@ make_data <-
       return_frame$make_data_sort_id <- NULL
       
       return_frame <- integerize(return_frame)
+      return_frame <- with_treatment(return_frame,design=design,do_treatment_assignment=do_treatment_assignment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
       
       return(return_frame)
     }
   }
+
+
 
 #' @export
 integerize <- function(data_frame){
@@ -298,6 +294,17 @@ for(i in 1:ncol(data_frame)){
   }
 
 
+#' @export
+with_treatment <- function(X,design,do_treatment_assignment,treatment_variable,outcome_variable,sep){
+  if(do_treatment_assignment){
+    X <- as.data.frame(X)
+    X[,treatment_variable] <- assign_treatment(design = design, data = X)
+    X[,outcome_variable] <- observed_outcome(outcome = outcome_variable, 
+                                         treatment_assignment = treatment_variable, 
+                                         data = X, sep = sep)
+  }
+  return(X)
+}
 
 
 
