@@ -39,6 +39,9 @@ declare_variable <-
     }
     
     if (!is.null(binary_probability)) {
+      if(binary_probability>1|binary_probability<0){
+        stop("binary_probability must be in the interval [0,1].")
+      }
       if (!is.null(binary_categories)) {
         variable <- list(
           distribution = "binary",
@@ -55,6 +58,11 @@ declare_variable <-
     }
     
     if (!is.null(multinomial_probabilities)) {
+      
+      if(sum(multinomial_probabilities)!=1){
+        stop("multinomial_probabilities must sum to 1.")
+      }
+      
       if (!is.null(multinomial_categories)) {
         variable <- list(
           distribution = "multinomial",
