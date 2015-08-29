@@ -59,7 +59,9 @@ make_data <-
         
         colnames(outcomes) <- colnames(population_proportions)
         
-        return(as.data.frame(outcomes))
+        outcomes <- integerize(as.data.frame(outcomes))
+        
+        return(outcomes)
       }
       
       
@@ -74,6 +76,7 @@ make_data <-
                                    sep,
                                    potential_outcomes[[i]]$condition_names
                                    )
+          prop_PO <- integerize(prop_PO)
           return(prop_PO)
           })
         
@@ -100,12 +103,8 @@ make_data <-
       }
       
       # convert factors to integers
-      for(i in 1:ncol(return_frame)){
-        numeric_check <- identical(return_frame[,i],as.factor(as.integer(as.character(return_frame[,i]))))
-        if(numeric_check){
-          return_frame[,i] <- as.integer(as.character(return_frame[,i]))
-        }
-      }
+      
+      return_frame <- integerize(return_frame)
       
       return(return_frame)
       
@@ -131,6 +130,9 @@ make_data <-
             sample = declare_sample(data = return_frame)
           )
       }
+      
+      return_frame <- integerize(return_frame)
+      
       return(return_frame)
     }else{
       if (!is.null(potential_outcomes)) {
@@ -277,14 +279,23 @@ make_data <-
         return_frame[order(return_frame$make_data_sort_id),]
       return_frame$make_data_sort_id <- NULL
       
+      return_frame <- integerize(return_frame)
+      
       return(return_frame)
     }
   }
 
-
-
-
-
+#' @export
+integerize <- function(data_frame){
+for(i in 1:ncol(data_frame)){
+  numeric_check <- identical(data_frame[,i],as.factor(as.integer(as.character(data_frame[,i]))))
+  if(numeric_check){
+    data_frame[,i] <- as.integer(as.character(data_frame[,i]))
+  }
+}
+  return(data_frame)
+  
+  }
 
 
 

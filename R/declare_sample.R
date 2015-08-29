@@ -203,6 +203,7 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
       X_mat <- make_X_matrix(variable_list,
                              N = N)
       X_mat[,level_ids] <- 1:dim(X_mat)[1]
+      X_mat <- integerize(X_mat)
       return(X_mat)
     }
   }
@@ -214,6 +215,7 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
     make_sample <- function(){
       X_mat <- data.frame(1:N)
       names(X_mat) <- level_ids
+      X_mat <- integerize(X_mat)
       return(X_mat)
     }
   } 
@@ -235,7 +237,9 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
           X_mat <- matrix(1:N_per_level[i], 
                           dimnames = list(NULL, level_ids[i]))
         }
-        return(data.frame(X_mat))
+        X_mat <- data.frame(X_mat)
+        X_mat <- integerize(X_mat)
+        return(X_mat)
       })
       
       sample_matrix <- X_list[[1]]
@@ -258,6 +262,7 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
       }
       
       sample_matrix <- sample_matrix[order(sample_matrix[,level_ids[1]]), , drop=FALSE]
+      sample_matrix <- integerize(sample_matrix)
       return(sample_matrix)
     }
   }
@@ -292,7 +297,9 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
               sample_by_level[[j]] <- sample_current_level
             }
           }
-          return(user_data[sample_by_level[[1]], , drop = FALSE])
+          user_data <- user_data[sample_by_level[[1]], , drop = FALSE]
+          user_data <- integerize(user_data)
+          return(user_data)
         }
       }
       
@@ -443,6 +450,7 @@ make_X_matrix <- function(...,N) {
       X[trans_names[i]] <- with(data = X,expr = eval(parse(text = transformation_calls[i])))
     }
   }
+  X <- integerize(X)
   return(X)
 }
 
