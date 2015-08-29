@@ -254,10 +254,8 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
         return(X_mat)
       })
       
-      sample_matrix <- X_list[[1]]
       
       if(N_levels > 1){ 
-        X_mat_joined <- NA
         for(i in N_levels:2){
           X_list[[i-1]]$merge_id <- 
             sample(rep(X_list[[i]][,level_ids[i]],
@@ -265,12 +263,12 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
           
           names(X_list[[i-1]])[names(X_list[[i-1]])=="merge_id"] <- level_ids[i]
           
-          X_mat_joined <- 
+          X_list[[i-1]] <- 
             merge(x  = X_list[[i-1]],
                   y  = X_list[[i]],
                   by = level_ids[i])
         }
-        sample_matrix <- X_mat_joined
+        sample_matrix <- X_list[[1]]
       }
       
       sample_matrix <- sample_matrix[order(sample_matrix[,level_ids[1]]), , drop=FALSE]
