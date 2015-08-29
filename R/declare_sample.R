@@ -518,7 +518,7 @@ generate_ID <- function(data,level_names){
   # Get the maximum ID for each
   max_IDs <- apply(data,2,max)[level_names]
   # Re-order from lowest - highest level
-  level_names <- level_names[order(max_IDs)]
+  level_names <- level_names[order(max_IDs,decreasing = T)]
   ID_mat <- data[,level_names]
   IDs <- apply(ID_mat,1,paste,collapse = "_")
   return(IDs)
