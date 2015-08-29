@@ -166,6 +166,11 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
         level_ids <- paste0(level_names,"_id")
       }
       
+      # Find any levels that have no variables declared
+      level_lengths <- sapply(variable_list,length)
+      any_empty <- any(!level_lengths>0)
+      which_empty <- level_lengths==0
+      
     }else{
       # In this case the user didn't provide a multi-level data structure, 
       # there is just one level
@@ -197,8 +202,8 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
   
   # Now generate the make_sample() function when there is...
   
-  # ... no data, one level, and variables
-  if(no_data & one_level & !no_variables){
+  # ... no data, one level, variables, and no empty lists
+  if(no_data & one_level & !no_variables & !any_empty){
     make_sample <- function(){
       X_mat <- make_X_matrix(variable_list,
                              N = N)
@@ -228,9 +233,14 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
       X_list <- lapply(1:N_levels,function(i){
         # Case when variables are supplied
         if(!no_variables){
-          X_mat <- make_X_matrix(variables = variable_list[[i]],
-                                 N = N_per_level[i])
-          X_mat$id <- 1:dim(X_mat)[1]
+          
+          if(which_empty[i]){
+            X_mat <- data.frame(id = 1:N_per_level[i])
+          }else{
+            X_mat <- make_X_matrix(variables = variable_list[[i]],
+                                   N = N_per_level[i])  
+            X_mat$id <- 1:dim(X_mat)[1]
+          }
           names(X_mat)[names(X_mat)=="id"] <- level_ids[i]
           # Case when variables not supplied
         }else{
