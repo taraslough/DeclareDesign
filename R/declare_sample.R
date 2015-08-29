@@ -9,7 +9,7 @@
 #' @param level_ID_variables optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")
 #' @export
 declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL, N = NULL, data = NULL, 
-                           resample = FALSE, level_ID_variables = NULL) {
+                           resample = FALSE, level_ID_variables = NULL,generate_level_ID = FALSE) {
   
   # Check whether the user has supplied data
   no_data <- is.null(data)
@@ -211,6 +211,10 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
                              N = N)
       X_mat[,level_ids] <- 1:dim(X_mat)[1]
       X_mat <- integerize(X_mat)
+      if(generate_level_ID){
+        X_mat <- as.data.frame(X_mat)
+        X_mat$level_ID <- generate_ID(data = X_mat,level_names = level_ids)
+      }
       return(X_mat)
     }
   }
@@ -223,6 +227,9 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
       X_mat <- data.frame(1:N)
       names(X_mat) <- level_ids
       X_mat <- integerize(X_mat)
+      if(generate_level_ID){
+        X_mat$level_ID <- generate_ID(data = X_mat,level_names = level_ids)
+      }
       return(X_mat)
     }
   } 
@@ -273,6 +280,10 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
       
       sample_matrix <- sample_matrix[order(sample_matrix[,level_ids[1]]), , drop=FALSE]
       sample_matrix <- integerize(sample_matrix)
+      if(generate_level_ID){
+        sample_matrix <- as.data.frame(sample_matrix)
+        sample_matrix$level_ID <- generate_ID(data = sample_matrix,level_names = level_ids)
+      }
       return(sample_matrix)
     }
   }
@@ -288,7 +299,13 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
       
       if(N_levels == 1) {
         make_sample <- function(){
-          return(user_data[sample(1:nrow(user_data), N, replace = TRUE), , drop = FALSE])
+          user_data <- user_data[sample(1:nrow(user_data), N, replace = TRUE), , drop = FALSE]
+          user_data <- integerize(user_data)
+          if(generate_level_ID){
+            user_data <- as.data.frame(user_data)
+            user_data$level_ID <- generate_ID(data = user_data,level_names = level_ids)
+          }
+          return(user_data)
         }
       } else if (N_levels > 1){
         make_sample <- function(){
@@ -309,6 +326,10 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
           }
           user_data <- user_data[sample_by_level[[1]], , drop = FALSE]
           user_data <- integerize(user_data)
+          if(generate_level_ID){
+            user_data <- as.data.frame(user_data)
+            user_data$level_ID <- generate_ID(data = user_data,level_names = level_ids)
+          }
           return(user_data)
         }
       }
@@ -492,7 +513,16 @@ covariates_table <- function(sample){
   cat("This will be a summary table of the distribution of each covariate at each level. Not implemented yet.")
 }
 
-
+#' @export
+generate_ID <- function(data,level_names){
+  # Get the maximum ID for each
+  max_IDs <- apply(data,2,max)[level_names]
+  # Re-order from lowest - highest level
+  level_names <- level_names[order(max_IDs)]
+  ID_mat <- data[,level_names]
+  IDs <- apply(ID_mat,1,paste,collapse = "_")
+  return(IDs)
+}
 
 
 
