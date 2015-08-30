@@ -5,9 +5,13 @@
 #' @param design A design object, made with \code{\link{declare_design}}
 #' @param N If sample is provided, this argument is ignored.
 #' @param sep a character string used in the naming of potential outcomes. Defaults to "_".
+#' @param noncompliance A noncompliance object, made with \code{\link{declare_noncompliance}}.
 #' @export
 make_data <-
-  function(potential_outcomes = NULL, sample = NULL, N = NULL, sep = "_", do_treatment_assignment = FALSE, design = NULL,treatment_variable = NULL) {
+  function(potential_outcomes = NULL, sample = NULL, 
+           N = NULL, sep = "_", do_treatment_assignment = FALSE, 
+           design = NULL,treatment_variable = NULL,
+           noncompliance = NULL) {
     
     if(is.null(potential_outcomes)&do_treatment_assignment){
       stop("If you want to assign treatment, you must provide a potential_outcomes object (see declare_potential_outcomes()).")
