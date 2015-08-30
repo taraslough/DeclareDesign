@@ -2,13 +2,12 @@
 #'
 #' @param potential_outcomes An outcomes_object made with \code{\link{declare_potential_outcomes}}.
 #' @param sample A sample object made with \code{\link{declare_sample}}, or a pre-existing dataframe
-#' @param blocks A blocks object, made with \code{\link{declare_blocks}} (optional).
-#' @param clusters A clusters object, made with \code{\link{declare_clusters}} (optional).
+#' @param design A design object, made with \code{\link{declare_design}}
 #' @param N If sample is provided, this argument is ignored.
 #' @param sep a character string used in the naming of potential outcomes. Defaults to "_".
 #' @export
 make_data <-
-  function(potential_outcomes = NULL, sample = NULL,blocks = NULL, clusters = NULL, N = NULL, sep = "_", do_treatment_assignment = FALSE, design = NULL,treatment_variable = NULL) {
+  function(potential_outcomes = NULL, sample = NULL, N = NULL, sep = "_", do_treatment_assignment = FALSE, design = NULL,treatment_variable = NULL) {
     
     if(is.null(potential_outcomes)&do_treatment_assignment){
       stop("If you want to assign treatment, you must provide a potential_outcomes object (see declare_potential_outcomes()).")
@@ -40,13 +39,13 @@ make_data <-
       outcome_variable <- potential_outcomes$outcome_name
     }
     
-    
     if(all(proportion_check)){
       
       if(!is.null(sample)){
         covariate_frame <- make_data(sample = sample,
-                                     blocks = blocks,
-                                     clusters = clusters,
+                                     design = design,
+                                     #blocks = blocks,
+                                     #clusters = clusters,
                                      N = N,sep = sep)
         if(is.null(N)){
           N <- dim(covariate_frame)[1]
@@ -130,15 +129,14 @@ make_data <-
       
     }
     
-    
-    
     if(!is.null(potential_outcomes) & all(sapply(potential_outcomes, class) == "potential_outcomes")) {
       return_frame <-
         make_data(
           potential_outcomes = potential_outcomes[[1]],
           sample = sample,
-          blocks = blocks,
-          clusters = clusters,
+          design = design,
+          #blocks = blocks,
+          #clusters = clusters,
           N = N,
           sep = sep
         )
@@ -240,29 +238,31 @@ make_data <-
       if (!is.null(sample)) {
         return_frame <- cbind(return_frame, X)
       }
-      if (!is.null(clusters)) {
+      if (!is.null(design$clusters)) {
         return_frame <-
-          cbind(return_frame, clusters$cluster_function(sample = return_frame))
+          cbind(return_frame, design$clusters$cluster_function(sample = return_frame))
       }
       
-      if (!is.null(blocks)) {
-        if (is.null(blocks$call$clusters)) {
+      if (!is.null(design$blocks)) {
+        if (is.null(design$blocks$call$clusters)) {
           return_frame <-
-            cbind(return_frame, blocks$blocks_function(sample = return_frame))
+            cbind(return_frame, design$blocks$blocks_function(sample = return_frame))
         } else {
           cluster_frame <-
-            unique(return_frame[, c(clusters$cluster_name, blocks$call$blocks)])
-          if (nrow(cluster_frame) != length(unique(return_frame[,clusters$cluster_name]))) {
+            unique(return_frame[, c(design$clusters$cluster_name, design$blocks$call$blocks)])
+          if (nrow(cluster_frame) != length(unique(return_frame[,design$clusters$cluster_name]))) {
             stop(
               "There is more than one level of a cluster-level covariate in at least one cluster, so you cannot block on it. Please construct cluster-level variables that have a single value within clusters."
             )
           }
-          cluster_frame[, blocks$block_name] <-
-            blocks$blocks_function(sample = cluster_frame)
+          cluster_frame[, design$blocks$block_name] <-
+            design$blocks$blocks_function(sample = cluster_frame)
           
           return_frame <-
             merge(
-              return_frame, cluster_frame[, c(blocks$block_name, clusters$cluster_name)], by = clusters$cluster_name, all.x = TRUE, all.y = FALSE
+              return_frame, 
+              cluster_frame[, c(design$blocks$block_name, design$clusters$cluster_name)], 
+              by = design$clusters$cluster_name, all.x = TRUE, all.y = FALSE
             )
           
         }

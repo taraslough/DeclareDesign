@@ -208,11 +208,27 @@ declare_design <-
       baseline_condition <- condition_names[1]
     }
     
-    if(is.null(blocks)){block_name=NULL}
-    if(is.null(clusters)){cluster_name=NULL}
+    # Figure out blocks
+    if(!is.null(blocks) & is.character(blocks)){
+      blocks <- declare_blocks(blocks = blocks, recode = FALSE)
+    }
     
-    block_name <- blocks$block_name
-    cluster_name <- clusters$cluster_name
+    if(!is.null(blocks) & !is.character(blocks)){
+      block_name <- blocks$block_name
+    }
+
+    if(is.null(blocks)){block_name=NULL}
+    
+    # Figure out cluster name
+    if(!is.null(clusters) & is.character(clusters)){
+      clusters <- declare_clusters(clusters = clusters)
+    }  
+    
+    if(!is.null(clusters) & !is.character(clusters)){
+      cluster_name <- clusters$cluster_name
+    }
+
+    if(is.null(clusters)){cluster_name=NULL}
     
     return.object <- list(block_name = block_name,
                           cluster_name = cluster_name,

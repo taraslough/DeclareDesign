@@ -8,7 +8,9 @@ context("Basic experiment with blocking")
 test_that("test whether a simple blocked experiment can be pre-registered", {
   smp <- declare_sample(
     individuals = list(
-      income = declare_variable(normal_mean = 3, normal_sd = 1)),
+      income = declare_variable(normal_mean = 3, normal_sd = 1),
+      party = declare_variable(multinomial_probabilities = c(.5, .3, .2),
+                               multinomial_categories = c("Dem", "Rep", "Ind"))),
     N_per_level = c(1000))
   
   po     <-  declare_potential_outcomes(
@@ -17,23 +19,30 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   )
   
   blocks <- declare_blocks(blocks = "income", block_name = "income_groups", block_count = 10)
+  design_1        <- declare_design(potential_outcomes = po, blocks = blocks)
+  design_2        <- declare_design(potential_outcomes = po, blocks = "party")
   
-  design        <- declare_design(potential_outcomes = po, blocks = blocks)
+  mock_1          <- make_data(potential_outcomes = po, do_treatment_assignment = TRUE,
+                             treatment_variable = "Z",
+                             sample = smp, design = design_1)
   
-  mock          <- make_data(potential_outcomes = po, sample = smp, blocks = blocks)
-  mock$Z        <- assign_treatment(design, data = mock)
-  mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
+  mock_2          <- make_data(potential_outcomes = po, do_treatment_assignment = TRUE,
+                               treatment_variable = "Z",
+                               sample = smp, design = design_2)
   
-  probs_mat <- get_design_probs(design = design, data = mock)
-  prob_obs <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
-  
-  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means_blocked,
+  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
+                                 estimator = difference_in_means_blocked,
                                  block_variable = "income_groups")
   
-  power_test        <- get_diagnostics(sims = 1000, 
+  analysis_2 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
+                                 estimator = difference_in_means_blocked,
+                                 block_variable = "block_variable")
+  
+  power_test        <- get_diagnostics(sims = 100, 
                                        analysis = analysis_1, 
-                                       design = design, 
-                                       blocks = blocks, sample = smp, 
+                                       design = design_1, 
+                                       #blocks = blocks, 
+                                       sample = smp, 
                                        potential_outcomes = po)
   
   
