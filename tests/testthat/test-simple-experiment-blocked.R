@@ -41,14 +41,13 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   power_test        <- get_diagnostics(sims = 100, 
                                        analysis = analysis_1, 
                                        design = design_1, 
-                                       #blocks = blocks, 
                                        sample = smp, 
                                        potential_outcomes = po)
   
   
-  fit_1 <- get_estimates(analysis = analysis_1, data = mock)
+  fit_1 <- get_estimates(analysis = analysis_1, data = mock_1)
   
-  fit_1 <- get_estimands(analysis = analysis_1, data = mock)
+  fit_1 <- get_estimands(analysis = analysis_1, data = mock_2)
   
   summary(fit_1)
   

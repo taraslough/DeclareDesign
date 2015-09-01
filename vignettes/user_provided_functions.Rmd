@@ -34,9 +34,10 @@ sample <- declare_sample(
 Second, we define the potential outcomes, which will be simulated based on the baseline covariate data.
 
 ```{r}
+logistic <- function(x) exp(x)/(1+exp(x))
 potential_outcomes     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income 
+  outcome_formula = Y ~ logistic(.01 + 0*Z0 + .2*Z1 + .1*income)
 )
 ```
 
@@ -44,11 +45,18 @@ Fourth, we define one or more analyses we will run based on simulated data. This
 
 
 ```{r}
-poisson_regression_custom <- function(data){
-  lm(Y ~ Z, family = "poisson", data = data)
+regression_custom <- function(data){
+  reg <- summary(lm(Y ~ Z, data = data))
+  coef <- reg$coefficients[2, 1]
+  se <- reg$coefficients[2, 2]
+  p <- reg$coefficients[2, 4]
+  ci_upper <- coef + 1.96*se
+  ci_lower <- coef - 1.96*se
+  stats <- matrix(c(coef, se, p, ci_lower, ci_upper), dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper"), "Y~Zlm"))
+  return(stats)
 }
 
-analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = poisson_regression_custom, quantity_of_interest = average_treatment_effect )
+analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = regression_custom)
 ```
 
 Then we declare the design of the experiment, in this case a simple one without clusters or blocking.
@@ -111,7 +119,7 @@ pre <- pre_register(design = design, sample = sample,
                     title = "Lady Tasting Tea", 
                     author = c("Ronald A. Fisher"), 
                     abstract = "Description of the lady tasting tea experiment",
-                    temp_dir = TRUE, make_output = FALSE)
+                    temp_dir = TRUE, make_output = FALSE, open_output = FALSE)
 ```
 
 ## Writing a paper based on the experiment
@@ -239,7 +247,7 @@ pre <- pre_register(design = design_block_cluster, sample = sample_block_cluster
                     title = "Lady Tasting Tea", 
                     author = c("Ronald A. Fisher"), 
                     abstract = "Description of the lady tasting tea experiment",
-                    temp_dir = TRUE, make_output = FALSE)
+                    temp_dir = TRUE, make_output = FALSE, open_output = FALSE)
 ```
 
 ## Writing a paper based on the experiment

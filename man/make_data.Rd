@@ -4,22 +4,22 @@
 \alias{make_data}
 \title{Make the full dataset or just a sample}
 \usage{
-make_data(potential_outcomes = NULL, sample = NULL, blocks = NULL,
-  clusters = NULL, N = NULL, sep = "_", do_treatment_assignment = FALSE,
-  design = NULL, treatment_variable = NULL)
+make_data(potential_outcomes = NULL, sample = NULL, N = NULL, sep = "_",
+  do_treatment_assignment = FALSE, design = NULL,
+  treatment_variable = NULL, noncompliance = NULL)
 }
 \arguments{
 \item{potential_outcomes}{An outcomes_object made with \code{\link{declare_potential_outcomes}}.}
 
 \item{sample}{A sample object made with \code{\link{declare_sample}}, or a pre-existing dataframe}
 
-\item{blocks}{A blocks object, made with \code{\link{declare_blocks}} (optional).}
-
-\item{clusters}{A clusters object, made with \code{\link{declare_clusters}} (optional).}
-
 \item{N}{If sample is provided, this argument is ignored.}
 
 \item{sep}{a character string used in the naming of potential outcomes. Defaults to "_".}
+
+\item{design}{A design object, made with \code{\link{declare_design}}}
+
+\item{noncompliance}{A noncompliance object, made with \code{\link{declare_noncompliance}}.}
 }
 \description{
 Make the full dataset or just a sample

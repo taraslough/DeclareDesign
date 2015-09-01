@@ -69,7 +69,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
       estimator_options$weights <- data[, weights]
     estimator_options$data <- data
     
-    return(do.call(estimator, args = estimator_options)) ##, list(formula = stats::formula(unclass(formula)), data = data))))
+    return(do.call(estimator, args = estimator_options))
   }
   
   estimand_function <- function(data){
@@ -82,7 +82,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
       estimand_options$weights <- data[, estimand_weights]
     estimand_options$data <- data
     
-    return(do.call(estimand, args = estimand_options)) ##, list(formula = stats::formula(unclass(formula)), data = data))))
+    return(do.call(estimand, args = estimand_options))
   }
   
   if(!is.null(quantity_of_interest))
@@ -206,10 +206,10 @@ difference_in_means_blocked <- function(formula, data, block_variable = NULL, su
         var(Y[b==i & t == cond2], na.rm = TRUE )/sum(b==i & t == cond2)})
     se  <- (block_weights^2 %*% vars)^.5
 
-    df <- length(Y) - 2
-    p <- 2 * pt(abs(diff/se), df = N - 2, lower.tail = FALSE)
-    ci_lower <- diff - qt(1 - alpha/2, df = N - 2) * se
-    ci_upper <- diff + qt(1 - alpha/2, df = N - 2) * se
+    df <- length(Y) - length(block_names) - 2
+    p <- 2 * pt(abs(diff/se), df = df, lower.tail = FALSE)
+    ci_lower <- diff - qt(1 - alpha/2, df = df) * se
+    ci_upper <- diff + qt(1 - alpha/2, df = df) * se
     return(c(diff, se, p, ci_lower, ci_upper, df))
   }
   

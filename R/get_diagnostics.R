@@ -49,15 +49,14 @@ get_diagnostics <- function(data = NULL, potential_outcomes = NULL, sample = NUL
   for(i in 1:sims){
     
     if(resample == "potential_outcomes"){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, sample = data, 
-                            blocks = blocks, clusters = clusters)
+      data_sim <- make_data(potential_outcomes = potential_outcomes, sample = data, design = design)
       if(bootstrap_data == TRUE){
         ## for now N_resample is preset, but could be set according to a design object
         N_bootstrap <- nrow(data_sim) 
         data_sim <- data_sim[sample(1:nrow(data_sim), N_bootstrap, replace = TRUE)]
       }
     } else if (resample == "both"){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, sample = sample, blocks = blocks, clusters = clusters)
+      data_sim <- make_data(potential_outcomes = potential_outcomes, sample = sample, design = design)
     } else if (resample == "neither"){
       stop("Neither is not yet implemented. Please fix make_data.")
     }
