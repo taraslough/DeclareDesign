@@ -2,21 +2,18 @@
 #'
 #' @param condition_names A character vector indicating the names of the conditions to which subjects can be assigned. Conceptually identical to the potential outcomes that are revealed in each condition, implicitly invoking SUTVA.
 #' @param outcome_formula A regression-like expression for declaring the relationship between the outcome, treatments, and optionally, the covariates.
-#' @param population_proportions what is it?
-#' @param proportion_outcome_name what is it?
+#' @param population_proportions For binary outcomes, a vector of proportions of successes is sufficient. For multinomial outcomes, provide a matrix of proportions, whose rows indicate the possible outcomes, and whose columns sum to one and indicate the treatment conditions. Outcome and condition names are automatically inherited from the rows and columns of this matrix, where possible. Note: if the user decides to define the treatment effects in terms of population proportions, individual-level data-generating processes, such as those described by the outcome_formula, will no longer be possible.
+#' @param proportion_outcome_name The name of the outcome variable when using population proportions to define the outcomes. 
 #' @return outcomes_object
 #' @export
 declare_potential_outcomes <- function(condition_names = NULL, outcome_formula = NULL,
-                                       # outcome_variable_DGP = declare_variable(), 
-                                       # cluster_variable = NULL, 
-                                       # ICC = NULL, 
                                        population_proportions = NULL, proportion_outcome_name = NULL){
   
 
   
   if(!is.null(population_proportions)){
     
-    warning("You have defined the potential outcomes in terms of population-level changes in proportions. Consequently, potential outcomes cannot be a function covariates. The following arguments will be ignored: \n outcome_formula \n outcome_variable_DGP \n cluster_variable \n ICC")
+    warning("You have defined the potential outcomes in terms of population-level changes in proportions. Consequently, potential outcomes cannot be a function covariates. The following arguments will be ignored: \n outcome_formula")
     
     if(any(class(population_proportions)%in%c("numeric","double"))){
       
@@ -106,9 +103,6 @@ declare_potential_outcomes <- function(condition_names = NULL, outcome_formula =
       condition_names  = condition_names,
       outcome_formula  = outcome_formula,
       outcome_name     = all.vars(outcome_formula)[1],
-      # outcome_variable = outcome_variable_DGP,
-      # cluster_variable = cluster_variable,
-      # ICC = .01,
       call = match.call()
     )
     class(outcomes_object) <- "potential_outcomes"

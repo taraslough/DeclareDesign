@@ -1,9 +1,9 @@
 #' Make the full dataset or just a sample
 #'
-#' @param potential_outcomes An outcomes_object made with \code{\link{declare_potential_outcomes}}.
+#' @param potential_outcomes An outcomes_object made with \code{\link{declare_potential_outcomes}}, or a list of outcomes_objects.
 #' @param sample A sample object made with \code{\link{declare_sample}}, or a pre-existing dataframe
 #' @param design A design object, made with \code{\link{declare_design}}
-#' @param N If sample is provided, this argument is ignored.
+#' @param N An integer indicating sample size. If sample is provided, this argument is ignored.
 #' @param sep a character string used in the naming of potential outcomes. Defaults to "_".
 #' @param noncompliance A noncompliance object, made with \code{\link{declare_noncompliance}}.
 #' @export

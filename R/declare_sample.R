@@ -1,12 +1,13 @@
 #' Declare the structure of the sample frame 
 #'
-#' @param ... a list either of variable declarations, or of lists of variable declarations (one per level)
-#' @param N_per_level vector of the sample sizes per level, one number per level
-#' @param group_sizes_by_level description
-#' @param N total sample size of the sample frame
-#' @param data optional data frame to include variables that are not defined in the sample frame
-#' @param resample when data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.
-#' @param level_ID_variables optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")
+#' @param ... A list either of variable declarations, or of lists of variable declarations (one per level)
+#' @param N_per_level Vector of the sample sizes per level, one number per level. Note: does not allow for heterogeneous cluster sizes.
+#' @param group_sizes_by_level A list of vectors, in which each element of the list corresponds to successive levels, and each element of the vectors corresponds to the number of lower-level units in that cluster. Use for heterogeneous cluster sizes.
+#' @param N Total sample size of the sample frame.
+#' @param data Optional data frame to include variables that are not defined in the sample frame
+#' @param resample When data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.
+#' @param level_ID_variables Optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")
+#' @param generate_level_ID Generate an ID variable that indicates each level that a unit belongs to. 
 #' @export
 declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL, N = NULL, data = NULL, 
                            resample = FALSE, level_ID_variables = NULL, generate_level_ID = FALSE) {

@@ -1,12 +1,12 @@
 #' Plot the frequency or density of potential outcomes 
 #'
-#' @param data What is it?
-#' @param outcome_names What is it?
-#' @param color_palette What is it?
-#' @param barplot What is it?
-#' @param density What is it?
-#' @param histogram What is it?
-#' @param ... What is it?
+#' @param data The dataframe that contains the outcomes to plot (i.e. made using \code{\link{make_data}})
+#' @param outcome_names A vector of names of the outcomes to plot
+#' @param color_palette Optional vector of custom colors for the plot
+#' @param barplot If TRUE, plot is a barplot
+#' @param density If TRUE, plot is a density plot
+#' @param histogram If TRUE, plot is a frequency histogram
+#' @param ... Optional graphical arguments
 #' @export
 plot_outcomes <- function(data,outcome_names,color_palette = NULL,barplot = FALSE,density = FALSE,histogram = FALSE,...){
   
@@ -89,17 +89,17 @@ plot_outcomes <- function(data,outcome_names,color_palette = NULL,barplot = FALS
 
 #' Plot the frequency or density of covariates
 #'
-#' @param data What is it?
-#' @param outcome_names What is it?
-#' @param color_palette What is it?
-#' @param barplot What is it?
-#' @param density What is it?
-#' @param histogram What is it?
-#' @param ... What is it?
+#' @param data The dataframe that contains the outcomes to plot (i.e. made using \code{\link{make_data}})
+#' @param covariate_names A vector of names of the outcomes to plot
+#' @param color_palette Optional vector of custom colors for the plot
+#' @param barplot If TRUE, plot is a barplot
+#' @param density If TRUE, plot is a density plot
+#' @param histogram If TRUE, plot is a frequency histogram
+#' @param ... Optional graphical arguments
 #' @export
-plot_covariates <- function(data,outcome_names,color_palette = NULL,barplot = FALSE,density = FALSE,histogram = FALSE,...){
+plot_covariates <- function(data,covariate_names,color_palette = NULL,barplot = FALSE,density = FALSE,histogram = FALSE,...){
   
-  if(!all(outcome_names %in% colnames(data))){
+  if(!all(covariate_names %in% colnames(data))){
     stop("The outcome_names vector must match the names of the covariates in the data object.")
   }
   
@@ -117,11 +117,11 @@ plot_covariates <- function(data,outcome_names,color_palette = NULL,barplot = FA
                        "#FFF9F3", "#FFF9F6", "#FFFBF9", "#FFFCFA", "#FFFEFD")
   }
   
-  columns <- subset(data,select = outcome_names)
+  columns <- subset(data,select = covariate_names)
   unique_covariates <- unique(unlist(columns))
   N_uniq_out <- length(unique_covariates)
   
-  make_barplot <- function(columns,outcome_names,color_palette,...){
+  make_barplot <- function(columns,covariate_names,color_palette,...){
     bar_mat <- apply(columns,2,function(col){
       col<- factor(x = col,levels = unique_covariates)
       table(col)}
@@ -130,7 +130,7 @@ plot_covariates <- function(data,outcome_names,color_palette = NULL,barplot = FA
     barplot(height = bar_mat,col = color_palette[1:length(covariates)],beside = T,legend = covariates,...)
   }
   
-  make_density <- function(columns,outcome_names,color_palette,...){
+  make_density <- function(columns,covariate_names,color_palette,...){
     plot(density(columns[,1]),col = color_palette[1],...)
     if(ncol(columns)>1){
       for (i in 2:ncol(columns)){
@@ -140,7 +140,7 @@ plot_covariates <- function(data,outcome_names,color_palette = NULL,barplot = FA
     legend(x = "topright",y = colnames(columns),lty = rep(1,ncol(columns)),col = color_palette[1:ncol(columns)],...)
   }
   
-  make_histogram <- function(columns,outcome_names,color_palette,...){
+  make_histogram <- function(columns,covariate_names,color_palette,...){
     hist(columns[,1],col = color_palette[1],...)
     if(ncol(columns)>1){
       for (i in 2:ncol(columns)){
@@ -152,25 +152,25 @@ plot_covariates <- function(data,outcome_names,color_palette = NULL,barplot = FA
   
   
   if(barplot){
-    return(make_barplot(columns = columns,outcome_names = outcome_names,color_palette = color_palette,... = ...))
+    return(make_barplot(columns = columns,covariate_names = covariate_names,color_palette = color_palette,... = ...))
   }
   
   if(density){
-    return(make_density(columns = columns,outcome_names = outcome_names,color_palette = color_palette,... = ...))
+    return(make_density(columns = columns,covariate_names = covariate_names,color_palette = color_palette,... = ...))
   }
   
   if(histogram){
-    return(make_histogram(columns = columns,outcome_names = outcome_names,color_palette = color_palette,... = ...))
+    return(make_histogram(columns = columns,covariate_names = covariate_names,color_palette = color_palette,... = ...))
   }
   
   if(N_uniq_out>50){
-    return(make_density(columns = columns,outcome_names = outcome_names,color_palette = color_palette,... = ...))
+    return(make_density(columns = columns,covariate_names = covariate_names,color_palette = color_palette,... = ...))
   }
   
   if(N_uniq_out>5){
-    return(make_histogram(columns = columns,outcome_names = outcome_names,color_palette = color_palette,... = ...))
+    return(make_histogram(columns = columns,covariate_names = covariate_names,color_palette = color_palette,... = ...))
   }
   
-  return(make_barplot(columns = columns,outcome_names = outcome_names,color_palette = color_palette,... = ...))
+  return(make_barplot(columns = columns,covariate_names = covariate_names,color_palette = color_palette,... = ...))
   
 }

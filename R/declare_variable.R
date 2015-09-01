@@ -2,11 +2,11 @@
 #'
 #' @param normal_mean If the variable is normally distributed, its mean
 #' @param normal_sd If the variable is normally distributed, its standard deviation
-#' @param binary_probability How does this work?
-#' @param binary_categories How does this work?
-#' @param multinomial_probabilities How does this work?
-#' @param multinomial_categories How does this work?
-#' @param transformation How does this work?
+#' @param binary_probability The probability of success when the outcome is binary.
+#' @param binary_categories The failure and success labels, respectively.
+#' @param multinomial_probabilities A vector of probabilities of different draws, as long as there are categories.
+#' @param multinomial_categories A vector of labels for the multinomial draws
+#' @param transformation An optional string argument that can perform any operation on the covariates in \code{\link{declare_sample}} or \code{\link{make_data}}, provided that: the transformations return a vector of the same length as the dataframe; the transformations only involve variables on one level; and the transformations take place successively (i.e. only variables or transformations which are declared in previous lines can themselves be transformed).
 #' @export
 declare_variable <-
   function(normal_mean = NULL,normal_sd = NULL,binary_probability = NULL, binary_categories = NULL, multinomial_probabilities = NULL, multinomial_categories = NULL, transformation = NULL) {
