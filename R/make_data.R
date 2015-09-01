@@ -283,12 +283,14 @@ make_data <-
     }
   }
 
-
+i <- 2
 
 #' @export
 integerize <- function(data_frame){
 for(i in 1:ncol(data_frame)){
-  numeric_check <- identical(data_frame[,i],as.factor(as.integer(as.character(data_frame[,i]))))
+  numeric_check <- FALSE
+  if(!is.factor(data_frame[,i])){
+    numeric_check <- identical(data_frame[,i],as.factor(as.integer(as.character(data_frame[,i]))))}
   if(numeric_check){
     data_frame[,i] <- as.integer(as.character(data_frame[,i]))
   }
