@@ -22,21 +22,21 @@ This vignette demonstrates how to simulate data for use in power analysis.
 To make user-defined covariates, we can provide `declare_sample()` 
 a list of `DGP_object`s created with `declare_variable`. 
 From there, we can make new random draws of the covariates either by 
-supplying the `sample_frame` object to `make_data()`, or by calling the 
-`make_sample()` function that is created inside the `sample_frame` object:
+supplying the `sample` object to `make_data()`, or by calling the 
+`make_sample()` function that is created inside the `sample` object:
 
 ```{r}
 # The sample size
 N <- 10
 # An unnamed, standard normal variable:
-sample_frame_1 <- declare_sample(
+sample_1 <- declare_sample(
   declare_variable(),
   N = N
 )
-make_data(sample_frame = sample_frame_1)
-sample_frame_1$make_sample()
+make_data(sample = sample_1)
+sample_1$make_sample()
 # Multinomial, binomial and normal covariates
-sample_frame_2 <- declare_sample(
+sample_2 <- declare_sample(
   income = declare_variable(normal_mean = 1000,normal_sd = 10),
   gender = declare_variable(binary_probability = .5,
                             binary_categories = c("male","female")),
@@ -46,7 +46,7 @@ sample_frame_2 <- declare_sample(
   N = N
 )
 
-make_data(sample_frame = sample_frame_2)
+make_data(sample = sample_2)
 ```
 
 We can also generate data using custom functions, provided that a) 
@@ -58,7 +58,7 @@ the size of the covariate matrix.
 
 ```{r}
 
-sample_frame_3 <- declare_sample(
+sample_3 <- declare_sample(
   # Using functions
   change_1 = function(){rnorm(n = N,mean = 0,sd = 1)},
   success_1 = function(){rbinom(n = N,size = 1,prob = .5)},
@@ -68,7 +68,7 @@ sample_frame_3 <- declare_sample(
   N = N
 )
 
-make_data(sample_frame = sample_frame_3)
+make_data(sample = sample_3)
 
 ```
 
@@ -85,7 +85,7 @@ length; and c) the transformations take place on the same 'level'
 ```{r}
 
 # Here we create 'age' as a rounded draw from a normal distribution
-sample_frame_4 <- declare_sample(
+sample_4 <- declare_sample(
   # Declare the raw variables 
   age_raw = declare_variable(normal_mean = 30,normal_sd = 5),
   # Declare the transformation
@@ -93,10 +93,10 @@ sample_frame_4 <- declare_sample(
   N = N
 )
 
-make_data(sample_frame = sample_frame_4)
+make_data(sample = sample_4)
 
 # Here use two transformations to create an 'index' of three other variables
-sample_frame_5 <- declare_sample(
+sample_5 <- declare_sample(
   # Declare the raw variables 
   fitness = declare_variable(normal_mean = 10,normal_sd = 5),
   diet = declare_variable(normal_mean = 10,normal_sd = 5),
@@ -108,10 +108,10 @@ sample_frame_5 <- declare_sample(
   N = N
 )
 
-make_data(sample_frame = sample_frame_5)
+make_data(sample = sample_5)
 
 # Here we generate wide-format temporal data 
-sample_frame_6 <- declare_sample(
+sample_6 <- declare_sample(
   firm = list(
     # Firm profit is i.i.d in year 1
     year_1 = declare_variable(normal_mean = 10,normal_sd = 3),
@@ -122,7 +122,7 @@ sample_frame_6 <- declare_sample(
   N = N
 )
 
-make_data(sample_frame = sample_frame_6)
+make_data(sample = sample_6)
 
 ```
 
@@ -135,7 +135,7 @@ It is possible to declare data structures that have multi-level covariates,
 such as individuals within schools within cities. 
 However, *each level must be nested within the next one*. 
 For this reason, 'time' cannot be thought of as a level, but should be 
-declared in wide-format as above (`sample_frame_6`).
+declared in wide-format as above (`sample_6`).
 
 In order to create levels, the user simply provides `declare_sample()`
 with (preferably named) lists of variables, one per level, and describes the
@@ -154,7 +154,7 @@ N_per_level <- c(students = 8,
 # Note: level names are inhereted from the variable declarations, not 
 # from the the N_per_level vector
 
-sample_frame_7 <- declare_sample(
+sample_7 <- declare_sample(
  student = list(
    math_score = declare_variable(),
    lang_score = declare_variable()
@@ -169,7 +169,7 @@ sample_frame_7 <- declare_sample(
  N_per_level = N_per_level
 )
 
-make_data(sample_frame = sample_frame_7)
+make_data(sample = sample_7)
 
 ```
 
@@ -190,7 +190,7 @@ group_sizes_by_level <- list(
   classes_per_school = c(3,1)
 )
 
-sample_frame_8 <- declare_sample(
+sample_8 <- declare_sample(
  student = list(
    math_score = declare_variable(),
    lang_score = declare_variable()
@@ -205,7 +205,7 @@ sample_frame_8 <- declare_sample(
  group_sizes_by_level = group_sizes_by_level
 )
 
-make_data(sample_frame = sample_frame_8)
+make_data(sample = sample_8)
 
 ```
 
@@ -233,7 +233,7 @@ outcomes_1 <- declare_potential_outcomes(
   outcome_formula = outcome ~ 0*control + .5*treatment 
     )
 
-(linear_PO_1 <- make_data(potential_outcomes = outcomes_1,sample_frame = simple_frame))
+(linear_PO_1 <- make_data(potential_outcomes = outcomes_1,sample = simple_frame))
 
 with(linear_PO_1,outcome_treatment - outcome_control)
 
@@ -264,7 +264,7 @@ probit_PO <- declare_potential_outcomes(
 )
 
 # Make data
-make_data(potential_outcomes = probit_PO,sample_frame = simple_frame)
+make_data(potential_outcomes = probit_PO,sample = simple_frame)
 
 # For a Poisson data-generating process, write a predictive poisson function  
 poisson_outcome <- function(Z0,Z1){
@@ -277,7 +277,7 @@ pois_PO <- declare_potential_outcomes(
   outcome_formula = Y ~ poisson_outcome(Z1,Z0)
 )
 # Make data
-make_data(potential_outcomes = pois_PO,sample_frame = simple_frame)
+make_data(potential_outcomes = pois_PO,sample = simple_frame)
 
 ```
 
@@ -354,7 +354,7 @@ voter_sample <- declare_sample(
   N_per_level = c(10,2),
   level_ID_variables = c("voter_id","city_id"))
 
-make_data(potential_outcomes = proportion_PO_2,sample_frame = voter_sample)
+make_data(potential_outcomes = proportion_PO_2,sample = voter_sample)
 
 ```
 
@@ -386,7 +386,7 @@ with(linear_PO_2,outcome_treatment - outcome_control)
 ```
 
 
-We will use the schoole example from above (`sample_frame_7`). 
+We will use the schoole example from above (`sample_7`). 
 Students' 
 final exam score is a function of their math score, their language score,
 the number of students in the classroom, a school-level fixed effect
@@ -396,7 +396,7 @@ of private tutoring and financial incentives.
 
 ```{r,warning=FALSE}
 
-make_data(sample_frame = sample_frame_7)
+make_data(sample = sample_7)
 
 outcomes_2 <- declare_potential_outcomes(
   condition_names = c("control","tuition","money","tuitionxmoney"),
@@ -406,7 +406,7 @@ outcomes_2 <- declare_potential_outcomes(
                  I(school_id == 2) * 5
     )
 
-make_data(potential_outcomes = outcomes_2,sample_frame = sample_frame_7)
+make_data(potential_outcomes = outcomes_2,sample = sample_7)
 
 
 ```
@@ -458,8 +458,8 @@ cluster_PO_2 <- declare_potential_outcomes(
 )
 
 # Make both datasets
-data_1 <- make_data(potential_outcomes = cluster_PO_1,sample_frame = cluster_frame)
-data_2 <- make_data(potential_outcomes = cluster_PO_2,sample_frame = cluster_frame)
+data_1 <- make_data(potential_outcomes = cluster_PO_1,sample = cluster_frame)
+data_2 <- make_data(potential_outcomes = cluster_PO_2,sample = cluster_frame)
 
 # Estimate the ICC
 estimate_ICC(variable = data_1$Y_Z0,cluster = data_1$cluster_id)
@@ -503,7 +503,7 @@ and a single sample frame. This has the advantage of inducing correlation
 across outcomes within units.
 
 ```{r}
-# We will use our health sample_frame, created as sample_frame_5
+# We will use our health sample, created as sample_5
 conditions <- c("T0","T1")
 
 race_km <- declare_potential_outcomes(
@@ -518,7 +518,7 @@ hours_sleep <- declare_potential_outcomes(
 
 health_outcomes_1 <- list(race_km,hours_sleep)
 
-make_data(potential_outcomes = health_outcomes_1,sample_frame = sample_frame_5)
+make_data(potential_outcomes = health_outcomes_1,sample = sample_5)
 
 ```
 
@@ -543,7 +543,7 @@ index_outcome <- declare_potential_outcomes(
 # Append it to the preceding outcome list
 health_outcomes_2 <- c(health_outcomes_1,list(index_outcome))
 
-make_data(potential_outcomes = health_outcomes_2,sample_frame = sample_frame_5)
+make_data(potential_outcomes = health_outcomes_2,sample = sample_5)
 
 ```
 

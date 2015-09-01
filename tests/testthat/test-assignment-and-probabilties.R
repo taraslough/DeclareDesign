@@ -26,7 +26,7 @@ test_that("test assignment and probability functions", {
   clusters <- declare_clusters(clusters = "villages_id")
   blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
   
-  mock <- make_data(potential_outcomes = potential_outcomes, sample_frame = smp, blocks = blocks, clusters = clusters)
+  mock <- make_data(potential_outcomes = potential_outcomes, sample = smp, blocks = blocks, clusters = clusters)
   
   
   # Complete Random Assignment Designs

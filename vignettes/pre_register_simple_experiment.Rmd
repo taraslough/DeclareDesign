@@ -22,7 +22,7 @@ set.seed(5)
 First, we define the sample frame from which we will draw a sample to run the experiment from. This includes defining the levels of analysis and the covariates at each level.
 
 ```{r, echo = FALSE}
-sample_frame <- declare_sample(
+sample <- declare_sample(
   income = declare_variable(),
   N = 500)
 ```
@@ -53,7 +53,7 @@ design <- declare_design(potential_outcomes = potential_outcomes)
 Finally, we use the pre_register function to create the pre-registration document.
 
 ```{r, eval = FALSE}
-pre <- pre_register(design = design, sample_frame = sample_frame, 
+pre <- pre_register(design = design, sample = sample, 
                     potential_outcomes = potential_outcomes, analysis = analysis, 
                     title = "Lady Tasting Tea", 
                     author = c("Ronald A. Fisher"), 
@@ -61,7 +61,7 @@ pre <- pre_register(design = design, sample_frame = sample_frame,
 ```
 
 ```{r, echo = FALSE}
-pre <- pre_register(design = design, sample_frame = sample_frame, 
+pre <- pre_register(design = design, sample = sample, 
                     potential_outcomes = potential_outcomes, analysis = analysis, 
                     title = "Lady Tasting Tea", 
                     author = c("Ronald A. Fisher"), 

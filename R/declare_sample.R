@@ -9,7 +9,7 @@
 #' @param level_ID_variables optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")
 #' @export
 declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL, N = NULL, data = NULL, 
-                           resample = FALSE, level_ID_variables = NULL,generate_level_ID = FALSE) {
+                           resample = FALSE, level_ID_variables = NULL, generate_level_ID = FALSE) {
   
   # Check whether the user has supplied data
   no_data <- is.null(data)

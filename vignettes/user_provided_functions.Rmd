@@ -44,7 +44,11 @@ Fourth, we define one or more analyses we will run based on simulated data. This
 
 
 ```{r}
-analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means)
+poisson_regression_custom <- function(data){
+  lm(Y ~ Z, family = "poisson", data = data)
+}
+
+analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = poisson_regression_custom, quantity_of_interest = average_treatment_effect )
 ```
 
 Then we declare the design of the experiment, in this case a simple one without clusters or blocking.

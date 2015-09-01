@@ -24,7 +24,7 @@ Instead of pre-registering and using this simple design, we may want to consider
 The set up of the sample frame, potential outcomes, and analysis is similar. In this case, we add to the potential outcomes an intra-cluster correlation of .2 using the variable villages_id as the cluster variable.
 
 ```{r}
-sample_frame_block_cluster <- declare_sample(
+sample_block_cluster <- declare_sample(
   individuals = list(
     income = declare_variable()),
   villages = list(
@@ -68,7 +68,7 @@ Before finalizing the design, we conduct a power analysis to determine whether 5
 
 ```{r}
 simulations_block_cluster <- get_diagnostics(potential_outcomes = potential_outcomes_block_cluster, 
-                                                 sample_frame = sample_frame_block_cluster, 
+                                                 sample = sample_block_cluster, 
                                                  clusters = clusters,
                                                  blocks = blocks,
                                                  design = design_block_cluster, 
@@ -81,7 +81,7 @@ This indicates the power, `summary(simulations)[3]`, is less than the typical th
 ```{r}
 comparisons_block_cluster  <- compare_experiments(N_per_level = list(c(1000, 20), c(500, 50), c(250, 100)),
                                                   potential_outcomes = potential_outcomes_block_cluster, 
-                                                  sample_frame =  sample_frame_block_cluster, 
+                                                  sample =  sample_block_cluster, 
                                                   design = design_block_cluster, 
                                                   clusters = clusters,
                                                   blocks = blocks,
@@ -97,7 +97,7 @@ Before deciding on the complex design, we can compare the two designs in terms o
 ```{r}
 comparisons_block_cluster  <- compare_experiments(
   potential_outcomes = list(potential_outcomes, potential_outcomes_block_cluster), 
-  sample_frame = list(sample_frame, sample_frame_block_cluster), 
+  sample = list(sample, sample_block_cluster), 
   design = list(design, design_block_cluster), 
   clusters = list(NULL, clusters),
   blocks = list(NULL, blocks),
@@ -112,7 +112,7 @@ print(xtable(summary(comparisons_block_cluster)))
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
 
 ```{r}
-mock <- make_data(sample_frame = sample_frame_block_cluster, potential_outcomes = potential_outcomes_block_cluster, 
+mock <- make_data(sample = sample_block_cluster, potential_outcomes = potential_outcomes_block_cluster, 
                   clusters = clusters, blocks = blocks)
 mock$Z <- assign_treatment(design = design_block_cluster, data = mock)
 mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
@@ -127,7 +127,7 @@ print(xtable(get_estimates(analysis = analysis, data = mock)))
 Finally, we use the pre_register function again to create the pre-registration document based on the blocked and clustered design.
 
 ```{r}
-pre <- pre_register(design = design, sample_frame = sample_frame, blocks = blocks, clusters = clusters,
+pre <- pre_register(design = design, sample = sample, blocks = blocks, clusters = clusters,
                     potential_outcomes = potential_outcomes, analysis = analysis, 
                     title = "Lady Tasting Tea", 
                     author = c("Ronald A. Fisher"), 
