@@ -396,7 +396,7 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analys
           ## get_estimands_model does truth_data_frame, so just sending it data
         } else {
           estimands_list[[i]] <- analysis[[i]]$estimand(truth_data_frame(formula = analysis[[i]]$arguments$estimand_formula, data = data, 
-                                                                         estimand_options = analysis$arguments$estimand_options))
+                                                                         estimand_options = analysis[[i]]$arguments$estimand_options))
         }
         colnames(estimands_list[[i]]) <- paste(colnames(estimands_list[[i]]), analysis_labels[i], sep = "_")
       }

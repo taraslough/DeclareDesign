@@ -19,6 +19,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   )
   
   blocks <- declare_blocks(blocks = "income", block_name = "income_groups", block_count = 10)
+  
   design_1        <- declare_design(potential_outcomes = po, blocks = blocks)
   design_2        <- declare_design(potential_outcomes = po, blocks = "party")
   
@@ -38,7 +39,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
                                  estimator = difference_in_means_blocked,
                                  block_variable = "block_variable")
   
-  power_test        <- get_diagnostics(sims = 100, 
+  power_test        <- get_diagnostics(sims = 1000, 
                                        analysis = analysis_1, 
                                        design = design_1, 
                                        sample = smp, 
@@ -47,7 +48,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   fit_1 <- get_estimates(analysis = analysis_1, data = mock_1)
   
-  fit_1 <- get_estimands(analysis = analysis_1, data = mock_2)
+  fit_1 <- get_estimands(analysis = analysis_1, data = mock_1)
   
   summary(fit_1)
   
