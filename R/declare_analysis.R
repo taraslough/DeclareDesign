@@ -149,10 +149,10 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, al
     N <- length(Y)
     diff <- mean(Y[t == cond1]) - mean(Y[t == cond2])
     se <- sqrt(var(Y[t == cond1])/sum(t == cond1) + var(Y[t == cond2])/sum(t == cond2))
-    df <- length(Y) - 2
-    p <- 2 * pt(abs(diff/se), df = N - 2, lower.tail = FALSE)
-    ci_lower <- diff - qt(1 - alpha/2, df = N - 2) * se
-    ci_upper <- diff + qt(1 - alpha/2, df = N - 2) * se
+    df <- N - 2
+    p <- 2 * pt(abs(diff/se), df = df, lower.tail = FALSE)
+    ci_lower <- diff - qt(1 - alpha/2, df = df) * se
+    ci_upper <- diff + qt(1 - alpha/2, df = df) * se
     return(c(diff, se, p, ci_lower, ci_upper, df))
   }
   

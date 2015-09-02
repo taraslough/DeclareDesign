@@ -11,7 +11,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
       income = declare_variable(normal_mean = 3, normal_sd = 1),
       party = declare_variable(multinomial_probabilities = c(.5, .3, .2),
                                multinomial_categories = c("Dem", "Rep", "Ind"))),
-    N_per_level = c(1000))
+    N_per_level = c(25000))
   
   po     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
