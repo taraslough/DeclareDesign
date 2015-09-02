@@ -21,9 +21,9 @@ make_data <-
       stop("If do_treatment_assignment = TRUE, you must supply both the name of the treatment variable (i.e. 'Z', or 'treatment_status') and the design object, declared using declare_design().")
     }
     
-    if(!do_treatment_assignment & (!is.null(design) | !is.null(treatment_variable))){
-      warning("The design and the treatment_variable arguments will only be used if do_treatment_assignment = TRUE.")
-    }
+    ##if(!do_treatment_assignment & (!is.null(design) | !is.null(treatment_variable))){
+    ##  warning("The design and the treatment_variable arguments will only be used if do_treatment_assignment = TRUE.")
+    ##}
     
     if (is.null(sample) & is.null(potential_outcomes))
       stop("You must provide at least a sample frame or a potential outcomes object.")

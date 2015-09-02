@@ -4,23 +4,23 @@
 \alias{plot_covariates}
 \title{Plot the frequency or density of covariates}
 \usage{
-plot_covariates(data, outcome_names, color_palette = NULL, barplot = FALSE,
-  density = FALSE, histogram = FALSE, ...)
+plot_covariates(data, covariate_names, color_palette = NULL,
+  barplot = FALSE, density = FALSE, histogram = FALSE, ...)
 }
 \arguments{
-\item{data}{What is it?}
+\item{data}{The dataframe that contains the outcomes to plot (i.e. made using \code{\link{make_data}})}
 
-\item{outcome_names}{What is it?}
+\item{covariate_names}{A vector of names of the outcomes to plot}
 
-\item{color_palette}{What is it?}
+\item{color_palette}{Optional vector of custom colors for the plot}
 
-\item{barplot}{What is it?}
+\item{barplot}{If TRUE, plot is a barplot}
 
-\item{density}{What is it?}
+\item{density}{If TRUE, plot is a density plot}
 
-\item{histogram}{What is it?}
+\item{histogram}{If TRUE, plot is a frequency histogram}
 
-\item{...}{What is it?}
+\item{...}{Optional graphical arguments}
 }
 \description{
 Plot the frequency or density of covariates

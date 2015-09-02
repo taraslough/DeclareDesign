@@ -12,19 +12,21 @@ declare_sample(..., N_per_level = NULL, group_sizes_by_level = NULL,
 \method{summary}{sample}(object, ...)
 }
 \arguments{
-\item{...}{a list either of variable declarations, or of lists of variable declarations (one per level)}
+\item{...}{A list either of variable declarations, or of lists of variable declarations (one per level)}
 
-\item{N_per_level}{vector of the sample sizes per level, one number per level}
+\item{N_per_level}{Vector of the sample sizes per level, one number per level. Note: does not allow for heterogeneous cluster sizes.}
 
-\item{group_sizes_by_level}{description}
+\item{group_sizes_by_level}{A list of vectors, in which each element of the list corresponds to successive levels, and each element of the vectors corresponds to the number of lower-level units in that cluster. Use for heterogeneous cluster sizes.}
 
-\item{N}{total sample size of the sample frame}
+\item{N}{Total sample size of the sample frame.}
 
-\item{data}{optional data frame to include variables that are not defined in the sample frame}
+\item{data}{Optional data frame to include variables that are not defined in the sample frame}
 
-\item{resample}{when data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.}
+\item{resample}{When data are provided, indicates whether the data is resampled. By default, the data is returned as is. Resampling will automatically respect the levels defined by the variable declarations.}
 
-\item{level_ID_variables}{optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")}
+\item{level_ID_variables}{Optional strings indicating the variable names for the identifiers of each level, i.e. c("individual_id", "village_id")}
+
+\item{generate_level_ID}{Generate an ID variable that indicates each level that a unit belongs to.}
 
 \item{object}{what is it?}
 }

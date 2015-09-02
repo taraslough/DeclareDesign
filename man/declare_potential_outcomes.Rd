@@ -12,9 +12,9 @@ declare_potential_outcomes(condition_names = NULL, outcome_formula = NULL,
 
 \item{outcome_formula}{A regression-like expression for declaring the relationship between the outcome, treatments, and optionally, the covariates.}
 
-\item{population_proportions}{what is it?}
+\item{population_proportions}{For binary outcomes, a vector of proportions of successes is sufficient. For multinomial outcomes, provide a matrix of proportions, whose rows indicate the possible outcomes, and whose columns sum to one and indicate the treatment conditions. Outcome and condition names are automatically inherited from the rows and columns of this matrix, where possible. Note: if the user decides to define the treatment effects in terms of population proportions, individual-level data-generating processes, such as those described by the outcome_formula, will no longer be possible.}
 
-\item{proportion_outcome_name}{what is it?}
+\item{proportion_outcome_name}{The name of the outcome variable when using population proportions to define the outcomes.}
 }
 \value{
 outcomes_object

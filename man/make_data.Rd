@@ -9,11 +9,11 @@ make_data(potential_outcomes = NULL, sample = NULL, N = NULL, sep = "_",
   treatment_variable = NULL, noncompliance = NULL)
 }
 \arguments{
-\item{potential_outcomes}{An outcomes_object made with \code{\link{declare_potential_outcomes}}.}
+\item{potential_outcomes}{An outcomes_object made with \code{\link{declare_potential_outcomes}}, or a list of outcomes_objects.}
 
 \item{sample}{A sample object made with \code{\link{declare_sample}}, or a pre-existing dataframe}
 
-\item{N}{If sample is provided, this argument is ignored.}
+\item{N}{An integer indicating sample size. If sample is provided, this argument is ignored.}
 
 \item{sep}{a character string used in the naming of potential outcomes. Defaults to "_".}
 
