@@ -159,10 +159,7 @@ make_data <-
     }else{
       if (!is.null(potential_outcomes)) {
         condition_names  <- potential_outcomes$condition_names
-        # cluster_var_name <- potential_outcomes$cluster_variable
         outcome_formula  <- potential_outcomes$outcome_formula
-        # ICC              <- potential_outcomes$ICC
-        # outcome_variable <- potential_outcomes$outcome_variable
         covariate_names  <-
           all.vars(outcome_formula)[!all.vars(outcome_formula) %in% condition_names][-1]
         outcome_name     <- all.vars(outcome_formula)[1]
@@ -283,20 +280,29 @@ make_data <-
     }
   }
 
-i <- 2
-
 #' @export
 integerize <- function(data_frame){
 for(i in 1:ncol(data_frame)){
   numeric_check <- FALSE
-  if(!is.factor(data_frame[,i])){
-    numeric_check <- identical(data_frame[,i],as.factor(as.integer(as.character(data_frame[,i]))))}
-  if(numeric_check){
-    data_frame[,i] <- as.integer(as.character(data_frame[,i]))
+  numeric_check <- class(data_frame[,i])%in%c("numeric","integer")
+  
+  if(!numeric_check){
+    suppressWarnings(numeric_check <- identical(data_frame[,i],as.factor(as.integer(as.character(data_frame[,i])))))
+    if(!numeric_check){
+      suppressWarnings(numeric_check <- identical(data_frame[,i],as.factor(as.numeric(as.character(data_frame[,i])))))
+      if(!numeric_check){
+        suppressWarnings(numeric_check <- identical(data_frame[,i],as.numeric(as.character(data_frame[,i]))))
+        if(!numeric_check){
+          suppressWarnings(numeric_check <- identical(data_frame[,i],as.numeric(as.character(data_frame[,i]))))
+        }
+      }
+    }
+    if(numeric_check){
+      data_frame[,i] <- as.integer(as.character(data_frame[,i]))
+    }
   }
 }
   return(data_frame)
-  
   }
 
 
