@@ -140,12 +140,14 @@ average_treatment_effect <- function(x, statistics = c("est", "se", "p", "ci_low
 }
 
 #' @export
-difference_in_means <- function(formula, data, weights = NULL, subset = NULL, alpha = .05) {
+difference_in_means <- function(formula, data, weights = NULL, subset = NULL, ##cluster_variable = NULL, 
+                                alpha = .05) {
   
   if(length(all.vars(formula[[3]]))>1)
     stop("The formula should only include one variable on the right-hand side: the treatment variable.")
   
-  d_i_m <- function(Y, t, w, cond1, cond2, alpha){
+  d_i_m <- function(Y, t, ##w, 
+                    cond1, cond2, alpha){
     N <- length(Y)
     diff <- mean(Y[t == cond1]) - mean(Y[t == cond2])
     se <- sqrt(var(Y[t == cond1])/sum(t == cond1) + var(Y[t == cond2])/sum(t == cond2))
@@ -162,24 +164,32 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, al
   
   if(!is.null(subset))
     data <- data[subset, ]
+  
+  ##if(!is.null(weights))
+  ##  w <- weights[subset]
+  
+  ##if(!is.null(cluster_variable)){
+  ##  data <- aggregate(data[,all.vars(formula)], list(d_i_m_cluster_var__ = data[,cluster_variable]), FUN = function(x) mean(x, na.rm = T))
+  ##}
+  
   Y <- data[, all.vars(formula[[2]])]
   t <- data[, all.vars(formula[[3]])]
-  if(!is.null(weights))
-    w <- weights[subset]
   
   return_matrix <- matrix(NA, nrow = 6, ncol = ncol(combn), 
                           dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
                                           paste0(all.vars(formula[[2]]), "~", combn_names, 
                                                  "_diff_in_means")))
   for(c in 1:ncol(combn)){
-    return_matrix[, c] <- d_i_m(Y = Y, t = t, w = w, cond1 = combn[1, c], cond2 = combn[2, c], alpha = alpha)
+    return_matrix[, c] <- d_i_m(Y = Y, t = t, ##w = w, 
+                                cond1 = combn[1, c], cond2 = combn[2, c], alpha = alpha)
   }
   
   return(return_matrix)
 }
 
 #' @export
-difference_in_means_blocked <- function(formula, data, block_variable = NULL, subset = NULL, alpha = .05) {
+difference_in_means_blocked <- function(formula, data, subset = NULL, block_variable = NULL, ##cluster_variable = NULL, 
+                                        alpha = .05) {
   
   if(is.null(block_variable))
     stop("This difference-in-means estimator can only be used if you specify block_variable, a string indicating which variable in the data frame contains the blocks.")
@@ -219,6 +229,11 @@ difference_in_means_blocked <- function(formula, data, block_variable = NULL, su
   
   if(!is.null(subset))
     data <- data[subset, ]
+  
+  ##if(!is.null(cluster_variable)){
+  ##  data <- aggregate(names(data)[!which(names(data) %in% cluster_variable)], list(d_i_m_cluster_var__ = data[,cluster_variable]), FUN = mean)
+  ##}
+  
   Y <- data[, all.vars(formula[[2]])]
   t <- data[, all.vars(formula[[3]])]
   b <- data[, block_variable]

@@ -42,13 +42,6 @@ test_that("test permutation matrix", {
                                   potential_outcomes = potential_outcomes)
   
   
-  power        <- get_diagnostics(sims = 1000, 
-                                  analysis = list(analysis, analysis_lsdv, analysis_lm), 
-                                  design = design_blocked, 
-                                  blocks = blocks, sample = sample, 
-                                  potential_outcomes = potential_outcomes)
-  
-  
   
   mock <- make_data(potential_outcomes = potential_outcomes, sample = sample, blocks = blocks)
   

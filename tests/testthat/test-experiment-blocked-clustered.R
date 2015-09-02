@@ -31,6 +31,10 @@ test_that("test a simple experiment with blocking and clustering works with vari
   analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", 
                                  estimator = "linear_regression", quantity_of_interest = average_treatment_effect)
   
+  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", cluster_variable = "villages_id")
+  
+  get_estimates(analysis_1, data = mock)
+  
   ## estimated treatment effects
   
   pre_registration <- pre_register(design = design, sample = sample, clusters = clusters, blocks = blocks,
@@ -62,8 +66,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
                                          sample = sample, potential_outcomes = potential_outcomes)
   summary(power_2)
   
-  mock          <- make_data(potential_outcomes = potential_outcomes, sample = sample, 
-                             blocks = blocks, clusters = clusters)
+  mock          <- make_data(potential_outcomes = potential_outcomes, sample = sample, design = design)
   
   head(mock)
   mock$Z        <- assign_treatment(design, data = mock)
