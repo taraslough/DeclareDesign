@@ -206,10 +206,10 @@ difference_in_means_blocked <- function(formula, data, block_variable = NULL, su
         var(Y[b==i & t == cond2], na.rm = TRUE )/sum(b==i & t == cond2)})
     se  <- (block_weights^2 %*% vars)^.5
 
-    df <- length(Y) - length(block_names) - 2
+    df <- length(Y) - length(block_names) - 1
     p <- 2 * pt(abs(diff/se), df = df, lower.tail = FALSE)
-    ci_lower <- diff - qt(1 - alpha/2, df = df) * se
-    ci_upper <- diff + qt(1 - alpha/2, df = df) * se
+    ci_lower <- diff - qt(1 - alpha / 2, df = df) * se
+    ci_upper <- diff + qt(1 - alpha / 2, df = df) * se
     return(c(diff, se, p, ci_lower, ci_upper, df))
   }
   
@@ -242,8 +242,8 @@ difference_in_means_blocked <- function(formula, data, block_variable = NULL, su
 #' @param sep  what is it?
 #' @rdname declare_analysis
 #' @export
-truth_data_frame <- function(formula = NULL, treatment_variable = "Z", 
-                             weights = NULL, subset = NULL, data = data, sep = "_", ...) {
+truth_data_frame <- function(formula = NULL, treatment_variable = "Z", weights = NULL, subset = NULL, data = data, 
+                             estimand_options = NULL, sep = "_", ...) {
   
   if(is.null(formula))
     stop("Formula must be provided.")
@@ -252,11 +252,11 @@ truth_data_frame <- function(formula = NULL, treatment_variable = "Z",
   
   other_variable_names <- all.vars(formula[[3]])[!(all.vars(formula[[3]]) %in% treatment_variable)]
   
-  ##if(!missing(cluster_variable))
-  ##  other_variable_names <- c(other_variable_names, cluster_variable)
+  if(!is.null(estimand_options$cluster_variable))
+    other_variable_names <- c(other_variable_names, estimand_options$cluster_variable)
   
-  ##if(!missing(block_variable))
-  ##  other_variable_names <- c(other_variable_names, block_variable)
+  if(!is.null(estimand_options$block_variable))
+    other_variable_names <- c(other_variable_names, estimand_options$block_variable)
   
   treatment_conditions <- unique(data[, treatment_variable])
   
@@ -299,7 +299,8 @@ get_estimands_model <- function(analysis, data){
     stop("The analysis argument must be an object created by the declare_analysis function")
   if(is.null(analysis$estimand))
     stop("This analysis function does not have a model associated with it. Try get_estimands to obtain the quantities of interest for the estimand.")
-  return(analysis$estimand(data = truth_data_frame(formula = analysis$arguments$estimand_formula, data = data)))
+  return(analysis$estimand(data = truth_data_frame(formula = analysis$arguments$estimand_formula, data = data,
+                                                   estimand_options = analysis$arguments$estimand_options)))
 }
 
 #' @param analysis what is it?
@@ -382,7 +383,7 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analys
   
   if(!is.null(qoi)) {
     ## if there is a user-defined qoi function, use that to extract qoi from analysis object or list of them
-    return(qoi(analysis, data = truth_data_frame(formula = analysis$arguments$estimand_formula, data = data)))
+    return(qoi(analysis, data = truth_data_frame(formula = analysis$arguments$estimand_formula, data = data, estimand_options = analysis$arguments$estimand_options)))
   } else {
     ## otherwise use qoi function defined in the analysis
     if(class(analysis) == "list"){
@@ -394,7 +395,8 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analys
           estimands_list[[i]] <- analysis[[i]]$estimand_quantity_of_interest(get_estimands_model(analysis = analysis[[i]], data = data), statistics = statistics)
           ## get_estimands_model does truth_data_frame, so just sending it data
         } else {
-          estimands_list[[i]] <- analysis[[i]]$estimand(truth_data_frame(formula = analysis[[i]]$arguments$estimand_formula, data = data))
+          estimands_list[[i]] <- analysis[[i]]$estimand(truth_data_frame(formula = analysis[[i]]$arguments$estimand_formula, data = data, 
+                                                                         estimand_options = analysis$arguments$estimand_options))
         }
         colnames(estimands_list[[i]]) <- paste(colnames(estimands_list[[i]]), analysis_labels[i], sep = "_")
       }
@@ -419,7 +421,8 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analys
         estimands_matrix <- analysis$estimand_quantity_of_interest(get_estimands_model(analysis = analysis, data = data), statistics = statistics)
         ## get_estimands_model does truth_data_frame, so just sending it data
       } else {
-        estimands_matrix <- analysis$estimand(truth_data_frame(formula = analysis$arguments$estimand_formula, data = data))
+        estimands_matrix <- analysis$estimand(truth_data_frame(formula = analysis$arguments$estimand_formula, data = data,
+                                                               estimand_options = analysis$arguments$estimand_options))
       }
       colnames(estimands_matrix) <- paste(colnames(estimands_matrix), analysis_labels[1], sep = "_")
       return(estimands_matrix)

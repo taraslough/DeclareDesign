@@ -20,7 +20,7 @@ declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
   estimand_quantity_of_interest_labels = substitute(estimand_quantity_of_interest))
 
 truth_data_frame(formula = NULL, treatment_variable = "Z", weights = NULL,
-  subset = NULL, data = data, sep = "_", ...)
+  subset = NULL, data = data, estimand_options = NULL, sep = "_", ...)
 
 get_estimates_model(analysis, data)
 
