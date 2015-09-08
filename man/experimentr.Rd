@@ -4,7 +4,7 @@
 \name{experimentr}
 \alias{experimentr}
 \alias{experimentr-package}
-\title{Experimentr package}
+\title{experimentr package}
 \description{
 Some stuff about what this package is
 }

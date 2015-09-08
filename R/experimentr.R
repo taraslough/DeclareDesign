@@ -1,4 +1,4 @@
-#' Experimentr package
+#' experimentr package
 #'
 #' Some stuff about what this package is
 #'

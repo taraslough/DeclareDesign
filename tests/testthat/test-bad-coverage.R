@@ -12,11 +12,11 @@ test_that("test permutation matrix", {
       income = declare_variable(normal_mean = 3, normal_sd = 1),
       ethnicity = declare_variable(multinomial_probabilities = c(.1, .2, .3, .4), multinomial_categories = 1:4)
       ),
-    N_per_level = c(5000))
+    N = 1000)
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + -.1*Z1*income
+    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + -.1*Z1*income + runif(1000)
   )
   
   blocks <- declare_blocks(blocks = "ethnicity", block_name = "income_groups", block_count = 4)
@@ -35,15 +35,13 @@ test_that("test permutation matrix", {
   analysis <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means_blocked, 
                                block_variable = "income_groups")
   
-  power_test        <- get_diagnostics(sims = 1000, 
+  power_test        <- get_diagnostics(sims = 5, 
                                   analysis = list(analysis_lsdv, analysis_lm, analysis), 
                                   design = design_blocked, 
                                   blocks = blocks, sample = sample, 
                                   potential_outcomes = potential_outcomes)
   
-  
-  
-  mock <- make_data(potential_outcomes = potential_outcomes, sample = sample, blocks = blocks)
+  mock <- make_data(potential_outcomes = potential_outcomes, sample = sample, design = design_blocked)
   
   mock$Z <- assign_treatment(design = design_blocked, data = mock)
   mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)

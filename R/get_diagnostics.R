@@ -120,13 +120,13 @@ summary.experiment_simulations <- function(object, ...) {
   }
   
   PATE <- apply(summary_array[,"sate",, drop = FALSE], 1 , mean)
-  sd_sate <- apply(summary_array[,"sate",, drop = FALSE], 1 , sd)
+  sd_SATE <- apply(summary_array[,"sate",, drop = FALSE], 1 , sd)
   power <- apply(summary_array[,"p", , drop = FALSE], 1 , function(x) mean(x < 0.05))
   RMSE <- apply(summary_array[,"sate", , drop = FALSE] - summary_array[,"sate_hat", , drop = FALSE], 1 , function(x) sqrt(mean(x^2)))
   bias <- apply(summary_array[,"sate_hat", , drop = FALSE] - PATE, 1, mean)
   coverage <- apply(summary_array[,"ci_covers_est", , drop = FALSE], 1, mean)
   
-  summ <- cbind(PATE, sd_sate, power, RMSE, bias, coverage)
+  summ <- cbind(PATE, sd_SATE, power, RMSE, bias, coverage)
   
   return(summ)
 }

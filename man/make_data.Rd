@@ -5,8 +5,9 @@
 \title{Make the full dataset or just a sample}
 \usage{
 make_data(potential_outcomes = NULL, sample = NULL, N = NULL, sep = "_",
-  do_treatment_assignment = FALSE, design = NULL,
-  treatment_variable = NULL, noncompliance = NULL)
+  assign_treatment = FALSE, observed_outcomes = FALSE, design = NULL,
+  treatment_variable = NULL, outcome_variable = NULL,
+  noncompliance = NULL)
 }
 \arguments{
 \item{potential_outcomes}{An outcomes_object made with \code{\link{declare_potential_outcomes}}, or a list of outcomes_objects.}

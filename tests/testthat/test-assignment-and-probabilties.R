@@ -13,10 +13,7 @@ test_that("test assignment and probability functions", {
     villages = list(
       development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
     ),
-    group_sizes_by_level = list(
-      individuals = rep(1,1000), 
-      villages = rep(5,200)
-    ))
+    N_per_level = c(1000, 200))
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1", "Z2"),
@@ -24,10 +21,9 @@ test_that("test assignment and probability functions", {
   )
   
   clusters <- declare_clusters(clusters = "villages_id")
-  blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
+  blocks_with_clusters <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
   
-  mock <- make_data(potential_outcomes = potential_outcomes, sample = smp, blocks = blocks, clusters = clusters)
-  
+  blocks_without_clusters <- declare_blocks(blocks = "development_level", recode = FALSE)
   
   # Complete Random Assignment Designs
   design_1 <- declare_design(potential_outcomes = potential_outcomes)
@@ -37,9 +33,9 @@ test_that("test assignment and probability functions", {
   design_5 <- declare_design(potential_outcomes = potential_outcomes, prob_each = c(.2, .5, .3))
   
   # Blocked Designs
-  design_6 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks)
-  design_7 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks, prob_each = c(.3, .6, .1))
-  design_8 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks, excluded_arms = "Z2")
+  design_6 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters)
+  design_7 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, prob_each = c(.3, .6, .1))
+  design_8 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, excluded_arms = "Z2")
   
   # Clustered Designs 
   design_9 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters)
@@ -47,9 +43,11 @@ test_that("test assignment and probability functions", {
   design_11 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, prob_each = c(.1, .3, .6))
   
   # Blocked and Clustered Designs
-  design_12 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
-  design_13 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks, excluded_arms = "Z2")
-  design_14 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks, prob_each = c(.1, .3, .6))
+  design_12 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters)
+  design_13 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters, excluded_arms = "Z2")
+  design_14 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters, prob_each = c(.1, .3, .6))
+  
+  mock <- make_data(potential_outcomes = potential_outcomes, sample = smp, design = design_12)
   
   # Attempt to Assign
   mock$Z1 <- assign_treatment(design = design_1, data = mock) 

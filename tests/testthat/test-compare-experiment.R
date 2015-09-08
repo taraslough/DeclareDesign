@@ -5,7 +5,7 @@ library(experimentr)
 
 context("Simple experiment")
 
-test_that("test whether a simple experiment can be pre-registered", {
+test_that("test compare experiment", {
   
   smp_N <- declare_sample(N = 850)
   smp_N_per_level <- declare_sample(N_per_level = c(850, 50, 5))
@@ -15,7 +15,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   
   design <- declare_design(potential_outcomes = po)
   
-  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
+  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = lm, quantity_of_interest = average_treatment_effect)
   
   tmp <- make_data(sample = smp_N, potential_outcomes = po)
   
@@ -24,7 +24,7 @@ test_that("test whether a simple experiment can be pre-registered", {
                               sample =  smp_N, 
                               design = design, 
                               analysis = analysis_1, 
-                              sims = 100)
+                              sims = 5)
   
   ## pending bug fix this isn't working (issued)
   ##sims <- compare_experiments(N_per_level = list(c(10000, 500, 5), c(50, 5), c(100, 50, 2)),

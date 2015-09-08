@@ -207,8 +207,7 @@ print(xtable(summary(comparisons_block_cluster)))
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
 
 ```{r}
-mock <- make_data(sample = sample_block_cluster, potential_outcomes = potential_outcomes_block_cluster, 
-                  clusters = clusters, blocks = blocks)
+mock <- make_data(sample = sample_block_cluster, potential_outcomes = potential_outcomes_block_cluster)
 mock$Z <- assign_treatment(design = design_block_cluster, data = mock)
 mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
 ```

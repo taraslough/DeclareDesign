@@ -44,7 +44,11 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
   
   outcome_variable <- all.vars(formula[[2]])
   
-  if(is.null(quantity_of_interest) & substitute(estimator) == "linear_regression" | substitute(estimator) == "probit_regression" | substitute(estimator) == "logistic_regression" | substitute(estimator) == "lm" | substitute(estimator) == "glm" | substitute(estimator) == "vglm")
+  if(is.null(quantity_of_interest) & (substitute(estimator) == "linear_regression" | 
+                                      substitute(estimator) == "probit_regression" | 
+                                      substitute(estimator) == "logistic_regression" | 
+                                      substitute(estimator) == "lm" | substitute(estimator) == "glm" | 
+                                      substitute(estimator) == "vglm"))
     stop("If you choose linear, logistic, or probit regression or another standard R modeling function such as glm as the estimator, you must set quantity_of_interest to a function that extracts the QOI from the regression output, such as average_treatment_effect.")
   
   if(is.null(treatment_variable))
@@ -205,22 +209,21 @@ difference_in_means_blocked <- function(formula, data, subset = NULL, block_vari
     
     block_weights <- (sapply(block_names, function(i) sum(b==i)))/N
     
-    f <- function(x){
-      t = tapply(Y,list(t, b), mean,na.rm=TRUE)
-      (block_weights %*% (t[2,]-t[1,]))[1,1]
-    }
+    diff_by_block <- tapply(Y,list(t, b), mean, na.rm=TRUE)
+    diff <- (block_weights %*% (diff_by_block[2,] - diff_by_block[1,]))
     
-    diff <- f(X) 
     vars <- sapply(block_names, function(i)  {
       var(Y[b==i & t == cond1], na.rm = TRUE )/sum(b==i & t == cond1)+
         var(Y[b==i & t == cond2], na.rm = TRUE )/sum(b==i & t == cond2)})
     se  <- (block_weights^2 %*% vars)^.5
-
+    
     df <- length(Y) - length(block_names) - 1
     p <- 2 * pt(abs(diff/se), df = df, lower.tail = FALSE)
     ci_lower <- diff - qt(1 - alpha / 2, df = df) * se
     ci_upper <- diff + qt(1 - alpha / 2, df = df) * se
+    
     return(c(diff, se, p, ci_lower, ci_upper, df))
+    
   }
   
   condition_names <- unique(data[,all.vars(formula[[3]])])

@@ -27,8 +27,7 @@
 #' @param open_output Indicator for whether the output file is opened after it is compiled.
 #' @return what does it return?
 #' @export
-pre_register <- function(design, clusters = NULL, blocks = NULL, sample = NULL, 
-                         potential_outcomes = NULL, analysis = NULL, data = NULL,
+pre_register <- function(design, sample = NULL, potential_outcomes = NULL, analysis = NULL, data = NULL,
                          title = NULL, authors = NULL, affiliations = NULL,
                          acknowledgements = NULL, abstract = NULL,
                          random_seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
@@ -49,10 +48,6 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample = NULL,
   if(class(analysis) != "list" & class(analysis) != "analysis")
     stop("Analysis must be either a list of analysis objects or a single object created by declare_analysis.")
   
-  if(check_registration == TRUE)
-    check_registration(design = design, analysis = analysis, sample = sample, 
-                       potential_outcomes = potential_outcomes, blocks = blocks, clusters = clusters)
-  
   pre_register_doc <- list(title_header(title = title, authors = authors, 
                                         abstract = abstract, keep_tex = keep_tex),
                            code_snippet("library(experimentr) \n library(xtable)"),
@@ -60,10 +55,10 @@ pre_register <- function(design, clusters = NULL, blocks = NULL, sample = NULL,
                                   code_snippet("load(\"pre_registration_data.RData\")"), ""),
                            code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
                                         random_seed, ")"),
-                           code_snippet("sample <- ", sample$call, "\n\n", 
-                                        "potential_outcomes <- ", potential_outcomes$call, "\n\n", 
-                                        ifelse(!is.null(clusters), paste0("clusters <- ", list(clusters$call)), ""), "\n\n", 
-                                        ifelse(!is.null(blocks), paste0("blocks <- ", list(blocks$call)), ""), "\n\n", 
+                           code_snippet(substitute(sample), " <- ", sample$call, "\n\n", 
+                                        substitute(potential_outcomes), " <- ", potential_outcomes$call, "\n\n", 
+                                        ifelse(!is.null(clusters), paste0(substitute(clusters), " <- ", list(clusters$call)), ""), "\n\n", 
+                                        ifelse(!is.null(blocks), paste0(substitute(blocks), " <- ", list(blocks$call)), ""), "\n\n", 
                                         "design <- ", design$call, "\n\n", 
                                         paste(sapply(1:length(analysis), 
                                                      function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 

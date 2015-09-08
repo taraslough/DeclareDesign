@@ -11,11 +11,11 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
       income = declare_variable(normal_mean = 3, normal_sd = 1),
       party = declare_variable(multinomial_probabilities = c(.5, .3, .2),
                                multinomial_categories = c("Dem", "Rep", "Ind"))),
-    N_per_level = c(25000))
+    N = 2000)
   
   po     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + runif(1000)
+    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + runif(2000)
   )
   
   blocks <- declare_blocks(blocks = "income", block_name = "income_groups", block_count = 10)

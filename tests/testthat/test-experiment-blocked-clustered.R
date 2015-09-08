@@ -12,10 +12,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
     villages = list(
       development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
     ),
-    group_sizes_by_level = list(
-      individuals = rep(1,1000), 
-      villages = rep(5,200)
-    ))
+    N_per_level = c(1000, 200))
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
@@ -33,11 +30,9 @@ test_that("test a simple experiment with blocking and clustering works with vari
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", cluster_variable = "villages_id")
   
-  get_estimates(analysis_1, data = mock)
-  
   ## estimated treatment effects
   
-  pre_registration <- pre_register(design = design, sample = sample, clusters = clusters, blocks = blocks,
+  pre_registration <- pre_register(design = design, sample = sample,
                                    potential_outcomes = potential_outcomes, analysis = analysis_1, 
                                    title = "Simplest Possible Experiment", 
                                    authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
@@ -57,13 +52,11 @@ test_that("test a simple experiment with blocking and clustering works with vari
   ## nudge to set levels of sim (determined by design)
   
   power_1         <- get_diagnostics(sims = 5, analysis = list(analysis_1), design = design, 
-                                         clusters = clusters, sample = sample, 
-                                         potential_outcomes = potential_outcomes, blocks = blocks)
+                                         sample = sample, potential_outcomes = potential_outcome)
   summary(power_1)
   
   power_2         <- get_diagnostics(sims = 5, analysis = list(analysis_1, analysis_2), 
-                                         design = design, clusters = clusters, blocks = blocks, 
-                                         sample = sample, potential_outcomes = potential_outcomes)
+                                         design = design, sample = sample, potential_outcomes = potential_outcomes)
   summary(power_2)
   
   mock          <- make_data(potential_outcomes = potential_outcomes, sample = sample, design = design)

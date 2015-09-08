@@ -8,21 +8,24 @@
 #' @param noncompliance A noncompliance object, made with \code{\link{declare_noncompliance}}.
 #' @export
 make_data <-
-  function(potential_outcomes = NULL, sample = NULL, 
-           N = NULL, sep = "_", do_treatment_assignment = FALSE, 
-           design = NULL,treatment_variable = NULL,
+  function(potential_outcomes = NULL, sample = NULL, N = NULL, sep = "_", 
+           assign_treatment = FALSE, observed_outcomes = FALSE,
+           design = NULL, treatment_variable = NULL, outcome_variable = NULL,
            noncompliance = NULL) {
     
-    if(is.null(potential_outcomes)&do_treatment_assignment){
+    if(is.null(potential_outcomes)&assign_treatment){
       stop("If you want to assign treatment, you must provide a potential_outcomes object (see declare_potential_outcomes()).")
     }
     
-    if((is.null(design) | is.null(treatment_variable)) & do_treatment_assignment){
-      stop("If do_treatment_assignment = TRUE, you must supply both the name of the treatment variable (i.e. 'Z', or 'treatment_status') and the design object, declared using declare_design().")
+    if(observed_outcomes == TRUE & assign_treatment == FALSE)
+      stop("To reveal outcome variable(s) from a given treatment assignment, set assign_treatment to TRUE.")
+    
+    if((is.null(design) | is.null(treatment_variable)) & assign_treatment){
+      stop("If assign_treatment = TRUE, you must supply both the name of the treatment variable (i.e. 'Z', or 'treatment_status') and the design object, declared using declare_design().")
     }
     
-    ##if(!do_treatment_assignment & (!is.null(design) | !is.null(treatment_variable))){
-    ##  warning("The design and the treatment_variable arguments will only be used if do_treatment_assignment = TRUE.")
+    ##if(!assign_treatment & (!is.null(design) | !is.null(treatment_variable))){
+    ##  warning("The design and the treatment_variable arguments will only be used if assign_treatment = TRUE.")
     ##}
     
     if (is.null(sample) & is.null(potential_outcomes))
@@ -63,7 +66,7 @@ make_data <-
       if(is.null(N)){
         stop("You must provide N if you supply potential outcomes objects defined with population_proportions.")
       }
-
+      
       make_proportions <- function(population_proportions,N){
         
         counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
@@ -80,7 +83,7 @@ make_data <-
         
         outcomes <- integerize(as.data.frame(outcomes))
         
-        outcomes <- with_treatment(outcomes,design=design,do_treatment_assignment=do_treatment_assignment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
+        outcomes <- with_treatment(outcomes,design=design,assign_treatment=assign_treatment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
         
         return(outcomes)
       }
@@ -91,16 +94,16 @@ make_data <-
         
         prop_PO_list <- lapply(1:length(proportion_check),function(i){
           prop_PO <- make_proportions(population_proportions = potential_outcomes[[i]]$population_proportions,
-                           N = N
+                                      N = N
           )
           names(prop_PO) <- paste0(potential_outcomes[[i]]$proportion_outcome_name,
                                    sep,
                                    potential_outcomes[[i]]$condition_names
-                                   )
+          )
           prop_PO <- integerize(prop_PO)
-          prop_PO <- with_treatment(prop_PO,design=design,do_treatment_assignment=do_treatment_assignment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
+          prop_PO <- with_treatment(prop_PO,design=design,assign_treatment=assign_treatment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
           return(prop_PO)
-          })
+        })
         
         return_frame <- data.frame(prop_PO_list[[1]])
         
@@ -108,15 +111,15 @@ make_data <-
           
           return_frame <- data.frame(return_frame,prop_PO_list[[i]])
         }
-      
+        
       }else{
         
         return_frame <- make_proportions(population_proportions = potential_outcomes$population_proportions,
-                                    N = N
+                                         N = N
         )
         names(return_frame) <- paste0(potential_outcomes$proportion_outcome_name,
-                                 sep,
-                                 potential_outcomes$condition_names
+                                      sep,
+                                      potential_outcomes$condition_names
         )
         
       }
@@ -127,7 +130,7 @@ make_data <-
       # convert factors to integers
       
       return_frame <- integerize(return_frame)
-      return_frame <- with_treatment(return_frame,design=design,do_treatment_assignment=do_treatment_assignment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
+      return_frame <- with_treatment(return_frame,design=design,assign_treatment=assign_treatment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
       
       return(return_frame)
       
@@ -274,7 +277,7 @@ make_data <-
       return_frame$make_data_sort_id <- NULL
       
       return_frame <- integerize(return_frame)
-      return_frame <- with_treatment(return_frame,design=design,do_treatment_assignment=do_treatment_assignment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
+      return_frame <- with_treatment(return_frame,design=design,assign_treatment=assign_treatment,observed_outcomes=observed_outcomes,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
       
       return(return_frame)
     }
@@ -282,38 +285,40 @@ make_data <-
 
 #' @export
 integerize <- function(data_frame){
-for(i in 1:ncol(data_frame)){
-  numeric_check <- FALSE
-  numeric_check <- class(data_frame[,i])%in%c("numeric","integer")
-  
-  if(!numeric_check){
-    suppressWarnings(numeric_check <- identical(data_frame[,i],as.factor(as.integer(as.character(data_frame[,i])))))
+  for(i in 1:ncol(data_frame)){
+    numeric_check <- FALSE
+    numeric_check <- class(data_frame[,i])%in%c("numeric","integer")
+    
     if(!numeric_check){
-      suppressWarnings(numeric_check <- identical(data_frame[,i],as.factor(as.numeric(as.character(data_frame[,i])))))
+      suppressWarnings(numeric_check <- identical(data_frame[,i],as.factor(as.integer(as.character(data_frame[,i])))))
       if(!numeric_check){
-        suppressWarnings(numeric_check <- identical(data_frame[,i],as.numeric(as.character(data_frame[,i]))))
+        suppressWarnings(numeric_check <- identical(data_frame[,i],as.factor(as.numeric(as.character(data_frame[,i])))))
         if(!numeric_check){
           suppressWarnings(numeric_check <- identical(data_frame[,i],as.numeric(as.character(data_frame[,i]))))
+          if(!numeric_check){
+            suppressWarnings(numeric_check <- identical(data_frame[,i],as.numeric(as.character(data_frame[,i]))))
+          }
         }
       }
-    }
-    if(numeric_check){
-      data_frame[,i] <- as.integer(as.character(data_frame[,i]))
+      if(numeric_check){
+        data_frame[,i] <- as.integer(as.character(data_frame[,i]))
+      }
     }
   }
-}
   return(data_frame)
-  }
+}
 
 
 #' @export
-with_treatment <- function(X,design,do_treatment_assignment,treatment_variable,outcome_variable,sep){
-  if(do_treatment_assignment){
+with_treatment <- function(X, design, assign_treatment, observed_outcomes, treatment_variable, outcome_variable, sep){
+  if(assign_treatment == TRUE){
     X <- as.data.frame(X)
     X[,treatment_variable] <- assign_treatment(design = design, data = X)
-    X[,outcome_variable] <- observed_outcome(outcome = outcome_variable, 
-                                         treatment_assignment = treatment_variable, 
-                                         data = X, sep = sep)
+    if(observed_outcomes == TRUE){
+      X[,outcome_variable] <- observed_outcome(outcome = outcome_variable, 
+                                               treatment_assignment = treatment_variable, 
+                                               data = X, sep = sep)
+    }
   }
   return(X)
 }
