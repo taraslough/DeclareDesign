@@ -4,20 +4,16 @@
 \alias{pre_register}
 \title{Create pre-registration document}
 \usage{
-pre_register(design, clusters = NULL, blocks = NULL, sample = NULL,
-  potential_outcomes = NULL, analysis = NULL, data = NULL, title = NULL,
-  authors = NULL, affiliations = NULL, acknowledgements = NULL,
-  abstract = NULL, random_seed = 42, dir = getwd(), temp_dir = FALSE,
+pre_register(design, sample = NULL, potential_outcomes = NULL,
+  analysis = NULL, data = NULL, title = NULL, authors = NULL,
+  affiliations = NULL, acknowledgements = NULL, abstract = NULL,
+  random_seed = 42, dir = getwd(), temp_dir = FALSE,
   format = "rmarkdown", check_registration = TRUE, make_output = TRUE,
   keep_tex = FALSE, save_r_code = FALSE, output_format = "pdf",
   open_output = TRUE)
 }
 \arguments{
 \item{design}{A design object from the declare_design function.}
-
-\item{clusters}{what is it?}
-
-\item{blocks}{what is it?}
 
 \item{sample}{what is it?}
 
@@ -56,6 +52,10 @@ pre_register(design, clusters = NULL, blocks = NULL, sample = NULL,
 \item{output_format}{String indicating which type of output file is created, "pdf" (default), "word", or "html"}
 
 \item{open_output}{Indicator for whether the output file is opened after it is compiled.}
+
+\item{clusters}{what is it?}
+
+\item{blocks}{what is it?}
 }
 \value{
 what does it return?

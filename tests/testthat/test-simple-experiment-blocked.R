@@ -39,7 +39,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
                                  estimator = difference_in_means_blocked,
                                  block_variable = "block_variable")
   
-  power_test        <- get_diagnostics(sims = 1000, 
+  power_test        <- diagnose(sims = 1000, 
                                        analysis = analysis_1, 
                                        design = design_1, 
                                        sample = smp, 

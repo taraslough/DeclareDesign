@@ -13,7 +13,7 @@
 #' @param label label for the simulation
 #' @param analysis_labels labels for each analysis
 #' @export
-get_diagnostics <- function(data = NULL, potential_outcomes = NULL, sample = NULL, 
+diagnose <- function(data = NULL, potential_outcomes = NULL, sample = NULL, 
                             blocks = NULL, clusters = NULL, design, analysis, 
                             bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
                             analysis_labels = NULL){

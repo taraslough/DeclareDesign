@@ -209,8 +209,8 @@ difference_in_means_blocked <- function(formula, data, subset = NULL, block_vari
     
     block_weights <- (sapply(block_names, function(i) sum(b==i)))/N
     
-    diff_by_block <- tapply(Y,list(t, b), mean, na.rm=TRUE)
-    diff <- (block_weights %*% (diff_by_block[2,] - diff_by_block[1,]))
+    means_by_block <- tapply(Y,list(t, b), mean, na.rm=TRUE)
+    diff <- (block_weights %*% (means_by_block[cond1,] - means_by_block[cond2,]))
     
     vars <- sapply(block_names, function(i)  {
       var(Y[b==i & t == cond1], na.rm = TRUE )/sum(b==i & t == cond1)+

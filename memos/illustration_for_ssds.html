@@ -170,7 +170,7 @@ my.estimates</code></pre>
 <div id="diagnostics" class="section level2">
 <h2><span class="header-section-number">3.3</span> Diagnostics</h2>
 <p>Now things get more interesting. Let’s see how good this design is. Note that given the potential outcomes the true treatment effect is +2 for one group and -1 for another. With even sized groups that means an average treatment effect of +1.</p>
-<pre class="sourceCode r"><code class="sourceCode r">my.diagnostics         &lt;-<span class="st"> </span><span class="kw">get_diagnostics</span>(<span class="dt">sims =</span> <span class="dv">1000</span>, <span class="dt">analysis =</span> <span class="kw">list</span>(my.lsdv.analysis), 
+<pre class="sourceCode r"><code class="sourceCode r">my.diagnostics         &lt;-<span class="st"> </span><span class="kw">diagnose</span>(<span class="dt">sims =</span> <span class="dv">1000</span>, <span class="dt">analysis =</span> <span class="kw">list</span>(my.lsdv.analysis), 
                           <span class="dt">design =</span> my.design, 
                           <span class="dt">sample =</span> my.sample.frame, 
                           <span class="dt">potential_outcomes =</span> my.potential.outcomes)

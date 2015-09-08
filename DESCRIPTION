@@ -1,5 +1,5 @@
 Package: experimentr
-Title: Tools for Power Analysis, Design and Pre-registration of Experimental and Quasi-experimental Studies
+Title: Tools for Power Analysis, Design and Pre-Registration of Experimental and Quasi-Experimental Studies
 Version: 0.2
 Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@columbia.edu", role = c("aut", "cre")),
              person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = c("aut")),

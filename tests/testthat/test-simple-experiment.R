@@ -16,7 +16,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
 
-  sims <- get_diagnostics(potential_outcomes = po, 
+  sims <- diagnose(potential_outcomes = po, 
                               sample =  smp, 
                               design = design, 
                               analysis = analysis_1, 

@@ -35,7 +35,7 @@ test_that("test permutation matrix", {
   analysis <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means_blocked, 
                                block_variable = "income_groups")
   
-  power_test        <- get_diagnostics(sims = 5, 
+  power_test        <- diagnose(sims = 5, 
                                   analysis = list(analysis_lsdv, analysis_lm, analysis), 
                                   design = design_blocked, 
                                   blocks = blocks, sample = sample, 
