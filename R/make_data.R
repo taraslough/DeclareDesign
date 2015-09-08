@@ -117,7 +117,7 @@ make_data <-
         return_frame <- make_proportions(population_proportions = potential_outcomes$population_proportions,
                                          N = N
         )
-        names(return_frame) <- paste0(potential_outcomes$proportion_outcome_name,
+        names(return_frame) <- paste0(potential_outcomes$outcome_name,
                                       sep,
                                       potential_outcomes$condition_names
         )

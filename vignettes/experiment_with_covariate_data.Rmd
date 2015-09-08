@@ -13,7 +13,7 @@ This vignette demonstrates how to design and pre-register an experiment after ba
 
 ```{r, echo = FALSE}
 library(experimentr)
-library(xtable)
+
 set.seed(5)
 knitr::opts_knit$set(root.dir = tempdir())
 ```
@@ -80,7 +80,7 @@ simulations <- diagnose(potential_outcomes = potential_outcomes,
                                    sample =  sample, 
                                    design = design, 
                                    analysis = analysis)
-print(xtable(summary(simulations)))
+kable(summary(simulations))
 ```
 
 This indicates the power, `summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
@@ -92,7 +92,7 @@ comparisons <- compare_experiments(N_per_level = list(c(1000, 20), c(500, 50), c
                               design = design, 
                               analysis = analysis, 
                               sims = 100)
-print(xtable(summary(comparisons)))
+kable(summary(comparisons))
 ```
 
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
@@ -104,13 +104,14 @@ mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = moc
 ```
 
 ```{r, results = 'verbatim'}
-print(xtable(get_estimates(analysis = analysis, data = mock)))
+kable(get_estimates(analysis = analysis, data = mock))
 ```
 
-Finally, we use the pre_register function to create the pre-registration document.
+```{r, echo = FALSE}
+##Finally, we use the pre_register function to create the pre-registration document.
+```
 
-
-```{r, eval = FALSE}
+```{r, eval = FALSE, eval = FALSE}
 pre <- pre_register(design = design, sample = sample, 
              potential_outcomes = potential_outcomes, analysis = analysis, 
              title = "Lady Tasting Tea", 
@@ -118,7 +119,7 @@ pre <- pre_register(design = design, sample = sample,
              abstract = "Description of the lady tasting tea experiment")
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, eval = FALSE}
 pre <- pre_register(design = design, sample = sample, 
              potential_outcomes = potential_outcomes, analysis = analysis, 
              title = "Lady Tasting Tea", 
