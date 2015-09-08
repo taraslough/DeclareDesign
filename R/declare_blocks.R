@@ -70,8 +70,8 @@ declare_blocks <- function(blocks = NULL, recode = TRUE, recode_function = NULL,
   if(length(blocks) == 1 & recode == FALSE) {
     
     blocks_function <- function(sample){
-      if(length(unique(sample[, blocks])) > block_count)
-        stop("The variable you set in blocks has more categories than block_count, so it must be recoded. Set recode_variable = TRUE.")
+      #if(length(unique(sample[, blocks])) > block_count)
+      #  stop("The variable you set in blocks has more categories than block_count, so it must be recoded. Set recode_variable = TRUE.")
       blocks_function_generic(blocks_internal = blocks, block_name = block_name, sample = sample)
     }
     

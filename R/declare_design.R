@@ -221,7 +221,8 @@ declare_design <-
     
     # Figure out cluster name
     if(!is.null(clusters) & is.character(clusters)){
-      clusters <- declare_clusters(clusters = clusters)
+      clusters_internal <- clusters
+      clusters <- declare_clusters(clusters = clusters_internal)
     }  
     
     if(!is.null(clusters) & !is.character(clusters)){

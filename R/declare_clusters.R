@@ -1,6 +1,6 @@
 
-cluster_function_generic <- function(clusters, cluster_name, sample){
-  x <- sample[,clusters]
+cluster_function_generic <- function(clusters_internal, cluster_name, sample){
+  x <- sample[,clusters_internal]
   n_digits <- nchar(as.character(length(unique(x))))
   x <- paste0("cluster_",sprintf(paste0("%0",n_digits,"d"),(as.numeric(as.factor(x)))))
   cluster_df <- data.frame(x, stringsAsFactors = FALSE)
@@ -19,7 +19,7 @@ declare_clusters <- function(clusters, cluster_name = "cluster_variable", custom
   
   if(is.null(custom_cluster_function)){
     cluster_function <- function(sample){
-      cluster_function_generic(clusters = clusters, cluster_name = cluster_name, sample = sample)
+      cluster_function_generic(clusters_internal = clusters, cluster_name = cluster_name, sample = sample)
     }
   }
   if(!is.null(custom_cluster_function)){
