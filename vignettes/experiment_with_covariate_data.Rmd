@@ -13,6 +13,7 @@ This vignette demonstrates how to design and pre-register an experiment after ba
 
 ```{r, echo = FALSE}
 library(experimentr)
+library(knitr)
 
 set.seed(5)
 knitr::opts_knit$set(root.dir = tempdir())
@@ -37,16 +38,18 @@ save(user_data, file = "baseline_data.RData")
 
 First, we load the baseline data created by the user, and then define a set of covariates that will be simulated to conduct power analysis and for simulated analyses.
 
-```{r covariates}
+```{r load_data}
 load("baseline_data.RData")
 
-## resample (bootstrap) from user data, respecting levels
+round(head(user_data), 3)
+```
+
+Then resample (bootstrap) from user data, respecting levels
+
+```{r sample}
 sample <- declare_sample(
-  individuals = list(
-    income = declare_variable()),
-  villages = list(
-    development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
-  ),
+  individuals = list(),
+  villages = list(),
   N_per_level = c(500, 10),
   data = user_data, resample = TRUE)
 ```
@@ -57,14 +60,14 @@ Second, we define the potential outcomes, which will be simulated based on the b
 potential_outcomes     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income
-  )
+)
 ```
 
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
 
-
 ```{r}
-analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means)
+analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
+                                  estimator = difference_in_means)
 ```
 
 Then we declare the design of the experiment, in this case a simple one without clusters or blocking.
@@ -77,22 +80,22 @@ Before finalizing the design, we conduct a power analysis to determine whether 5
 
 ```{r}
 simulations <- diagnose(potential_outcomes = potential_outcomes, 
-                                   sample =  sample, 
-                                   design = design, 
-                                   analysis = analysis)
-kable(summary(simulations))
+                        sample =  sample, 
+                        design = design, 
+                        analysis = analysis)
+kable(summary(simulations), digits = 3)
 ```
 
 This indicates the power, `summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
 
 ```{r, results = 'verbatim'}
 comparisons <- compare_experiments(N_per_level = list(c(1000, 20), c(500, 50), c(250, 100)),
-                              potential_outcomes = potential_outcomes, 
-                              sample =  sample, 
-                              design = design, 
-                              analysis = analysis, 
-                              sims = 100)
-kable(summary(comparisons))
+                                   potential_outcomes = potential_outcomes, 
+                                   sample =  sample, 
+                                   design = design, 
+                                   analysis = analysis, 
+                                   sims = 100)
+kable(summary(comparisons), digits = 3)
 ```
 
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
@@ -104,7 +107,7 @@ mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = moc
 ```
 
 ```{r, results = 'verbatim'}
-kable(get_estimates(analysis = analysis, data = mock))
+kable(get_estimates(analysis = analysis, data = mock), digits = 3)
 ```
 
 ```{r, echo = FALSE}
@@ -113,17 +116,17 @@ kable(get_estimates(analysis = analysis, data = mock))
 
 ```{r, eval = FALSE, eval = FALSE}
 pre <- pre_register(design = design, sample = sample, 
-             potential_outcomes = potential_outcomes, analysis = analysis, 
-             title = "Lady Tasting Tea", 
-             author = c("Ronald A. Fisher"), 
-             abstract = "Description of the lady tasting tea experiment")
+                    potential_outcomes = potential_outcomes, analysis = analysis, 
+                    title = "Lady Tasting Tea", 
+                    author = c("Ronald A. Fisher"), 
+                    abstract = "Description of the lady tasting tea experiment")
 ```
 
 ```{r, echo = FALSE, eval = FALSE}
 pre <- pre_register(design = design, sample = sample, 
-             potential_outcomes = potential_outcomes, analysis = analysis, 
-             title = "Lady Tasting Tea", 
-             author = c("Ronald A. Fisher"), 
-             abstract = "Description of the lady tasting tea experiment",
-             temp_dir = TRUE, make_output = FALSE)
+                    potential_outcomes = potential_outcomes, analysis = analysis, 
+                    title = "Lady Tasting Tea", 
+                    author = c("Ronald A. Fisher"), 
+                    abstract = "Description of the lady tasting tea experiment",
+                    temp_dir = TRUE, make_output = FALSE)
 ```

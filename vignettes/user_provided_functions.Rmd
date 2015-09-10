@@ -15,7 +15,8 @@ This vignette demonstrates how to design and pre-register an experiment after ba
 library(experimentr)
 library(xtable)
 set.seed(20)
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = TRUE, message = FALSE, eval = TRUE, tidy = TRUE, tidy.opts = list(width.cutoff = 50),
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = TRUE, message = FALSE, 
+                      eval = TRUE, tidy = TRUE, tidy.opts = list(width.cutoff = 50),
                       strip_white = TRUE, results = 'asis', fix.ext = 'pdf')
 ```
 
@@ -27,17 +28,17 @@ First, we define the sample frame from which we will draw a sample to run the ex
 
 ```{r}
 sample <- declare_sample(
-  income = declare_variable(),
+  noise = declare_variable(),
+  income = declare_variable(transformation = "sample(1:500, 500, replace = F)"),
   N = 500)
 ```
 
 Second, we define the potential outcomes, which will be simulated based on the baseline covariate data.
 
 ```{r}
-logistic <- function(x) exp(x)/(1+exp(x))
 potential_outcomes     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y ~ logistic(.01 + 0*Z0 + .2*Z1 + .1*income)
+  outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income
 )
 ```
 
@@ -92,13 +93,12 @@ print(xtable(summary(comparisons), digits = 3))
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
 
 ```{r}
-mock <- make_data(sample = sample, potential_outcomes = potential_outcomes)
-mock$Z <- assign_treatment(design = design, data = mock)
-mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
+mock <- make_data(sample = sample, potential_outcomes = potential_outcomes,
+                  assign_treatment = TRUE, observed_outcomes = TRUE, treatment_variable = "Z")
 ```
 
 ```{r}
-print(xtable(get_estimates(analysis = analysis, data = mock)))
+kable(get_estimates(analysis = analysis, data = mock))
 ```
 
 ## Pre-registering the experiment
@@ -113,7 +113,7 @@ pre <- pre_register(design = design, sample = sample,
                     abstract = "Description of the lady tasting tea experiment")
 ```
 
-```{r, echo = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 pre <- pre_register(design = design, sample = sample, 
                     potential_outcomes = potential_outcomes, analysis = analysis, 
                     title = "Lady Tasting Tea", 
