@@ -29,7 +29,16 @@ assign_treatment <- function(design, data) {
   prob_each <- design$prob_each
   block_m <- design$block_m
   design_type <- design$design_type
+  if(is.null(design_type))
+    design_type <- "custom"
   baseline_condition <- design$baseline_condition
+  
+  if(!is.null(design$custom_assignment_function)){
+    if("data" %in% names(formals(design$custom_assignment_function)))
+      Z <- design$custom_assignment_function(data = data)
+    else
+      Z <- design$custom_assignment_function()
+  } 
   
   if(design_type=="complete"){
     Z <- complete_ra(N = N,

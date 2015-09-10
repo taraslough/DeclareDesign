@@ -6,7 +6,8 @@
 \usage{
 declare_design(potential_outcomes, blocks = NULL, clusters = NULL,
   m = NULL, m_each = NULL, prob_each = NULL, block_m = NULL,
-  excluded_arms = NULL, baseline_condition = NULL)
+  excluded_arms = NULL, baseline_condition = NULL,
+  custom_assignment_function = NULL)
 }
 \arguments{
 \item{potential_outcomes}{potential_outcomes object, as created by \code{\link{declare_potential_outcomes}} (required).}

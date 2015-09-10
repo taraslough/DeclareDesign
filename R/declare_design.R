@@ -180,7 +180,8 @@ declare_design <-
            prob_each = NULL, 
            block_m = NULL, 
            excluded_arms = NULL,
-           baseline_condition = NULL) {
+           baseline_condition = NULL,
+           custom_assignment_function = NULL) {
     
     design_type <- "complete"   
     if(!is.null(blocks)) {design_type <- "blocked"}
@@ -231,18 +232,26 @@ declare_design <-
 
     if(is.null(clusters)){cluster_name=NULL}
     
-    return.object <- list(block_name = block_name,
-                          cluster_name = cluster_name,
-                          condition_names = condition_names,
-                          m = m,
-                          m_each = m_each,
-                          prob_each = prob_each,
-                          block_m = block_m,
-                          design_type = design_type,
-                          blocks = blocks,
-                          clusters = clusters,
-                          baseline_condition = baseline_condition,
-                          call = match.call())
+    if(is.null(custom_assignment_function)){
+      return.object <- list(block_name = block_name,
+                            cluster_name = cluster_name,
+                            condition_names = condition_names,
+                            m = m,
+                            m_each = m_each,
+                            prob_each = prob_each,
+                            block_m = block_m,
+                            design_type = design_type,
+                            blocks = blocks,
+                            clusters = clusters,
+                            baseline_condition = baseline_condition,
+                            call = match.call())
+    } else {
+      return.object <- list(
+        custom_assignment_function = custom_assignment_function,
+        condition_names = condition_names,
+        baseline_condition = baseline_condition,
+        call = match.call())
+    }
     class(return.object) <- "design"
     return(return.object)
   }
