@@ -110,23 +110,6 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
 }
 
 #' @export
-linear_regression <- lm
-
-#' @export
-logistic_regression <- function(formula, subset = NULL, weights = NULL, data, ...){
-  args_list <- c(list(formula = formula, subset = subset, weights = weights, data = data), list(...))
-  args_list$family <- binomial(link = "logit")
-  do.call(glm, args = args_list)
-}
-
-#' @export
-probit_regression <- function(formula, subset = NULL, weights = NULL, data, ...){
-  args_list <- c(list(formula = formula, subset = subset, weights = weights, data = data), list(...))
-  args_list$family <- binomial(link = "probit")
-  do.call(glm, args = args_list)
-}
-
-#' @export
 average_treatment_effect <- function(x, statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df")){
   coef_name <- names(coef(x))[treat_coef_num]
   df <- df.residual(x)
