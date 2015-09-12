@@ -25,15 +25,34 @@
 declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable = NULL, 
                              estimator = difference_in_means, subset = NULL, weights = NULL, ...,
                              quantity_of_interest = NULL, quantity_of_interest_labels = substitute(quantity_of_interest), 
-                             estimand_formula = formula, estimand = estimator, 
-                             estimand_subset = subset, estimand_weights = weights, 
-                             estimand_options = NULL, estimand_quantity_of_interest = quantity_of_interest, 
-                             estimand_quantity_of_interest_labels = substitute(estimand_quantity_of_interest)) {
+                             estimand_formula = NULL, estimand = NULL, 
+                             estimand_subset = NULL, estimand_weights = NULL, 
+                             estimand_options = NULL, estimand_quantity_of_interest = NULL, 
+                             estimand_quantity_of_interest_labels = NULL) {
+  
+  outcome_variable <- all.vars(formula[[2]])
   
   estimator_options <- list(...)
-  
-  if(is.null(estimand_options) & substitute(estimand) == "estimator")
-    estimand_options <- estimator_options
+                                  
+  ## set defaults for estimand
+  if(is.null(estimand)){
+    if((substitute(estimator) == "lm" | substitute(estimator) == "difference_in_means" | substitute(estimator) == "difference_in_means_blocked")){
+      estimand <- difference_in_means
+      ATE_formula <- paste(outcome_variable, "~", treatment_variable)
+      if(!is.null(estimand_formula) & estimand_formula != ATE_formula)
+        stop(paste("When you use the lm, difference_in_means, or difference_in_means_blocked estimator and do not set estimand, 
+                   we set estimand to difference_in_means. You cannot set the estimand_formula in this case to anything except ", ATE_formula, 
+                   ". To avoid this error, set estimand manually.", sep = ""))
+      if(is.null(estimand_formula))
+        estimand_formula <- paste(outcome_variable, "~", treatment_variable)
+    } else {
+      estimand <- estimator
+      if(is.null(estimand_formula))
+        estimand_formula <- estimator_formula
+    }
+    if(is.null(estimand_options))
+      estimand_options <- estimator_options
+  }
   
   arguments <- mget(names(formals()),sys.frame(sys.nframe()))
   arguments$... <- NULL
@@ -42,13 +61,8 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
       arguments[[names(estimator_options)[[k]]]] <- estimator_options[[k]]
   }
   
-  outcome_variable <- all.vars(formula[[2]])
-  
-  if(is.null(quantity_of_interest) & (substitute(estimator) == "linear_regression" | 
-                                      substitute(estimator) == "probit_regression" | 
-                                      substitute(estimator) == "logistic_regression" | 
-                                      substitute(estimator) == "lm" | substitute(estimator) == "glm" | 
-                                      substitute(estimator) == "vglm"))
+  if(is.null(quantity_of_interest) & (substitute(estimator) == "lm" | substitute(estimator) == "glm" | 
+                                      substitute(estimator) == "nls" | substitute(estimator) == "vglm"))
     stop("If you choose linear, logistic, or probit regression or another standard R modeling function such as glm as the estimator, you must set quantity_of_interest to a function that extracts the QOI from the regression output, such as average_treatment_effect.")
   
   if(is.null(treatment_variable))

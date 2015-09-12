@@ -13,11 +13,10 @@ declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
   estimator = difference_in_means, subset = NULL, weights = NULL, ...,
   quantity_of_interest = NULL,
   quantity_of_interest_labels = substitute(quantity_of_interest),
-  estimand_formula = formula, estimand = estimator,
-  estimand_subset = subset, estimand_weights = weights,
-  estimand_options = NULL,
-  estimand_quantity_of_interest = quantity_of_interest,
-  estimand_quantity_of_interest_labels = substitute(estimand_quantity_of_interest))
+  estimand_formula = NULL, estimand = NULL, estimand_subset = NULL,
+  estimand_weights = NULL, estimand_options = NULL,
+  estimand_quantity_of_interest = NULL,
+  estimand_quantity_of_interest_labels = NULL)
 
 truth_data_frame(formula = NULL, treatment_variable = "Z", weights = NULL,
   subset = NULL, data = data, estimand_options = NULL, sep = "_", ...)
