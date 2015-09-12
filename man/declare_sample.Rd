@@ -7,7 +7,7 @@
 \usage{
 declare_sample(..., N_per_level = NULL, group_sizes_by_level = NULL,
   N = NULL, data = NULL, resample = FALSE, level_ID_variables = NULL,
-  generate_level_ID = FALSE)
+  generate_level_ID = FALSE, custom_data_function = NULL)
 
 \method{summary}{sample}(object, ...)
 }

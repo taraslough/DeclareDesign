@@ -40,9 +40,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
       estimand <- difference_in_means
       ATE_formula <- paste(outcome_variable, "~", treatment_variable)
       if(!is.null(estimand_formula) & estimand_formula != ATE_formula)
-        stop(paste("When you use the lm, difference_in_means, or difference_in_means_blocked estimator and do not set estimand, 
-                   we set estimand to difference_in_means. You cannot set the estimand_formula in this case to anything except ", ATE_formula, 
-                   ". To avoid this error, set estimand manually.", sep = ""))
+        stop(paste("When you use the lm, difference_in_means, or difference_in_means_blocked estimator and do not set estimand, we set estimand to difference_in_means. You cannot set the estimand_formula in this case to anything except ", ATE_formula, ". To avoid this error, set estimand manually.", sep = ""))
       if(is.null(estimand_formula))
         estimand_formula <- paste(outcome_variable, "~", treatment_variable)
     } else {
