@@ -48,7 +48,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
     } else {
       estimand <- estimator
       if(is.null(estimand_formula))
-        estimand_formula <- estimator_formula
+        estimand_formula <- formula
     }
     if(is.null(estimand_options))
       estimand_options <- estimator_options
