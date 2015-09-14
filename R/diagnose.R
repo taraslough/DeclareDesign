@@ -44,6 +44,15 @@ diagnose <- function(data = NULL, potential_outcomes = NULL, sample = NULL,
   if(!is.null(data))
     data_sim <- data
   
+  if(is.null(analysis_labels)){
+    if(class(analysis) == "list")
+      analysis_labels <- paste(substitute(analysis)[-1L])
+    else
+      analysis_labels <- paste(substitute(analysis))
+  }
+  
+  if(class(analysis)=="analysis"){analysis <- list(analysis)}
+  
   estimates_list <- list()
   estimands_list <- list()
   for(i in 1:sims){
@@ -62,15 +71,6 @@ diagnose <- function(data = NULL, potential_outcomes = NULL, sample = NULL,
     }
     
     z_sim <- assign_treatment(design = design, data = data_sim)
-    
-    if(is.null(analysis_labels)){
-      if(class(analysis) == "list")
-        analysis_labels <- paste(substitute(analysis)[-1L])
-      else
-        analysis_labels <- paste(substitute(analysis))
-    }
-    
-    if(class(analysis)=="analysis"){analysis <- list(analysis)}
     
     for(j in 1:length(analysis)){
       data_sim[, analysis_treatment_variable(analysis = analysis[[j]])] <- z_sim
@@ -93,13 +93,12 @@ diagnose <- function(data = NULL, potential_outcomes = NULL, sample = NULL,
   
 }
 
+#' @importFrom foreach foreach
 #' @export
 diagnose_parallel <- function(data = NULL, potential_outcomes = NULL, sample = NULL, 
                               blocks = NULL, clusters = NULL, design, analysis, 
                               bootstrap_data = FALSE, N_bootstrap = NULL, sims = 5, label = NULL,
-                              analysis_labels = NULL, procs = 2){
-  
-  require(parallel)
+                              analysis_labels = NULL){
   
   if(is.null(blocks))
     blocks <- design$blocks
