@@ -23,7 +23,7 @@ declare_clusters <- function(clusters, cluster_name = "cluster_variable", custom
     }
   }
   if(!is.null(custom_cluster_function)){
-    cluster_funtion <- function(covariates){
+    cluster_function <- function(covariates){
       x <- custom_cluster_function(covariates)
       n_digits <- nchar(as.character(length(unique(x))))
       x <- paste0("cluster_",sprintf(paste0("%0",n_digits,"d"),(as.numeric(as.factor(x)))))

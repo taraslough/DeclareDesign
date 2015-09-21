@@ -92,6 +92,10 @@ mock <- make_data(sample = sample, potential_outcomes = potential_outcomes,
 kable(get_estimates(analysis = analysis, data = mock), digits = 3)
 ```
 
+```{r}
+kable(get_estimands(analysis = analysis, data = mock), digits = 3)
+```
+
 ## Pre-registering the experiment
 
 Finally, we use the pre_register function to create the pre-registration document.

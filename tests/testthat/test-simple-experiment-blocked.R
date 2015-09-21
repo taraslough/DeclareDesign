@@ -23,12 +23,12 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   design_1        <- declare_design(potential_outcomes = po, blocks = blocks)
   design_2        <- declare_design(potential_outcomes = po, blocks = "party")
   
-  mock_1          <- make_data(potential_outcomes = po, do_treatment_assignment = TRUE,
-                             treatment_variable = "Z",
+  mock_1          <- make_data(potential_outcomes = po, assign_treatment =TRUE,
+                             treatment_variable = "Z",observed_outcomes = TRUE,
                              sample = smp, design = design_1)
   
-  mock_2          <- make_data(potential_outcomes = po, do_treatment_assignment = TRUE,
-                               treatment_variable = "Z",
+  mock_2          <- make_data(potential_outcomes = po, assign_treatment =TRUE,
+                               treatment_variable = "Z",observed_outcomes = TRUE,
                                sample = smp, design = design_2)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
@@ -39,18 +39,22 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
                                  estimator = difference_in_means_blocked,
                                  block_variable = "block_variable")
   
-  power_test        <- diagnose(sims = 1000, 
-                                       analysis = analysis_1, 
-                                       design = design_1, 
-                                       sample = smp, 
-                                       potential_outcomes = po)
+  power_test_1        <- diagnose(sims = 20, 
+                                analysis = analysis_1,
+                                design = design_1,
+                                sample = smp, 
+                                potential_outcomes = po)
+  
+  power_test_2        <- diagnose(sims = 20, 
+                                analysis = analysis_2,
+                                design = design_2,
+                                sample = smp, 
+                                potential_outcomes = po)
   
   
-  fit_1 <- get_estimates(analysis = analysis_1, data = mock_1)
+  fit_1 <- get_estimates(analysis = list(analysis_1, analysis_2), data = mock_1)
   
   fit_1 <- get_estimands(analysis = analysis_1, data = mock_1)
-  
-  summary(fit_1)
   
   #   pre_register(design = design, covariates = cov, 
   #                potential_outcomes = po, analysis = list(analysis_1, analysis_2), 

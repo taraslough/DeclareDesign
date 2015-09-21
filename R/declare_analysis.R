@@ -25,30 +25,44 @@
 declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable = NULL, 
                              estimator = difference_in_means, subset = NULL, weights = NULL, ...,
                              quantity_of_interest = NULL, quantity_of_interest_labels = substitute(quantity_of_interest), 
-                             estimand_formula = formula, estimand = estimator, 
-                             estimand_subset = subset, estimand_weights = weights, 
-                             estimand_options = NULL, estimand_quantity_of_interest = quantity_of_interest, 
-                             estimand_quantity_of_interest_labels = substitute(estimand_quantity_of_interest)) {
+                             estimand_formula = NULL, estimand = NULL, 
+                             estimand_subset = NULL, estimand_weights = NULL, 
+                             estimand_options = NULL, estimand_quantity_of_interest = NULL, 
+                             estimand_quantity_of_interest_labels = NULL) {
+  
+  outcome_variable <- all.vars(formula[[2]])
   
   estimator_options <- list(...)
+                                  
+  ## set defaults for estimand
+  if(is.null(estimand)){
+    if((substitute(estimator) == "lm" | substitute(estimator) == "difference_in_means" | substitute(estimator) == "difference_in_means_blocked")){
+      estimand <- difference_in_means
+      ATE_formula <- as.formula(paste(outcome_variable, "~", treatment_variable))
+      if(!is.null(estimand_formula)){
+        if(estimand_formula != ATE_formula)
+          stop(paste("When you use the lm, difference_in_means, or difference_in_means_blocked estimator and do not set estimand, we set estimand to difference_in_means. You cannot set the estimand_formula in this case to anything except ", ATE_formula, ". To avoid this error, set estimand manually.", sep = ""))
+      }
+      if(is.null(estimand_formula))
+        estimand_formula <- ATE_formula
+    } else {
+      estimand <- estimator
+      if(is.null(estimand_formula))
+        estimand_formula <- formula
+    }
+    if(is.null(estimand_options))
+      estimand_options <- estimator_options
+  }
   
-  if(is.null(estimand_options) & substitute(estimand) == "estimator")
-    estimand_options <- estimator_options
-  
-  arguments <- mget(names(formals()),sys.frame(sys.nframe()))
+  arguments <- mget(names(formals()), sys.frame(sys.nframe()))
   arguments$... <- NULL
   if(length(estimator_options) > 0) {
     for(k in 1:length(estimator_options))
       arguments[[names(estimator_options)[[k]]]] <- estimator_options[[k]]
   }
   
-  outcome_variable <- all.vars(formula[[2]])
-  
-  if(is.null(quantity_of_interest) & (substitute(estimator) == "linear_regression" | 
-                                      substitute(estimator) == "probit_regression" | 
-                                      substitute(estimator) == "logistic_regression" | 
-                                      substitute(estimator) == "lm" | substitute(estimator) == "glm" | 
-                                      substitute(estimator) == "vglm"))
+  if(is.null(quantity_of_interest) & (substitute(estimator) == "lm" | substitute(estimator) == "glm" | 
+                                      substitute(estimator) == "nls" | substitute(estimator) == "vglm"))
     stop("If you choose linear, logistic, or probit regression or another standard R modeling function such as glm as the estimator, you must set quantity_of_interest to a function that extracts the QOI from the regression output, such as average_treatment_effect.")
   
   if(is.null(treatment_variable))
@@ -96,6 +110,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
   
   return_object <- list(estimate = estimate_function, estimand = estimand_function, 
                         quantity_of_interest = quantity_of_interest, 
+                        estimand_formula = estimand_formula, estimand_options = estimand_options,
                         estimand_quantity_of_interest = estimand_quantity_of_interest,
                         treatment_variable = treatment_variable,
                         outcome_variable = outcome_variable, arguments = arguments,
@@ -300,8 +315,8 @@ get_estimands_model <- function(analysis, data){
     stop("The analysis argument must be an object created by the declare_analysis function")
   if(is.null(analysis$estimand))
     stop("This analysis function does not have a model associated with it. Try get_estimands to obtain the quantities of interest for the estimand.")
-  return(analysis$estimand(data = truth_data_frame(formula = analysis$arguments$estimand_formula, data = data,
-                                                   estimand_options = analysis$arguments$estimand_options)))
+  return(analysis$estimand(data = truth_data_frame(formula = analysis$estimand_formula, data = data,
+                                                   estimand_options = analysis$estimand_options)))
 }
 
 #' @param analysis what is it?
@@ -384,7 +399,8 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analys
   
   if(!is.null(qoi)) {
     ## if there is a user-defined qoi function, use that to extract qoi from analysis object or list of them
-    return(qoi(analysis, data = truth_data_frame(formula = analysis$arguments$estimand_formula, data = data, estimand_options = analysis$arguments$estimand_options)))
+    return(qoi(analysis, data = truth_data_frame(formula = analysis$estimand_formula, data = data, 
+                                                 estimand_options = analysis$estimand_options)))
   } else {
     ## otherwise use qoi function defined in the analysis
     if(class(analysis) == "list"){
@@ -393,11 +409,12 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analys
       estimands_list <- list()
       for(i in 1:length(analysis)){
         if(!is.null(analysis[[i]]$estimand_quantity_of_interest)){
-          estimands_list[[i]] <- analysis[[i]]$estimand_quantity_of_interest(get_estimands_model(analysis = analysis[[i]], data = data), statistics = statistics)
+          estimands_list[[i]] <- analysis[[i]]$estimand_quantity_of_interest(get_estimands_model(analysis = analysis[[i]], 
+                                                                                                 data = data), statistics = statistics)
           ## get_estimands_model does truth_data_frame, so just sending it data
         } else {
-          estimands_list[[i]] <- analysis[[i]]$estimand(truth_data_frame(formula = analysis[[i]]$arguments$estimand_formula, data = data, 
-                                                                         estimand_options = analysis[[i]]$arguments$estimand_options))
+          estimands_list[[i]] <- analysis[[i]]$estimand(truth_data_frame(formula = analysis[[i]]$estimand_formula, data = data, 
+                                                                         estimand_options = analysis[[i]]$estimand_options))
         }
         colnames(estimands_list[[i]]) <- paste(colnames(estimands_list[[i]]), analysis_labels[i], sep = "_")
       }
@@ -419,11 +436,12 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analys
         stop("The object in the analysis argument must by created by the declare_analysis function.")
       ## otherwise process the one analysis function
       if(!is.null(analysis$estimand_quantity_of_interest)){
-        estimands_matrix <- analysis$estimand_quantity_of_interest(get_estimands_model(analysis = analysis, data = data), statistics = statistics)
+        estimands_matrix <- analysis$estimand_quantity_of_interest(get_estimands_model(analysis = analysis, 
+                                                                                       data = data), statistics = statistics)
         ## get_estimands_model does truth_data_frame, so just sending it data
       } else {
-        estimands_matrix <- analysis$estimand(truth_data_frame(formula = analysis$arguments$estimand_formula, data = data,
-                                                               estimand_options = analysis$arguments$estimand_options))
+        estimands_matrix <- analysis$estimand(truth_data_frame(formula = analysis$estimand_formula, data = data,
+                                                               estimand_options = analysis$estimand_options))
       }
       colnames(estimands_matrix) <- paste(colnames(estimands_matrix), analysis_labels[1], sep = "_")
       return(estimands_matrix)

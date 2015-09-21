@@ -181,6 +181,7 @@ declare_design <-
            block_m = NULL, 
            excluded_arms = NULL,
            baseline_condition = NULL,
+           treatment_variable = "Z",
            custom_assignment_function = NULL) {
     
     design_type <- "complete"   
@@ -244,12 +245,14 @@ declare_design <-
                             blocks = blocks,
                             clusters = clusters,
                             baseline_condition = baseline_condition,
+                            treatment_variable = treatment_variable,
                             call = match.call())
     } else {
       return.object <- list(
         custom_assignment_function = custom_assignment_function,
         condition_names = condition_names,
         baseline_condition = baseline_condition,
+        treatment_variable = treatment_variable,
         call = match.call())
     }
     class(return.object) <- "design"

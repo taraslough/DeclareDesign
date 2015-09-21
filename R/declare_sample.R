@@ -10,7 +10,12 @@
 #' @param generate_level_ID Generate an ID variable that indicates each level that a unit belongs to. 
 #' @export
 declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL, N = NULL, data = NULL, 
-                           resample = FALSE, level_ID_variables = NULL, generate_level_ID = FALSE) {
+                           resample = FALSE, level_ID_variables = NULL, generate_level_ID = FALSE,
+                           custom_data_function = NULL) {
+  
+  if( (length(list(...)) > 0 | resample == TRUE | generate_level_ID == TRUE | !is.null(level_ID_variables) | !is.null(data)) & !is.null(custom_data_function))
+    stop("When you provide a custom_data_function, any variable or level declarations and
+            the options resample, level_ID_variables, generate_level_ID, and data will be ignored.")
   
   # Check whether the user has supplied data
   no_data <- is.null(data)
@@ -206,7 +211,7 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
   # Now generate the make_sample() function when there is...
   
   # ... no data, one level, variables, and no empty lists
-  if(no_data & one_level & !no_variables & !any_empty){
+  if(no_data & one_level & !no_variables & !any_empty & is.null(custom_data_function)){
     make_sample <- function(){
       X_mat <- make_X_matrix(variable_list,
                              N = N)
@@ -223,7 +228,7 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
   
   
   # ... no data, one level and no variables
-  if(no_data & one_level & no_variables){
+  if(no_data & one_level & no_variables & is.null(custom_data_function)){
     make_sample <- function(){
       X_mat <- data.frame(1:N)
       names(X_mat) <- level_ids
@@ -236,7 +241,7 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
   } 
   
   # ... no data, multiple levels and either variables or no variables
-  if(no_data & !one_level){
+  if(no_data & !one_level & is.null(custom_data_function)){
     
     make_sample <- function(){
       
@@ -291,7 +296,7 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
   
   
   
-  if(!no_data){
+  if(!no_data & is.null(custom_data_function)){
     
     if(resample == TRUE){
       
@@ -341,7 +346,23 @@ declare_sample <- function(..., N_per_level = NULL, group_sizes_by_level = NULL,
     }
   }
   
-  if(!is.null(make_sample)){
+  if(!is.null(custom_data_function)){
+    required_arguments <- c("N_per_level", "group_sizes_by_level", "N")
+    custom_arguments <- names(formals(custom_data_function))
+    if(!any(required_arguments %in% custom_arguments))
+      stop("Your custom data function must include as arguments at least one of N_per_level, group_sizes_by_level, or N.")
+      
+    if("group_sizes_by_level" %in% names(formals(custom_data_function))){
+      make_sample <- function() custom_data_function(group_sizes_by_level = group_sizes_by_level)
+    } else if("N_per_level" %in% names(formals(custom_data_function))){
+      make_sample <- function() custom_data_function(N_per_level = N_per_level)
+    } else if("N" %in% names(formals(custom_data_function))){
+      make_sample <- function() custom_data_function(N = N)
+    }
+  }
+  
+  
+  if(exists("make_sample")){
     test_mat <- make_sample()
     
     covariate_names <- names(test_mat)
