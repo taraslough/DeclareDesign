@@ -63,8 +63,22 @@ potential_outcomes     <-  declare_potential_outcomes(
 )
 ```
 
-Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis. Here we define a custom estimator (probit regression) and a custom QOI function (for this example, it just pulls the probit coefficient, which is note an estimate of any causal quantity).
+```{r}
+random_clusters <- function(data){
+  return(sample(1:10, nrow(data), replace = T))
+}
+clusters_alternate     <-  declare_clusters(custom_cluster_function = random_clusters, 
+                                            cluster_name = "random_clusters")
+```
 
+```{r}
+random_blocks <- function(data){
+  return(data$random_clusters < 10)
+}
+blocks_alternate     <-  declare_blocks(blocks_function = random_blocks, clusters = clusters_alternate)
+```
+
+Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis. Here we define a custom estimator (probit regression) and a custom QOI function (for this example, it just pulls the probit coefficient, which is note an estimate of any causal quantity).
 
 ```{r}
 probit_regression <- function(formula, subset = NULL, weights = NULL, data, ...){
@@ -93,7 +107,10 @@ Then we declare the design of the experiment, in this case a simple one without 
 assign_function <- function()
     return(sample(c("Z0", "Z1"), 500, replace = T))
   
-design <- declare_design(potential_outcomes = potential_outcomes, custom_assignment_function = assign_function, treatment_variable = "Z_star")
+design_custom <- declare_design(potential_outcomes = potential_outcomes, custom_assignment_function = assign_function, treatment_variable = "Z_star")
+
+design <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters_alternate,
+                         blocks = blocks_alternate)
 ```
 
 Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the diagnose function.
