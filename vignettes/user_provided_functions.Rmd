@@ -109,7 +109,7 @@ assign_function <- function()
   
 design_custom <- declare_design(potential_outcomes = potential_outcomes, custom_assignment_function = assign_function, treatment_variable = "Z_star")
 
-design <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters_alternate,
+design <- declare_design(potential_outcomes = potential_outcomes, ##clusters = clusters_alternate,
                          blocks = blocks_alternate)
 ```
 
@@ -117,9 +117,9 @@ Before finalizing the design, we conduct a power analysis to determine whether 5
 
 ```{r}
 simulations <- diagnose(potential_outcomes = potential_outcomes, 
-                                   sample = sample, 
-                                   design = design, 
-                                   analysis = analysis)
+                        sample = sample, 
+                        design = design, 
+                        analysis = analysis)
 kable(summary(simulations), digits = 3)
 ```
 
