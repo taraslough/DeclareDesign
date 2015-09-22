@@ -244,13 +244,13 @@ make_data <-
       }
       if (!is.null(design$clusters)) {
         return_frame <-
-          cbind(return_frame, design$clusters$cluster_function(sample = return_frame))
+          cbind(return_frame, design$clusters$cluster_function(return_frame))
       }
       
       if (!is.null(design$blocks)) {
         if (is.null(design$blocks$call$clusters)) {
           return_frame <-
-            cbind(return_frame, design$blocks$blocks_function(sample = return_frame))
+            cbind(return_frame, design$blocks$blocks_function(return_frame))
         } else {
           cluster_frame <-
             unique(return_frame[, c(design$clusters$cluster_name, design$blocks$call$blocks)])
@@ -260,7 +260,7 @@ make_data <-
             )
           }
           cluster_frame[, design$blocks$block_name] <-
-            design$blocks$blocks_function(sample = cluster_frame)
+            design$blocks$blocks_function(cluster_frame)
           
           return_frame <-
             merge(
