@@ -7,13 +7,18 @@ context("Assignment and probability functions")
 
 test_that("test assignment and probability functions", {
   
-  smp <- declare_sample(
+  dat <- declare_population(
     individuals = list(
       income = declare_variable()),
     villages = list(
       development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
     ),
-    N_per_level = c(1000, 200))
+    N_per_level = c(1000, 200))$population
+  
+  
+  pop <- declare_population(
+    data = dat,
+    N_per_level = c(1000, 200), super_population = TRUE)
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1", "Z2"),
