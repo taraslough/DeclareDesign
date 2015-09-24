@@ -37,6 +37,15 @@ test_that("test assignment and probability functions", {
   design_7 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, prob_each = c(.3, .6, .1))
   design_8 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, excluded_arms = "Z2")
   
+  block_prob <- rbind(c(.1, .2, .7),
+                      c(.1, .7, .2),
+                      c(.7, .2, .1),
+                      c(.7, .1, .2),
+                      c(.2, .1, .7))
+  design_8.5 <- declare_design(potential_outcomes = potential_outcomes, 
+                               blocks = blocks_without_clusters, 
+                               block_prob = block_prob)
+  
   # Clustered Designs 
   design_9 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters)
   design_10 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, excluded_arms = "Z2")
@@ -59,6 +68,9 @@ test_that("test assignment and probability functions", {
   mock$Z6 <- assign_treatment(design = design_6, data = mock) 
   mock$Z7 <- assign_treatment(design = design_7, data = mock) 
   mock$Z8 <- assign_treatment(design = design_8, data = mock) 
+  mock$Z8_5 <- assign_treatment(design = design_8.5, data = mock) 
+  
+  with(mock, table(block_variable, Z8_5))
   
   mock$Z9 <- assign_treatment(design = design_9, data = mock) 
   mock$Z10 <- assign_treatment(design = design_10, data = mock) 
@@ -79,6 +91,8 @@ test_that("test assignment and probability functions", {
   prob_mat_6 <- get_design_probs(design = design_6, data = mock) 
   prob_mat_7 <- get_design_probs(design = design_7, data = mock) 
   prob_mat_8 <- get_design_probs(design = design_8, data = mock) 
+  
+  prob_mat_8.5 <- get_design_probs(design = design_8.5, data = mock) 
   
   prob_mat_9 <- get_design_probs(design = design_9, data = mock) 
   prob_mat_10 <- get_design_probs(design = design_10, data = mock) 

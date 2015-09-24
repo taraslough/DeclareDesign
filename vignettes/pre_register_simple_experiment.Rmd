@@ -13,7 +13,6 @@ This vignette demonstrates how to pre-register a simple experimental design usin
 
 ```{r, echo = FALSE}
 library(experimentr)
-library(xtable)
 set.seed(5)
 ```
 
@@ -39,7 +38,8 @@ potential_outcomes     <-  declare_potential_outcomes(
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
 
 ```{r}
-analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means)
+analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
+                                  estimator = difference_in_means)
 ```
 
 Then we declare the design of the experiment, in this case a simple one without clusters or blocking.
@@ -66,7 +66,7 @@ pre <- pre_register(design = design, sample = sample,
                     title = "Lady Tasting Tea", 
                     author = c("Ronald A. Fisher"), 
                     abstract = "Description of the lady tasting tea experiment", 
-                    make_output = FALSE, temp_dir = TRUE)
+                    open_output = FALSE, temp_dir = TRUE)
 ```
 
 # Writing a paper based on the experiment

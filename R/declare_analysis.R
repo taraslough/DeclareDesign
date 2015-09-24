@@ -45,13 +45,18 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
       }
       if(is.null(estimand_formula))
         estimand_formula <- ATE_formula
+      if(is.null(estimand_options)){
+        estimand_options <- estimator_options
+        if(substitute(estimator) == "difference_in_means_blocked")
+          estimand_options[["block_variable"]] <- NULL
+      }
     } else {
       estimand <- estimator
       if(is.null(estimand_formula))
         estimand_formula <- formula
+      if(is.null(estimand_options))
+        estimand_options <- estimator_options
     }
-    if(is.null(estimand_options))
-      estimand_options <- estimator_options
   }
   
   arguments <- mget(names(formals()), sys.frame(sys.nframe()))

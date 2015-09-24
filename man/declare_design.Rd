@@ -6,7 +6,7 @@
 \usage{
 declare_design(potential_outcomes, blocks = NULL, clusters = NULL,
   m = NULL, m_each = NULL, prob_each = NULL, block_m = NULL,
-  excluded_arms = NULL, baseline_condition = NULL,
+  block_prob = NULL, excluded_arms = NULL, baseline_condition = NULL,
   treatment_variable = "Z", custom_assignment_function = NULL)
 }
 \arguments{
@@ -23,6 +23,8 @@ declare_design(potential_outcomes, blocks = NULL, clusters = NULL,
 \item{prob_each}{a vector describing the probability of units (or clusters) being assigned to each treatment arm. Must sum to 1.}
 
 \item{block_m}{a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.}
+
+\item{block_prob}{a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.}
 
 \item{excluded_arms}{a character vector excluding some potential outcomes from the randomization.  Used primarily when comparing designs that feature different numbers of treatment arms.}
 }
