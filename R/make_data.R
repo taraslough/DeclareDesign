@@ -82,26 +82,6 @@ make_data <- function(sample, potential_outcomes = NULL,assign_treatment = FALSE
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #' @export
 get_covariates <- function(sample){
   if ( class(sample) != "sample" )
@@ -220,9 +200,7 @@ loop_potential_outcomes <- function(potential_outcomes,covariates,sep = "_"){
                          covariates = covariates,
                          sep = sep)
   
-  
-  
-  outcomes <- do.call(cbind,outcome_list)
+  outcomes <- do.call(cbind.data.frame,outcome_list)
   
   return(outcomes)
   
@@ -239,19 +217,19 @@ make_proportion_outcomes <- function(potential_outcomes,N,sep = "_"){
   return(return_frame)
 }
 
-#' @export
-make_proportions <- function(population_proportions,N){
-  counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
-  con_names <- rownames(population_proportions)
-  outcomes <- apply(counts,2,function(reps){
-    sample(
-      rep(con_names,reps)
-    )
-  })
-  colnames(outcomes) <- colnames(population_proportions)
-  outcomes <- integerize(as.data.frame(outcomes))
-  return(outcomes)
-}
+
+# make_proportions <- function(population_proportions,N){
+#   counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
+#   con_names <- rownames(population_proportions)
+#   outcomes <- apply(counts,2,function(reps){
+#     sample(
+#       rep(con_names,reps)
+#     )
+#   })
+#   colnames(outcomes) <- colnames(population_proportions)
+#   outcomes <- integerize(as.data.frame(outcomes))
+#   return(outcomes)
+# }
 
 #' @export
 integerize <- function(data_frame){
@@ -329,10 +307,8 @@ loop_treatment <- function(data,design,assign_treatment,reveal_outcome,outcome_v
                            outcome_variable = outcome_variable,
                            sep = sep
   )
-  
-  
-  
-  treatments <- do.call(cbind,treatment_list)
+
+  treatments <- do.call(cbind.data.frame,treatment_list)
   
   return(treatments)
 }
