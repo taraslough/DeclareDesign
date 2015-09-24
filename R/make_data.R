@@ -1,21 +1,55 @@
 #' Make the full dataset or just a sample
 #'
-#' @param sample A sample object made with \code{\link{declare_sample}}. Contains sample size, structure, custom-DGP functions, and other information related to baseline.
-#' @param potential_outcomes An optional argument for a potential_outcomes object made with \code{\link{declare_potential_outcomes}}, or a list of potential_outcomes objects. Contains all of the necessary information to construct the potential outcomes revealed by the experiment. Potential outcomes can be a function of previous outcomes in a list of potential outcomes. 
-#' @param assign_treatment An optional argument indicating whether treatment should be assigned as part of make_data(). If TRUE, then the user must also provide arguments to design, outcome_variable, and reveal_outcome (see below). 
-#' @param design An optional argument for a design object, made with \code{\link{declare_design}}, or list of design objects. Contains the randomization procedure and other important information, such as the name of the treatment variable. Must be provided when assign_treatment == TRUE.
-#' @param outcome_variable An optional string with the name of the outcome variable. Must be provided when assign_treatment == TRUE.
-#' @param reveal_outcome An optional argument that reveals the observed outcome under treatment when TRUE. 
-#' @param sep a character string used in the naming of potential outcomes. Defaults to "_".
-#' @param noncompliance A noncompliance object, made with \code{\link{declare_noncompliance}}.
 #' @export
-make_data <- function(sample, potential_outcomes = NULL,assign_treatment = FALSE,design = NULL, outcome_variable = NULL, reveal_outcome = FALSE,noncompliance = NULL,sep = "_") {
+draw_population <- function(population, potential_outcomes = NULL, sep = "_") {
   
   # Do checks ---------------------------------------------------------------
   
   # Check whether sample provided
-  if(missing(sample)){
-    stop("You must provide an argument to sample, created with declare_sample(). For example, all sample size arguments should be provided to sample through declare_sample().")
+  if(missing(population)){
+    stop("You must provide an argument to population, created with declare_population().")
+  }
+  
+  # Get the covariates ------------------------------------------------------
+  
+  covariates <- get_covariates(population = population)
+  
+  # Make data if POs absent -------------------------------------------------
+  
+  if(is.null(potential_outcomes)){
+    data <- covariates
+  }
+  
+  # Make potential outcomes -------------------------------------------------
+  
+  if(!is.null(potential_outcomes)){
+    
+    outcomes <- loop_potential_outcomes(
+      potential_outcomes = potential_outcomes,
+      covariates = covariates)
+    
+    data <- data.frame(outcomes, covariates)
+
+  }
+  
+  # Return data -------------------------------------------------------------
+  
+  return(data)
+  
+}
+
+#' @export
+draw_sample <- function(population = NULL, population_data = NULL, sampling = NULL, assign_treatment = FALSE, reveal_outcome = FALSE, 
+                        design = NULL, outcome_variable = NULL, noncompliance = NULL, potential_outcomes = NULL, sep = "_") {
+  
+  # Do checks ---------------------------------------------------------------
+  
+  if(all(is.null(population), is.null(population_data))){
+     stop("Please provide either a population object created with declare_population() to population or a data frame created with draw_population() to population_data.")
+  }
+  
+  if(all(!is.null(population), !is.null(population_data))){
+    stop("Please only provide either a population object created with declare_population() to population or a data frame created with draw_population() to population_data.")
   }
   
   # Default to treatment assignment when reveal_outcome = TRUE
@@ -33,49 +67,111 @@ make_data <- function(sample, potential_outcomes = NULL,assign_treatment = FALSE
     }
   }
   
-  # Get the covariates ------------------------------------------------------
-  
-  covariates <- get_covariates(sample = sample)
-  
-  # Make data if POs absent -------------------------------------------------
+  # Extract potential outcomes ------------------------------------------------------
   
   if(is.null(potential_outcomes)){
-    data <- covariates
+    potential_outcomes <- design$potential_outcomes
   }
   
-  # Make potential outcomes -------------------------------------------------
+  # Get the covariates ------------------------------------------------------
   
-  if(!is.null(potential_outcomes)){
-    
-    outcomes <- loop_potential_outcomes(
-      potential_outcomes = potential_outcomes,
-      covariates = covariates)
-    
-    data <- data.frame(outcomes, covariates)
-    
-    # ... and reveal treatment
-    
-    if(assign_treatment){
-      treatment <- loop_treatment(data = data,
-                                  design = design,
-                                  assign_treatment = assign_treatment,
-                                  reveal_outcome = reveal_outcome,
-                                  outcome_variable = outcome_variable,
-                                  sep = sep)
-      
-      data <- data.frame(treatment,data)
-      
-    }
-    
-  }
+  if(is.null(population_data))
+    population_data <- draw_population(population = population, potential_outcomes = potential_outcomes)
+  
+  # Construct strata and clusters ------------------------------------------------------
+  
+  population_data <- make_clusters_strata(data = population_data, sampling = sampling)
+  
+  # Draw the sample ------------------------------------------------------
+  
+  sample_indicator <- draw_sample_indicator(sampling = sampling, population_data = population_data)
+  population_data <- data.frame(population_data, sample_indicator)
+  
+  sample_data <- subset(population_data, sampled == 1, select = -c(sampled))
   
   # Make clusters and blocks ------------------------------------------------  
   
-  data <- make_clusters_blocks(design = design,data = data)
+  sample_data <- make_clusters_blocks(design = design, data = sample_data)
   
+  # Realize design -------------------------------------------------
+  
+  if(assign_treatment){
+    treatment <- loop_treatment(data = sample_data,
+                                design = design,
+                                assign_treatment = assign_treatment,
+                                reveal_outcome = reveal_outcome,
+                                outcome_variable = outcome_variable,
+                                sep = sep)
+    
+    sample_data <- data.frame(treatment, sample_data)
+    
+  }
+
   # Return data -------------------------------------------------------------
   
-  return(data)
+  return(sample_data)
+  
+}
+
+#' draw sample from population
+#'
+#' Description
+#' @param sampling A sampling object created by \code{\link{declare_sampling}}; or a function that samples
+#' @param data A dataframe, often created by \code{\link{make_data}}.
+#' @return A vector of 0's and 1's indicating which population units are sampled.
+#' @export
+draw_sample_indicator <- function(sampling, population_data) {
+  
+  ## should be expanded to take either a design object or a function
+  
+  N <- nrow(population_data)
+  strata_name <- sampling$strata_name
+  cluster_name <- sampling$cluster_name
+  strata_var <- population_data[,strata_name]
+  clust_var <- population_data[,cluster_name]
+  
+  m <- sampling$m
+  prob <- sampling$prob
+  strata_m <- sampling$strata_m
+  strata_prob <- sampling$strata_prob
+  sampling_type <- sampling$sampling_type
+  
+  # For custom random assignment functions
+  if(is.null(sampling_type)){
+    sampling_type <- "custom"
+  }
+  
+  if(!is.null(sampling$custom_assignment_function)){
+    if("data" %in% names(formals(sampling$custom_assignment_function)))
+      Z <- sampling$custom_assignment_function(data = population_data)
+    else
+      Z <- sampling$custom_assignment_function()
+  } 
+  
+  # For "simple" random sampling
+  if(sampling_type=="complete"){
+    Z <- complete_sample(N = N, m = m, prob = prob)
+  }
+  
+  # For stratified random sampling
+  if(sampling_type=="stratified"){
+    Z <- stratified_sample(strata_var = strata_var, strata_m = strata_m, strata_prob = strata_prob)
+  }
+  
+  # For clustered random sampling
+  if(sampling_type=="clustered"){
+    Z <- cluster_sample(clust_var = clust_var, m = m, prob = prob)
+  }
+  
+  # For stratified and clustered sampling
+  if(sampling_type=="stratified and clustered"){
+    Z <- stratified_and_clustered_ra(clust_var = clust_var, strata_var = strata_var, strata_m = strata_m, prob = prob, strata_prob = strata_prob)
+  }
+  
+  ## ADD SAMPLING PROBABILITIES TO DATA NOW
+  ## inclusion_probabilities <- inclusion_probabilities(sample = Z, data = data, sampling = sampling)
+  
+  return(data.frame(sampled = Z, inclusion_probabilities = 1))
   
 }
 
@@ -83,16 +179,15 @@ make_data <- function(sample, potential_outcomes = NULL,assign_treatment = FALSE
 
 
 #' @export
-get_covariates <- function(sample){
-  if ( class(sample) != "sample" )
-    stop("Please send the sample argument an object created using declare_sample. You can send just a data frame to declare_sample to use your own fixed data.")
-  if (!is.null(sample$make_sample)) {
-    covariates <- sample$make_sample()
-  } else {
-    covariates <- sample$data
-  }
-  return(covariates)
+get_covariates <- function(population){
+  if (class(population) != "population" )
+    stop("Please send the population argument an object created using declare_population. You can send just a data frame to declare_population to use your own fixed data.")
+  if(class(population$population) == "function")
+    return(population$population())
+  else if(class(population$population) == "data.frame")
+    return(population$population)
 }
+
 
 #' @export
 make_potential_outcomes <- function(potential_outcomes,covariates,sep = "_"){
@@ -360,6 +455,43 @@ make_clusters_blocks <- function(design,data){
           data, 
           cluster_frame[, c(design$blocks$block_name, design$clusters$cluster_name)], 
           by = design$clusters$cluster_name, all.x = TRUE, all.y = FALSE
+        )
+      
+    }
+  }
+  
+  return(data)
+  
+}
+
+
+#' @export
+make_clusters_strata <- function(sampling, data){
+  if (!is.null(sampling$clusters)) {
+    data <-
+      cbind(data, sampling$clusters$cluster_function(sample = data))
+  }
+  
+  if (!is.null(sampling$strata)) {
+    if (is.null(sampling$strata$call$clusters)) {
+      data <-
+        cbind(data, sampling$strata$strata_function(sample = data))
+    } else {
+      cluster_frame <-
+        unique(data[, c(sampling$clusters$cluster_name, sampling$strata$strata)])
+      if (nrow(cluster_frame) != length(unique(data[,sampling$clusters$cluster_name]))) {
+        stop(
+          "There is more than one level of a cluster-level covariate in at least one cluster, so you cannot block on it. Please construct cluster-level variables that have a single value within clusters."
+        )
+      }
+      cluster_frame[, sampling$strata$strata_name] <-
+        sampling$strata$strata_function(sample = cluster_frame)
+      
+      data <-
+        merge(
+          data, 
+          cluster_frame[, c(sampling$strata$strata_name, sampling$clusters$cluster_name)], 
+          by = sampling$clusters$cluster_name, all.x = TRUE, all.y = FALSE
         )
       
     }

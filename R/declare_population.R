@@ -74,8 +74,10 @@ declare_population <- function(...,
     
   }
   
-  return(list(population = population,
-              call = match.call()))
+  return_object <- list(population = population, call = match.call())
+  class(return_object) <- "population"
+  
+  return(return_object)
   
 }
 
