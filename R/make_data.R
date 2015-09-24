@@ -1,287 +1,257 @@
 #' Make the full dataset or just a sample
 #'
-#' @param potential_outcomes An outcomes_object made with \code{\link{declare_potential_outcomes}}, or a list of outcomes_objects.
-#' @param sample A sample object made with \code{\link{declare_sample}}, or a pre-existing dataframe
-#' @param design A design object, made with \code{\link{declare_design}}
-#' @param N An integer indicating sample size. If sample is provided, this argument is ignored.
+#' @param sample A sample object made with \code{\link{declare_sample}}. Contains sample size, structure, custom-DGP functions, and other information related to baseline.
+#' @param potential_outcomes An optional argument for a potential_outcomes object made with \code{\link{declare_potential_outcomes}}, or a list of potential_outcomes objects. Contains all of the necessary information to construct the potential outcomes revealed by the experiment. Potential outcomes can be a function of previous outcomes in a list of potential outcomes. 
+#' @param assign_treatment An optional argument indicating whether treatment should be assigned as part of make_data(). If TRUE, then the user must also provide arguments to design, outcome_variable, and reveal_outcome (see below). 
+#' @param design An optional argument for a design object, made with \code{\link{declare_design}}, or list of design objects. Contains the randomization procedure and other important information, such as the name of the treatment variable. Must be provided when assign_treatment == TRUE.
+#' @param outcome_variable An optional string with the name of the outcome variable. Must be provided when assign_treatment == TRUE.
+#' @param reveal_outcome An optional argument that reveals the observed outcome under treatment when TRUE. 
 #' @param sep a character string used in the naming of potential outcomes. Defaults to "_".
 #' @param noncompliance A noncompliance object, made with \code{\link{declare_noncompliance}}.
 #' @export
-make_data <-
-  function(potential_outcomes = NULL, sample = NULL, N = NULL, sep = "_", 
-           assign_treatment = FALSE, observed_outcomes = FALSE,
-           design = NULL, treatment_variable = NULL, outcome_variable = NULL,
-           noncompliance = NULL) {
-    
-    if(is.null(potential_outcomes)&assign_treatment){
+make_data <- function(sample, potential_outcomes = NULL,assign_treatment = FALSE,design = NULL, outcome_variable = NULL, reveal_outcome = FALSE,noncompliance = NULL,sep = "_") {
+  
+  # Do checks ---------------------------------------------------------------
+  
+  # Check whether sample provided
+  if(missing(sample)){
+    stop("You must provide an argument to sample, created with declare_sample(). For example, all sample size arguments should be provided to sample through declare_sample().")
+  }
+  
+  # Default to treatment assignment when reveal_outcome = TRUE
+  if(!assign_treatment&reveal_outcome){
+    assign_treatment <- TRUE
+  }
+  
+  # Check that correct arguments provided when assign_treatment == TRUE
+  if(assign_treatment == TRUE){
+    if(is.null(potential_outcomes)){
       stop("If you want to assign treatment, you must provide a potential_outcomes object (see declare_potential_outcomes()).")
     }
-    
-    if(observed_outcomes == TRUE & assign_treatment == FALSE)
-      stop("To reveal outcome variable(s) from a given treatment assignment, set assign_treatment to TRUE.")
-    
-    if((is.null(design) | is.null(treatment_variable)) & assign_treatment){
+    if(is.null(design) | is.null(treatment_variable)){
       stop("If assign_treatment = TRUE, you must supply both the name of the treatment variable (i.e. 'Z', or 'treatment_status') and the design object, declared using declare_design().")
     }
+  }
+  
+  # Get the covariates ------------------------------------------------------
+  
+  covariates <- get_covariates(sample = sample)
+  
+  # Make data if POs absent -------------------------------------------------
+  
+  if(is.null(potential_outcomes)){
+    data <- covariates
+  }
+  
+  # Make potential outcomes -------------------------------------------------
+  
+  if(!is.null(potential_outcomes)){
     
-    ##if(!assign_treatment & (!is.null(design) | !is.null(treatment_variable))){
-    ##  warning("The design and the treatment_variable arguments will only be used if assign_treatment = TRUE.")
-    ##}
+    outcomes <- loop_potential_outcomes(
+      potential_outcomes = potential_outcomes,
+      covariates = covariates)
     
-    if (is.null(sample) & is.null(potential_outcomes))
-      stop("You must provide at least a sample frame or a potential outcomes object.")
+    data <- data.frame(outcomes, covariates)
     
+    # ... and reveal treatment
     
-    if(class(potential_outcomes)=="list"){
-      proportion_check <- sapply(potential_outcomes,function(PO)"population_proportions"%in%names(PO))
-    }else{
-      proportion_check <- "population_proportions"%in%names(potential_outcomes)
-    }
-    
-    if(any(!proportion_check)&any(proportion_check)){
-      stop("Elements of a list of potential_outcomes must all be defined in terms of a unit-level data-generating process or population-level proportions, but may not feature both simultaneously.")
-    }
-    
-    if(!is.null(potential_outcomes)){
-      outcome_variable <- potential_outcomes$outcome_name
-    }
-    
-    if(all(proportion_check)){
+    if(assign_treatment){
+      treatment <- loop_treatment(data = data,
+                                  design = design,
+                                  assign_treatment = assign_treatment,
+                                  reveal_outcome = reveal_outcome,
+                                  outcome_variable = outcome_variable,
+                                  sep = sep)
       
-      if(!is.null(sample)){
-        covariate_frame <- make_data(sample = sample,
-                                     design = design,
-                                     #blocks = blocks,
-                                     #clusters = clusters,
-                                     N = N,sep = sep)
-        if(is.null(N)){
-          N <- dim(covariate_frame)[1]
-        }else{
-          if(dim(covariate_frame)[1]!=N){
-            stop("The sample size implied by sample does not match the N argument you provided to make_data, harmonize them or use only one.")
-          }
-        }
-      }
-      
-      if(is.null(N)){
-        stop("You must provide N if you supply potential outcomes objects defined with population_proportions.")
-      }
-      
-      make_proportions <- function(population_proportions,N){
-        
-        counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
-        
-        con_names <- rownames(population_proportions)
-        
-        outcomes <- apply(counts,2,function(.times){
-          sample(
-            rep(con_names,.times)
-          )
-        })
-        
-        colnames(outcomes) <- colnames(population_proportions)
-        
-        outcomes <- integerize(as.data.frame(outcomes))
-        
-        outcomes <- with_treatment(outcomes,design=design,assign_treatment=assign_treatment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
-        
-        return(outcomes)
-      }
-      
-      
-      
-      if(class(potential_outcomes)=="list"){
-        
-        prop_PO_list <- lapply(1:length(proportion_check),function(i){
-          prop_PO <- make_proportions(population_proportions = potential_outcomes[[i]]$population_proportions,
-                                      N = N
-          )
-          names(prop_PO) <- paste0(potential_outcomes[[i]]$proportion_outcome_name,
-                                   sep,
-                                   potential_outcomes[[i]]$condition_names
-          )
-          prop_PO <- integerize(prop_PO)
-          prop_PO <- with_treatment(prop_PO,design=design,assign_treatment=assign_treatment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
-          return(prop_PO)
-        })
-        
-        return_frame <- data.frame(prop_PO_list[[1]])
-        
-        for(i in 2:length(prop_PO_list)){
-          
-          return_frame <- data.frame(return_frame,prop_PO_list[[i]])
-        }
-        
-      }else{
-        
-        return_frame <- make_proportions(population_proportions = potential_outcomes$population_proportions,
-                                         N = N
-        )
-        names(return_frame) <- paste0(potential_outcomes$outcome_name,
-                                      sep,
-                                      potential_outcomes$condition_names
-        )
-        
-      }
-      if(!is.null(sample)){
-        return_frame <- data.frame(return_frame,covariate_frame)
-      }
-      
-      # convert factors to integers
-      
-      return_frame <- integerize(return_frame)
-      return_frame <- with_treatment(return_frame,design=design,assign_treatment=assign_treatment,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
-      
-      return(return_frame)
+      data <- data.frame(treatment,data)
       
     }
     
-    if(!is.null(potential_outcomes) & all(sapply(potential_outcomes, class) == "potential_outcomes")) {
-      return_frame <-
-        make_data(
-          potential_outcomes = potential_outcomes[[1]],
-          sample = sample,
-          design = design,
-          #blocks = blocks,
-          #clusters = clusters,
-          N = N,
-          sep = sep
-        )
-      
-      for (i in 2:length(potential_outcomes)) {
-        return_frame <-
-          make_data(
-            potential_outcomes = potential_outcomes[[i]],
-            sample = declare_sample(data = return_frame)
-          )
-      }
-      
-      return_frame <- integerize(return_frame)
-      
-      return(return_frame)
-    }else{
-      if (!is.null(potential_outcomes)) {
-        condition_names  <- potential_outcomes$condition_names
-        outcome_formula  <- potential_outcomes$outcome_formula
-        covariate_names  <-
-          all.vars(outcome_formula)[!all.vars(outcome_formula) %in% condition_names][-1]
-        outcome_name     <- all.vars(outcome_formula)[1]
-        if (length(covariate_names) > 0) {
-          model_formula    <-
-            as.formula(paste0(
-              outcome_name," ~ ", paste(covariate_names,collapse = "+")
-            ))
-        } else{
-          model_formula <- NULL
-        }
-      }
-      # Check whether sample_object is sample class or a user-supplied matrix
-      
-      if (is.null(sample) |
-          class(sample) != "sample")
-        stop(
-          "Please send the sample argument an object created using declare_sample. You can send just a data frame to declare_sample to use your own fixed data."
-        )
-      
-      if (!is.null(sample$make_sample)) {
-        X <- sample$make_sample()
-        
-      } else {
-        X <- sample$data
-      }
-      
-      if (is.null(potential_outcomes)){
-        return(X)
-      }
-      
-      ## Check that all of the variables in the formula are in the X matrix
-      ## or in the treatment names
-      ## Check that the baseline is nested in the treatment formula
-      if (FALSE %in% (all.vars(outcome_formula)[-1] %in% c(names(X),condition_names)))
-        stop(
-          "All of the variables in the formula should either be in the sample matrix or in the condition_names of the design_object."
-        )
-      treat_mat <- diag(length(condition_names))
-      colnames(treat_mat) <- condition_names
-      
-      # Make a function that generates potential outcomes as a function of
-      # all of the variables (treatment assignment, sample) and some normal noise
-      
-      gen_outcome  <- eval(parse(
-        text = paste0(
-          "function(slice){y <- with(slice,{",outcome_formula[3],"});return(y)}"
-        )
-      ))
-      
-      outcomes <- matrix(
-        data = NA,
-        nrow = dim(X)[1],
+  }
+  
+  # Make clusters and blocks ------------------------------------------------  
+  
+  data <- make_clusters_blocks(design = design,data = data)
+  
+  # Return data -------------------------------------------------------------
+  
+  return(data)
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' @export
+get_covariates <- function(sample){
+  if ( class(sample) != "sample" )
+    stop("Please send the sample argument an object created using declare_sample. You can send just a data frame to declare_sample to use your own fixed data.")
+  if (!is.null(sample$make_sample)) {
+    covariates <- sample$make_sample()
+  } else {
+    covariates <- sample$data
+  }
+  return(covariates)
+}
+
+#' @export
+make_potential_outcomes <- function(potential_outcomes,covariates,sep = "_"){
+  
+  N <- dim(covariates)[1]
+  
+  covariate_colnames <- NULL
+  
+  # Grab names
+  outcome_name <- potential_outcomes$outcome_name
+  condition_names  <- potential_outcomes$condition_names
+  
+  # Check if it is proportions 
+  proportion_check <- "population_proportions"%in%names(potential_outcomes)
+  
+  # Proportional case
+  if(proportion_check){
+    if(is.null(N)){
+      stop("You must provide N if you supply potential outcomes objects defined with population_proportions.")}
+    
+    outcomes <- make_proportion_outcomes(
+      potential_outcomes = potential_outcomes,
+      sep = sep,
+      N = N)
+    
+  }
+  
+  # Non-Proportional case
+  if(!proportion_check){
+    
+    # Grab outcome formula properties 
+    outcome_formula <- potential_outcomes$outcome_formula
+    covariate_names  <-
+      all.vars(outcome_formula)[!all.vars(outcome_formula) %in% condition_names][-1]
+    covariate_colnames <- colnames(covariates)
+    PO_names <- paste0(outcome_name,sep,condition_names)
+    
+    # Check that all variables in formula are in the data
+    variable_names_match <- all(all.vars(outcome_formula)[-1] %in% c(covariate_colnames,condition_names))
+    
+    if (!variable_names_match)
+      stop(
+        "All of the variables in the formula should either be in the names of the covariates or in the condition_names of the potential_outcomes.")
+    
+    
+    
+    # Make function for generating potential outcomess
+    gen_outcome  <- eval(parse(
+      text = paste0(
+        "function(slice){y <- with(slice,{",outcome_formula[3],"});return(y)}"
+      )
+    ))
+    
+    # Loop the outcome function through the data and different values of the 
+    # treatment variable
+    
+    outcomes <- matrix(
+      data = NA,
+      nrow = N,
+      ncol = length(condition_names),
+      dimnames = list(NULL,condition_names)
+    )
+    
+    for (l in condition_names) {
+      treat_mat <- matrix(
+        data = 0,
+        nrow = N,
         ncol = length(condition_names),
         dimnames = list(NULL,condition_names)
       )
+      treat_mat[,l] <- 1
       
-      for (l in condition_names) {
-        treat_mat <- matrix(
-          data = 0,
-          nrow = dim(X)[1],
-          ncol = length(condition_names),
-          dimnames = list(NULL,condition_names)
-        )
-        treat_mat[,l] <- 1
-        
-        data <- data.frame(treat_mat,X)
-        
-        outcomes[,l] <- gen_outcome(data) #+ epsilon
-        
-      }
+      data <- data.frame(treat_mat,covariates)
       
-      colnames(outcomes) <- paste0(outcome_name,sep,condition_names)
+      outcomes[,l] <- gen_outcome(data) 
       
-      return_frame <- data.frame(outcomes)
-      return_frame$make_data_sort_id <- 1:nrow(return_frame)
-      if (!is.null(sample)) {
-        return_frame <- cbind(return_frame, X)
-      }
-      if (!is.null(design$clusters)) {
-        return_frame <-
-          cbind(return_frame, design$clusters$cluster_function(return_frame))
-      }
-      
-      if (!is.null(design$blocks)) {
-        if (is.null(design$blocks$call$clusters)) {
-          return_frame <-
-            cbind(return_frame, design$blocks$blocks_function(return_frame))
-        } else {
-          cluster_frame <-
-            unique(return_frame[, c(design$clusters$cluster_name, design$blocks$call$blocks)])
-          if (nrow(cluster_frame) != length(unique(return_frame[,design$clusters$cluster_name]))) {
-            stop(
-              "There is more than one level of a cluster-level covariate in at least one cluster, so you cannot block on it. Please construct cluster-level variables that have a single value within clusters."
-            )
-          }
-          cluster_frame[, design$blocks$block_name] <-
-            design$blocks$blocks_function(cluster_frame)
-          
-          return_frame <-
-            merge(
-              return_frame, 
-              cluster_frame[, c(design$blocks$block_name, design$clusters$cluster_name)], 
-              by = design$clusters$cluster_name, all.x = TRUE, all.y = FALSE
-            )
-          
-        }
-      }
-      
-      return_frame <-
-        return_frame[order(return_frame$make_data_sort_id),]
-      return_frame$make_data_sort_id <- NULL
-      
-      return_frame <- integerize(return_frame)
-      return_frame <- with_treatment(return_frame,design=design,assign_treatment=assign_treatment,observed_outcomes=observed_outcomes,treatment_variable=treatment_variable,outcome_variable=outcome_variable,sep = sep)
-      
-      return(return_frame)
     }
+    
+    colnames(outcomes) <- PO_names
+    
   }
+  return(outcomes)
+}
+
+#' @export
+loop_potential_outcomes <- function(potential_outcomes,covariates,sep = "_"){
+  
+  is_list <- class(potential_outcomes)=="list" 
+  is_PO <- class(potential_outcomes)=="potential_outcomes"
+  
+  if(is_list){
+    is_PO <- all(sapply(potential_outcomes,class)=="potential_outcomes")
+  }
+  
+  if(!is_PO&!is_list){
+    stop("You must give potential_outcomes a potential_outcomes object or a list of potential_outcomes objects.")
+  }
+  
+  if(is_PO&!is_list){
+    potential_outcomes <- list(potential_outcomes)
+  }
+  
+  outcome_list <- lapply(potential_outcomes,
+                         FUN = make_potential_outcomes,
+                         covariates = covariates,
+                         sep = sep)
+  
+  
+  
+  outcomes <- do.call(cbind,outcome_list)
+  
+  return(outcomes)
+  
+}
+
+#' @export
+make_proportion_outcomes <- function(potential_outcomes,N,sep = "_"){
+  return_frame <- make_proportions(
+    population_proportions = potential_outcomes$population_proportions,
+    N = N)
+  
+  names(return_frame) <- paste0(potential_outcomes$outcome_name,sep,
+                                potential_outcomes$condition_names)
+  return(return_frame)
+}
+
+#' @export
+make_proportions <- function(population_proportions,N){
+  counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
+  con_names <- rownames(population_proportions)
+  outcomes <- apply(counts,2,function(reps){
+    sample(
+      rep(con_names,reps)
+    )
+  })
+  colnames(outcomes) <- colnames(population_proportions)
+  outcomes <- integerize(as.data.frame(outcomes))
+  return(outcomes)
+}
 
 #' @export
 integerize <- function(data_frame){
@@ -308,23 +278,120 @@ integerize <- function(data_frame){
   return(data_frame)
 }
 
-
 #' @export
-with_treatment <- function(X, design, assign_treatment, observed_outcomes, treatment_variable, outcome_variable, sep){
-  if(assign_treatment == TRUE){
-    X <- as.data.frame(X)
-    X[,treatment_variable] <- assign_treatment(design = design, data = X)
-    if(observed_outcomes == TRUE){
-      X[,outcome_variable] <- observed_outcome(outcome = outcome_variable, 
-                                               treatment_assignment = treatment_variable, 
-                                               data = X, sep = sep)
-    }
+with_treatment <- function(data,design,assign_treatment,reveal_outcome,outcome_variable,sep){
+  # Get treatment variable name
+  treatment_variable <- design$treatment_variable
+  
+  # Assign treatment 
+  data[,treatment_variable] <- assign_treatment(design = design, data = data)
+  
+  # Reveal outcome
+  if(reveal_outcome){
+    data$outcome <- observed_outcome(outcome = outcome_variable, 
+                                     treatment_assignment = treatment_variable, 
+                                     data = data, sep = sep)
+    treat_obs_out <- data.frame(data[,treatment_variable],data$outcome)
+    colnames(treat_obs_out) <- c(treatment_variable,outcome_variable)
+    return(treat_obs_out)
   }
-  return(X)
+  treatment <- matrix(data = data[,treatment_variable],
+                      nrow = nrow(data),
+                      ncol = 1,
+                      dimnames = list(NULL,
+                                      treatment_variable))
+  return(data.frame(treatment))
 }
 
+#' @export
+loop_treatment <- function(data,design,assign_treatment,reveal_outcome,outcome_variable,sep){
+  
+  is_list <- class(design)=="list" 
+  is_design <- class(design)=="design"
+  
+  if(is_list){
+    is_design <- all(sapply(design,class)=="design")
+  }
+  
+  if(!is_design&!is_list){
+    stop("You must give potential_outcomes a potential_outcomes object or a list of potential_outcomes objects.")
+  }
+  
+  if(is_design&!is_list){
+    design <- list(design)
+  }
+  
+  treatment_list <- lapply(design,
+                           FUN = with_treatment,
+                           data = data,
+                           assign_treatment = assign_treatment,
+                           reveal_outcome = reveal_outcome,
+                           outcome_variable = outcome_variable,
+                           sep = sep
+  )
+  
+  
+  
+  treatments <- do.call(cbind,treatment_list)
+  
+  return(treatments)
+}
 
+#' @export
+make_proportions <- function(population_proportions,N){
+  
+  counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
+  
+  con_names <- rownames(population_proportions)
+  
+  outcomes <- apply(counts,2,function(times){
+    sample(
+      rep(con_names,times = times)
+    )
+  })
+  
+  colnames(outcomes) <- colnames(population_proportions)
+  
+  outcomes <- integerize(as.data.frame(outcomes))
+  
+  return(outcomes)
+}
 
+#' @export
+make_clusters_blocks <- function(design,data){
+  if (!is.null(design$clusters)) {
+    data <-
+      cbind(data, design$clusters$cluster_function(sample = data))
+  }
+  
+  if (!is.null(design$blocks)) {
+    if (is.null(design$blocks$call$clusters)) {
+      data <-
+        cbind(data, design$blocks$blocks_function(sample = data))
+    } else {
+      cluster_frame <-
+        unique(data[, c(design$clusters$cluster_name, design$blocks$call$blocks)])
+      if (nrow(cluster_frame) != length(unique(data[,design$clusters$cluster_name]))) {
+        stop(
+          "There is more than one level of a cluster-level covariate in at least one cluster, so you cannot block on it. Please construct cluster-level variables that have a single value within clusters."
+        )
+      }
+      cluster_frame[, design$blocks$block_name] <-
+        design$blocks$blocks_function(sample = cluster_frame)
+      
+      data <-
+        merge(
+          data, 
+          cluster_frame[, c(design$blocks$block_name, design$clusters$cluster_name)], 
+          by = design$clusters$cluster_name, all.x = TRUE, all.y = FALSE
+        )
+      
+    }
+  }
+  
+  return(data)
+  
+}
 
 
 
