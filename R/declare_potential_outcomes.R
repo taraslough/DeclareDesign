@@ -23,7 +23,14 @@ declare_potential_outcomes <- function(condition_names = NULL, outcome_formula =
         stop("Population proportions must be in the interval [0,1].")
       }
       
+      
       failure_prob <- rep(1,length(population_proportions))-population_proportions
+      
+      prop_names <- names(population_proportions)
+      
+      if(is.null(condition_names)&!is.null(prop_names)){
+        condition_names <- prop_names
+      }
       
       population_proportions <- matrix(
         data = c(failure_prob,
