@@ -45,10 +45,9 @@ assign_treatment <- function(design, data) {
   ## should be expanded to take either a design object or a function
   
   N <- nrow(data)
-  block_name <- design$block_name
-  cluster_name <- design$cluster_name
-  block_var <- data[,block_name]
-  clust_var <- data[,cluster_name]
+
+  block_var <- data[,design$block_variable_name]
+  clust_var <- data[,design$cluster_variable_name]
   
   condition_names <- design$condition_names
   baseline_condition <- design$baseline_condition

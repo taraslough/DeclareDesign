@@ -92,10 +92,9 @@ draw_sample_indicator <- function(sampling, population_data) {
   ## should be expanded to take either a design object or a function
   
   N <- nrow(population_data)
-  strata_name <- sampling$strata_name
-  cluster_name <- sampling$cluster_name
-  strata_var <- population_data[,strata_name]
-  clust_var <- population_data[,cluster_name]
+
+  strata_var <- population_data[,sampling$strata_variable_name]
+  clust_var <- population_data[,sampling$cluster_variable_name]
   
   m <- sampling$m
   prob <- sampling$prob
