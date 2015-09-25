@@ -17,7 +17,7 @@ draw_population <- function(population, potential_outcomes = NULL, sep = "_") {
   # Make data if POs absent -------------------------------------------------
   
   if(is.null(potential_outcomes)){
-    data <- covariates
+    population_data <- covariates
   }
   
   # Make potential outcomes -------------------------------------------------
@@ -28,59 +28,44 @@ draw_population <- function(population, potential_outcomes = NULL, sep = "_") {
       potential_outcomes = potential_outcomes,
       covariates = covariates)
     
-    data <- data.frame(outcomes, covariates)
-
+    population_data <- data.frame(outcomes, covariates)
+    
   }
   
   # Return data -------------------------------------------------------------
   
-  return(data)
+  return(population_data)
   
 }
 
 #' @export
-draw_sample <- function(population = NULL, population_data = NULL, sampling = NULL, assign_treatment = FALSE, reveal_outcome = FALSE, 
-                        design = NULL, outcome_variable = NULL, noncompliance = NULL, potential_outcomes = NULL, sep = "_") {
+draw_sample <- function(population = NULL, population_data = NULL, sampling = NULL, noncompliance = NULL) {
   
   # Do checks ---------------------------------------------------------------
   
   if(all(is.null(population), is.null(population_data))){
-     stop("Please provide either a population object created with declare_population() to population or a data frame created with draw_population() to population_data.")
+    stop("Please provide either a population object created with declare_population() to population or a data frame created with draw_population() to population_data.")
   }
   
   if(all(!is.null(population), !is.null(population_data))){
     stop("Please only provide either a population object created with declare_population() to population or a data frame created with draw_population() to population_data.")
   }
   
-  # Default to treatment assignment when reveal_outcome = TRUE
-  if(!assign_treatment&reveal_outcome){
-    assign_treatment <- TRUE
-  }
-  
-  # Check that correct arguments provided when assign_treatment == TRUE
-  if(assign_treatment == TRUE){
-    if(is.null(potential_outcomes)){
-      stop("If you want to assign treatment, you must provide a potential_outcomes object (see declare_potential_outcomes()).")
-    }
-    if(is.null(design) | is.null(treatment_variable)){
-      stop("If assign_treatment = TRUE, you must supply both the name of the treatment variable (i.e. 'Z', or 'treatment_status') and the design object, declared using declare_design().")
-    }
-  }
-  
-  # Extract potential outcomes ------------------------------------------------------
-  
-  if(is.null(potential_outcomes)){
-    potential_outcomes <- design$potential_outcomes
-  }
-  
   # Get the covariates ------------------------------------------------------
   
-  if(is.null(population_data))
+  if(is.null(population_data)){
     population_data <- draw_population(population = population, potential_outcomes = potential_outcomes)
+  }
   
-  # Construct strata and clusters ------------------------------------------------------
+  # Construct strata and clusters if custom functions --------------------------------------------------
   
-  population_data <- make_clusters_strata(data = population_data, sampling = sampling)
+  if(!is.null(sampling$custom_cluster_function)){
+    population_data[, sampling$cluster_variable_name] <- sampling$custom_cluster_function
+  }
+  
+  if(!is.null(sampling$custom_strata_function)) { 
+    population_data[, sampling$strata_variable_name] <- sampling$custom_strata_function
+  }
   
   # Draw the sample ------------------------------------------------------
   
@@ -89,24 +74,6 @@ draw_sample <- function(population = NULL, population_data = NULL, sampling = NU
   
   sample_data <- subset(population_data, sampled == 1, select = -c(sampled))
   
-  # Make clusters and blocks ------------------------------------------------  
-  
-  sample_data <- make_clusters_blocks(design = design, data = sample_data)
-  
-  # Realize design -------------------------------------------------
-  
-  if(assign_treatment){
-    treatment <- loop_treatment(data = sample_data,
-                                design = design,
-                                assign_treatment = assign_treatment,
-                                reveal_outcome = reveal_outcome,
-                                outcome_variable = outcome_variable,
-                                sep = sep)
-    
-    sample_data <- data.frame(treatment, sample_data)
-    
-  }
-
   # Return data -------------------------------------------------------------
   
   return(sample_data)
@@ -155,7 +122,7 @@ draw_sample_indicator <- function(sampling, population_data) {
   
   # For stratified random sampling
   if(sampling_type=="stratified"){
-    Z <- stratified_sample(strata_var = strata_var, strata_m = strata_m, strata_prob = strata_prob)
+    Z <- stratified_sample(strata_var = strata_var, strata_m = strata_m, strata_prob = strata_prob, prob = prob)
   }
   
   # For clustered random sampling
@@ -313,19 +280,6 @@ make_proportion_outcomes <- function(potential_outcomes,N,sep = "_"){
 }
 
 
-# make_proportions <- function(population_proportions,N){
-#   counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
-#   con_names <- rownames(population_proportions)
-#   outcomes <- apply(counts,2,function(reps){
-#     sample(
-#       rep(con_names,reps)
-#     )
-#   })
-#   colnames(outcomes) <- colnames(population_proportions)
-#   outcomes <- integerize(as.data.frame(outcomes))
-#   return(outcomes)
-# }
-
 #' @export
 integerize <- function(data_frame){
   for(i in 1:ncol(data_frame)){
@@ -402,7 +356,7 @@ loop_treatment <- function(data,design,assign_treatment,reveal_outcome,outcome_v
                            outcome_variable = outcome_variable,
                            sep = sep
   )
-
+  
   treatments <- do.call(cbind.data.frame,treatment_list)
   
   return(treatments)
@@ -427,80 +381,4 @@ make_proportions <- function(population_proportions,N){
   
   return(outcomes)
 }
-
-#' @export
-make_clusters_blocks <- function(design,data){
-  if (!is.null(design$clusters)) {
-    data <-
-      cbind(data, design$clusters$cluster_function(sample = data))
-  }
-  
-  if (!is.null(design$blocks)) {
-    if (is.null(design$blocks$call$clusters)) {
-      data <-
-        cbind(data, design$blocks$blocks_function(sample = data))
-    } else {
-      cluster_frame <-
-        unique(data[, c(design$clusters$cluster_name, design$blocks$call$blocks)])
-      if (nrow(cluster_frame) != length(unique(data[,design$clusters$cluster_name]))) {
-        stop(
-          "There is more than one level of a cluster-level covariate in at least one cluster, so you cannot block on it. Please construct cluster-level variables that have a single value within clusters."
-        )
-      }
-      cluster_frame[, design$blocks$block_name] <-
-        design$blocks$blocks_function(sample = cluster_frame)
-      
-      data <-
-        merge(
-          data, 
-          cluster_frame[, c(design$blocks$block_name, design$clusters$cluster_name)], 
-          by = design$clusters$cluster_name, all.x = TRUE, all.y = FALSE
-        )
-      
-    }
-  }
-  
-  return(data)
-  
-}
-
-
-#' @export
-make_clusters_strata <- function(sampling, data){
-  if (!is.null(sampling$clusters)) {
-    data <-
-      cbind(data, sampling$clusters$cluster_function(sample = data))
-  }
-  
-  if (!is.null(sampling$strata)) {
-    if (is.null(sampling$strata$call$clusters)) {
-      data <-
-        cbind(data, sampling$strata$strata_function(sample = data))
-    } else {
-      cluster_frame <-
-        unique(data[, c(sampling$clusters$cluster_name, sampling$strata$strata)])
-      if (nrow(cluster_frame) != length(unique(data[,sampling$clusters$cluster_name]))) {
-        stop(
-          "There is more than one level of a cluster-level covariate in at least one cluster, so you cannot block on it. Please construct cluster-level variables that have a single value within clusters."
-        )
-      }
-      cluster_frame[, sampling$strata$strata_name] <-
-        sampling$strata$strata_function(sample = cluster_frame)
-      
-      data <-
-        merge(
-          data, 
-          cluster_frame[, c(sampling$strata$strata_name, sampling$clusters$cluster_name)], 
-          by = sampling$clusters$cluster_name, all.x = TRUE, all.y = FALSE
-        )
-      
-    }
-  }
-  
-  return(data)
-  
-}
-
-
-
 

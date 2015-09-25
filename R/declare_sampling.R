@@ -1,53 +1,45 @@
 #' @export
 declare_sampling <- function(prob = NULL,
-                             strata = NULL, 
-                             clusters = NULL,
+                             strata_variable_name = NULL, 
+                             cluster_variable_name = NULL,
                              m = NULL, 
                              strata_m = NULL, 
                              strata_prob = NULL,
-                             custom_sampling_function = NULL) {
+                             custom_sampling_function = NULL,
+                             custom_strata_function = NULL,
+                             custom_cluster_function = NULL) {
   
   # Determine design type
   sampling_type <- "complete"  ## what should this be called. Simple? 
-  if(!is.null(strata)) {sampling_type <- "stratified"}
-  if(!is.null(clusters)) {sampling_type <- "clustered"}
-  if(!is.null(clusters) & !is.null(strata)) {
+  if(!is.null(strata_variable_name)) {sampling_type <- "stratified"}
+  if(!is.null(cluster_variable_name)) {sampling_type <- "clustered"}
+  if(!is.null(cluster_variable_name) & !is.null(strata_variable_name)) {
     sampling_type <- "stratified and clustered"
   }
   
-  # Figure out strata
-  if(!is.null(strata) & is.character(strata)){
-    strata <- declare_strata(strata = strata, recode = FALSE)
+  # Checks ------------------------------------------------------------------
+  if(sampling_type == "stratified" & !is.null(m)){
+    stop("Please do not specify m in a stratified design.  Use strata_m or strata_prob instead.")
   }
   
-  if(!is.null(strata) & !is.character(strata)){
-    strata_name <- strata$strata_name
+  if(!is.null(custom_strata_function) & !is.character(strata_variable_name)){
+    stop("If you supply a custom strata function, you must supply the name of the strata variable.")
   }
   
-  if(is.null(strata)){strata_name=NULL}
-  
-  # Figure out cluster name
-  if(!is.null(clusters) & is.character(clusters)){
-    clusters_internal <- clusters
-    clusters <- declare_clusters(clusters = clusters_internal, cluster_name = "sampling_cluster_variable")
-  }  
-  
-  if(!is.null(clusters) & !is.character(clusters)){
-    cluster_name <- clusters$cluster_name
+  if(!is.null(custom_cluster_function) & !is.character(cluster_variable_name)){
+    stop("If you supply a custom cluster function, you must supply the name of the cluster variable.")
   }
-  
-  if(is.null(clusters)){cluster_name=NULL}
-  
+
   if(is.null(custom_sampling_function)){
     return.object <- list(prob = prob,
-                          strata_name = strata_name,
-                          cluster_name = cluster_name,
+                          strata_variable_name = strata_variable_name,
+                          cluster_variable_name = cluster_variable_name,
                           m = m,
                           strata_m = strata_m,
                           strata_prob = strata_prob,
                           sampling_type = sampling_type,
-                          strata = strata,
-                          clusters = clusters,
+                          custom_strata_function = custom_strata_function,
+                          custom_cluster_function = custom_cluster_function,
                           call = match.call())
   } else {
     return.object <- list(
@@ -60,24 +52,33 @@ declare_sampling <- function(prob = NULL,
 
 
 
+
+
+
 #' @export
 complete_sample <- function(N, m = NULL, prob = NULL){
   prob_each <- NULL
   
   if(!is.null(prob)){
-    prob_each <- c(1-prob, prob)
+    prob_each <- c(1 - prob, prob)
   }
   complete_ra(N = N, m = m, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 #' @export
-stratified_sample <- function(strata_var, strata_m = NULL, strata_prob = NULL){
+stratified_sample <- function(strata_var, prob = NULL, strata_m = NULL, strata_prob = NULL){
+  prob_each <- NULL
+  
+  if(!is.null(prob)){
+    prob_each <- c(1 - prob, prob)
+  }
   
   block_prob <- NULL
   if(!is.null(strata_prob)){
     block_prob <- cbind(1-strata_prob, strata_prob)  
   }
-  block_ra(block_var = strata_var, block_m = strata_m, block_prob = block_prob, condition_names = c(0,1), baseline_condition = 0)
+  
+  block_ra(block_var = strata_var, block_m = strata_m, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 

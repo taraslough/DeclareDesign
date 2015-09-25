@@ -6,13 +6,15 @@ library(experimentr)
 context("Simple experiment with blocking and clustering")
 
 test_that("test a simple experiment with blocking and clustering works with various functions", {
-  sample <- declare_sample(
+  sample <- declare_population(
     individuals = list(
       income = declare_variable()),
     villages = list(
       development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
     ),
     N_per_level = c(1000, 200))
+  
+  
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),

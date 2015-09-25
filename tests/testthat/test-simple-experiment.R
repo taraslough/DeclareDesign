@@ -7,7 +7,11 @@ context("Simple experiment")
 
 test_that("test whether a simple experiment can be pre-registered", {
   
-  smp <- declare_sample(N = 850)
+  pop <- declare_population(individuals = list(noise = declare_variable()),
+                            villages = list(),
+                            N_per_level = c(1000, 10))
+  
+  smp <- declare_sampling(prob = .1, strata = "villages_id")
   
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
@@ -15,12 +19,18 @@ test_that("test whether a simple experiment can be pre-registered", {
   design <- declare_design(potential_outcomes = po)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
+  
+  pop_draw <- draw_population(population = pop, potential_outcomes = po)
+  
+  smp_draw <- draw_sample(population_data = pop_draw, sampling = smp)
+  
+  data <- reveal_design(data = smp_draw, design = design)
 
   sims <- diagnose(potential_outcomes = po, 
-                              sample =  smp, 
-                              design = design, 
-                              analysis = analysis_1, 
-                              sims = 100)
+                   sample =  smp, 
+                   design = design, 
+                   analysis = analysis_1, 
+                   sims = 100)
   summary(sims)
   
   # Run analysis on a single realization

@@ -3,27 +3,92 @@ rm(list=ls())
 library(testthat)
 library(experimentr)
 
-context("Assignment and probability functions")
+context("test sampling strategies")
 
-test_that("test assignment and probability functions", {
+test_that("test sampling from population with no clusters or strata", {
   
-  pop <- declare_population(
-    individuals = list(
-      income = declare_variable()),
-    villages = list(
-      development_level = declare_variable(multinomial_probabilities = 1:5/sum(1:5))
-    ),
-    N_per_level = c(100000, 2000))
+  pop <- declare_population(N = 5000)
   
-  pop_draw <- draw_population(population = pop)
+  smp <- declare_sampling(m = 500)
   
-  smpl_complete <- declare_sampling(prob = .02)
+  po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+                                   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
-  smpl_draw_complete <- draw_sample(smpl_complete, data = pop_draw)
+  design <- declare_design(potential_outcomes = po)
   
-  smpl_stratified <- declare_sampling(prob = .02, strata = "villages_id")
+  pop_draw <- draw_population(population = pop, potential_outcomes = po)
   
-  smpl_draw_stratified <- draw_sample(smpl_stratified, data = pop_draw)
+  smp_draw <- draw_sample(population_data = pop_draw, sampling = smp)
   
+  expect_equal(nrow(pop_draw),  5000)
+  expect_equal(nrow(smp_draw),  500)
+  
+})
+
+test_that("with strata only", {
+  
+  pop <- declare_population(individuals = list(income = declare_variable()), villages = list(),
+                            N_per_level = c(5000, 50))
+  
+  smp <- declare_sampling(prob = 0.1, strata = "villages_id")
+  
+  po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+                                   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+  
+  design <- declare_design(potential_outcomes = po)
+  
+  pop_draw <- draw_population(population = pop, potential_outcomes = po)
+  
+  smp_draw <- draw_sample(population_data = pop_draw, sampling = smp)
+  
+  expect_equal(nrow(pop_draw),  5000)
+  expect_equal(nrow(smp_draw),  500)
+  expect_equal(unique(table(smp_draw$villages_id)), 10)
+  
+})
+
+test_that("with clusters only", {
+  
+  pop <- declare_population(individuals = list(income = declare_variable()), villages = list(),
+                            N_per_level = c(5000, 50))
+  
+  smp <- declare_sampling(prob = 0.1, clusters = "villages_id")
+  
+  po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+                                   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+  
+  design <- declare_design(potential_outcomes = po)
+  
+  pop_draw <- draw_population(population = pop, potential_outcomes = po)
+  
+  smp_draw <- draw_sample(population_data = pop_draw, sampling = smp)
+  
+  expect_equal(nrow(pop_draw),  5000)
+  expect_equal(nrow(smp_draw),  500)
+  expect_equal(unique(table(smp_draw$villages_id)), 100)
+  expect_equal(length(unique(smp_draw$villages_id)), 5)
+  
+})
+
+test_that("with clusters and strata", {
+  
+  pop <- declare_population(individuals = list(income = declare_variable()), villages = list(), regions = list(),
+                            N_per_level = c(5000, 50, 5))
+
+  smp <- declare_sampling(prob = 0.1, clusters = "villages_id", strata = "regions_id")
+  
+  po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+                                   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+  
+  design <- declare_design(potential_outcomes = po)
+  
+  pop_draw <- draw_population(population = pop, potential_outcomes = po)
+  
+  smp_draw <- draw_sample(population_data = pop_draw, sampling = smp)
+  
+  expect_equal(nrow(pop_draw),  5000)
+  expect_equal(nrow(smp_draw),  500)
+  expect_equal(unique(table(smp_draw$villages_id)), 100)
+  expect_equal(length(unique(smp_draw$villages_id)), 5)
   
 })

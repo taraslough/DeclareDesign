@@ -1,3 +1,30 @@
+#' @export
+reveal_design <- function(data, design, outcome_variable = "Y", sep = "_") {
+  
+  # Make clusters and blocks ------------------------------------------------  
+  
+  if(!is.null(design$custom_cluster_function)){
+    data[, design$cluster_variable_name] <- design$custom_cluster_function
+  }
+  
+  if(!is.null(design$custom_block_function)) { 
+    data[, design$block_variable_name] <- design$custom_block_function
+  }
+  
+  # Realize design -------------------------------------------------
+  treatment <- loop_treatment(data = data,
+                              design = design,
+                              assign_treatment = T,
+                              reveal_outcome = T,
+                              outcome_variable = outcome_variable,
+                              sep = sep)
+  
+  data <- data.frame(treatment, data)
+  
+  return(data)
+  
+}
+
 #' Assign treatment status
 #'
 #' Description
