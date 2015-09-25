@@ -28,7 +28,7 @@ make_data <- function(sample, potential_outcomes = NULL,assign_treatment = FALSE
     if(is.null(potential_outcomes)){
       stop("If you want to assign treatment, you must provide a potential_outcomes object (see declare_potential_outcomes()).")
     }
-    if(is.null(design) | is.null(treatment_variable)){
+    if(is.null(design)){
       stop("If assign_treatment = TRUE, you must supply both the name of the treatment variable (i.e. 'Z', or 'treatment_status') and the design object, declared using declare_design().")
     }
   }
