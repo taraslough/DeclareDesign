@@ -8,7 +8,7 @@ plot_outcomes(data, outcome_names, color_palette = NULL, barplot = FALSE,
   density = FALSE, histogram = FALSE, ...)
 }
 \arguments{
-\item{data}{The dataframe that contains the outcomes to plot (i.e. made using \code{\link{make_data}})}
+\item{data}{The dataframe that contains the outcomes to plot (i.e. made using \code{\link{draw_population}} or \code{\link{draw_sample}})}
 
 \item{outcome_names}{A vector of names of the outcomes to plot}
 

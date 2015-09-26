@@ -9,7 +9,7 @@ draw_sample_indicator(sampling, population_data)
 \arguments{
 \item{sampling}{A sampling object created by \code{\link{declare_sampling}}; or a function that samples}
 
-\item{data}{A dataframe, often created by \code{\link{make_data}}.}
+\item{data}{A dataframe, often created by \code{\link{draw_population}}.}
 }
 \value{
 A vector of 0's and 1's indicating which population units are sampled.

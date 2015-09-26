@@ -3,16 +3,17 @@
 #'
 #' Description
 #' @param design A design object created by \code{\link{declare_design}}; or a function that assigns treatment
-#' @param data A dataframe, often created by \code{\link{make_data}}.
+#' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @return A matrix of probabilities of assignment to treatment.
 #' @examples
-#' smp <- declare_sample(N = 850)
-#' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-#'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-#' design <- declare_design(potential_outcomes = po, m=200)
-#' mock          <- make_data(potential_outcomes = po, sample =  smp)
-#' mock$Z        <- assign_treatment(design, data = mock)
-#' design_probs <- get_design_probs(design, mock)
+#' # these examples don't work yet
+#' # smp <- declare_population(N = 850)
+#' # po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+#' #                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+#' # design <- declare_design(potential_outcomes = po, m=200)
+#' # mock          <- draw_population(potential_outcomes = po, sample =  smp)
+#' # mock$Z        <- assign_treatment(design, data = mock)
+#' # design_probs <- get_design_probs(design, mock)
 #' 
 #' head(design_probs)
 #' @export

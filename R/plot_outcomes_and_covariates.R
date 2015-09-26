@@ -1,6 +1,6 @@
 #' Plot the frequency or density of potential outcomes 
 #'
-#' @param data The dataframe that contains the outcomes to plot (i.e. made using \code{\link{make_data}})
+#' @param data The dataframe that contains the outcomes to plot (i.e. made using \code{\link{draw_population}} or \code{\link{draw_sample}})
 #' @param outcome_names A vector of names of the outcomes to plot
 #' @param color_palette Optional vector of custom colors for the plot
 #' @param barplot If TRUE, plot is a barplot
@@ -89,7 +89,7 @@ plot_outcomes <- function(data,outcome_names,color_palette = NULL,barplot = FALS
 
 #' Plot the frequency or density of covariates
 #'
-#' @param data The dataframe that contains the outcomes to plot (i.e. made using \code{\link{make_data}})
+#' @param data The dataframe that contains the outcomes to plot (i.e. made using \code{\link{draw_population}})
 #' @param covariate_names A vector of names of the outcomes to plot
 #' @param color_palette Optional vector of custom colors for the plot
 #' @param barplot If TRUE, plot is a barplot

@@ -74,7 +74,7 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_per_le
         exists_input(sample_compare[[min(length(sample_compare), e)]], "N_per_level")) | 
        (!is.null(group_sizes_per_level) & 
         exists_input(sample_compare[[min(length(sample_compare), e)]], "group_sizes_per_level")))
-      stop("When N, N_per_level, or group_sizes_per_level is specified in compare_experiment, you can only specify the one that was used in the original declare_sample call. For instance, if you specified N in declare_sample, you can only vary N in compare_experiment.")
+      stop("When N, N_per_level, or group_sizes_per_level is specified in compare_experiment, you can only specify the one that was used in the original declare_population call. For instance, if you specified N in declare_population, you can only vary N in compare_experiment.")
     
     if(!(is.null(N) & is.null(N_per_level) & is.null(group_sizes_per_level))){
       sample_compare[[min(length(sample_compare), e)]] <- substitute_input(sample_compare[[min(length(sample_compare), e)]], "N", N[e])
@@ -85,12 +85,12 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_per_le
     comparisons[[e]] <- list()
     
     comparisons[[e]]$simulations <-   diagnose(design = design_compare[[min(length(design_compare), e)]], 
-                                                          analysis = analysis_compare[[min(length(analysis_compare), e)]], 
-                                                          sample = sample_compare[[min(length(sample_compare), e)]], 
-                                                          potential_outcomes = potential_outcomes_compare[[min(length(potential_outcomes_compare), e)]], 
-                                                          blocks = blocks_compare[[min(length(blocks_compare), e)]], 
-                                                          clusters = clusters_compare[[min(length(clusters_compare), e)]],
-                                                          sims=sims, label = labels[[e]], analysis_labels = analysis_labels)
+                                               analysis = analysis_compare[[min(length(analysis_compare), e)]], 
+                                               sample = sample_compare[[min(length(sample_compare), e)]], 
+                                               potential_outcomes = potential_outcomes_compare[[min(length(potential_outcomes_compare), e)]], 
+                                               blocks = blocks_compare[[min(length(blocks_compare), e)]], 
+                                               clusters = clusters_compare[[min(length(clusters_compare), e)]],
+                                               sims=sims, label = labels[[e]], analysis_labels = analysis_labels)
     
     comparisons[[e]]$values <- list(design = design_compare[[min(length(design_compare), e)]], 
                                     analysis = analysis_compare[[min(length(analysis_compare), e)]], 
@@ -153,7 +153,7 @@ plot_power <- function(data, design, analysis, vary_parameter = "N", vary_sequen
   power_sequence <- rep(NA, length(vary_sequence))
   for(parameter in vary_sequence)
     power_sequence[parameter] <- diagnose(data = data, design = design, analysis = analysis,
-                                       N = parameter)
+                                          N = parameter)
   
   return(power_sequence)
   ##plot(vary_sequence, power_sequence, axes = F, las = 1)

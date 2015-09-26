@@ -1,8 +1,9 @@
 #' Declare the data-generating process of a variable
 #'
-#' @param data An optional user provided dataframe (not made with \code{\link{make_data}})
+#' @param data An optional user provided dataframe (not made with \code{\link{draw_population}} or \code{\link{draw_sample}})
 #' @param potential_outcomes A potential outcomes object, made with \code{\link{declare_potential_outcomes}}
-#' @param sample A sample frame object, made with \code{\link{declare_sample}}
+#' @param population A population object, made with \code{\link{declare_population}}
+#' @param sampling A sampling object, made with \code{\link{declare_sampling}}
 #' @param blocks A blocks object, made with \code{\link{declare_blocks}} (optional).
 #' @param clusters A clusters object, made with \code{\link{declare_clusters}} (optional).
 #' @param design design object, made with \code{\link{declare_design}}.
@@ -13,15 +14,10 @@
 #' @param label label for the simulation
 #' @param analysis_labels labels for each analysis
 #' @export
-diagnose <- function(data = NULL, potential_outcomes = NULL, sample = NULL, 
-                     blocks = NULL, clusters = NULL, design, analysis, 
+diagnose <- function(data = NULL, potential_outcomes = NULL, population = NULL,
+                     sampling = NULL, design, analysis, 
                      bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
                      analysis_labels = NULL){
-  
-  if(is.null(blocks))
-    blocks <- design$blocks
-  if(is.null(clusters))
-    clusters <- design$clusters
   
   if(is.null(sample) & is.null(data))
     stop("Please provide either a sample argument or a data argument.")
@@ -70,19 +66,15 @@ diagnose <- function(data = NULL, potential_outcomes = NULL, sample = NULL,
       stop("Neither is not yet implemented. Please fix make_data.")
     }
     
-    z_sim <- assign_treatment(design = design, data = data_sim)
+    population_data <- draw_population(population = population, potential_outcomes = potential_outcomes, 
+                                       sep = sep)
     
-    for(j in 1:length(analysis)){
-      data_sim[, analysis_treatment_variable(analysis = analysis[[j]])] <- z_sim
-      
-      data_sim[, analysis_outcome_variable(analysis = analysis[[j]])] <- 
-        observed_outcome(outcome = analysis_outcome_variable(analysis[[j]]),  
-                         treatment_assignment = analysis_treatment_variable(analysis[[j]]),
-                         data = data_sim)
+    if(!is.null(sampling)){
+      sample_data <- draw_sample(population_data = population_data, sampling = sampling)
     }
     
-    estimates_list[[i]] <- get_estimates(analysis, data = data_sim, analysis_labels = analysis_labels)
-    estimands_list[[i]] <- get_estimands(analysis, data = data_sim, analysis_labels = analysis_labels)
+    estimates_list[[i]] <- get_estimates(analysis, data = sample_data, analysis_labels = analysis_labels)
+    estimands_list[[i]] <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels)
     
   }
   

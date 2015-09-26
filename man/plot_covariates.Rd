@@ -8,7 +8,7 @@ plot_covariates(data, covariate_names, color_palette = NULL,
   barplot = FALSE, density = FALSE, histogram = FALSE, ...)
 }
 \arguments{
-\item{data}{The dataframe that contains the outcomes to plot (i.e. made using \code{\link{make_data}})}
+\item{data}{The dataframe that contains the outcomes to plot (i.e. made using \code{\link{draw_population}})}
 
 \item{covariate_names}{A vector of names of the outcomes to plot}
 
