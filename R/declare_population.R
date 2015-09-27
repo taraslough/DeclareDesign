@@ -1,12 +1,21 @@
 #' @export
 declare_population <- function(..., 
-                               N_per_level = NULL, group_sizes_per_level = NULL, N = NULL, level_ID_variables = NULL, 
-                               super_population = FALSE,
-                               data = NULL, 
-                               custom_population_function = NULL) {
+                               N_per_level = NULL, group_sizes_per_level = NULL, N = NULL, 
+                               level_ID_variables = NULL, 
+                               super_population = FALSE, potential_outcomes_super_population = FALSE,
+                               random_seed = 42, data = NULL, 
+                               custom_population_function = NULL,
+                               potential_outcomes = NULL) {
+  
+  
+  # Checks --------------------------------------------------------
   
   # Check whether the user has supplied data
   no_data <- is.null(data)
+  
+  if(potential_outcomes_super_population == FALSE & super_population == TRUE){
+    stop("When super_population is set to TRUE, potential_outcomes_super_population must also be set to TRUE.")
+  }
   
   # Create population function --------------------------------------------------------
   
@@ -14,9 +23,9 @@ declare_population <- function(...,
     
     if(!is.null(custom_population_function)){
       
-      population_function <- set_custom_population_function(custom_population_function = custom_population_function, 
-                                                            N = N, N_per_level = N_per_level,
-                                                            group_sizes_per_level = group_sizes_per_level)
+      population_function <- wrap_custom_population_function(custom_population_function = custom_population_function, 
+                                                             N = N, N_per_level = N_per_level,
+                                                             group_sizes_per_level = group_sizes_per_level)
       
     } else {
       
@@ -36,9 +45,9 @@ declare_population <- function(...,
       
       if(!is.null(custom_population_function)){
         
-        population_function <- set_custom_population_function(custom_population_function = custom_population_function, 
-                                                              data = data, N = N, N_per_level = N_per_level,
-                                                              group_sizes_per_level = group_sizes_per_level)
+        population_function <- wrap_custom_population_function(custom_population_function = custom_population_function, 
+                                                               data = data, N = N, N_per_level = N_per_level,
+                                                               group_sizes_per_level = group_sizes_per_level)
         
       } else{
         
@@ -61,7 +70,10 @@ declare_population <- function(...,
     # No super population --------------------------------------------------------
     
     if(no_data == TRUE){
-      population <- population_function()
+      set.seed(random_seed)
+      population <- draw_population(population = structure(list(population = population_function(),
+                                                                potential_outcomes = potential_outcomes), 
+                                                           class = "population"))
     } else {
       population <- data
     }
@@ -74,7 +86,7 @@ declare_population <- function(...,
     
   }
   
-  return_object <- list(population = population, call = match.call())
+  return_object <- list(population = population, potential_outcomes = potential_outcomes, call = match.call())
   class(return_object) <- "population"
   
   return(return_object)
@@ -82,8 +94,8 @@ declare_population <- function(...,
 }
 
 #' @export
-set_custom_function <- function(custom_population_function, data = NULL, 
-                                N = NULL, N_per_level = NULL, group_sizes_per_level = NULL){
+wrap_custom_population_function <- function(custom_population_function, data = NULL, 
+                                            N = NULL, N_per_level = NULL, group_sizes_per_level = NULL){
   
   ## this is a helper function for custom function so it can pass N or N_per_level or group_sizes_per_level
   
@@ -100,7 +112,7 @@ set_custom_function <- function(custom_population_function, data = NULL,
   } else if("N" %in% names(formals(custom_population_function))){
     make_population <- function() custom_population_function(N = N)
   }
-    
+  
   return(make_population)
 }
 
@@ -306,7 +318,7 @@ create_population_function <- function(variable_list = NULL, N_per_level = NULL,
         for(i in N_levels:2){
           X_list[[i-1]]$merge_id <- 
             sample(rep(X_list[[i]][,level_IDs[i]],
-                           group_sizes_per_level[[i]]))
+                       group_sizes_per_level[[i]]))
           
           names(X_list[[i-1]])[names(X_list[[i-1]])=="merge_id"] <- level_IDs[i]
           
@@ -322,7 +334,7 @@ create_population_function <- function(variable_list = NULL, N_per_level = NULL,
       population_matrix <- integerize(population_matrix)
       population_matrix <- as.data.frame(population_matrix)
       population_matrix$level_ID <- generate_ID(data = population_matrix,level_names = level_IDs)
-    
+      
       return(population_matrix)
     }
   }
@@ -541,7 +553,7 @@ infer_data_hierarchy <- function(N, N_per_level, group_sizes_per_level){
 
 #' @export
 create_bootstrap_data_function <- function(data, N = NULL, N_per_level = NULL,
-                                  group_sizes_per_level = NULL, level_ID_variables = NULL){
+                                           group_sizes_per_level = NULL, level_ID_variables = NULL){
   
   hierarchy <- infer_data_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
   N_levels <- hierarchy$N_levels

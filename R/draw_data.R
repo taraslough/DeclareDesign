@@ -1,7 +1,7 @@
 #' Make the full dataset or just a sample
 #'
 #' @export
-draw_population <- function(population, potential_outcomes = NULL, sep = "_") {
+draw_population <- function(population) {
   
   # Do checks ---------------------------------------------------------------
   
@@ -16,16 +16,16 @@ draw_population <- function(population, potential_outcomes = NULL, sep = "_") {
   
   # Make data if POs absent -------------------------------------------------
   
-  if(is.null(potential_outcomes)){
+  if(is.null(population$potential_outcomes)){
     population_data <- covariates
   }
   
   # Make potential outcomes -------------------------------------------------
   
-  if(!is.null(potential_outcomes)){
+  if(!is.null(population$potential_outcomes)){
     
     outcomes <- loop_potential_outcomes(
-      potential_outcomes = potential_outcomes,
+      potential_outcomes = population$potential_outcomes,
       covariates = covariates)
     
     population_data <- data.frame(outcomes, covariates)

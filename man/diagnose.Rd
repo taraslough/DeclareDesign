@@ -4,36 +4,21 @@
 \alias{diagnose}
 \title{Declare the data-generating process of a variable}
 \usage{
-diagnose(data = NULL, potential_outcomes = NULL, population = NULL,
-  sampling = NULL, design, analysis, bootstrap_data = FALSE, N_bootstrap,
-  sims = 5, label = NULL, analysis_labels = NULL)
+diagnose(population = NULL, sampling = NULL, potential_outcomes = NULL,
+  design, analysis, sims = 5, label = NULL, analysis_labels = NULL)
 }
 \arguments{
-\item{data}{An optional user provided dataframe (not made with \code{\link{draw_population}} or \code{\link{draw_sample}})}
-
-\item{potential_outcomes}{A potential outcomes object, made with \code{\link{declare_potential_outcomes}}}
-
 \item{population}{A population object, made with \code{\link{declare_population}}}
 
 \item{sampling}{A sampling object, made with \code{\link{declare_sampling}}}
 
-\item{design}{design object, made with \code{\link{declare_design}}.}
-
-\item{analysis}{analysis object, made with \code{\link{declare_analysis}}, or a list of such objects.}
-
-\item{bootstrap_data}{Logical}
-
-\item{N_bootstrap}{Number of bootstrap sims to conduct}
+\item{potential_outcomes}{A potential outcomes object, made with \code{\link{declare_potential_outcomes}}}
 
 \item{sims}{number of iterations}
 
 \item{label}{label for the simulation}
 
 \item{analysis_labels}{labels for each analysis}
-
-\item{blocks}{A blocks object, made with \code{\link{declare_blocks}} (optional).}
-
-\item{clusters}{A clusters object, made with \code{\link{declare_clusters}} (optional).}
 }
 \description{
 Declare the data-generating process of a variable

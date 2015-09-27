@@ -5,7 +5,8 @@
 \title{Define the potential outcomes of the experiment}
 \usage{
 declare_potential_outcomes(condition_names = NULL, outcome_formula = NULL,
-  population_proportions = NULL, proportion_outcome_name = NULL)
+  population_proportions = NULL, proportion_outcome_name = NULL,
+  sep = "_")
 }
 \arguments{
 \item{condition_names}{A character vector indicating the names of the conditions to which subjects can be assigned. Conceptually identical to the potential outcomes that are revealed in each condition, implicitly invoking SUTVA.}

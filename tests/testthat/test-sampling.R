@@ -7,16 +7,21 @@ context("test sampling strategies")
 
 test_that("test sampling from population with no clusters or strata", {
   
-  pop <- declare_population(N = 5000, super_population = TRUE)
-  
-  smp <- declare_sampling(m = 500)
-  
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
+  pop <- declare_population(N = 5000, super_population = FALSE, potential_outcomes = po)
+  
+  smp <- declare_sampling(m = 500)
+  
   design <- declare_design(potential_outcomes = po)
   
-  pop_draw <- draw_population(population = pop, potential_outcomes = po)
+  analysis <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
+  
+  diagnosis <- diagnose(population = pop, sampling = smp, analysis = analysis,
+                        design = design, sims = 500)
+  
+  pop_draw <- draw_population(population = pop)
   
   smp_draw <- draw_sample(population_data = pop_draw, sampling = smp)
   

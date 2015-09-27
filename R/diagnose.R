@@ -1,122 +1,16 @@
 #' Declare the data-generating process of a variable
 #'
-#' @param data An optional user provided dataframe (not made with \code{\link{draw_population}} or \code{\link{draw_sample}})
-#' @param potential_outcomes A potential outcomes object, made with \code{\link{declare_potential_outcomes}}
 #' @param population A population object, made with \code{\link{declare_population}}
 #' @param sampling A sampling object, made with \code{\link{declare_sampling}}
-#' @param blocks A blocks object, made with \code{\link{declare_blocks}} (optional).
-#' @param clusters A clusters object, made with \code{\link{declare_clusters}} (optional).
-#' @param design design object, made with \code{\link{declare_design}}.
-#' @param analysis analysis object, made with \code{\link{declare_analysis}}, or a list of such objects.
-#' @param bootstrap_data Logical
-#' @param N_bootstrap Number of bootstrap sims to conduct
+#' @param potential_outcomes A potential outcomes object, made with \code{\link{declare_potential_outcomes}}
 #' @param sims number of iterations
 #' @param label label for the simulation
 #' @param analysis_labels labels for each analysis
+#' @importFrom foreach foreach registerDoSEQ getDoParWorkers %dopar%
+#' @importFrom doRNG %dorng%
 #' @export
-diagnose <- function(data = NULL, potential_outcomes = NULL, population = NULL,
-                     sampling = NULL, design, analysis, 
-                     bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
-                     analysis_labels = NULL){
-  
-  if(is.null(sample) & is.null(data))
-    stop("Please provide either a sample argument or a data argument.")
-  if(!is.null(sample) & is.null(potential_outcomes))
-    stop("If you provide a sample argument, please also provide a potential_outcomes argument.")
-  if(!is.null(data) & !is.null(sample) & !is.null(potential_outcomes))
-    warning("You provided arguments for sample, potential_outcomes, and data. The function will resample the covariates from the sample argument, resample the potential_outcomes from the potential_outcomes argument, and ignore the data argument. To avoid this warning, please do not specify the data argument.")
-  
-  if(!is.null(data) & is.null(sample) & !is.null(potential_outcomes))
-    resample <- "potential_outcomes"
-  if(!is.null(sample) & !is.null(potential_outcomes))
-    resample <- "both"
-  if(is.null(sample) & is.null(potential_outcomes) & !is.null(data))
-    resample <- "neither"
-  
-  if(bootstrap_data == TRUE & is.null(data))
-    stop("Please provide a data frame in the data argument to enable data bootstrapping, 
-         or set bootstrap_data to FALSE.")
-  
-  if(!is.null(data))
-    data_sim <- data
-  
-  if(is.null(analysis_labels)){
-    if(class(analysis) == "list")
-      analysis_labels <- paste(substitute(analysis)[-1L])
-    else
-      analysis_labels <- paste(substitute(analysis))
-  }
-  
-  if(class(analysis)=="analysis"){analysis <- list(analysis)}
-  
-  estimates_list <- list()
-  estimands_list <- list()
-  for(i in 1:sims){
-    
-    if(resample == "potential_outcomes"){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, sample = data, design = design)
-      if(bootstrap_data == TRUE){
-        ## for now N_resample is preset, but could be set according to a design object
-        N_bootstrap <- nrow(data_sim) 
-        data_sim <- data_sim[sample(1:nrow(data_sim), N_bootstrap, replace = TRUE)]
-      }
-    } else if (resample == "both"){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, sample = sample, design = design)
-    } else if (resample == "neither"){
-      stop("Neither is not yet implemented. Please fix make_data.")
-    }
-    
-    population_data <- draw_population(population = population, potential_outcomes = potential_outcomes, 
-                                       sep = sep)
-    
-    if(!is.null(sampling)){
-      sample_data <- draw_sample(population_data = population_data, sampling = sampling)
-    }
-    
-    estimates_list[[i]] <- get_estimates(analysis, data = sample_data, analysis_labels = analysis_labels)
-    estimands_list[[i]] <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels)
-    
-  }
-  
-  return_object <- list(estimates = estimates_list, estimands = estimands_list, label = label)
-  class(return_object) <- "experiment_simulations"
-  
-  return(return_object)
-  
-}
-
-#' @importFrom foreach foreach
-#' @export
-diagnose_parallel <- function(data = NULL, potential_outcomes = NULL, sample = NULL, 
-                              blocks = NULL, clusters = NULL, design, analysis, 
-                              bootstrap_data = FALSE, N_bootstrap = NULL, sims = 5, label = NULL,
-                              analysis_labels = NULL){
-  
-  if(is.null(blocks))
-    blocks <- design$blocks
-  if(is.null(clusters))
-    clusters <- design$clusters
-  
-  if(is.null(sample) & is.null(data))
-    stop("Please provide either a sample argument or a data argument.")
-  if(!is.null(sample) & is.null(potential_outcomes))
-    stop("If you provide a sample argument, please also provide a potential_outcomes argument.")
-  if(!is.null(data) & !is.null(sample) & !is.null(potential_outcomes))
-    warning("You provided arguments for sample, potential_outcomes, and data. The function will resample the covariates from the sample argument, resample the potential_outcomes from the potential_outcomes argument, and ignore the data argument. To avoid this warning, please do not specify the data argument.")
-  
-  if(!is.null(data) & is.null(sample) & !is.null(potential_outcomes))
-    resample <- "potential_outcomes"
-  if(!is.null(sample) & !is.null(potential_outcomes))
-    resample <- "both"
-  if(is.null(sample) & is.null(potential_outcomes) & !is.null(data))
-    resample <- "neither"
-  
-  if(bootstrap_data == TRUE & is.null(data))
-    stop("Please provide a data frame in the data argument to enable data bootstrapping, 
-         or set bootstrap_data to FALSE.")
-  
-  if(!is.null(data))
-    data_sim <- data
+diagnose <- function(population = NULL, sampling = NULL, potential_outcomes = NULL, 
+                     design, analysis, sims = 5, label = NULL, analysis_labels = NULL){
   
   if(is.null(analysis_labels)){
     if(class(analysis) == "list")
@@ -132,56 +26,56 @@ diagnose_parallel <- function(data = NULL, potential_outcomes = NULL, sample = N
            function(i) c(x[[i]], lapply(list(...), function(y) y[[i]])))
   }
   
-  simulations_list <- foreach(i = 1:sims, .combine = 'comb', .packages = "experimentr", .multicombine = TRUE, .init = list(list(), list())) %dopar% {
+  if(getDoParWorkers() == 1){ 
+    registerDoSEQ()
+  }
+  
+  simulations_list <- foreach(i = 1:sims, .combine = 'comb', .multicombine = TRUE, 
+                              .init = list(list(), list(), list())) %dorng% {
     
-    if(resample == "potential_outcomes"){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, sample = data, design = design)
-      if(bootstrap_data == TRUE){
-        ## for now N_resample is preset, but could be set according to a design object
-        N_bootstrap <- nrow(data_sim) 
-        data_sim <- data_sim[sample(1:nrow(data_sim), N_bootstrap, replace = TRUE)]
-      }
-    } else if (resample == "both"){
-      data_sim <- make_data(potential_outcomes = potential_outcomes, sample = sample, design = design)
-    } else if (resample == "neither"){
-      stop("Neither is not yet implemented. Please fix make_data.")
-    }
+    population_data <- draw_population(population = population)
     
-    data_sim <- make_data(potential_outcomes = potential_outcomes, sample = sample, design = design)
-    
-    z_sim <- assign_treatment(design = design, data = data_sim)
-    
-    for(j in 1:length(analysis)){
-      data_sim[, analysis_treatment_variable(analysis = analysis[[j]])] <- z_sim
+    if(!is.null(sampling)){
       
-      data_sim[, analysis_outcome_variable(analysis = analysis[[j]])] <- 
-        observed_outcome(outcome = analysis_outcome_variable(analysis[[j]]),  
-                         treatment_assignment = analysis_treatment_variable(analysis[[j]]),
-                         data = data_sim)
+      sample_data <- draw_sample(population_data = population_data, sampling = sampling)
+      
+      sample_data <- reveal_design(data = sample_data, design = design)
+      
+      estimates <- get_estimates(analysis, data = sample_data, analysis_labels = analysis_labels)
+      sample_estimands <- get_estimands(analysis, data = sample_data, analysis_labels = analysis_labels)
+      
+    } else {
+      
+      population_data <- reveal_design(data = population_data, design = design)
+      
+      estimates <- get_estimates(analysis, data = population_data, analysis_labels = analysis_labels)
+      sample_estimands <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels)
+      
     }
     
-    ##return(list(1, 2))
-    return(list(get_estimates(analysis, data = data_sim, analysis_labels = analysis_labels),
-                get_estimands(analysis, data = data_sim, analysis_labels = analysis_labels)))
+    population_estimands <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels)
+    
+    return(list(estimates, sample_estimands, population_estimands))
     
   }
   
+  return_object <- list(estimates = simulations_list[[1]], 
+                        sample_estimands = simulations_list[[2]],
+                        population_estimands = simulations_list[[3]], 
+                        label = label)
   
-  estimates_list <- simulations_list[[1]]
-  estimands_list <- simulations_list[[2]]
-  
-  return_object <- list(estimates = estimates_list, estimands = estimands_list, label = label)
-  class(return_object) <- "experiment_simulations"
+  class(return_object) <- "diagnosis"
   
   return(return_object)
-  
+    
 }
 
+
 #' @export
-summary.experiment_simulations <- function(object, ...) {
+summary.diagnosis <- function(object, ...) {
   
   estimates <- object$estimates
-  estimands <- object$estimands
+  sample_estimands <- object$sample_estimands
   
   summary_array <- array(NA, dim = c(ncol(estimates[[1]]), 5, length(estimates)),
                          dimnames = list(colnames(estimates[[1]]),
@@ -191,12 +85,12 @@ summary.experiment_simulations <- function(object, ...) {
     
     for(q in 1:ncol(estimates[[i]])){
       
-      sate <- estimands[[i]]["est", q]
+      sate <- sample_estimands[[i]]["est", q]
       sate_hat <- estimates[[i]]["est", q]
       error <- sate_hat - sate
       p <- estimates[[i]]["p", q]
-      ci_covers_est <- estimands[[i]]["est", q] <= estimates[[i]]["ci_upper", q] & 
-        estimands[[i]]["est", q] >= estimates[[i]]["ci_lower", q]
+      ci_covers_est <- sample_estimands[[i]]["est", q] <= estimates[[i]]["ci_upper", q] & 
+        sample_estimands[[i]]["est", q] >= estimates[[i]]["ci_lower", q]
       
       summary_array[q, , i] <- c(sate, sate_hat, error, p, ci_covers_est)
       
@@ -216,15 +110,15 @@ summary.experiment_simulations <- function(object, ...) {
 }
 
 #' @export
-print.summary.experiment_simulations <- function(x, ...){
-  print(summary.experiment_simulations(x, ... = ...))
+print.summary.diagnosis <- function(x, ...){
+  print(summary.diagnosis(x, ... = ...))
   return()
 }
 
 
 #' @export
-print.experiment_simulations <- function(x, ...){
-  print(summary.experiment_simulations(x, ... = ...))
+print.diagnosis <- function(x, ...){
+  print(summary.diagnosis(x, ... = ...))
   return()
 }
 
