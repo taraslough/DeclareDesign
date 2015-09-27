@@ -20,7 +20,7 @@ knitr::opts_knit$set(root.dir = tempdir())
 ```
 
 ```{r, echo = FALSE}
-sample_user <- declare_sample(
+population_user <- declare_population(
   individuals = list(
     income = declare_variable()),
   villages = list(
@@ -31,7 +31,7 @@ sample_user <- declare_sample(
     villages = rep(5,200)
   ))
 
-user_data <- make_data(sample = sample_user)
+user_data <- draw_population(population = population_user)
 
 save(user_data, file = "baseline_data.RData")
 ```
@@ -47,11 +47,11 @@ round(head(user_data), 3)
 Then resample (bootstrap) from user data, respecting levels
 
 ```{r sample}
-sample <- declare_sample(
+sample <- declare_population(
   individuals = list(),
   villages = list(),
   N_per_level = c(500, 10),
-  data = user_data, resample = TRUE)
+  data = user_data)
 ```
   
 Second, we define the potential outcomes, which will be simulated based on the baseline covariate data.

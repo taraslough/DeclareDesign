@@ -25,14 +25,6 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = TRUE, message = FALS
 
 ## Designing the experiment
 
-First, we define the sample frame from which we will draw a sample to run the experiment from. This includes defining the levels of analysis and the covariates at each level.
-
-```{r}
-sample <- declare_sample(
-  income = declare_variable(),
-  N = 500)
-```
-
 Second, we define the potential outcomes, which will be simulated based on the baseline covariate data.
 
 ```{r}
@@ -40,6 +32,14 @@ potential_outcomes     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income 
 )
+```
+
+First, we define the sample frame from which we will draw a sample to run the experiment from. This includes defining the levels of analysis and the covariates at each level.
+
+```{r}
+population <- declare_population(
+  income = declare_variable(),
+  N = 500, potential_outcomes = potential_outcomes)
 ```
 
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
@@ -58,10 +58,9 @@ design <- declare_design(potential_outcomes = potential_outcomes)
 Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the diagnose function.
 
 ```{r}
-simulations <- diagnose(potential_outcomes = potential_outcomes, 
-                                   sample = sample, 
-                                   design = design, 
-                                   analysis = analysis)
+a <- draw_population(population = population)
+simulations <- diagnose(population = population, design = design, analysis = analysis)
+
 kable(summary(simulations), digits = 3)
 ```
 
