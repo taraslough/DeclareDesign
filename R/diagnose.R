@@ -67,7 +67,67 @@ diagnose <- function(population = NULL, sampling = NULL, potential_outcomes = NU
   class(return_object) <- "diagnosis"
   
   return(return_object)
-    
+  
+}
+
+#' @export
+PATE <- function(x, ...){
+  
+}
+
+#' @export
+sd_SATE <- function(x, ...){
+  
+}
+
+#' @export
+power <- function(x, ...){
+  
+}
+
+#' @export
+RMSE <- function(x, ...){
+  
+}
+
+#' @export
+bias <- function(x, ...){
+  
+}
+
+#' @export
+coverage <- function(x, q, ...){
+  ci_covers_estimate <- lapply(1:length(x), function(i) sample_estimands[[i]]["est", q] <= estimates[[i]]["ci_upper", q] & 
+                                 sample_estimands[[i]]["est", q] >= estimates[[i]]["ci_lower", q])
+  
+  coverage <- apply(summary_array[,"ci_covers_est", , drop = FALSE], 1, mean)
+  
+  return(coverage)
+}
+
+
+#' @export
+summary_new.diagnosis <- function(object, statistics = list(PATE, sd_SATE, power, RMSE, bias, coverage), labels = NULL, ...){
+  
+  ## extract names of statistics objects
+  if(is.null(labels)){
+    if(class(statistics) == "list")
+      labels <- paste(substitute(statistics)[-1L])
+    else
+      labels <- paste(substitute(statistics))
+  }
+  
+  if(class(statistics) != "list"){ statistics <- list(statistics) }
+  
+  estimates <- object$estimates
+  sample_estimands <- object$sample_estimands
+  population_estimands <- object$population_estimands
+  
+  return_vector <- rep(NA, length(statistics))
+  for(k in 1:length(statistics))
+    return_vector[k] <- statistics[[k]](estimates = estimates, sample_estimands = sample_estimands, population_estimands = population_estimands)
+  
+  return(return_vector)
 }
 
 
