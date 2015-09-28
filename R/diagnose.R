@@ -42,18 +42,22 @@ diagnose <- function(population = NULL, sampling = NULL, potential_outcomes = NU
                                   sample_data <- reveal_design(data = sample_data, design = design)
                                   
                                   estimates <- get_estimates(analysis, data = sample_data, analysis_labels = analysis_labels)
-                                  sample_estimands <- get_estimands(analysis, data = sample_data, analysis_labels = analysis_labels)
+                                  sample_estimands <- get_estimands(analysis, data = sample_data, analysis_labels = analysis_labels,
+                                                                    design = design)
                                   
                                 } else {
                                   
                                   population_data <- reveal_design(data = population_data, design = design)
                                   
                                   estimates <- get_estimates(analysis, data = population_data, analysis_labels = analysis_labels)
-                                  sample_estimands <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels)
+                                  sample_estimands <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels,
+                                                                    design = design)
                                   
                                 }
                                 
-                                population_estimands <- NULL ##get_estimands(analysis, data = population_data, analysis_labels = analysis_labels)
+                                population_estimands <- get_estimands(analysis, data = population_data, 
+                                                                      analysis_labels = analysis_labels,
+                                                                      design = design)
                                 
                                 return(list(estimates, sample_estimands, population_estimands))
                                 

@@ -263,7 +263,8 @@ difference_in_means_blocked <- function(formula, data, subset = NULL, block_vari
 #' @param sep  what is it?
 #' @rdname declare_analysis
 #' @export
-truth_data_frame <- function(formula = NULL, treatment_variable = "Z", weights = NULL, subset = NULL, data = data, 
+truth_data_frame <- function(formula = NULL, treatment_variable = "Z", design = design, 
+                             weights = NULL, subset = NULL, data = data, 
                              estimand_options = NULL, sep = "_", ...) {
   
   if(is.null(formula))
@@ -279,7 +280,7 @@ truth_data_frame <- function(formula = NULL, treatment_variable = "Z", weights =
   if(!is.null(estimand_options$block_variable))
     other_variable_names <- c(other_variable_names, estimand_options$block_variable)
   
-  treatment_conditions <- unique(data[, treatment_variable])
+  treatment_conditions <- design$condition_names
   
   potential_outcome_variable_names <- paste(outcome_variable, sep, treatment_conditions, sep = "")
   
@@ -315,13 +316,14 @@ get_estimates_model <- function(analysis, data){
 
 #' @rdname declare_analysis
 #' @export
-get_estimands_model <- function(analysis, data){
+get_estimands_model <- function(analysis, data, design){
   if(class(analysis) != "analysis")
     stop("The analysis argument must be an object created by the declare_analysis function")
   if(is.null(analysis$estimand))
     stop("This analysis function does not have a model associated with it. Try get_estimands to obtain the quantities of interest for the estimand.")
   return(analysis$estimand(data = truth_data_frame(formula = analysis$estimand_formula, data = data,
-                                                   estimand_options = analysis$estimand_options)))
+                                                   estimand_options = analysis$estimand_options,
+                                                   design = design)))
 }
 
 #' @param analysis what is it?
@@ -393,7 +395,7 @@ get_estimates <- function(analysis, quantity_of_interest = NULL, data, analysis_
 #' @param statistics  what is it?
 #' @rdname declare_analysis
 #' @export
-get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analysis_labels = NULL){
+get_estimands <- function(analysis, qoi = NULL, data, design = design, statistics = "est", analysis_labels = NULL){
   
   if(is.null(analysis_labels)){
     if(class(analysis) == "list")
@@ -405,7 +407,8 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analys
   if(!is.null(qoi)) {
     ## if there is a user-defined qoi function, use that to extract qoi from analysis object or list of them
     return(qoi(analysis, data = truth_data_frame(formula = analysis$estimand_formula, data = data, 
-                                                 estimand_options = analysis$estimand_options)))
+                                                 estimand_options = analysis$estimand_options,
+                                                 design = design)))
   } else {
     ## otherwise use qoi function defined in the analysis
     if(class(analysis) == "list"){
@@ -415,11 +418,13 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analys
       for(i in 1:length(analysis)){
         if(!is.null(analysis[[i]]$estimand_quantity_of_interest)){
           estimands_list[[i]] <- analysis[[i]]$estimand_quantity_of_interest(get_estimands_model(analysis = analysis[[i]], 
-                                                                                                 data = data), statistics = statistics)
+                                                                                                 data = data, design = design), 
+                                                                             statistics = statistics)
           ## get_estimands_model does truth_data_frame, so just sending it data
         } else {
           estimands_list[[i]] <- analysis[[i]]$estimand(truth_data_frame(formula = analysis[[i]]$estimand_formula, data = data, 
-                                                                         estimand_options = analysis[[i]]$estimand_options))
+                                                                         estimand_options = analysis[[i]]$estimand_options,
+                                                                         design = design))
         }
         colnames(estimands_list[[i]]) <- paste(colnames(estimands_list[[i]]), analysis_labels[i], sep = "_")
       }
@@ -442,11 +447,13 @@ get_estimands <- function(analysis, qoi = NULL, data, statistics = "est", analys
       ## otherwise process the one analysis function
       if(!is.null(analysis$estimand_quantity_of_interest)){
         estimands_matrix <- analysis$estimand_quantity_of_interest(get_estimands_model(analysis = analysis, 
-                                                                                       data = data), statistics = statistics)
+                                                                                       data = data, design = design), 
+                                                                   statistics = statistics)
         ## get_estimands_model does truth_data_frame, so just sending it data
       } else {
         estimands_matrix <- analysis$estimand(truth_data_frame(formula = analysis$estimand_formula, data = data,
-                                                               estimand_options = analysis$estimand_options))
+                                                               estimand_options = analysis$estimand_options,
+                                                               design = design))
       }
       colnames(estimands_matrix) <- paste(colnames(estimands_matrix), analysis_labels[1], sep = "_")
       return(estimands_matrix)
