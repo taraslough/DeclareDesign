@@ -32,32 +32,32 @@ diagnose <- function(population = NULL, sampling = NULL, potential_outcomes = NU
   
   simulations_list <- foreach(i = 1:sims, .combine = 'comb', .multicombine = TRUE, 
                               .init = list(list(), list(), list())) %dorng% {
-    
-    population_data <- draw_population(population = population)
-    
-    if(!is.null(sampling)){
-      
-      sample_data <- draw_sample(population_data = population_data, sampling = sampling)
-      
-      sample_data <- reveal_design(data = sample_data, design = design)
-      
-      estimates <- get_estimates(analysis, data = sample_data, analysis_labels = analysis_labels)
-      sample_estimands <- get_estimands(analysis, data = sample_data, analysis_labels = analysis_labels)
-      
-    } else {
-      
-      population_data <- reveal_design(data = population_data, design = design)
-      
-      estimates <- get_estimates(analysis, data = population_data, analysis_labels = analysis_labels)
-      sample_estimands <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels)
-      
-    }
-    
-    population_estimands <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels)
-    
-    return(list(estimates, sample_estimands, population_estimands))
-    
-  }
+                                
+                                population_data <- draw_population(population = population)
+                                
+                                if(!is.null(sampling)){
+                                  
+                                  sample_data <- draw_sample(population_data = population_data, sampling = sampling)
+                                  
+                                  sample_data <- reveal_design(data = sample_data, design = design)
+                                  
+                                  estimates <- get_estimates(analysis, data = sample_data, analysis_labels = analysis_labels)
+                                  sample_estimands <- get_estimands(analysis, data = sample_data, analysis_labels = analysis_labels)
+                                  
+                                } else {
+                                  
+                                  population_data <- reveal_design(data = population_data, design = design)
+                                  
+                                  estimates <- get_estimates(analysis, data = population_data, analysis_labels = analysis_labels)
+                                  sample_estimands <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels)
+                                  
+                                }
+                                
+                                population_estimands <- NULL ##get_estimands(analysis, data = population_data, analysis_labels = analysis_labels)
+                                
+                                return(list(estimates, sample_estimands, population_estimands))
+                                
+                              }
   
   return_object <- list(estimates = simulations_list[[1]], 
                         sample_estimands = simulations_list[[2]],
@@ -71,32 +71,32 @@ diagnose <- function(population = NULL, sampling = NULL, potential_outcomes = NU
 }
 
 #' @export
-PATE <- function(x, ...){
+calculate_PATE <- function(x, ...){
   
 }
 
 #' @export
-sd_SATE <- function(x, ...){
+calculate_sd_SATE <- function(x, ...){
   
 }
 
 #' @export
-power <- function(x, ...){
+calculate_power <- function(x, ...){
   
 }
 
 #' @export
-RMSE <- function(x, ...){
+calculate_RMSE <- function(x, ...){
   
 }
 
 #' @export
-bias <- function(x, ...){
+calculate_bias <- function(x, ...){
   
 }
 
 #' @export
-coverage <- function(x, q, ...){
+calculate_coverage <- function(estimates, sample_estimands, ...){
   ci_covers_estimate <- lapply(1:length(x), function(i) sample_estimands[[i]]["est", q] <= estimates[[i]]["ci_upper", q] & 
                                  sample_estimands[[i]]["est", q] >= estimates[[i]]["ci_lower", q])
   
@@ -107,7 +107,9 @@ coverage <- function(x, q, ...){
 
 
 #' @export
-summary_new.diagnosis <- function(object, statistics = list(PATE, sd_SATE, power, RMSE, bias, coverage), labels = NULL, ...){
+summary_new.diagnosis <- function(object, statistics = list(calculate_PATE, calculate_sd_SATE, calculate_power, 
+                                                            calculate_RMSE, calculate_bias, calculate_coverage), 
+                                  labels = NULL, ...){
   
   ## extract names of statistics objects
   if(is.null(labels)){
