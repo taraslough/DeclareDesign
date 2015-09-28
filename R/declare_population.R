@@ -1,8 +1,7 @@
 #' @export
 declare_population <- function(..., 
                                N_per_level = NULL, group_sizes_per_level = NULL, N = NULL, 
-                               level_ID_variables = NULL, 
-                               super_population = FALSE, potential_outcomes_super_population = FALSE,
+                               level_ID_variables = NULL, super_population = FALSE,
                                random_seed = 42, data = NULL, 
                                custom_population_function = NULL,
                                potential_outcomes = NULL) {
@@ -12,10 +11,6 @@ declare_population <- function(...,
   
   # Check whether the user has supplied data
   no_data <- is.null(data)
-  
-  if(potential_outcomes_super_population == FALSE & super_population == TRUE){
-    stop("When super_population is set to TRUE, potential_outcomes_super_population must also be set to TRUE.")
-  }
   
   # Create population function --------------------------------------------------------
   
@@ -67,15 +62,18 @@ declare_population <- function(...,
   
   if(super_population == FALSE){
     
+    set.seed(random_seed)
+    
     # No super population --------------------------------------------------------
     
     if(no_data == TRUE){
-      set.seed(random_seed)
       population <- draw_population(population = structure(list(population = population_function(),
                                                                 potential_outcomes = potential_outcomes), 
                                                            class = "population"))
     } else {
-      population <- data
+      population <- draw_population(population = structure(list(population = data,
+                                                                potential_outcomes = potential_outcomes), 
+                                                           class = "population"))
     }
     
   } else {

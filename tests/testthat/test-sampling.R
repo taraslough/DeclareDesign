@@ -16,10 +16,15 @@ test_that("test sampling from population with no clusters or strata", {
   
   design <- declare_design(potential_outcomes = po)
   
-  analysis <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
+  analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
+  analysis_2 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
   
-  diagnosis <- diagnose(population = pop, sampling = smp, analysis = analysis,
-                        design = design, sims = 500)
+  diagnosis <- diagnose(population = pop, sampling = smp, analysis = list(analysis_1, analysis_2),
+                        design = design, sims = 5)
+  
+  estimates <- diagnosis$estimates
+  sample_estimands <- diagnosis$sample_estimands
+  population_estimands <- diagnosis$population_estimands
   
   pop_draw <- draw_population(population = pop)
   

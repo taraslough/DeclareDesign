@@ -75,45 +75,88 @@ diagnose <- function(population = NULL, sampling = NULL, potential_outcomes = NU
 }
 
 #' @export
-calculate_PATE <- function(x, ...){
+calculate_PATE <- function(sample_estimands, ...){
+  SATE <- sapply(1:length(sample_estimands), function(i) as.numeric(sample_estimands[[i]]["est", , drop = FALSE]))
   
+  if(class(SATE) == "matrix")
+    PATE <- apply(SATE, 1, mean, na.rm = T)
+  else
+    PATE <- mean(SATE, na.rm = T)
+  
+  return(PATE)
+}
+
+
+#' @export
+calculate_sd_SATE <- function(sample_estimands, ...){
+  SATE <- sapply(1:length(sample_estimands), function(i) as.numeric(sample_estimands[[i]]["est", , drop = FALSE]))
+  
+  if(class(SATE) == "matrix")
+    sd_SATE <- apply(SATE, 1, sd, na.rm = T)
+  else
+    sd_SATE <- sd(SATE, na.rm = T)
+  
+  return(sd_SATE)
 }
 
 #' @export
-calculate_sd_SATE <- function(x, ...){
+calculate_power <- function(estimates, ...){
+  p <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["p", , drop = FALSE]))
   
+  if(class(p) == "matrix")
+    power <- apply(p, 1, mean, na.rm = T)
+  else
+    power <- mean(p, na.rm = T)
+  
+  return(power)
 }
 
 #' @export
-calculate_power <- function(x, ...){
+calculate_RMSE <- function(estimates, sample_estimands, ...){
+  error <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - 
+                                                                sample_estimands[[i]]["est", , drop = FALSE]))
   
+  if(class(error) == "matrix")
+    RMSE <- apply(error, 1, function(x) sqrt(mean(x^2, na.rm = T)))
+  else
+    RMSE <- sqrt(mean(error^2, na.rm = T))
+  
+  return(RMSE)
 }
 
 #' @export
-calculate_RMSE <- function(x, ...){
-  
-}
+calculate_bias <- function(estimates, sample_estimands, ...){
 
-#' @export
-calculate_bias <- function(x, ...){
+  est_PATE_diff <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - 
+                                 calculate_PATE(sample_estimands = sample_estimands)))
   
+  if(class(est_PATE_diff) == "matrix")
+    bias <- apply(est_PATE_diff, 1, mean, na.rm = T)
+  else
+    bias <- mean(est_PATE_diff, na.rm = T)
+  
+  return(bias)
 }
 
 #' @export
 calculate_coverage <- function(estimates, sample_estimands, ...){
-  ci_covers_estimate <- lapply(1:length(x), function(i) sample_estimands[[i]]["est", q] <= estimates[[i]]["ci_upper", q] & 
-                                 sample_estimands[[i]]["est", q] >= estimates[[i]]["ci_lower", q])
+  ci_covers_estimate <- sapply(1:length(estimates), function(i) as.numeric(sample_estimands[[i]]["est", , drop = FALSE] <= 
+                                 estimates[[i]]["ci_upper", , drop = FALSE] & 
+                                 sample_estimands[[i]]["est", , drop = FALSE] >= estimates[[i]]["ci_lower", , drop = FALSE]))
   
-  coverage <- apply(summary_array[,"ci_covers_est", , drop = FALSE], 1, mean)
+  if(class(ci_covers_estimate) == "matrix")
+    coverage <- apply(ci_covers_estimate, 1, mean, na.rm = T)
+  else
+    coverage <- mean(ci_covers_estimate, na.rm = T)
   
   return(coverage)
 }
 
 
 #' @export
-summary_new.diagnosis <- function(object, statistics = list(calculate_PATE, calculate_sd_SATE, calculate_power, 
+summary.diagnosis <- function(object, statistics = list(calculate_PATE, calculate_sd_SATE, calculate_power, 
                                                             calculate_RMSE, calculate_bias, calculate_coverage), 
-                                  labels = NULL, ...){
+                                  labels = c("PATE", "sd(SATE)", "Power", "RMSE", "Bias", "Coverage"), ...){
   
   ## extract names of statistics objects
   if(is.null(labels)){
@@ -129,50 +172,12 @@ summary_new.diagnosis <- function(object, statistics = list(calculate_PATE, calc
   sample_estimands <- object$sample_estimands
   population_estimands <- object$population_estimands
   
-  return_vector <- rep(NA, length(statistics))
+  return_matrix <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
   for(k in 1:length(statistics))
-    return_vector[k] <- statistics[[k]](estimates = estimates, sample_estimands = sample_estimands, population_estimands = population_estimands)
+    return_matrix[ , k] <- as.matrix(statistics[[k]](estimates = estimates, sample_estimands = sample_estimands, 
+                                                        population_estimands = population_estimands))
   
-  return(return_vector)
-}
-
-
-#' @export
-summary.diagnosis <- function(object, ...) {
-  
-  estimates <- object$estimates
-  sample_estimands <- object$sample_estimands
-  
-  summary_array <- array(NA, dim = c(ncol(estimates[[1]]), 5, length(estimates)),
-                         dimnames = list(colnames(estimates[[1]]),
-                                         c("sate", "sate_hat", "error", "p", "ci_covers_est"), 
-                                         1:length(estimates)))
-  for(i in 1:length(object$estimates)){
-    
-    for(q in 1:ncol(estimates[[i]])){
-      
-      sate <- sample_estimands[[i]]["est", q]
-      sate_hat <- estimates[[i]]["est", q]
-      error <- sate_hat - sate
-      p <- estimates[[i]]["p", q]
-      ci_covers_est <- sample_estimands[[i]]["est", q] <= estimates[[i]]["ci_upper", q] & 
-        sample_estimands[[i]]["est", q] >= estimates[[i]]["ci_lower", q]
-      
-      summary_array[q, , i] <- c(sate, sate_hat, error, p, ci_covers_est)
-      
-    }
-  }
-  
-  PATE <- apply(summary_array[,"sate",, drop = FALSE], 1 , mean)
-  sd_SATE <- apply(summary_array[,"sate",, drop = FALSE], 1 , sd)
-  power <- apply(summary_array[,"p", , drop = FALSE], 1 , function(x) mean(x < 0.05))
-  RMSE <- apply(summary_array[,"sate", , drop = FALSE] - summary_array[,"sate_hat", , drop = FALSE], 1 , function(x) sqrt(mean(x^2)))
-  bias <- apply(summary_array[,"sate_hat", , drop = FALSE] - PATE, 1, mean)
-  coverage <- apply(summary_array[,"ci_covers_est", , drop = FALSE], 1, mean)
-  
-  summ <- cbind(PATE, sd_SATE, power, RMSE, bias, coverage)
-  
-  return(summ)
+  return(return_matrix)
 }
 
 #' @export
