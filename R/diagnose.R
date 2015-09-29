@@ -2,14 +2,13 @@
 #'
 #' @param population A population object, made with \code{\link{declare_population}}
 #' @param sampling A sampling object, made with \code{\link{declare_sampling}}
-#' @param potential_outcomes A potential outcomes object, made with \code{\link{declare_potential_outcomes}}
 #' @param sims number of iterations
 #' @param label label for the simulation
 #' @param analysis_labels labels for each analysis
 #' @importFrom foreach foreach registerDoSEQ getDoParWorkers %dopar%
 #' @importFrom doRNG %dorng%
 #' @export
-diagnose <- function(population = NULL, sampling = NULL, potential_outcomes = NULL, 
+diagnose <- function(population = NULL, sampling = NULL, 
                      design, analysis, sims = 5, label = NULL, analysis_labels = NULL){
   
   if(is.null(analysis_labels)){
@@ -30,38 +29,37 @@ diagnose <- function(population = NULL, sampling = NULL, potential_outcomes = NU
     registerDoSEQ()
   }
   
-  simulations_list <- foreach(i = 1:sims, .combine = 'comb', .multicombine = TRUE, 
-                              .init = list(list(), list(), list())) %dorng% {
-                                
-                                population_data <- draw_population(population = population)
-                                
-                                if(!is.null(sampling)){
-                                  
-                                  sample_data <- draw_sample(population_data = population_data, sampling = sampling)
-                                  
-                                  sample_data <- reveal_design(data = sample_data, design = design)
-                                  
-                                  estimates <- get_estimates(analysis, data = sample_data, analysis_labels = analysis_labels)
-                                  sample_estimands <- get_estimands(analysis, data = sample_data, analysis_labels = analysis_labels,
-                                                                    design = design)
-                                  
-                                } else {
-                                  
-                                  population_data <- reveal_design(data = population_data, design = design)
-                                  
-                                  estimates <- get_estimates(analysis, data = population_data, analysis_labels = analysis_labels)
-                                  sample_estimands <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels,
-                                                                    design = design)
-                                  
-                                }
-                                
-                                population_estimands <- get_estimands(analysis, data = population_data, 
-                                                                      analysis_labels = analysis_labels,
-                                                                      design = design)
-                                
-                                return(list(estimates, sample_estimands, population_estimands))
-                                
-                              }
+  simulations_list <- foreach(i = 1:sims, .combine = 'comb', .multicombine = TRUE, .init = list(list(), list(), list())) %dorng% {
+    
+    population_data <- draw_population(population = population)
+    
+    if(!is.null(sampling)){
+      
+      sample_data <- draw_sample(population_data = population_data, sampling = sampling)
+      
+      sample_data <- reveal_design(data = sample_data, design = design)
+      
+      estimates <- get_estimates(analysis, data = sample_data, analysis_labels = analysis_labels)
+      sample_estimands <- get_estimands(analysis, data = sample_data, analysis_labels = analysis_labels,
+                                        design = design)
+      
+    } else {
+      
+      population_data <- reveal_design(data = population_data, design = design)
+      
+      estimates <- get_estimates(analysis, data = population_data, analysis_labels = analysis_labels)
+      sample_estimands <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels,
+                                        design = design)
+      
+    }
+    
+    population_estimands <- get_estimands(analysis, data = population_data, 
+                                          analysis_labels = analysis_labels,
+                                          design = design)
+    
+    return(list(estimates, sample_estimands, population_estimands))
+    
+  }
   
   return_object <- list(estimates = simulations_list[[1]], 
                         sample_estimands = simulations_list[[2]],
@@ -75,8 +73,8 @@ diagnose <- function(population = NULL, sampling = NULL, potential_outcomes = NU
 }
 
 #' @export
-calculate_PATE <- function(sample_estimands, ...){
-  SATE <- sapply(1:length(sample_estimands), function(i) as.numeric(sample_estimands[[i]]["est", , drop = FALSE]))
+calculate_PATE <- function(estimands, ...){
+  SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]["est", , drop = FALSE]))
   
   if(class(SATE) == "matrix")
     PATE <- apply(SATE, 1, mean, na.rm = T)
@@ -88,8 +86,8 @@ calculate_PATE <- function(sample_estimands, ...){
 
 
 #' @export
-calculate_sd_SATE <- function(sample_estimands, ...){
-  SATE <- sapply(1:length(sample_estimands), function(i) as.numeric(sample_estimands[[i]]["est", , drop = FALSE]))
+calculate_sd_SATE <- function(estimands, ...){
+  SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]["est", , drop = FALSE]))
   
   if(class(SATE) == "matrix")
     sd_SATE <- apply(SATE, 1, sd, na.rm = T)
@@ -112,9 +110,9 @@ calculate_power <- function(estimates, ...){
 }
 
 #' @export
-calculate_RMSE <- function(estimates, sample_estimands, ...){
+calculate_RMSE <- function(estimates, estimands, ...){
   error <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - 
-                                                                sample_estimands[[i]]["est", , drop = FALSE]))
+                                                                estimands[[i]]["est", , drop = FALSE]))
   
   if(class(error) == "matrix")
     RMSE <- apply(error, 1, function(x) sqrt(mean(x^2, na.rm = T)))
@@ -125,10 +123,10 @@ calculate_RMSE <- function(estimates, sample_estimands, ...){
 }
 
 #' @export
-calculate_bias <- function(estimates, sample_estimands, ...){
-
+calculate_bias <- function(estimates, estimands, ...){
+  
   est_PATE_diff <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - 
-                                 calculate_PATE(sample_estimands = sample_estimands)))
+                                                                        calculate_PATE(estimands = estimands)))
   
   if(class(est_PATE_diff) == "matrix")
     bias <- apply(est_PATE_diff, 1, mean, na.rm = T)
@@ -139,10 +137,10 @@ calculate_bias <- function(estimates, sample_estimands, ...){
 }
 
 #' @export
-calculate_coverage <- function(estimates, sample_estimands, ...){
-  ci_covers_estimate <- sapply(1:length(estimates), function(i) as.numeric(sample_estimands[[i]]["est", , drop = FALSE] <= 
-                                 estimates[[i]]["ci_upper", , drop = FALSE] & 
-                                 sample_estimands[[i]]["est", , drop = FALSE] >= estimates[[i]]["ci_lower", , drop = FALSE]))
+calculate_coverage <- function(estimates, estimands, ...){
+  ci_covers_estimate <- sapply(1:length(estimates), function(i) as.numeric(calculate_PATE(estimands = estimands) <= 
+                                                                             estimates[[i]]["ci_upper", , drop = FALSE] & 
+                                                                             calculate_PATE(estimands = estimands) >= estimates[[i]]["ci_lower", , drop = FALSE]))
   
   if(class(ci_covers_estimate) == "matrix")
     coverage <- apply(ci_covers_estimate, 1, mean, na.rm = T)
@@ -155,8 +153,8 @@ calculate_coverage <- function(estimates, sample_estimands, ...){
 
 #' @export
 summary.diagnosis <- function(object, statistics = list(calculate_PATE, calculate_sd_SATE, calculate_power, 
-                                                            calculate_RMSE, calculate_bias, calculate_coverage), 
-                                  labels = c("PATE", "sd(SATE)", "Power", "RMSE", "Bias", "Coverage"), ...){
+                                                        calculate_RMSE, calculate_bias, calculate_coverage), 
+                              labels = c("PATE", "sd(SATE)", "Power", "RMSE", "Bias", "Coverage"), ...){
   
   ## extract names of statistics objects
   if(is.null(labels)){
@@ -172,25 +170,18 @@ summary.diagnosis <- function(object, statistics = list(calculate_PATE, calculat
   sample_estimands <- object$sample_estimands
   population_estimands <- object$population_estimands
   
-  return_matrix <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
+  return_matrix_population <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
   for(k in 1:length(statistics))
-    return_matrix[ , k] <- as.matrix(statistics[[k]](estimates = estimates, sample_estimands = sample_estimands, 
-                                                        population_estimands = population_estimands))
+    return_matrix_population[ , k] <- as.matrix(statistics[[k]](estimates = estimates, estimands = population_estimands))
   
-  return(return_matrix)
-}
-
-#' @export
-print.summary.diagnosis <- function(x, ...){
-  print(summary.diagnosis(x, ... = ...))
-  return()
-}
-
-
-#' @export
-print.diagnosis <- function(x, ...){
-  print(summary.diagnosis(x, ... = ...))
-  return()
+  if(!is.null(sample_estimands)){
+    return_matrix_sample <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
+    for(k in 1:length(statistics))
+      return_matrix_sample[ , k] <- as.matrix(statistics[[k]](estimates = estimates, estimands = sample_estimands))
+  }
+  
+  return(list(population = return_matrix_population,
+              sample = return_matrix_sample))
 }
 
 reorient <- function(x) {

@@ -93,7 +93,7 @@ cluster_sample <- function(clust_var, m = NULL, prob = NULL){
 }
 
 #' @export
-stratified_and_clustered_ra <- function(clust_var, strata_var, strata_m = NULL, prob = NULL, strata_prob = NULL){
+stratified_and_clustered_sample <- function(clust_var, strata_var, strata_m = NULL, prob = NULL, strata_prob = NULL){
   
   prob_each <- NULL
   if(!is.null(prob)){

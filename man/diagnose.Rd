@@ -4,15 +4,13 @@
 \alias{diagnose}
 \title{Declare the data-generating process of a variable}
 \usage{
-diagnose(population = NULL, sampling = NULL, potential_outcomes = NULL,
-  design, analysis, sims = 5, label = NULL, analysis_labels = NULL)
+diagnose(population = NULL, sampling = NULL, design, analysis, sims = 5,
+  label = NULL, analysis_labels = NULL)
 }
 \arguments{
 \item{population}{A population object, made with \code{\link{declare_population}}}
 
 \item{sampling}{A sampling object, made with \code{\link{declare_sampling}}}
-
-\item{potential_outcomes}{A potential outcomes object, made with \code{\link{declare_potential_outcomes}}}
 
 \item{sims}{number of iterations}
 

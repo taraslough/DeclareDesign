@@ -281,7 +281,14 @@ declare_design <-
     }
     
     # Obtain Condition Names
-    if(all(sapply(potential_outcomes, class)=="potential_outcomes")){
+    if(class(potential_outcomes) == "list"){
+      # Check to make sure all list items are po objects
+      if(!all(sapply(potential_outcomes, class)=="potential_outcomes")){ 
+        stop("All objects in the potential_outcomes argument must be created by declare_potential_outcomes.")
+      }
+      if(length(unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$outcome_name})))) != length(potential_outcomes)){
+        stop("Please use different outcome names in each potential outcomes object.")
+      }
       condition_names <- 
         unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$condition_names})))
     }else{
@@ -316,6 +323,7 @@ declare_design <-
                             custom_cluster_function = custom_cluster_function,
                             baseline_condition = baseline_condition,
                             treatment_variable = treatment_variable,
+                            potential_outcomes = potential_outcomes,
                             call = match.call())
     } else {
       return.object <- list(
@@ -323,6 +331,7 @@ declare_design <-
         condition_names = condition_names,
         baseline_condition = baseline_condition,
         treatment_variable = treatment_variable,
+        potential_outcomes = potential_outcomes,
         call = match.call())
     }
     class(return.object) <- "design"

@@ -23,10 +23,10 @@
 #' @rdname declare_analysis
 #' @export
 declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable = NULL, 
-                             estimator = difference_in_means, subset = NULL, weights = NULL, ...,
+                             estimator = difference_in_means, subset = NULL, weights_variable = NULL, ...,
                              quantity_of_interest = NULL, quantity_of_interest_labels = substitute(quantity_of_interest), 
                              estimand_formula = NULL, estimand = NULL, 
-                             estimand_subset = NULL, estimand_weights = NULL, 
+                             estimand_subset = NULL, estimand_weights_variable = NULL, 
                              estimand_options = NULL, estimand_quantity_of_interest = NULL, 
                              estimand_quantity_of_interest_labels = NULL) {
   
@@ -88,8 +88,8 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
       estimator_options$formula <- stats::formula(unclass(formula))
     if(!is.null(subset) & "subset" %in% argument_names)
       estimator_options$subset <- with(data, eval(parse(text = subset)))
-    if(!is.null(weights) & "weights" %in% argument_names)
-      estimator_options$weights <- data[, weights]
+    if(!is.null(weights_variable) & "weights" %in% argument_names)
+      estimator_options$weights <- data[, weights_variable]
     estimator_options$data <- data
     
     return(do.call(estimator, args = estimator_options))
@@ -101,8 +101,8 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
       estimand_options$formula <- stats::formula(unclass(estimand_formula))
     if(!is.null(estimand_subset) & "subset" %in% argument_names)
       estimand_options$subset <- with(data, eval(parse(text = estimand_subset)))
-    if(!is.null(estimand_weights) & "weights" %in% argument_names)
-      estimand_options$weights <- data[, estimand_weights]
+    if(!is.null(estimand_weights_variable) & "weights" %in% argument_names)
+      estimand_options$weights <- data[, estimand_weights_variable]
     estimand_options$data <- data
     
     return(do.call(estimand, args = estimand_options))

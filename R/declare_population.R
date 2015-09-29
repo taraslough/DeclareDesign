@@ -68,11 +68,13 @@ declare_population <- function(...,
     
     if(no_data == TRUE){
       population <- draw_population(population = structure(list(population = population_function(),
-                                                                potential_outcomes = potential_outcomes), 
+                                                                potential_outcomes = potential_outcomes,
+                                                                super_population = TRUE), 
                                                            class = "population"))
     } else {
       population <- draw_population(population = structure(list(population = data,
-                                                                potential_outcomes = potential_outcomes), 
+                                                                potential_outcomes = potential_outcomes,
+                                                                super_population = TRUE), 
                                                            class = "population"))
     }
     
@@ -84,7 +86,7 @@ declare_population <- function(...,
     
   }
   
-  return_object <- list(population = population, potential_outcomes = potential_outcomes, call = match.call())
+  return_object <- list(population = population, potential_outcomes = potential_outcomes, super_population = super_population, call = match.call())
   class(return_object) <- "population"
   
   return(return_object)

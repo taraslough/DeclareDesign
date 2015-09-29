@@ -1,6 +1,11 @@
 #' @export
-reveal_design <- function(data, design, outcome_variable = "Y", sep = "_") {
+reveal_design <- function(data, design) {
   
+  # Checks -------------------------------------------------
+  if(!class(design)=="design"){
+    stop("You must give reveal_design a design object.")
+  }
+
   # Make clusters and blocks ------------------------------------------------  
   
   if(!is.null(design$custom_cluster_function)){
@@ -11,15 +16,25 @@ reveal_design <- function(data, design, outcome_variable = "Y", sep = "_") {
     data[, design$block_variable_name] <- design$custom_block_function
   }
   
-  # Realize design -------------------------------------------------
-  treatment <- loop_treatment(data = data,
-                              design = design,
-                              assign_treatment = T,
-                              reveal_outcome = T,
-                              outcome_variable = outcome_variable,
-                              sep = sep)
+  # Assign treatment and reveal outcomes ------------------------------------------------  
+
+  data[, design$treatment_variable] <- assign_treatment(design = design, data = data)
   
-  data <- data.frame(treatment, data)
+  data[, "assignment_probs"] <- observed_probs(treatment_assignment = design$treatment_variable, design = design, data = data)
+  
+  data[, "assignment_weights"] <- 1/data[, "assignment_probs"]
+  
+  data[, "assignment_inclusion_probs"] <- data[, "assignment_probs"] * data[, "inclusion_probs"]
+  
+  data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probs"]
+  
+  if(class(design$potential_outcomes) == "potential_outcomes") { design$potential_outcomes <- list(design$potential_outcomes) }
+  
+  for(k in 1:length(design$potential_outcomes)){
+    data[, design$potential_outcomes[[k]]$outcome_name] <- observed_outcome(outcome = design$potential_outcomes[[k]]$outcome_name, 
+                                                                       treatment_assignment = design$treatment_variable, 
+                                                                       data = data, sep = design$potential_outcomes[[k]]$sep)
+  }
   
   return(data)
   
