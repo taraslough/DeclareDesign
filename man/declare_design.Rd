@@ -4,17 +4,15 @@
 \alias{declare_design}
 \title{Declare the experimental design}
 \usage{
-declare_design(potential_outcomes, blocks = NULL, clusters = NULL,
-  m = NULL, m_each = NULL, prob_each = NULL, block_m = NULL,
-  block_prob = NULL, excluded_arms = NULL, baseline_condition = NULL,
-  treatment_variable = "Z", custom_assignment_function = NULL)
+declare_design(potential_outcomes, block_variable_name = NULL,
+  cluster_variable_name = NULL, m = NULL, m_each = NULL,
+  prob_each = NULL, block_m = NULL, block_prob = NULL,
+  excluded_arms = NULL, baseline_condition = NULL,
+  treatment_variable = "Z", custom_assignment_function = NULL,
+  custom_block_function = NULL, custom_cluster_function = NULL)
 }
 \arguments{
 \item{potential_outcomes}{potential_outcomes object, as created by \code{\link{declare_potential_outcomes}} (required).}
-
-\item{blocks}{blocks object, as created by \code{\link{declare_blocks}} (optional).}
-
-\item{clusters}{clusters object, as created by \code{\link{declare_clusters}} (optional).}
 
 \item{m}{the number of units (or clusters) to be assigned to treatment in a two-arm trial.}
 
@@ -27,6 +25,10 @@ declare_design(potential_outcomes, blocks = NULL, clusters = NULL,
 \item{block_prob}{a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.}
 
 \item{excluded_arms}{a character vector excluding some potential outcomes from the randomization.  Used primarily when comparing designs that feature different numbers of treatment arms.}
+
+\item{blocks}{blocks object, as created by \code{\link{declare_blocks}} (optional).}
+
+\item{clusters}{clusters object, as created by \code{\link{declare_clusters}} (optional).}
 }
 \value{
 design object

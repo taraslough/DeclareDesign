@@ -245,8 +245,8 @@ blocked_and_clustered_ra <-
 #' @export
 declare_design <- 
   function(potential_outcomes, 
-           blocks = NULL, 
-           clusters = NULL,
+           block_variable_name = NULL, 
+           cluster_variable_name = NULL,
            m = NULL, 
            m_each = NULL, 
            prob_each = NULL, 
@@ -255,18 +255,40 @@ declare_design <-
            excluded_arms = NULL,
            baseline_condition = NULL,
            treatment_variable = "Z",
-           custom_assignment_function = NULL) {
+           custom_assignment_function = NULL,
+           custom_block_function = NULL,
+           custom_cluster_function = NULL) {
     
     # Determine design type
     design_type <- "complete"   
-    if(!is.null(blocks)) {design_type <- "blocked"}
-    if(!is.null(clusters)) {design_type <- "clustered"}
-    if(!is.null(clusters) & !is.null(blocks)) {
+    if(!is.null(block_variable_name)) {design_type <- "blocked"}
+    if(!is.null(cluster_variable_name)) {design_type <- "clustered"}
+    if(!is.null(cluster_variable_name) & !is.null(block_variable_name)) {
       design_type <- "blocked and clustered"
     }
     
+    # Checks ------------------------------------------------------------------
+    if(design_type == "blocked" & !is.null(m)){
+      stop("Please do not specify m in a blocked design.  Use block_m or block_prob instead.")
+    }
+    
+    if(!is.null(custom_block_function) & !is.character(block_variable_name)){
+      stop("If you supply a custom block function, you must supply the name of the block variable.")
+    }
+    
+    if(!is.null(custom_cluster_function) & !is.character(cluster_variable_name)){
+      stop("If you supply a custom cluster function, you must supply the name of the cluster variable.")
+    }
+    
     # Obtain Condition Names
-    if(all(sapply(potential_outcomes, class)=="potential_outcomes")){
+    if(class(potential_outcomes) == "list"){
+      # Check to make sure all list items are po objects
+      if(!all(sapply(potential_outcomes, class)=="potential_outcomes")){ 
+        stop("All objects in the potential_outcomes argument must be created by declare_potential_outcomes.")
+      }
+      if(length(unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$outcome_name})))) != length(potential_outcomes)){
+        stop("Please use different outcome names in each potential outcomes object.")
+      }
       condition_names <- 
         unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$condition_names})))
     }else{
@@ -287,32 +309,9 @@ declare_design <-
       baseline_condition <- condition_names[1]
     }
     
-    # Figure out blocks
-    if(!is.null(blocks) & is.character(blocks)){
-      blocks <- declare_blocks(blocks = blocks, recode = FALSE)
-    }
-    
-    if(!is.null(blocks) & !is.character(blocks)){
-      block_name <- blocks$block_name
-    }
-
-    if(is.null(blocks)){block_name=NULL}
-    
-    # Figure out cluster name
-    if(!is.null(clusters) & is.character(clusters)){
-      clusters_internal <- clusters
-      clusters <- declare_clusters(clusters = clusters_internal)
-    }  
-    
-    if(!is.null(clusters) & !is.character(clusters)){
-      cluster_name <- clusters$cluster_name
-    }
-
-    if(is.null(clusters)){cluster_name=NULL}
-    
     if(is.null(custom_assignment_function)){
-      return.object <- list(block_name = block_name,
-                            cluster_name = cluster_name,
+      return.object <- list(block_variable_name = block_variable_name,
+                            cluster_variable_name = cluster_variable_name,
                             condition_names = condition_names,
                             m = m,
                             m_each = m_each,
@@ -320,10 +319,11 @@ declare_design <-
                             block_m = block_m,
                             block_prob = block_prob,
                             design_type = design_type,
-                            blocks = blocks,
-                            clusters = clusters,
+                            custom_block_function = custom_block_function,
+                            custom_cluster_function = custom_cluster_function,
                             baseline_condition = baseline_condition,
                             treatment_variable = treatment_variable,
+                            potential_outcomes = potential_outcomes,
                             call = match.call())
     } else {
       return.object <- list(
@@ -331,6 +331,7 @@ declare_design <-
         condition_names = condition_names,
         baseline_condition = baseline_condition,
         treatment_variable = treatment_variable,
+        potential_outcomes = potential_outcomes,
         call = match.call())
     }
     class(return.object) <- "design"

@@ -4,29 +4,13 @@
 \alias{diagnose}
 \title{Declare the data-generating process of a variable}
 \usage{
-diagnose(data = NULL, potential_outcomes = NULL, sample = NULL,
-  blocks = NULL, clusters = NULL, design, analysis,
-  bootstrap_data = FALSE, N_bootstrap, sims = 5, label = NULL,
-  analysis_labels = NULL)
+diagnose(population = NULL, sampling = NULL, design, analysis, sims = 5,
+  label = NULL, analysis_labels = NULL)
 }
 \arguments{
-\item{data}{An optional user provided dataframe (not made with \code{\link{make_data}})}
+\item{population}{A population object, made with \code{\link{declare_population}}}
 
-\item{potential_outcomes}{A potential outcomes object, made with \code{\link{declare_potential_outcomes}}}
-
-\item{sample}{A sample frame object, made with \code{\link{declare_sample}}}
-
-\item{blocks}{A blocks object, made with \code{\link{declare_blocks}} (optional).}
-
-\item{clusters}{A clusters object, made with \code{\link{declare_clusters}} (optional).}
-
-\item{design}{design object, made with \code{\link{declare_design}}.}
-
-\item{analysis}{analysis object, made with \code{\link{declare_analysis}}, or a list of such objects.}
-
-\item{bootstrap_data}{Logical}
-
-\item{N_bootstrap}{Number of bootstrap sims to conduct}
+\item{sampling}{A sampling object, made with \code{\link{declare_sampling}}}
 
 \item{sims}{number of iterations}
 

@@ -7,7 +7,7 @@ Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@columbia.edu", role
              person("Macartan", "Humphreys", email = "macartan@gmail.com", role = c("aut")))
 Description: Experiment registration package to create a pre-registration document and describe an experimental design and planned analyses in detail.
 Depends: R (>= 3.2.0)
-Imports: rmarkdown, formatR, knitr, xtable
+Imports: rmarkdown, formatR, knitr, xtable, foreach, doRNG
 Suggests: testthat
 VignetteBuilder: knitr
 License: GPL (>= 2)

@@ -139,7 +139,7 @@ declared in wide-format as above (`sample_6`).
 
 In order to create levels, the user simply provides `declare_sample()`
 with (preferably named) lists of variables, one per level, and describes the
-data structure using either `N_per_level` or `group_sizes_by_level`. 
+data structure using either `N_per_level` or `group_sizes_per_level`. 
 `N_per_level` is the simplest way to specify the data structure: it tells 
 us how many units or groups of units are at each level. For example, 
 a study with 8 students, selected from 4 classrooms in 2 different schools would 
@@ -174,17 +174,17 @@ make_data(sample = sample_7)
 ```
 
 However, if the user wants to specify specify structures with unequal group 
-sizes, it is necessary to use `group_sizes_by_level`, which is a list of vectors
+sizes, it is necessary to use `group_sizes_per_level`, which is a list of vectors
 containing group sizes at each level. The first level should always be an 
 $N$-length vector of ones, to represent the 'groups' at the unit level.
-Thus, `N_per_level = 5`, `N = 5`, and `group_sizes_by_level = list(c(1,1,1,1,1))`
+Thus, `N_per_level = 5`, `N = 5`, and `group_sizes_per_level = list(c(1,1,1,1,1))`
 imply identical data structures. We repeat the example above, but with 
 different class sizes:
 
 
 ```{r}
 
-group_sizes_by_level <- list(
+group_sizes_per_level <- list(
   students = rep(1,8),
   students_per_class = c(1,2,3,2),
   classes_per_school = c(3,1)
@@ -202,7 +202,7 @@ sample_8 <- declare_sample(
  school = list(
    poor_area = declare_variable(binary_probability = .5)
  ),
- group_sizes_by_level = group_sizes_by_level
+ group_sizes_per_level = group_sizes_per_level
 )
 
 make_data(sample = sample_8)

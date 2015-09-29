@@ -1,27 +1,69 @@
+#' @export
+reveal_design <- function(data, design) {
+  
+  # Checks -------------------------------------------------
+  if(!class(design)=="design"){
+    stop("You must give reveal_design a design object.")
+  }
+
+  # Make clusters and blocks ------------------------------------------------  
+  
+  if(!is.null(design$custom_cluster_function)){
+    data[, design$cluster_variable_name] <- design$custom_cluster_function
+  }
+  
+  if(!is.null(design$custom_block_function)) { 
+    data[, design$block_variable_name] <- design$custom_block_function
+  }
+  
+  # Assign treatment and reveal outcomes ------------------------------------------------  
+
+  data[, design$treatment_variable] <- assign_treatment(design = design, data = data)
+  
+  data[, "assignment_probs"] <- observed_probs(treatment_assignment = design$treatment_variable, design = design, data = data)
+  
+  data[, "assignment_weights"] <- 1/data[, "assignment_probs"]
+  
+  data[, "assignment_inclusion_probs"] <- data[, "assignment_probs"] * data[, "inclusion_probs"]
+  
+  data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probs"]
+  
+  if(class(design$potential_outcomes) == "potential_outcomes") { design$potential_outcomes <- list(design$potential_outcomes) }
+  
+  for(k in 1:length(design$potential_outcomes)){
+    data[, design$potential_outcomes[[k]]$outcome_name] <- observed_outcome(outcome = design$potential_outcomes[[k]]$outcome_name, 
+                                                                       treatment_assignment = design$treatment_variable, 
+                                                                       data = data, sep = design$potential_outcomes[[k]]$sep)
+  }
+  
+  return(data)
+  
+}
+
 #' Assign treatment status
 #'
 #' Description
 #' @param design A design object created by \code{\link{declare_design}}; or a function that assigns treatment
-#' @param data A dataframe, often created by \code{\link{make_data}}.
+#' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @return A random assignment vector of length N.
 #' @examples
-#' smp <- declare_sample(N = 850)
-#' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-#'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-#' design <- declare_design(potential_outcomes = po, m=200)
-#' mock          <- make_data(potential_outcomes = po, sample =  smp)
-#' Z        <- assign_treatment(design, data = mock)
-#' table(Z)
+#' # these examples don't work yet
+#' # smp <- declare_population(N = 850)
+#' # po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+#' #                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+#' # design <- declare_design(potential_outcomes = po, m=200)
+#' # mock          <- draw_population(potential_outcomes = po, sample =  smp)
+#' # Z        <- assign_treatment(design, data = mock)
+#' # table(Z)
 #' @export
 assign_treatment <- function(design, data) {
   
   ## should be expanded to take either a design object or a function
   
   N <- nrow(data)
-  block_name <- design$block_name
-  cluster_name <- design$cluster_name
-  block_var <- data[,block_name]
-  clust_var <- data[,cluster_name]
+
+  block_var <- data[,design$block_variable_name]
+  clust_var <- data[,design$cluster_variable_name]
   
   condition_names <- design$condition_names
   baseline_condition <- design$baseline_condition
@@ -96,11 +138,11 @@ assign_treatment <- function(design, data) {
 #' @param sep The character separating outcomes from condition names in the potential outcomes columns of data
 #' @return an outcome vector of observed y
 #' @examples
-#' smp <- declare_sample(N = 850)
+#' smp <- declare_population(N = 850)
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' design <- declare_design(potential_outcomes = po, m=200)
-#' mock          <- make_data(potential_outcomes = po, sample =  smp)
+#' mock          <- draw_population(potential_outcomes = po, sample =  smp)
 #' mock$Z        <- assign_treatment(design, data = mock)
 #' mock$Y  <- observed_outcome("Y", "Z", mock)
 #' summary(lm(Y~Z, data=mock))
@@ -138,14 +180,14 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data, sep = "_
 #' Description
 #' @param treatment_assignment The name of the treatment assignment variable in data.
 #' @param design A design object created by \code{\link{declare_design}}; or a function that assigns treatment
-#' @param data A dataframe, often created by \code{\link{make_data}}.
+#' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @return A vector probabilities of assignment to treatment.
 #' @examples
-#' smp <- declare_sample(N = 850)
+#' smp <- declare_population(N = 850)
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' design <- declare_design(potential_outcomes = po, m=200)
-#' mock          <- make_data(potential_outcomes = po, sample =  smp)
+#' mock          <- draw_population(potential_outcomes = po, sample =  smp)
 #' mock$Z        <- assign_treatment(design, data = mock)
 #' mock$prob_obs        <- observed_probs("Z", design, mock)
 #' 

@@ -9,7 +9,7 @@ assign_treatment(design, data)
 \arguments{
 \item{design}{A design object created by \code{\link{declare_design}}; or a function that assigns treatment}
 
-\item{data}{A dataframe, often created by \code{\link{make_data}}.}
+\item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 }
 \value{
 A random assignment vector of length N.
@@ -18,12 +18,13 @@ A random assignment vector of length N.
 Description
 }
 \examples{
-smp <- declare_sample(N = 850)
-po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-                                   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-design <- declare_design(potential_outcomes = po, m=200)
-mock          <- make_data(potential_outcomes = po, sample =  smp)
-Z        <- assign_treatment(design, data = mock)
-table(Z)
+# these examples don't work yet
+# smp <- declare_population(N = 850)
+# po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
+#                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+# design <- declare_design(potential_outcomes = po, m=200)
+# mock          <- draw_population(potential_outcomes = po, sample =  smp)
+# Z        <- assign_treatment(design, data = mock)
+# table(Z)
 }
 

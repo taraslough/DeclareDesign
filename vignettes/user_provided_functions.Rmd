@@ -51,7 +51,8 @@ make_clustered_data_experimentr <- function(N_per_level = NULL){
 }
 
 
-sample <- declare_sample(custom_data_function = make_clustered_data_experimentr, N_per_level = c(1000, 10))
+population <- declare_population(custom_population_function = make_clustered_data_experimentr, 
+                             N_per_level = c(1000, 10))
 ```
 
 Second, we define the potential outcomes, which will be simulated based on the baseline covariate data. Here we illustrate a custom function that determines potential outcomes -- a binomial distribution with a probit link. You can type any function, including one you make up, in place of rbinom. (Or none at all for OLS.)
@@ -61,21 +62,6 @@ potential_outcomes     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
   outcome_formula = Y_star ~ rbinom(500, size = 1, prob = pnorm(Y0*Z0 + Y1*Z1))
 )
-```
-
-```{r}
-random_clusters <- function(data){
-  return(sample(1:10, nrow(data), replace = T))
-}
-clusters_alternate     <-  declare_clusters(custom_cluster_function = random_clusters, 
-                                            cluster_name = "random_clusters")
-```
-
-```{r}
-random_blocks <- function(data){
-  return(data$random_clusters < 10)
-}
-blocks_alternate     <-  declare_blocks(blocks_function = random_blocks, clusters = clusters_alternate)
 ```
 
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis. Here we define a custom estimator (probit regression) and a custom QOI function (for this example, it just pulls the probit coefficient, which is note an estimate of any causal quantity).
@@ -104,20 +90,34 @@ analysis      <- declare_analysis(formula = Y_star ~ Z_star, treatment_variable 
 Then we declare the design of the experiment, in this case a simple one without clusters or blocking. Here we demonstrate how to use a custom random assignment function, in this case simple random sampling of "Z0" and "Z1".
 
 ```{r}
+random_clusters <- function(data){
+  return(sample(1:10, nrow(data), replace = T))
+}
+```
+
+```{r}
+random_blocks <- function(data){
+  return(data$random_clusters < 10)
+}
+```
+
+```{r}
 assign_function <- function()
     return(sample(c("Z0", "Z1"), 500, replace = T))
   
-design_custom <- declare_design(potential_outcomes = potential_outcomes, custom_assignment_function = assign_function, treatment_variable = "Z_star")
-
-design <- declare_design(potential_outcomes = potential_outcomes, ##clusters = clusters_alternate,
-                         blocks = blocks_alternate)
+design_custom <- declare_design(potential_outcomes = potential_outcomes, 
+                                custom_assignment_function = assign_function, 
+                                treatment_variable = "Z_star",
+                                block_variable_name = "random_block",
+                                custom_block_function = random_blocks,
+                                cluster_variable_name = "random_cluster",
+                                custom_cluster_function = random_clusters)
 ```
 
 Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the diagnose function.
 
 ```{r}
-simulations <- diagnose(potential_outcomes = potential_outcomes, 
-                        sample = sample, 
+simulations <- diagnose(population = population, 
                         design = design, 
                         analysis = analysis)
 kable(summary(simulations), digits = 3)
@@ -128,8 +128,8 @@ kable(summary(simulations), digits = 3)
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
 
 ```{r}
-mock <- make_data(sample = sample, potential_outcomes = potential_outcomes, design = design,
-                  assign_treatment = TRUE, observed_outcomes = TRUE, treatment_variable = "Z_star")
+mock <- draw_population(population = population)
+mock <- reveal_design(data = mock, design = design)
 kable(head(mock), digits = 3)
 ```
 

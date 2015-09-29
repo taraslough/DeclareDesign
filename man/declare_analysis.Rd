@@ -10,26 +10,27 @@
 \title{Declare an experimental analysis}
 \usage{
 declare_analysis(formula, treatment_variable = "Z", outcome_variable = NULL,
-  estimator = difference_in_means, subset = NULL, weights = NULL, ...,
-  quantity_of_interest = NULL,
+  estimator = difference_in_means, subset = NULL, weights_variable = NULL,
+  ..., quantity_of_interest = NULL,
   quantity_of_interest_labels = substitute(quantity_of_interest),
   estimand_formula = NULL, estimand = NULL, estimand_subset = NULL,
-  estimand_weights = NULL, estimand_options = NULL,
+  estimand_weights_variable = NULL, estimand_options = NULL,
   estimand_quantity_of_interest = NULL,
   estimand_quantity_of_interest_labels = NULL)
 
-truth_data_frame(formula = NULL, treatment_variable = "Z", weights = NULL,
-  subset = NULL, data = data, estimand_options = NULL, sep = "_", ...)
+truth_data_frame(formula = NULL, treatment_variable = "Z",
+  design = design, weights = NULL, subset = NULL, data = data,
+  estimand_options = NULL, sep = "_", ...)
 
 get_estimates_model(analysis, data)
 
-get_estimands_model(analysis, data)
+get_estimands_model(analysis, data, design)
 
 get_estimates(analysis, quantity_of_interest = NULL, data,
   analysis_labels = NULL)
 
-get_estimands(analysis, qoi = NULL, data, statistics = "est",
-  analysis_labels = NULL)
+get_estimands(analysis, qoi = NULL, data, design = design,
+  statistics = "est", analysis_labels = NULL)
 }
 \arguments{
 \item{formula}{A standard R formula as a string or formula object, i.e. Y ~ Z, that indicates the outcome and the treatment indicator as well as covariates, block indicators, etc. that are used to construct estimates and/or estimands. By default, the formula provided is used for estimates and estimands.}
@@ -40,9 +41,9 @@ get_estimands(analysis, qoi = NULL, data, statistics = "est",
 
 \item{subset}{A string indicating the subset of the data to take in estimates and, by default, estimands.}
 
-\item{weights}{A string indicating the name of the weights variable to be used in weighted estimators such as WLS.}
-
 \item{estimand}{defaults to "ATE".}
+
+\item{weights}{A string indicating the name of the weights variable to be used in weighted estimators such as WLS.}
 
 \item{data}{what is it?}
 

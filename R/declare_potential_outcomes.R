@@ -7,7 +7,7 @@
 #' @return outcomes_object
 #' @export
 declare_potential_outcomes <- function(condition_names = NULL, outcome_formula = NULL,
-                                       population_proportions = NULL, proportion_outcome_name = NULL){
+                                       population_proportions = NULL, proportion_outcome_name = NULL, sep = "_"){
   
 
   
@@ -84,6 +84,7 @@ declare_potential_outcomes <- function(condition_names = NULL, outcome_formula =
       condition_names  = condition_names,
       population_proportions = population_proportions,
       outcome_name = proportion_outcome_name,
+      sep = sep,
       call = match.call()
     )
     
@@ -110,6 +111,7 @@ declare_potential_outcomes <- function(condition_names = NULL, outcome_formula =
       condition_names  = condition_names,
       outcome_formula  = outcome_formula,
       outcome_name     = all.vars(outcome_formula)[1],
+      sep = sep,
       call = match.call()
     )
     class(outcomes_object) <- "potential_outcomes"

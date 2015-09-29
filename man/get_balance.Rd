@@ -14,7 +14,7 @@ get_balance(covariates, treatment_assignment = "Z", design, data,
 
 \item{design}{A design object, created by \code{\link{declare_design}}.}
 
-\item{data}{A dataframe, often created by \code{\link{make_data}}.}
+\item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 
 \item{report_difference}{what is it?}
 

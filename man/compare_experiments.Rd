@@ -5,7 +5,7 @@
 \title{Declare the data-generating process of a variable}
 \usage{
 compare_experiments(N = NULL, N_per_level = NULL,
-  group_sizes_by_level = NULL, design = NULL, analysis = NULL,
+  group_sizes_per_level = NULL, design = NULL, analysis = NULL,
   sample = NULL, potential_outcomes = NULL, blocks = NULL,
   clusters = NULL, sims = 5, labels = NULL, analysis_labels = NULL)
 }
@@ -14,7 +14,7 @@ compare_experiments(N = NULL, N_per_level = NULL,
 
 \item{N_per_level}{what is it?}
 
-\item{group_sizes_by_level}{what is it?}
+\item{group_sizes_per_level}{what is it?}
 
 \item{design}{what is it?}
 
