@@ -184,6 +184,19 @@ summary.diagnosis <- function(object, statistics = list(calculate_PATE, calculat
               sample = return_matrix_sample))
 }
 
+#' @export
+print.summary.diagnosis <- function(x, ...){
+  print(summary.diagnosis(x, ... = ...))
+  return()
+}
+
+
+#' @export
+print.diagnosis <- function(x, ...){
+  print(summary.diagnosis(x, ... = ...))
+  return()
+}
+
 reorient <- function(x) {
   obj <- c(x)
   names(obj) <- rep(paste(rownames(x), colnames(x), sep = "_"), each = ncol(x))
