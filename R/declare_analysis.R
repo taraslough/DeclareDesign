@@ -42,8 +42,8 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
       ATE_formula <- as.formula(paste(outcome_variable, "~", treatment_variable))
       if(!is.null(estimand_formula)){
         if(estimand_formula != ATE_formula)
-          stop(paste0("When you use the lm, difference_in_means, or difference_in_means_blocked estimator",
-                      "and do not set estimand, we set estimand to difference_in_means. You cannot set the",
+          stop(paste0("When you use the lm, difference_in_means, or difference_in_means_blocked estimator ",
+                      "and do not set estimand, we set estimand to difference_in_means. You cannot set the ",
                       "estimand_formula in this case to anything except ", ATE_formula, 
                       ". To avoid this error, set estimand manually."))
       }
@@ -80,7 +80,8 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
   treat_coef_num <- which(attr(terms.formula(formula), "term.labels") == treatment_variable) + 
     as.numeric(attr(terms.formula(formula), "intercept") == 1)
   
-  if(substitute(estimator) == "difference_in_means" & (length(all.vars(formula)) > 2 | !(treatment_variable %in% all.vars(formula[[3]])) ))
+  if(substitute(estimator) == "difference_in_means" & (length(all.vars(formula)) > 2 | 
+                                                       !(treatment_variable %in% all.vars(formula[[3]])) ))
     stop("When using the difference_in_means method, there should only be one covariate listed in the formula on the right-hand side: the treatment variable.")
   
   if(is.null(outcome_variable) & is.null(formula))
@@ -114,6 +115,7 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
   
   if(!is.null(quantity_of_interest))
     environment(quantity_of_interest) <- environment()
+  
   if(!is.null(estimand_quantity_of_interest))
     environment(estimand_quantity_of_interest) <- environment()
   
@@ -124,8 +126,10 @@ declare_analysis <- function(formula, treatment_variable = "Z", outcome_variable
                         treatment_variable = treatment_variable,
                         outcome_variable = outcome_variable, arguments = arguments,
                         call = match.call())
+  
   if(is.null(quantity_of_interest))
     return_object$quantity_of_interest <- NULL
+  
   if(is.null(estimand_quantity_of_interest))
     return_object$estimand_quantity_of_interest <- NULL  
   
