@@ -11,6 +11,7 @@ vignette: >
 
 ```{r,echo=FALSE}
 library(experimentr)
+library(knitr)
 ```
 
 This vignette demonstrates how to simulate data for use in power analysis. 
@@ -29,14 +30,21 @@ supplying the `population` object to `draw_population()`, or by calling the
 # The sample size
 N <- 10
 # An unnamed, standard normal variable:
-sample_1 <- declare_population(
+univariate_pop <- declare_population(
   declare_variable(),
   N = N
 )
-draw_population(population = sample_1)
+univariate_draw <- draw_population(population = univariate_pop)
+```
 
+
+```{r,echo=F}
+kable(univariate_draw, digits = 2)
+```
+
+```{r}
 # Multinomial, binomial and normal covariates
-sample_2 <- declare_population(
+multivariate_pop <- declare_population(
   income = declare_variable(normal_mean = 1000,normal_sd = 10),
   gender = declare_variable(binary_probability = .5,
                             binary_categories = c("male","female")),
@@ -46,7 +54,15 @@ sample_2 <- declare_population(
   N = N
 )
 
-draw_population(population = sample_2)
+multivariate_draw <- draw_population(population = multivariate_draw)
+```
+
+
+```{r,echo=F}
+kable(
+  multivariate_draw,
+  digits = 2
+  )
 ```
 
 We can also generate data using custom functions, provided that a) 
@@ -57,8 +73,7 @@ For this reason, using
 the size of the covariate matrix.
 
 ```{r}
-
-sample_3 <- declare_population(
+custom_fun_pop <- declare_population(
   # Using functions
   change_1 = function(){rnorm(n = N,mean = 0,sd = 1)},
   success_1 = function(){rbinom(n = N,size = 1,prob = .5)},
@@ -68,8 +83,15 @@ sample_3 <- declare_population(
   N = N
 )
 
-draw_population(population = sample_3)
+custom_fun_draw <- draw_population(population = custom_fun_pop)
+```
 
+
+```{r,echo=F}
+kable(
+  custom_fun_draw,
+  digits = 2
+)
 ```
 
 ## Transformations of Covariates
@@ -83,9 +105,8 @@ length; and c) the transformations take place on the same 'level'
 
 
 ```{r}
-
 # Here we create 'age' as a rounded draw from a normal distribution
-sample_4 <- declare_population(
+transform_pop <- declare_population(
   # Declare the raw variables 
   age_raw = declare_variable(normal_mean = 30,normal_sd = 5),
   # Declare the transformation
@@ -93,10 +114,19 @@ sample_4 <- declare_population(
   N = N
 )
 
-draw_population(population = sample_4)
+transform_draw <- draw_population(population = transform_pop)
+```
 
+```{r,echo=F}
+kable(
+  transform_draw,
+  digits = 2
+)
+```
+
+```{r,echo=T}
 # Here use two transformations to create an 'index' of three other variables
-sample_5 <- declare_population(
+index_pop <- declare_population(
   # Declare the raw variables 
   fitness = declare_variable(normal_mean = 10,normal_sd = 5),
   diet = declare_variable(normal_mean = 10,normal_sd = 5),
@@ -108,10 +138,29 @@ sample_5 <- declare_population(
   N = N
 )
 
-draw_population(population = sample_5)
+index_draw <- draw_population(population = index_pop)
+```
+
+```{r,echo=F}
+kable(
+  index_draw,
+  digits = 2
+)
+```
+
+## Time-Series Data Structures
+
+It is possible to create temporal data structures in long and wide format. 
+However, in the case of complex temporally-dependent data structures, 
+the user may find it more practical to code her own data-generating function and 
+to use this. 
+
+Below is an example of serially-correlated time-series data in wide format. 
+
+```{r,echo=T}
 
 # Here we generate wide-format temporal data 
-sample_6 <- declare_population(
+time_series_pop <- declare_population(
   firm = list(
     # Firm profit is i.i.d in year 1
     year_1 = declare_variable(normal_mean = 10,normal_sd = 3),
@@ -122,12 +171,47 @@ sample_6 <- declare_population(
   N = N
 )
 
-draw_population(population = sample_6)
+time_series_draw <- draw_population(population = time_series_pop)
 
+```
+
+```{r,echo=F}
+kable(
+  time_series_draw,
+  digits = 2
+)
 ```
 
 Note that, if the list is named as above, the ID variable inherits this name
 (here, `firm` becomes `firm_id`). We have here declared `firm` as a 'level'. 
+
+Next, we have an example 
+
+```{r,echo=T}
+
+# Here we generate long-format temporal data 
+long_time_pop <- declare_population(
+  firm_year = list(
+    baseline = function()rep(rnorm(N),each = 4),
+    year_effect = declare_variable(),
+    year = function()rep(1:N,4),
+    firm = function()rep(1:N,each = 4),
+    firm_obs = declare_variable(transformation = "baseline + year_effect")
+    ),
+  
+  N = N*4
+)
+
+long_time_draw <- draw_population(population = long_time_pop)
+
+```
+
+```{r,echo=F}
+kable(
+  time_series_draw,
+  digits = 2
+)
+```
 
 ## Multi-Level Covariate Structures
 
@@ -154,7 +238,7 @@ N_per_level <- c(students = 8,
 # Note: level names are inhereted from the variable declarations, not 
 # from the the N_per_level vector
 
-sample_7 <- declare_population(
+school_pop <- declare_population(
  student = list(
    math_score = declare_variable(),
    lang_score = declare_variable()
@@ -169,9 +253,16 @@ sample_7 <- declare_population(
  N_per_level = N_per_level
 )
 
-draw_population(population = sample_7)
-
+school_draw <- draw_population(population = school_pop)
 ```
+
+```{r,echo=F}
+kable(
+  school_draw,
+  digits = 2
+)
+```
+
 
 However, if the user wants to specify specify structures with unequal group 
 sizes, it is necessary to use `group_sizes_per_level`, which is a list of vectors
@@ -183,14 +274,13 @@ different class sizes:
 
 
 ```{r}
-
 group_sizes_per_level <- list(
   students = rep(1,8),
   students_per_class = c(1,2,3,2),
   classes_per_school = c(3,1)
 )
 
-sample_8 <- declare_population(
+unequal_class_pop <- declare_population(
  student = list(
    math_score = declare_variable(),
    lang_score = declare_variable()
@@ -205,8 +295,15 @@ sample_8 <- declare_population(
  group_sizes_per_level = group_sizes_per_level
 )
 
-draw_population(population = sample_8)
+unequal_class_draw <- draw_population(population = unequal_class_pop)
 
+```
+
+
+```{r,echo=F}
+kable(
+  
+)
 ```
 
 
