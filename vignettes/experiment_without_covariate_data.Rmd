@@ -64,7 +64,7 @@ simulations <- diagnose(population = population, design = design, analysis = ana
 summary(simulations)
 ```
 
-This indicates the power, `r summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
+This indicates the power, `summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
 
 ## Mock analysis
 
