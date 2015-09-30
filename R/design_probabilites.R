@@ -20,17 +20,17 @@
 get_design_probs <- function(design, data){
   
   N <- nrow(data)  
-  block_name <- design$block_name
-  cluster_name <- design$cluster_name
+  block_variable_name <- design$block_variable_name
+  cluster_variable_name <- design$cluster_variable_name
   
-  if(!is.null(block_name)){
-    block_var <- data[,block_name]  
+  if(!is.null(block_variable_name)){
+    block_var <- data[,block_variable_name]  
   }else{
     block_var <- NULL
   }
   
-  if(!is.null(cluster_name)){
-    clust_var <- data[,cluster_name]
+  if(!is.null(cluster_variable_name)){
+    clust_var <- data[,cluster_variable_name]
   }else{
     clust_var <- NULL
   }

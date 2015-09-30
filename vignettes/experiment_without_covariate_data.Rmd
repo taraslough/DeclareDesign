@@ -46,7 +46,8 @@ Fourth, we define one or more analyses we will run based on simulated data. This
 
 
 ```{r}
-analysis      <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = difference_in_means)
+analysis <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
+                             estimator = difference_in_means)
 ```
 
 Then we declare the design of the experiment, in this case a simple one without clusters or blocking.
@@ -162,7 +163,7 @@ This indicates the power, `summary(simulations)[3]`, is less than the typical th
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
 
 ```{r}
-mock <- draw_population(population = populaiton_block_cluster)
+mock <- draw_population(population = population_block_cluster)
 mock <- reveal_design(data = mock, design = design_block_cluster)
 ```
 
