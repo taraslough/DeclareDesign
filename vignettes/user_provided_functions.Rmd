@@ -34,10 +34,10 @@ make_clustered_data <- function(J = 10, n = 100, treatment_effect = .25, ICC = .
   }
   Y0_j         <- rnorm(J,0,sd = (1 + treatment_effect) ^ 2 * sqrt(ICC))
   fake_data    <- expand.grid(i = 1:n,j = 1:J)
-  fake_data$Y0 <- rnorm(n * J,0,sd = (1 + treatment_effect) ^ 2 * sqrt(1 - ICC)) + Y0_j[fake_data$j]
-  fake_data$Y1 <- with(fake_data,mean(Y0) + treatment_effect + (Y0 - mean(Y0)) * (2 / 3))
+  fake_data$Y_Z0 <- rnorm(n * J,0,sd = (1 + treatment_effect) ^ 2 * sqrt(1 - ICC)) + Y0_j[fake_data$j]
+  fake_data$Y_Z1 <- with(fake_data,mean(Y_Z0) + treatment_effect + (Y_Z0 - mean(Y_Z0)) * (2 / 3))
   fake_data$Z  <- ifelse(fake_data$j %in% sample(1:J,J / 2) == TRUE, 1, 0)
-  fake_data$Y  <- with(fake_data, Z * Y1 + (1 - Z) * Y0)
+  fake_data$Y  <- with(fake_data, Z * Y_Z1 + (1 - Z) * Y_Z1)
   return(fake_data)
 }
 
@@ -60,7 +60,7 @@ Second, we define the potential outcomes, which will be simulated based on the b
 ```{r}
 potential_outcomes     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
-  outcome_formula = Y_star ~ rbinom(500, size = 1, prob = pnorm(Y0*Z0 + Y1*Z1))
+  outcome_formula = Y_star ~ rbinom(500, size = 1, prob = pnorm(Y_Z0*Z0 + Y_Z1*Z1))
 )
 ```
 
@@ -118,7 +118,7 @@ Before finalizing the design, we conduct a power analysis to determine whether 5
 
 ```{r}
 simulations <- diagnose(population = population, 
-                        design = design, 
+                        design = design_custom, 
                         analysis = analysis)
 kable(summary(simulations), digits = 3)
 ```
@@ -129,7 +129,7 @@ After settling on a sample size and a final design, we can conduct a mock analys
 
 ```{r}
 mock <- draw_population(population = population)
-mock <- reveal_design(data = mock, design = design)
+mock <- reveal_design(data = mock, design = design_custom)
 kable(head(mock), digits = 3)
 ```
 

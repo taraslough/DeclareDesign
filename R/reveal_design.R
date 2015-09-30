@@ -5,6 +5,10 @@ reveal_design <- function(data, design) {
   if(!class(design)=="design"){
     stop("You must give reveal_design a design object.")
   }
+  
+  if(design$design_type=="custom"){
+    return(data)
+  }
 
   # Make clusters and blocks ------------------------------------------------  
   

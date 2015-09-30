@@ -332,6 +332,7 @@ declare_design <-
         baseline_condition = baseline_condition,
         treatment_variable = treatment_variable,
         potential_outcomes = potential_outcomes,
+        design_type = "custom",
         call = match.call())
     }
     class(return.object) <- "design"
