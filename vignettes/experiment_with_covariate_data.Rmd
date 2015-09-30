@@ -17,6 +17,7 @@ library(knitr)
 
 set.seed(5)
 knitr::opts_knit$set(root.dir = tempdir())
+setwd(tempdir())
 ```
 
 ```{r, echo = FALSE}
@@ -41,19 +42,9 @@ First, we load the baseline data created by the user, and then define a set of c
 ```{r load_data}
 load("baseline_data.RData")
 
-round(head(user_data), 3)
+kable(head(user_data), digits = 3)
 ```
 
-Then resample (bootstrap) from user data, respecting levels
-
-```{r sample}
-sample <- declare_population(
-  individuals = list(),
-  villages = list(),
-  N_per_level = c(500, 10),
-  data = user_data)
-```
-  
 Second, we define the potential outcomes, which will be simulated based on the baseline covariate data.
 
 ```{r}
@@ -61,6 +52,16 @@ potential_outcomes     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .1*income
 )
+```
+
+Then resample (bootstrap) from user data, respecting levels
+
+```{r sample}
+population <- declare_population(
+  individuals = list(),
+  villages = list(),
+  N_per_level = c(500, 10),
+  data = user_data, potential_outcomes = potential_outcomes)
 ```
 
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
@@ -79,8 +80,7 @@ design <- declare_design(potential_outcomes = potential_outcomes)
 Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the diagnose function.
 
 ```{r}
-simulations <- diagnose(potential_outcomes = potential_outcomes, 
-                        sample =  sample, 
+simulations <- diagnose(population = population,
                         design = design, 
                         analysis = analysis)
 kable(summary(simulations), digits = 3)

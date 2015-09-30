@@ -58,33 +58,20 @@ design <- declare_design(potential_outcomes = potential_outcomes)
 Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the diagnose function.
 
 ```{r}
-a <- draw_population(population = population)
 simulations <- diagnose(population = population, design = design, analysis = analysis)
 
-kable(summary(simulations), digits = 3)
+summary(simulations)
 ```
 
-This indicates the power, `summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
-
-```{r}
-comparisons <- compare_experiments(N = c(100, 500, 750, 1000, 1250, 1500),
-                                   potential_outcomes = potential_outcomes, 
-                                   sample = sample, 
-                                   design = design, 
-                                   analysis = analysis, 
-                                   sims = 100)
-kable(summary(comparisons), digits = 3)
-```
+This indicates the power, `r summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
 
 ## Mock analysis
 
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
 
 ```{r}
-mock <- make_data(sample = sample, potential_outcomes = potential_outcomes,
-                  design = design,
-                  assign_treatment = TRUE, observed_outcomes = TRUE,
-                  treatment_variable = "Z")
+mock <- draw_population(population = population)
+mock <- reveal_design(data = mock, design = design)
 ```
 
 ```{r}
@@ -92,7 +79,7 @@ kable(get_estimates(analysis = analysis, data = mock), digits = 3)
 ```
 
 ```{r}
-kable(get_estimands(analysis = analysis, data = mock), digits = 3)
+##kable(get_estimands(analysis = analysis, data = mock), digits = 3)
 ```
 
 ## Pre-registering the experiment
@@ -131,33 +118,21 @@ Instead of pre-registering and using this simple design, we may want to consider
 The set up of the sample frame, potential outcomes, and analysis is similar. In this case, we add to the potential outcomes an intra-cluster correlation of .2 using the variable villages_id as the cluster variable.
 
 ```{r}
-sample_block_cluster <- declare_sample(
-  individuals = list(
-    income = declare_variable()),
-  villages = list(
-    development_level = declare_variable(multinomial_probabilities = 1:3/sum(1:3))
-  ),
-  N_per_level = c(500, 100))
-
 potential_outcomes_block_cluster     <-  declare_potential_outcomes(
   condition_names = c("Z0","Z1"),
   outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
 )
 
+population_block_cluster <- declare_population(
+  individuals = list(
+    income = declare_variable()),
+  villages = list(
+    development_level = declare_variable(multinomial_probabilities = 1:3/sum(1:3))
+  ), potential_outcomes = potential_outcomes,
+  N_per_level = c(500, 100))
+
 analysis_block_cluster <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
                                            estimator = difference_in_means)
-```
-
-To initiate the clustering in the design, we use the declare_cluster function,
-
-```{r}
-clusters <- declare_clusters(clusters = "villages_id")
-```
-
-To define a simple blocking scheme, where units are blocked according to the value of the covariate development_level, we use the declare_blocks function. 
-
-```{r}
-blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
 ```
 
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis.
@@ -167,56 +142,28 @@ Then we declare the design of the experiment, adding in the information about cl
 
 ```{r}
 design_block_cluster <- declare_design(potential_outcomes = potential_outcomes_block_cluster, 
-                                       clusters = clusters, blocks = blocks)
+                                       cluster_variable_name = "villages_id", 
+                                       block_variable_name = "development_level")
 ```
 
 Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the diagnose function.
 
 ```{r}
-simulations_block_cluster <- diagnose(potential_outcomes = potential_outcomes_block_cluster, 
-                                   sample = sample_block_cluster, 
-                                   design = design_block_cluster, 
-                                   analysis = analysis_block_cluster)
-kable(summary(simulations_block_cluster), digits = 3)
+simulations_block_cluster <- diagnose(population = population_block_cluster, 
+                                      design = design_block_cluster, 
+                                      analysis = analysis_block_cluster)
+summary(simulations_block_cluster)
 ```
 
 This indicates the power, `summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
-
-```{r}
-comparisons_block_cluster  <- compare_experiments(N_per_level = list(c(1000, 50), c(500, 50), c(200, 100)),
-                                   potential_outcomes = potential_outcomes_block_cluster, 
-                                   sample =  sample_block_cluster, 
-                                   design = design_block_cluster, 
-                                   analysis = analysis_block_cluster, 
-                                   sims = 100)
-kable(summary(comparisons_block_cluster), digits = 3)
-```
-
-## Comparing the simple and complex designs
-
-Before deciding on the complex design, we can compare the two designs in terms of power. We can use the compare_experiments function to do this, providing the appropriate objects representing each different design.
-
-```{r}
-comparisons_block_cluster  <- compare_experiments(
-  potential_outcomes = list(potential_outcomes, potential_outcomes_block_cluster), 
-  sample = list(sample, sample_block_cluster), 
-  design = list(design, design_block_cluster), 
-  clusters = list(NULL, clusters),
-  blocks = list(NULL, blocks),
-  analysis = list(analysis, analysis_block_cluster), 
-  sims = 100)
-
-kable(summary(comparisons_block_cluster), digits = 3)
-```
 
 ## Mock analysis
 
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
 
 ```{r}
-mock <- make_data(sample = sample_block_cluster, potential_outcomes = potential_outcomes_block_cluster,
-                  design = design_block_cluster, assign_treatment = TRUE, observed_outcomes = TRUE,
-                  treatment_variable = "Z")
+mock <- draw_population(population = populaiton_block_cluster)
+mock <- reveal_design(data = mock, design = design_block_cluster)
 ```
 
 ```{r}

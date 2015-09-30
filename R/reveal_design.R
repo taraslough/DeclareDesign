@@ -24,9 +24,13 @@ reveal_design <- function(data, design) {
   
   data[, "assignment_weights"] <- 1/data[, "assignment_probs"]
   
-  data[, "assignment_inclusion_probs"] <- data[, "assignment_probs"] * data[, "inclusion_probs"]
+  ## only reveal assignment_sampling_weights if there are sampling probabilities
+  if("inclusion_probs" %in% colnames(data)){
   
-  data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probs"]
+    data[, "assignment_inclusion_probs"] <- data[, "assignment_probs"] * data[, "inclusion_probs"]
+    
+    data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probs"]
+  }
   
   if(class(design$potential_outcomes) == "potential_outcomes") { design$potential_outcomes <- list(design$potential_outcomes) }
   
