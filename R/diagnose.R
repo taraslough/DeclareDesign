@@ -48,14 +48,13 @@ diagnose <- function(population = NULL, sampling = NULL,
       population_data <- reveal_design(data = population_data, design = design)
       
       estimates <- get_estimates(analysis, data = population_data, analysis_labels = analysis_labels)
-      sample_estimands <- get_estimands(analysis, data = population_data, analysis_labels = analysis_labels,
-                                        design = design)
+      sample_estimands <- get_estimands(analysis, data = population_data, design = design,
+                                        analysis_labels = analysis_labels)
       
     }
-    
-    population_estimands <- get_estimands(analysis, data = population_data, 
-                                          analysis_labels = analysis_labels,
-                                          design = design)
+     
+    population_estimands <- get_estimands(analysis, data = population_data, design = design,
+                                          analysis_labels = analysis_labels)
     
     return(list(estimates, sample_estimands, population_estimands))
     

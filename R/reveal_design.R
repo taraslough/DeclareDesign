@@ -6,10 +6,6 @@ reveal_design <- function(data, design) {
     stop("You must give reveal_design a design object.")
   }
   
-  if(design$design_type=="custom"){
-    return(data)
-  }
-
   # Make clusters and blocks ------------------------------------------------  
   
   if(!is.null(design$custom_cluster_function)){
@@ -21,19 +17,23 @@ reveal_design <- function(data, design) {
   }
   
   # Assign treatment and reveal outcomes ------------------------------------------------  
-
+  
   data[, design$treatment_variable] <- assign_treatment(design = design, data = data)
   
-  data[, "assignment_probs"] <- observed_probs(treatment_assignment = design$treatment_variable, design = design, data = data)
-  
-  data[, "assignment_weights"] <- 1/data[, "assignment_probs"]
-  
-  ## only reveal assignment_sampling_weights if there are sampling probabilities
-  if("inclusion_probs" %in% colnames(data)){
-  
-    data[, "assignment_inclusion_probs"] <- data[, "assignment_probs"] * data[, "inclusion_probs"]
+  if(design$design_type != "custom") {
     
-    data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probs"]
+    data[, "assignment_probs"] <- observed_probs(treatment_assignment = design$treatment_variable,
+                                                 design = design, data = data)
+    
+    data[, "assignment_weights"] <- 1/data[, "assignment_probs"]
+    
+    ## only reveal assignment_sampling_weights if there are sampling probabilities
+    if("inclusion_probs" %in% colnames(data)){
+      
+      data[, "assignment_inclusion_probs"] <- data[, "assignment_probs"] * data[, "inclusion_probs"]
+      
+      data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probs"]
+    }
   }
   
   if(class(design$potential_outcomes) == "potential_outcomes") { design$potential_outcomes <- list(design$potential_outcomes) }

@@ -24,6 +24,15 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = TRUE, message = FALS
 
 ## Designing the experiment
 
+Second, we define the potential outcomes, which will be simulated based on the baseline covariate data. Here we illustrate a custom function that determines potential outcomes -- a binomial distribution with a probit link. You can type any function, including one you make up, in place of rbinom. (Or none at all for OLS.)
+
+```{r}
+potential_outcomes     <-  declare_potential_outcomes(
+  condition_names = c("Z0","Z1"),
+  outcome_formula = Y ~ rbinom(500, size = 1, prob = pnorm(Y0*Z0 + Y1*Z1))
+)
+```
+
 First, we define the sample frame from which we will draw a sample to run the experiment from. This includes defining the levels of analysis and the covariates at each level. The below example shows how to construct a variable with a user-defined function, here sampling income levels from 1 to 25 with replacement.
 
 ```{r}
@@ -34,10 +43,8 @@ make_clustered_data <- function(J = 10, n = 100, treatment_effect = .25, ICC = .
   }
   Y0_j         <- rnorm(J,0,sd = (1 + treatment_effect) ^ 2 * sqrt(ICC))
   fake_data    <- expand.grid(i = 1:n,j = 1:J)
-  fake_data$Y_Z0 <- rnorm(n * J,0,sd = (1 + treatment_effect) ^ 2 * sqrt(1 - ICC)) + Y0_j[fake_data$j]
-  fake_data$Y_Z1 <- with(fake_data,mean(Y_Z0) + treatment_effect + (Y_Z0 - mean(Y_Z0)) * (2 / 3))
-  fake_data$Z  <- ifelse(fake_data$j %in% sample(1:J,J / 2) == TRUE, 1, 0)
-  fake_data$Y  <- with(fake_data, Z * Y_Z1 + (1 - Z) * Y_Z1)
+  fake_data$Y0 <- rnorm(n * J,0,sd = (1 + treatment_effect) ^ 2 * sqrt(1 - ICC)) + Y0_j[fake_data$j]
+  fake_data$Y1 <- with(fake_data,mean(Y0) + treatment_effect + (Y0 - mean(Y0)) * (2 / 3))
   return(fake_data)
 }
 
@@ -50,18 +57,9 @@ make_clustered_data_experimentr <- function(N_per_level = NULL){
   return(make_clustered_data(J = N_per_level[2], n = N_per_level[1]/N_per_level[2]))
 }
 
-
-population <- declare_population(custom_population_function = make_clustered_data_experimentr, 
-                             N_per_level = c(1000, 10))
-```
-
-Second, we define the potential outcomes, which will be simulated based on the baseline covariate data. Here we illustrate a custom function that determines potential outcomes -- a binomial distribution with a probit link. You can type any function, including one you make up, in place of rbinom. (Or none at all for OLS.)
-
-```{r}
-potential_outcomes     <-  declare_potential_outcomes(
-  condition_names = c("Z0","Z1"),
-  outcome_formula = Y_star ~ rbinom(500, size = 1, prob = pnorm(Y_Z0*Z0 + Y_Z1*Z1))
-)
+population_custom <- declare_population(custom_population_function = make_clustered_data_experimentr, 
+                                        N_per_level = c(1000, 10), 
+                                        potential_outcomes = potential_outcomes)
 ```
 
 Fourth, we define one or more analyses we will run based on simulated data. This analysis will also be used for power analysis. Here we define a custom estimator (probit regression) and a custom QOI function (for this example, it just pulls the probit coefficient, which is note an estimate of any causal quantity).
@@ -83,8 +81,10 @@ probit_qoi_temp <- function(fit, statistics = c("est", "se", "p", "ci_lower", "c
   return(stats)
 }
 
-analysis      <- declare_analysis(formula = Y_star ~ Z_star, treatment_variable = "Z_star", 
-                                  estimator = probit_regression, quantity_of_interest = probit_qoi_temp)
+analysis_custom      <- declare_analysis(formula = Y ~ Z_star, treatment_variable = "Z_star", 
+                                         estimator = probit_regression, 
+                                         quantity_of_interest = probit_qoi_temp,
+                                         estimand = difference_in_means, estimand_formula = Y ~ Z_star)
 ```
 
 Then we declare the design of the experiment, in this case a simple one without clusters or blocking. Here we demonstrate how to use a custom random assignment function, in this case simple random sampling of "Z0" and "Z1".
@@ -117,10 +117,8 @@ design_custom <- declare_design(potential_outcomes = potential_outcomes,
 Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the diagnose function.
 
 ```{r}
-simulations <- diagnose(population = population, 
-                        design = design_custom, 
-                        analysis = analysis)
-kable(summary(simulations), digits = 3)
+simulations <- diagnose(population = population_custom, design = design_custom, analysis = analysis_custom)
+summary(simulations)
 ```
 
 ## Mock analysis
@@ -128,11 +126,11 @@ kable(summary(simulations), digits = 3)
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
 
 ```{r}
-mock <- draw_population(population = population)
+mock <- draw_population(population = population_custom)
 mock <- reveal_design(data = mock, design = design_custom)
 kable(head(mock), digits = 3)
 ```
 
 ```{r}
-kable(get_estimates(analysis = analysis, data = mock))
+kable(get_estimates(analysis = analysis_custom, data = mock))
 ```

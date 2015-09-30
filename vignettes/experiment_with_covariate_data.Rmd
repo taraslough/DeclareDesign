@@ -83,27 +83,16 @@ Before finalizing the design, we conduct a power analysis to determine whether 5
 simulations <- diagnose(population = population,
                         design = design, 
                         analysis = analysis)
-kable(summary(simulations), digits = 3)
+summary(simulations)
 ```
 
-This indicates the power, `summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
-
-```{r, results = 'verbatim'}
-comparisons <- compare_experiments(N_per_level = list(c(1000, 20), c(500, 50), c(250, 100)),
-                                   potential_outcomes = potential_outcomes, 
-                                   sample =  sample, 
-                                   design = design, 
-                                   analysis = analysis, 
-                                   sims = 100)
-kable(summary(comparisons), digits = 3)
-```
+This indicates the power, `r summary(simulations)[3]`, is less than the typical threshold of `0.8`. To address this problem, we can conduct a power analysis varying the number of units in the study to find an appropriate sample size. This can be accomplished with compare_experiments.
 
 After settling on a sample size and a final design, we can conduct a mock analysis of the data to ensure we are satisfied with the analysis of the data. To do this, we create mock data -- simulated from the distributions we set -- and then run the analyses on the simulated data.
 
 ```{r}
-mock <- make_data(sample = sample, potential_outcomes = potential_outcomes)
-mock$Z <- assign_treatment(design = design, data = mock)
-mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
+mock <- draw_population(population = population)
+mock <- reveal_design(data = mock, design = design)
 ```
 
 ```{r, results = 'verbatim'}
