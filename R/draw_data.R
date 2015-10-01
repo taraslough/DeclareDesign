@@ -12,7 +12,7 @@ draw_population <- function(population, potential_outcomes = NULL) {
   
   # Get the covariates ------------------------------------------------------
   
-  if(population$super_population == TRUE){
+  if(population$super_population == FALSE){
     set.seed(population$random_seed)
   }
   

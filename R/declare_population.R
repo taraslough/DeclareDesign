@@ -54,7 +54,7 @@ declare_population <- function(...,
     
   } 
   
-  return_object <- list(population = population_function, super_population = super_population, seed = random_seed, call = match.call())
+  return_object <- list(population = population_function, super_population = super_population, random_seed = random_seed, call = match.call())
   class(return_object) <- "population"
   
   return(return_object)
