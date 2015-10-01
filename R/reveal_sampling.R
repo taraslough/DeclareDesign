@@ -170,15 +170,32 @@ loop_potential_outcomes <- function(potential_outcomes,covariates,sep = "_"){
   }
   
   if(is_PO&!is_list){
-    potential_outcomes <- list(potential_outcomes)
+    outcomes <- make_potential_outcomes(potential_outcomes = potential_outcomes,
+                                        covariates = covariates,
+                                        sep = sep)
   }
   
-  outcome_list <- lapply(potential_outcomes,
-                         FUN = make_potential_outcomes,
-                         covariates = covariates,
-                         sep = sep)
-  
-  outcomes <- do.call(cbind.data.frame,outcome_list)
+  if(is_PO&is_list){
+    outcomes <- make_potential_outcomes(potential_outcomes = potential_outcomes[[1]],
+                                        covariates = covariates,
+                                        sep = sep)
+    
+    for(i in 2:length(potential_outcomes)){
+      grab_outcome_names <- paste0(potential_outcomes[[i]]$outcome_name,
+                                   sep,
+                                   potential_outcomes[[i]]$condition_names)
+      
+      full_outcomes <- make_potential_outcomes(potential_outcomes = potential_outcomes[[i]],
+                                                covariates = data.frame(covariates,outcomes))
+      
+      merge_outcomes <- subset(full_outcomes,select = grab_outcome_names)
+      
+      outcomes <- data.frame(outcomes,merge_outcomes)
+      
+    }
+    
+    
+  }
   
   return(outcomes)
   
