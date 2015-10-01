@@ -55,7 +55,7 @@ draw_sample <- function(population = NULL, population_data = NULL, sampling = NU
   # Get the covariates ------------------------------------------------------
   
   if(is.null(population_data)){
-    population_data <- draw_population(population = population, potential_outcomes = potential_outcomes)
+    population_data <- draw_population(population = population)
   }
   
   # Construct strata and clusters if custom functions --------------------------------------------------
