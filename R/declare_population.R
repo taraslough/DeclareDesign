@@ -24,8 +24,6 @@ declare_population <- function(...,
       
     } else {
       
-      # No Data Provided --------------------------------------------------------
-      
       population_function <- create_population_function(variable_list = list(...), N_per_level = N_per_level, N = N,
                                                         group_sizes_per_level = group_sizes_per_level, 
                                                         level_ID_variables = level_ID_variables)
@@ -45,9 +43,7 @@ declare_population <- function(...,
                                                                group_sizes_per_level = group_sizes_per_level)
         
       } else{
-        
-        # Super population --------------------------------------------------------
-        
+  
         population_function <- create_bootstrap_data_function(data = data, N = N, N_per_level = N_per_level,
                                                               group_sizes_per_level = group_sizes_per_level, 
                                                               level_ID_variables = level_ID_variables)
@@ -58,35 +54,7 @@ declare_population <- function(...,
     
   } 
   
-  # Create population return object --------------------------------------------------------
-  
-  if(super_population == FALSE){
-    
-    set.seed(random_seed)
-    
-    # No super population --------------------------------------------------------
-    
-    if(no_data == TRUE){
-      population <- draw_population(population = structure(list(population = population_function(),
-                                                                potential_outcomes = potential_outcomes,
-                                                                super_population = TRUE), 
-                                                           class = "population"))
-    } else {
-      population <- draw_population(population = structure(list(population = data,
-                                                                potential_outcomes = potential_outcomes,
-                                                                super_population = TRUE), 
-                                                           class = "population"))
-    }
-    
-  } else {
-    
-    # Super population --------------------------------------------------------
-    
-    population <- population_function
-    
-  }
-  
-  return_object <- list(population = population, potential_outcomes = potential_outcomes, super_population = super_population, call = match.call())
+  return_object <- list(population = population_function, super_population = super_population, seed = random_seed, call = match.call())
   class(return_object) <- "population"
   
   return(return_object)

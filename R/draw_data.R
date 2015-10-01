@@ -1,7 +1,7 @@
 #' Make the full dataset or just a sample
 #'
 #' @export
-draw_population <- function(population) {
+draw_population <- function(population, potential_outcomes = NULL) {
   
   # Do checks ---------------------------------------------------------------
   
@@ -12,17 +12,21 @@ draw_population <- function(population) {
   
   # Get the covariates ------------------------------------------------------
   
+  if(super_population == TRUE){
+    set.seed(population$random_seed)
+  }
+  
   covariates <- get_covariates(population = population)
   
   # Ignore POs if super_population is not chosen or POs are missing -------------------------------------------------
   
-  if(population$super_population == FALSE | (population$super_population == TRUE & is.null(population$potential_outcomes))){
+  if(is.null(potential_outcomes)){
+    
     population_data <- covariates
-  }
-  
-  # Make potential outcomes -------------------------------------------------
-  
-  if(population$super_population == TRUE & !is.null(population$potential_outcomes)){
+    
+  } else {
+    
+    # Make potential outcomes -------------------------------------------------
     
     outcomes <- loop_potential_outcomes(
       potential_outcomes = population$potential_outcomes,
