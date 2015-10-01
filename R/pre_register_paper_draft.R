@@ -383,8 +383,8 @@ treatment_table <- function(design, caption = "Description of each treatment con
 
 #' @importFrom knitr kable
 #' @export
-units_table <- function(sample, ...){
-  units_table <- summary(sample)
+units_table <- function(population, ...){
+  units_table <- summary(population)
   kable(units_table, caption = "Levels of analysis", row.names = FALSE, ... = ...)
 }
 
