@@ -29,7 +29,7 @@ draw_population <- function(population, potential_outcomes = NULL) {
     # Make potential outcomes -------------------------------------------------
     
     outcomes <- loop_potential_outcomes(
-      potential_outcomes = population$potential_outcomes,
+      potential_outcomes = potential_outcomes,
       covariates = covariates)
     
     population_data <- data.frame(outcomes, covariates)
