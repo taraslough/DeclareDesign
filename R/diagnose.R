@@ -124,8 +124,9 @@ calculate_RMSE <- function(estimates, estimands, ...){
 #' @export
 calculate_bias <- function(estimates, estimands, ...){
   
-  est_PATE_diff <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - 
-                                                                        calculate_PATE(estimands = estimands)))
+  PATE <- calculate_PATE(estimands = estimands)
+  
+  est_PATE_diff <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - PATE))
   
   if(class(est_PATE_diff) == "matrix")
     bias <- apply(est_PATE_diff, 1, mean, na.rm = T)
@@ -137,9 +138,10 @@ calculate_bias <- function(estimates, estimands, ...){
 
 #' @export
 calculate_coverage <- function(estimates, estimands, ...){
-  ci_covers_estimate <- sapply(1:length(estimates), function(i) as.numeric(calculate_PATE(estimands = estimands) <= 
-                                                                             estimates[[i]]["ci_upper", , drop = FALSE] & 
-                                                                             calculate_PATE(estimands = estimands) >= estimates[[i]]["ci_lower", , drop = FALSE]))
+  PATE <- calculate_PATE(estimands = estimands)
+  
+  ci_covers_estimate <- sapply(1:length(estimates), function(i) as.numeric(PATE <= estimates[[i]]["ci_upper", , drop = FALSE] & 
+                                                                             PATE >= estimates[[i]]["ci_lower", , drop = FALSE]))
   
   if(class(ci_covers_estimate) == "matrix")
     coverage <- apply(ci_covers_estimate, 1, mean, na.rm = T)

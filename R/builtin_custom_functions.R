@@ -50,3 +50,132 @@ multi_blocks_function_generic <- function(blocks, sample, block_name = block_nam
   
   return(blocks_df)
 }
+
+
+
+#' @export
+average_treatment_effect <- function(x, statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df")){
+  coef_name <- names(coef(x))[treat_coef_num]
+  df <- df.residual(x)
+  est <- coef(x)[treat_coef_num]
+  se <- sqrt(diag(vcov(x)))[treat_coef_num]
+  p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
+  conf_int <- suppressMessages(confint(x))[treat_coef_num, ]
+  
+  output <- matrix(c(est, se, p, conf_int, df), 
+                   dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                   paste(outcome_variable, "~", coef_name, "_", 
+                                         quantity_of_interest_labels, sep = "")))
+  
+  return(output[which(rownames(output) %in% statistics), , drop = FALSE])
+}
+
+#' @export
+difference_in_means <- function(formula, data, weights = NULL, subset = NULL, ##cluster_variable = NULL, 
+                                alpha = .05) {
+  
+  if(length(all.vars(formula[[3]]))>1)
+    stop("The formula should only include one variable on the right-hand side: the treatment variable.")
+  
+  d_i_m <- function(Y, t, ##w, 
+                    cond1, cond2, alpha){
+    N <- length(Y)
+    diff <- mean(Y[t == cond1]) - mean(Y[t == cond2])
+    se <- sqrt(var(Y[t == cond1])/sum(t == cond1) + var(Y[t == cond2])/sum(t == cond2))
+    df <- N - 2
+    p <- 2 * pt(abs(diff/se), df = df, lower.tail = FALSE)
+    ci_lower <- diff - qt(1 - alpha/2, df = df) * se
+    ci_upper <- diff + qt(1 - alpha/2, df = df) * se
+    return(c(diff, se, p, ci_lower, ci_upper, df))
+  }
+  
+  condition_names <- unique(data[,all.vars(formula[[3]])])
+  combn <- combn(rev(sort(condition_names)), m = 2)
+  combn_names <- apply(combn, 2, function(x) paste(x, collapse = "-"))
+  
+  if(!is.null(subset))
+    data <- data[subset, ]
+  
+  ##if(!is.null(weights))
+  ##  w <- weights[subset]
+  
+  ##if(!is.null(cluster_variable)){
+  ##  data <- aggregate(data[,all.vars(formula)], list(d_i_m_cluster_var__ = data[,cluster_variable]), FUN = function(x) mean(x, na.rm = T))
+  ##}
+  
+  Y <- data[, all.vars(formula[[2]])]
+  t <- data[, all.vars(formula[[3]])]
+  
+  return_matrix <- matrix(NA, nrow = 6, ncol = ncol(combn), 
+                          dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                          paste0(all.vars(formula[[2]]), "~", combn_names, 
+                                                 "_diff_in_means")))
+  for(c in 1:ncol(combn)){
+    return_matrix[, c] <- d_i_m(Y = Y, t = t, ##w = w, 
+                                cond1 = combn[1, c], cond2 = combn[2, c], alpha = alpha)
+  }
+  
+  return(return_matrix)
+}
+
+#' @export
+difference_in_means_blocked <- function(formula, data, subset = NULL, block_variable = NULL, ##cluster_variable = NULL, 
+                                        alpha = .05) {
+  
+  if(is.null(block_variable))
+    stop("This difference-in-means estimator can only be used if you specify block_variable, a string indicating which variable in the data frame contains the blocks.")
+  
+  if(length(all.vars(formula[[3]]))>1)
+    stop("The formula should only include one variable on the right-hand side: the treatment variable.")
+  
+  d_i_m_blocked <- function(Y, t, b, cond1, cond2, alpha){
+    
+    N <- length(Y)
+    
+    block_names <- sort(unique(b))
+    
+    block_weights <- (sapply(block_names, function(i) sum(b==i)))/N
+    
+    means_by_block <- tapply(Y,list(t, b), mean, na.rm=TRUE)
+    diff <- (block_weights %*% (means_by_block[cond1,] - means_by_block[cond2,]))
+    
+    vars <- sapply(block_names, function(i)  {
+      var(Y[b==i & t == cond1], na.rm = TRUE )/sum(b==i & t == cond1)+
+        var(Y[b==i & t == cond2], na.rm = TRUE )/sum(b==i & t == cond2)})
+    se  <- (block_weights^2 %*% vars)^.5
+    
+    df <- length(Y) - length(block_names) - 1
+    p <- 2 * pt(abs(diff/se), df = df, lower.tail = FALSE)
+    ci_lower <- diff - qt(1 - alpha / 2, df = df) * se
+    ci_upper <- diff + qt(1 - alpha / 2, df = df) * se
+    
+    return(c(diff, se, p, ci_lower, ci_upper, df))
+    
+  }
+  
+  condition_names <- unique(data[,all.vars(formula[[3]])])
+  combn <- combn(rev(sort(condition_names)), m = 2)
+  combn_names <- apply(combn, 2, function(x) paste(x, collapse = "-"))
+  
+  if(!is.null(subset))
+    data <- data[subset, ]
+  
+  ##if(!is.null(cluster_variable)){
+  ##  data <- aggregate(names(data)[!which(names(data) %in% cluster_variable)], list(d_i_m_cluster_var__ = data[,cluster_variable]), FUN = mean)
+  ##}
+  
+  Y <- data[, all.vars(formula[[2]])]
+  t <- data[, all.vars(formula[[3]])]
+  b <- data[, block_variable]
+  
+  return_matrix <- matrix(NA, nrow = 6, ncol = ncol(combn), 
+                          dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                          paste0(all.vars(formula[[2]]), "~", combn_names, 
+                                                 "_diff_in_means")))
+  for(c in 1:ncol(combn)){
+    return_matrix[, c] <- d_i_m_blocked(Y = Y, t = t, b = b, cond1 = combn[1, c], cond2 = combn[2, c], alpha = alpha)
+  }
+  
+  return(return_matrix)
+}
+
