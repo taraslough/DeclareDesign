@@ -14,7 +14,7 @@ test_that("test sampling from population with no clusters or strata", {
   
   smp <- declare_sampling(m = 500)
   
-  design <- declare_design(potential_outcomes = po)
+  design <- declare_assignment(potential_outcomes = po)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
   analysis_2 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
@@ -47,7 +47,7 @@ test_that("with strata only", {
   
   smp <- declare_sampling(prob = 0.1, strata_variable_name = "villages_id")
   
-  design <- declare_design(potential_outcomes = po)
+  design <- declare_assignment(potential_outcomes = po)
   
   pop_draw <- draw_population(population = pop)
   
@@ -69,7 +69,7 @@ test_that("with clusters only", {
   
   smp <- declare_sampling(prob = 0.1, cluster_variable_name = "villages_id")
   
-  design <- declare_design(potential_outcomes = po)
+  design <- declare_assignment(potential_outcomes = po)
   
   pop_draw <- draw_population(population = pop)
   
@@ -92,7 +92,7 @@ test_that("with clusters and strata", {
   
   smp <- declare_sampling(cluster_variable_name = "villages_id", strata_variable_name = "regions_id")
   
-  design <- declare_design(potential_outcomes = po)
+  design <- declare_assignment(potential_outcomes = po)
   
   analysis_joint_weighted <- declare_analysis(Y ~ Z, treatment_variable = "Z", estimator = lm, weights_variable = "assignment_sampling_weights",
                                         quantity_of_interest = average_treatment_effect)
@@ -135,7 +135,7 @@ test_that("with clusters and strata", {
 
   smp <- declare_sampling(strata_prob = c(.1, .2, .33, .1, .25), cluster_variable_name = "villages_id", strata_variable_name = "regions_id")
   
-  design <- declare_design(potential_outcomes = po)
+  design <- declare_assignment(potential_outcomes = po)
   
   analysis_joint_weighted <- declare_analysis(Y ~ Z, treatment_variable = "Z", estimator = lm, weights_variable = "assignment_sampling_weights",
                                               quantity_of_interest = average_treatment_effect)

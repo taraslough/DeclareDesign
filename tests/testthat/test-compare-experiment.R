@@ -13,7 +13,7 @@ test_that("test compare experiment", {
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
-  design <- declare_design(potential_outcomes = po)
+  design <- declare_assignment(potential_outcomes = po)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = lm, quantity_of_interest = average_treatment_effect)
   

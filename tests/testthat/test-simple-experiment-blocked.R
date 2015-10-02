@@ -20,8 +20,8 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   blocks <- declare_blocks(blocks = "income", block_name = "income_groups", block_count = 10)
   
-  design_1        <- declare_design(potential_outcomes = po, blocks = blocks)
-  design_2        <- declare_design(potential_outcomes = po, blocks = "party")
+  design_1        <- declare_assignment(potential_outcomes = po, blocks = blocks)
+  design_2        <- declare_assignment(potential_outcomes = po, blocks = "party")
   
   mock_1          <- make_data(potential_outcomes = po, assign_treatment =TRUE,
                              treatment_variable = "Z",observed_outcomes = TRUE,

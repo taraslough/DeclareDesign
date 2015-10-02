@@ -22,7 +22,7 @@ test_that("test draft paper and pre_register functions", {
   clusters <- declare_clusters(clusters = "villages_id")
   blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
   
-  design <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
+  design <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
   analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", 

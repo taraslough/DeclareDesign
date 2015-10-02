@@ -18,7 +18,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   blocks <- declare_blocks(blocks = "income",block_count = 10)
   
-  design        <- declare_design(potential_outcomes = po, blocks = blocks)
+  design        <- declare_assignment(potential_outcomes = po, blocks = blocks)
   
   mock          <- make_data(potential_outcomes = po, sample = smp, blocks = blocks)
   mock$Z        <- assign_treatment(design, data = mock)
@@ -54,7 +54,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + 5*income*Z1
   )
   
-  design <- declare_design(potential_outcomes = potential_outcomes)
+  design <- declare_assignment(potential_outcomes = potential_outcomes)
   
   analysis_lm <- declare_analysis(formula = Y ~ Z, estimator = linear_regression,
                                   quantity_of_interest = average_treatment_effect,

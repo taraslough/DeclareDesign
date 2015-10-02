@@ -243,7 +243,7 @@ blocked_and_clustered_ra <-
 #' @param excluded_arms a character vector excluding some potential outcomes from the randomization.  Used primarily when comparing designs that feature different numbers of treatment arms.
 #' @return design object
 #' @export
-declare_design <- 
+declare_assignment <- 
   function(potential_outcomes, 
            block_variable_name = NULL, 
            cluster_variable_name = NULL,

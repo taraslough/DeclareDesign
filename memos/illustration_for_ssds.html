@@ -114,7 +114,7 @@ img {
 <div id="the-design" class="section level2">
 <h2><span class="header-section-number">2.3</span> The Design</h2>
 <p>Next describe the design. Here we are going to do a block randomization, using the types as blocks. Note in this fraework the blocks are not part of the world; they are part of your design. Likewise with the potential outcomes – in your choice of treatments you <em>decide</em> what the relevant potential outcomes are.</p>
-<pre class="sourceCode r"><code class="sourceCode r">my.design &lt;-<span class="st"> </span><span class="kw">declare_design</span>(<span class="dt">potential_outcomes =</span> my.potential.outcomes, 
+<pre class="sourceCode r"><code class="sourceCode r">my.design &lt;-<span class="st"> </span><span class="kw">declare_assignment</span>(<span class="dt">potential_outcomes =</span> my.potential.outcomes, 
                   <span class="dt">blocks =</span> <span class="kw">declare_blocks</span>(<span class="dt">blocks =</span> <span class="st">&quot;type&quot;</span>, <span class="dt">block_name =</span> <span class="st">&quot;my_blocks&quot;</span>, <span class="dt">block_count =</span> <span class="dv">2</span>))</code></pre>
 </div>
 <div id="the-analysis" class="section level2">

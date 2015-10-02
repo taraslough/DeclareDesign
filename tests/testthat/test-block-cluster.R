@@ -14,7 +14,7 @@ test_that("test with no blocks or clusters", {
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
-  design <- declare_design(potential_outcomes = po)
+  design <- declare_assignment(potential_outcomes = po)
   
   pop_draw <- draw_population(population = pop, potential_outcomes = po)
   
@@ -37,7 +37,7 @@ test_that("with blocks only", {
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
-  design <- declare_design(potential_outcomes = po, block_variable_name = "villages_id")
+  design <- declare_assignment(potential_outcomes = po, block_variable_name = "villages_id")
   
   pop_draw <- draw_population(population = pop, potential_outcomes = po)
   
@@ -57,7 +57,7 @@ test_that("with clusters only", {
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
-  design <- declare_design(potential_outcomes = po, cluster_variable_name = "villages_id")
+  design <- declare_assignment(potential_outcomes = po, cluster_variable_name = "villages_id")
   
   pop_draw <- draw_population(population = pop, potential_outcomes = po)
   
@@ -77,7 +77,7 @@ test_that("with clusters and strata", {
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
-  design <- declare_design(potential_outcomes = po, cluster_variable_name = "villages_id", block_variable_name = "regions_id")
+  design <- declare_assignment(potential_outcomes = po, cluster_variable_name = "villages_id", block_variable_name = "regions_id")
   
   pop_draw <- draw_population(population = pop, potential_outcomes = po)
   

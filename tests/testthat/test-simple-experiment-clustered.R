@@ -24,7 +24,7 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   
   clusters <- declare_clusters(clusters = "villages_id")
   
-  design <- declare_design(potential_outcomes = po, clusters = clusters)
+  design <- declare_assignment(potential_outcomes = po, clusters = clusters)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
   

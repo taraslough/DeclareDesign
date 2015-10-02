@@ -13,7 +13,7 @@ pre_register(design, sample = NULL, potential_outcomes = NULL,
   open_output = TRUE)
 }
 \arguments{
-\item{design}{A design object from the declare_design function.}
+\item{design}{A design object from the declare_assignment function.}
 
 \item{sample}{what is it?}
 

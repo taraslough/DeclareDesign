@@ -3,7 +3,7 @@
 #' Description
 #' @param covariates A character vector of covariate names to be used in the balance assessment.
 #' @param treatment_assignment The name of the treatment assignment variable in data
-#' @param design A design object, created by \code{\link{declare_design}}.
+#' @param design A design object, created by \code{\link{declare_assignment}}.
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @param report_difference what is it?
 #' @param na.rm what is it?

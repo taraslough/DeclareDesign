@@ -25,7 +25,7 @@ Description
 smp <- declare_population(N = 850)
 po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-design <- declare_design(potential_outcomes = po, m=200)
+design <- declare_assignment(potential_outcomes = po, m=200)
 mock          <- draw_population(potential_outcomes = po, sample =  smp)
 mock$Z        <- assign_treatment(design, data = mock)
 mock$Y  <- observed_outcome("Y", "Z", mock)

@@ -21,8 +21,8 @@ test_that("test permutation matrix", {
   
   blocks <- declare_blocks(blocks = "ethnicity", block_name = "income_groups", block_count = 4)
   
-  design_blocked <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks, prob_each = c(.9, .1))
-  design_notblocked <- declare_design(potential_outcomes = potential_outcomes)
+  design_blocked <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks, prob_each = c(.9, .1))
+  design_notblocked <- declare_assignment(potential_outcomes = potential_outcomes)
   
   analysis_lsdv <- declare_analysis(formula = Y ~ Z + factor(income_groups), estimator = linear_regression,
                                     quantity_of_interest = average_treatment_effect,

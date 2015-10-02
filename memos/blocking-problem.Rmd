@@ -60,7 +60,7 @@ Fourth, we define one or more analyses we will run based on simulated data. This
 Then we declare the design of the experiment, adding in the information about clusters and blocks declared above.
 
 ```{r}
-design_block_cluster <- declare_design(potential_outcomes = potential_outcomes_block_cluster, 
+design_block_cluster <- declare_assignment(potential_outcomes = potential_outcomes_block_cluster, 
                                        clusters = clusters, blocks = blocks)
 ```
 

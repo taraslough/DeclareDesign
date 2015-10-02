@@ -3,7 +3,7 @@
 #' 
 #' Description
 #' 
-#' @param design A design object from the declare_design function.
+#' @param design A design object from the declare_assignment function.
 #' @param clusters what is it?
 #' @param blocks what is it?
 #' @param sample what is it?
@@ -36,7 +36,7 @@ pre_register <- function(design, sample = NULL, potential_outcomes = NULL, analy
                          output_format = "pdf", open_output = TRUE){
   
   if(missing(design))
-    stop("Please provide a design object created using the declare_design() function.")
+    stop("Please provide a design object created using the declare_assignment() function.")
   
   if(is.null(blocks))
     blocks <- design$blocks
@@ -160,7 +160,7 @@ draft_paper_from_pre_registration <- function(pre_registration, data, dir = getw
 #' 
 #' Description
 #'
-#' @param design A design object from the declare_design function.
+#' @param design A design object from the declare_assignment function.
 #' @param clusters what is it?
 #' @param blocks what is it?
 #' @param sample what is it?
@@ -193,7 +193,7 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample = NULL,
                         output_format = "pdf", open_output = TRUE){
   
   if(missing(design))
-    stop("Please provide a design object created using the declare_design() function.")
+    stop("Please provide a design object created using the declare_assignment() function.")
   
   if(is.null(blocks))
     blocks <- design$blocks

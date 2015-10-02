@@ -33,7 +33,7 @@ test_that("test assignment and probability functions", {
   assign_1 <- function()
     return(sample(c("Z0", "Z1"), 1000, replace = T))
   
-  design <- declare_design(potential_outcomes = potential_outcomes, custom_assignment_function = assign_1)
+  design <- declare_assignment(potential_outcomes = potential_outcomes, custom_assignment_function = assign_1)
  
   analysis <- declare_analysis(Y ~ Z, treatment_variable = "Z")
   

@@ -15,7 +15,7 @@ test_that("test permutation matrix", {
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 
   )
   
-  design        <- declare_design(potential_outcomes = po)
+  design        <- declare_assignment(potential_outcomes = po)
   
   mock <- make_data(potential_outcomes = po, sample = smp)
   

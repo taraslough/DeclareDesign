@@ -42,7 +42,7 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_per_le
     stop("Please provide either N, N_per_level, or group_sizes_per_level (not more than one).")
   
   if(is.null(design))
-    stop("Please provide a design object created using the declare_design() function.")
+    stop("Please provide a design object created using the declare_assignment() function.")
   
   if(is.null(analysis_labels)){
     if(class(analysis) == "list")

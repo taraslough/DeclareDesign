@@ -56,7 +56,7 @@ my.potential.outcomes     <-  declare_potential_outcomes(
 Next describe the design. Here we are going to do a block randomization, using the types as blocks. Note in this fraework the blocks are not part of the world; they are part of your design. Likewise with the potential outcomes -- in your choice of treatments you *decide* what the relevant potential outcomes are.
 
 ```{r}
-my.design <- declare_design(potential_outcomes = my.potential.outcomes, 
+my.design <- declare_assignment(potential_outcomes = my.potential.outcomes, 
                   blocks = declare_blocks(blocks = "type", block_name = "my_blocks", block_count = 2))
 ```
 

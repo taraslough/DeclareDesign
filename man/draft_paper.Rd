@@ -13,7 +13,7 @@ draft_paper(design, clusters = NULL, blocks = NULL, sample = NULL,
   save_r_code = FALSE, output_format = "pdf", open_output = TRUE)
 }
 \arguments{
-\item{design}{A design object from the declare_design function.}
+\item{design}{A design object from the declare_assignment function.}
 
 \item{clusters}{what is it?}
 

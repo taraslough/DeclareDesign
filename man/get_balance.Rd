@@ -12,7 +12,7 @@ get_balance(covariates, treatment_assignment = "Z", design, data,
 
 \item{treatment_assignment}{The name of the treatment assignment variable in data}
 
-\item{design}{A design object, created by \code{\link{declare_design}}.}
+\item{design}{A design object, created by \code{\link{declare_assignment}}.}
 
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 

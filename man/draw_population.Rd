@@ -4,7 +4,7 @@
 \alias{draw_population}
 \title{Make the full dataset or just a sample}
 \usage{
-draw_population(population)
+draw_population(population, potential_outcomes = NULL)
 }
 \description{
 Make the full dataset or just a sample

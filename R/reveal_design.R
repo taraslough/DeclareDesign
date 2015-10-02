@@ -51,7 +51,7 @@ reveal_design <- function(data, design) {
 #' Assign treatment status
 #'
 #' Description
-#' @param design A design object created by \code{\link{declare_design}}; or a function that assigns treatment
+#' @param design A design object created by \code{\link{declare_assignment}}; or a function that assigns treatment
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @return A random assignment vector of length N.
 #' @examples
@@ -59,7 +59,7 @@ reveal_design <- function(data, design) {
 #' # smp <- declare_population(N = 850)
 #' # po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #' #                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-#' # design <- declare_design(potential_outcomes = po, m=200)
+#' # design <- declare_assignment(potential_outcomes = po, m=200)
 #' # mock          <- draw_population(potential_outcomes = po, sample =  smp)
 #' # Z        <- assign_treatment(design, data = mock)
 #' # table(Z)
@@ -149,7 +149,7 @@ assign_treatment <- function(design, data) {
 #' smp <- declare_population(N = 850)
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-#' design <- declare_design(potential_outcomes = po, m=200)
+#' design <- declare_assignment(potential_outcomes = po, m=200)
 #' mock          <- draw_population(potential_outcomes = po, sample =  smp)
 #' mock$Z        <- assign_treatment(design, data = mock)
 #' mock$Y  <- observed_outcome("Y", "Z", mock)
@@ -170,7 +170,7 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data, sep = "_
   # Check to confirm that all relevant potential outcomes have been made
   if(!all(all_pos %in% colnames(data))){
     stop(paste0("The following potential outcome(s) are implied by the treatment variable, but have not defined in declare_potential_outcomes(): ", 
-                all_pos[!all_pos %in% colnames(data)], ". Please either exclude a treatment arm in declare_design() or specify the missing potential outcomes in declare_potential_outcomes()."))
+                all_pos[!all_pos %in% colnames(data)], ". Please either exclude a treatment arm in declare_assignment() or specify the missing potential outcomes in declare_potential_outcomes()."))
   }
   
   # Loop through the conditions, select the appropriate outomes
@@ -187,14 +187,14 @@ observed_outcome <- function(outcome = "Y", treatment_assignment, data, sep = "_
 #'
 #' Description
 #' @param treatment_assignment The name of the treatment assignment variable in data.
-#' @param design A design object created by \code{\link{declare_design}}; or a function that assigns treatment
+#' @param design A design object created by \code{\link{declare_assignment}}; or a function that assigns treatment
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @return A vector probabilities of assignment to treatment.
 #' @examples
 #' smp <- declare_population(N = 850)
 #' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-#' design <- declare_design(potential_outcomes = po, m=200)
+#' design <- declare_assignment(potential_outcomes = po, m=200)
 #' mock          <- draw_population(potential_outcomes = po, sample =  smp)
 #' mock$Z        <- assign_treatment(design, data = mock)
 #' mock$prob_obs        <- observed_probs("Z", design, mock)

@@ -15,7 +15,7 @@ test_that("test whether a simple experiment can be pre-registered", {
                                    outcome_formula = Y ~ rbinom(n = 850, prob = logistic(.01 + 0*Z0 + .2*Z1 + error),
                                                                 size = 1))
   
-  design <- declare_design(potential_outcomes = po)
+  design <- declare_assignment(potential_outcomes = po)
   
   analysis_diff <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
   analysis_ols <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = linear_regression, quantity_of_interest = average_treatment_effect)

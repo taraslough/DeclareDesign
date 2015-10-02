@@ -26,35 +26,35 @@ test_that("test assignment and probability functions", {
   blocks_without_clusters <- declare_blocks(blocks = "development_level", recode = FALSE)
   
   # Complete Random Assignment Designs
-  design_1 <- declare_design(potential_outcomes = potential_outcomes)
-  design_2 <- declare_design(potential_outcomes = potential_outcomes, m = 60, excluded_arms = "Z2")
-  design_3 <- declare_design(potential_outcomes = potential_outcomes, m_each =c(60, 100, 840))
-  design_4 <- declare_design(potential_outcomes = potential_outcomes, m_each =c(60, 940), excluded_arms = "Z2")
-  design_5 <- declare_design(potential_outcomes = potential_outcomes, prob_each = c(.2, .5, .3))
+  design_1 <- declare_assignment(potential_outcomes = potential_outcomes)
+  design_2 <- declare_assignment(potential_outcomes = potential_outcomes, m = 60, excluded_arms = "Z2")
+  design_3 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(60, 100, 840))
+  design_4 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(60, 940), excluded_arms = "Z2")
+  design_5 <- declare_assignment(potential_outcomes = potential_outcomes, prob_each = c(.2, .5, .3))
   
   # Blocked Designs
-  design_6 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters)
-  design_7 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, prob_each = c(.3, .6, .1))
-  design_8 <- declare_design(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, excluded_arms = "Z2")
+  design_6 <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters)
+  design_7 <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, prob_each = c(.3, .6, .1))
+  design_8 <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, excluded_arms = "Z2")
   
   block_prob <- rbind(c(.1, .2, .7),
                       c(.1, .7, .2),
                       c(.7, .2, .1),
                       c(.7, .1, .2),
                       c(.2, .1, .7))
-  design_8.5 <- declare_design(potential_outcomes = potential_outcomes, 
+  design_8.5 <- declare_assignment(potential_outcomes = potential_outcomes, 
                                blocks = blocks_without_clusters, 
                                block_prob = block_prob)
   
   # Clustered Designs 
-  design_9 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters)
-  design_10 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, excluded_arms = "Z2")
-  design_11 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, prob_each = c(.1, .3, .6))
+  design_9 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters)
+  design_10 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, excluded_arms = "Z2")
+  design_11 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, prob_each = c(.1, .3, .6))
   
   # Blocked and Clustered Designs
-  design_12 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters)
-  design_13 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters, excluded_arms = "Z2")
-  design_14 <- declare_design(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters, prob_each = c(.1, .3, .6))
+  design_12 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters)
+  design_13 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters, excluded_arms = "Z2")
+  design_14 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters, prob_each = c(.1, .3, .6))
   
   mock <- make_data(potential_outcomes = potential_outcomes, sample = smp, design = design_12)
   
