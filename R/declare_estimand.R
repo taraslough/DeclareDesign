@@ -19,15 +19,9 @@ declare_estimand <- function(expression, target = "population", subset, weights_
   
 }
 
-
-
-#' @param analysis what is it?
-#' @param qoi  what is it?
-#' @param data  what is it?
-#' @param statistics  what is it?
-#' @rdname declare_analysis
 #' @export
-get_estimands <- function(analysis, qoi = NULL, data, design = design, statistics = "est", analysis_labels = NULL){
+get_estimands <- function(analysis, qoi = NULL, data, design = design, 
+                          statistics = "est", analysis_labels = NULL){
   
   if(is.null(analysis_labels)){
     if(class(analysis) == "list")

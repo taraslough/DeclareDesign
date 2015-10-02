@@ -50,9 +50,6 @@ declare_estimator <- function(formula, model = NULL, calculate_estimates = diffe
   
 }
 
-#' @param analysis what is it?
-#' @param data what is it?
-#' @rdname declare_analysis
 #' @export
 get_estimates_model <- function(analysis, data){
   if(class(analysis) != "analysis")
@@ -62,11 +59,6 @@ get_estimates_model <- function(analysis, data){
   return(analysis$estimate(data = data))
 }
 
-
-#' @param analysis what is it?
-#' @param qoi what is it?
-#' @param data what is it?
-#' @rdname declare_analysis
 #' @export
 get_estimates <- function(analysis, quantity_of_interest = NULL, data, analysis_labels = NULL) {
   
