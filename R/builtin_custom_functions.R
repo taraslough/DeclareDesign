@@ -54,18 +54,17 @@ multi_blocks_function_generic <- function(blocks, sample, block_name = block_nam
 
 
 #' @export
-average_treatment_effect <- function(x, statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df")){
-  coef_name <- names(coef(x))[treat_coef_num]
-  df <- df.residual(x)
-  est <- coef(x)[treat_coef_num]
-  se <- sqrt(diag(vcov(x)))[treat_coef_num]
+get_regression_coefficient <- function(model, formula = NULL, coefficient_name, statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), estimates_labels = ""){
+  coef_num <- which(names(coef(model)) == coefficient_name)
+  df <- df.residual(model)
+  est <- coef(model)[coef_num]
+  se <- sqrt(diag(vcov(model)))[coef_num]
   p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
-  conf_int <- suppressMessages(confint(x))[treat_coef_num, ]
+  conf_int <- suppressMessages(confint(model))[coef_num, ]
   
   output <- matrix(c(est, se, p, conf_int, df), 
                    dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                   paste(outcome_variable, "~", coef_name, "_", 
-                                         quantity_of_interest_labels, sep = "")))
+                                   paste0(summary(model)$terms[[2]], "~", paste(all.vars(summary(a)$terms[[3]]), collapse = "+"), "_", estimates_labels)))
   
   return(output[which(rownames(output) %in% statistics), , drop = FALSE])
 }
