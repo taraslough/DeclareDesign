@@ -1,8 +1,8 @@
 
-#' Calculate probabilties of assignment
+#' Calculate probabilities of assignment
 #'
 #' Description
-#' @param design A design object created by \code{\link{declare_assignment}}; or a function that assigns treatment
+#' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @return A matrix of probabilities of assignment to treatment.
 #' @examples
@@ -10,18 +10,18 @@
 #' # smp <- declare_population(N = 850)
 #' # po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #' #                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-#' # design <- declare_assignment(potential_outcomes = po, m=200)
+#' # assignment <- declare_assignment(potential_outcomes = po, m=200)
 #' # mock          <- draw_population(potential_outcomes = po, sample =  smp)
-#' # mock$Z        <- assign_treatment(design, data = mock)
-#' # design_probs <- get_design_probs(design, mock)
+#' # mock$Z        <- assign_treatment(assignment, data = mock)
+#' # assignment_probs <- get_assignment_probs(assignment, mock)
 #' 
-#' head(design_probs)
+#' head(assignment_probs)
 #' @export
-get_design_probs <- function(design, data){
+get_assignment_probs <- function(assignment, data){
   
   N <- nrow(data)  
-  block_variable_name <- design$block_variable_name
-  cluster_variable_name <- design$cluster_variable_name
+  block_variable_name <- assignment$block_variable_name
+  cluster_variable_name <- assignment$cluster_variable_name
   
   if(!is.null(block_variable_name)){
     block_var <- data[,block_variable_name]  
@@ -35,27 +35,27 @@ get_design_probs <- function(design, data){
     clust_var <- NULL
   }
   
-  condition_names <- design$condition_names
-  m <- design$m
-  m_each <- design$m_each
-  prob_each <- design$prob_each
-  block_m <- design$block_m
-  block_prob <- design$block_prob
-  design_type <- design$design_type
+  condition_names <- assignment$condition_names
+  m <- assignment$m
+  m_each <- assignment$m_each
+  prob_each <- assignment$prob_each
+  block_m <- assignment$block_m
+  block_prob <- assignment$block_prob
+  assignment_type <- assignment$assignment_type
   
-  if(design_type=="complete"){
+  if(assignment_type=="complete"){
     prob_mat <- complete_ra_probs(N = N, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
   }
   
-  if(design_type=="blocked"){
+  if(assignment_type=="blocked"){
     prob_mat <- block_ra_probs(block_var = block_var, block_m = block_m, block_prob = block_prob, prob_each = prob_each, condition_names = condition_names)
   }
   
-  if(design_type=="clustered"){
+  if(assignment_type=="clustered"){
     prob_mat <- cluster_ra_probs(clust_var = clust_var, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
   }
   
-  if(design_type=="blocked and clustered"){
+  if(assignment_type=="blocked and clustered"){
     prob_mat <- blocked_and_clustered_ra_probs(clust_var = clust_var, block_var = block_var, block_m = block_m, prob_each = prob_each, block_prob = block_prob, condition_names = condition_names)
   }
   

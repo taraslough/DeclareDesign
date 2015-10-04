@@ -24,7 +24,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
   clusters <- declare_clusters(clusters = "villages_id")
   blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
   
-  design <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
+  assignment <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
   analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", 
@@ -34,7 +34,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
   
   ## estimated treatment effects
   
-  pre_registration <- pre_register(design = design, sample = sample,
+  pre_registration <- pre_register(assignment = assignment, sample = sample,
                                    potential_outcomes = potential_outcomes, analysis = analysis_1, 
                                    title = "Simplest Possible Experiment", 
                                    authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
@@ -44,27 +44,27 @@ test_that("test a simple experiment with blocking and clustering works with vari
   ## creates paper just from a pre_registration object
   ##draft_paper_from_pre_registration(pre_registration = pre_registration, data = mock)
   
-  ##paper_draft <- draft_paper(design = design, sample = sample, clusters = clusters, blocks = blocks,
+  ##paper_draft <- draft_paper(assignment = assignment, sample = sample, clusters = clusters, blocks = blocks,
   ##                           potential_outcomes = potential_outcomes, analysis = analysis_1, 
   ##                           title = "Simplest Possible Experiment", 
   ##                           authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
   ##                           abstract = "The effect of pixie dust on productivity.",
   ##                           random_seed = 42, temp_dir = TRUE)
   
-  ## nudge to set levels of sim (determined by design)
+  ## nudge to set levels of sim (determined by assignment)
   
-  power_1         <- diagnose(sims = 5, analysis = list(analysis_1), design = design, 
+  power_1         <- diagnose(sims = 5, analysis = list(analysis_1), assignment = assignment, 
                                          sample = sample, potential_outcomes = potential_outcome)
   summary(power_1)
   
   power_2         <- diagnose(sims = 5, analysis = list(analysis_1, analysis_2), 
-                                         design = design, sample = sample, potential_outcomes = potential_outcomes)
+                                         assignment = assignment, sample = sample, potential_outcomes = potential_outcomes)
   summary(power_2)
   
-  mock          <- make_data(potential_outcomes = potential_outcomes, sample = sample, design = design)
+  mock          <- make_data(potential_outcomes = potential_outcomes, sample = sample, assignment = assignment)
   
   head(mock)
-  mock$Z        <- assign_treatment(design, data = mock)
+  mock$Z        <- assign_treatment(assignment, data = mock)
   
   with(subset(mock, development_level==1), table(as.character(cluster_variable), block_variable))
   
@@ -79,10 +79,10 @@ test_that("test a simple experiment with blocking and clustering works with vari
   summary(M1_est)
   
   ## below here doesn't work at the moment, working on it
-  obs <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
+  obs <- observed_probs(treatment_assignment = "Z", assignment = assignment, data = mock)
   
   balance       <- get_balance(covariates = c("income", "development_level"), 
-                           treatment_assignment = "Z", design = design, data = mock)
+                           treatment_assignment = "Z", assignment = assignment, data = mock)
   balance
   
 })

@@ -20,16 +20,16 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   blocks <- declare_blocks(blocks = "income", block_name = "income_groups", block_count = 10)
   
-  design_1        <- declare_assignment(potential_outcomes = po, blocks = blocks)
-  design_2        <- declare_assignment(potential_outcomes = po, blocks = "party")
+  assignment_1        <- declare_assignment(potential_outcomes = po, blocks = blocks)
+  assignment_2        <- declare_assignment(potential_outcomes = po, blocks = "party")
   
   mock_1          <- make_data(potential_outcomes = po, assign_treatment =TRUE,
                              treatment_variable = "Z",observed_outcomes = TRUE,
-                             sample = smp, design = design_1)
+                             sample = smp, assignment = assignment_1)
   
   mock_2          <- make_data(potential_outcomes = po, assign_treatment =TRUE,
                                treatment_variable = "Z",observed_outcomes = TRUE,
-                               sample = smp, design = design_2)
+                               sample = smp, assignment = assignment_2)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", 
                                  estimator = difference_in_means_blocked,
@@ -41,13 +41,13 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   power_test_1        <- diagnose(sims = 20, 
                                 analysis = analysis_1,
-                                design = design_1,
+                                assignment = assignment_1,
                                 sample = smp, 
                                 potential_outcomes = po)
   
   power_test_2        <- diagnose(sims = 20, 
                                 analysis = analysis_2,
-                                design = design_2,
+                                assignment = assignment_2,
                                 sample = smp, 
                                 potential_outcomes = po)
   
@@ -56,7 +56,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   fit_1 <- get_estimands(analysis = analysis_1, data = mock_1)
   
-  #   pre_register(design = design, covariates = cov, 
+  #   pre_register(assignment = assignment, covariates = cov, 
   #                potential_outcomes = po, analysis = list(analysis_1, analysis_2), 
   #                registration_title = "Simplest Possible Experiment", 
   #                registration_authors = c("Graeme Blair", "Alexander Coppock"), 

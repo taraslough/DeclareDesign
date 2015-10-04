@@ -16,7 +16,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
-  design <- declare_assignment(potential_outcomes = po)
+  assignment <- declare_assignment(potential_outcomes = po)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
   
@@ -24,18 +24,18 @@ test_that("test whether a simple experiment can be pre-registered", {
   
   smp_draw <- draw_sample(population_data = pop_draw, sampling = smp)
   
-  data <- reveal_design(data = smp_draw, design = design)
+  data <- reveal_assignment(data = smp_draw, assignment = assignment)
 
   sims <- diagnose(potential_outcomes = po, 
                    sample =  smp, 
-                   design = design, 
+                   assignment = assignment, 
                    analysis = analysis_1, 
                    sims = 100)
   summary(sims)
   
   # Run analysis on a single realization
   mock          <- make_data(potential_outcomes = po, sample = smp)
-  mock$Z        <- assign_treatment(design, data = mock)
+  mock$Z        <- assign_treatment(assignment, data = mock)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   
   estimates <- get_estimates(analysis_1, data = mock)

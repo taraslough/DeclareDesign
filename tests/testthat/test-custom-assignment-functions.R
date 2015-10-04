@@ -33,17 +33,17 @@ test_that("test assignment and probability functions", {
   assign_1 <- function()
     return(sample(c("Z0", "Z1"), 1000, replace = T))
   
-  design <- declare_assignment(potential_outcomes = potential_outcomes, custom_assignment_function = assign_1)
+  assignment <- declare_assignment(potential_outcomes = potential_outcomes, custom_assignment_function = assign_1)
  
   analysis <- declare_analysis(Y ~ Z, treatment_variable = "Z")
   
   sims <- diagnose(potential_outcomes = potential_outcomes, 
                    sample =  smp, 
-                   design = design, 
+                   assignment = assignment, 
                    analysis = analysis, 
                    sims = 100)
   
-  mock <- make_data(potential_outcomes = potential_outcomes, sample = smp, design = design, 
+  mock <- make_data(potential_outcomes = potential_outcomes, sample = smp, assignment = assignment, 
                     assign_treatment = T, treatment_variable = "Z", observed_outcomes = TRUE)
  
 })

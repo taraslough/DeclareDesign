@@ -7,7 +7,7 @@
 #' @export
 draw_sample_indicator <- function(sampling, population_data) {
   
-  ## should be expanded to take either a design object or a function
+  ## should be expanded to take either a sampling object or a function
   
   N <- nrow(population_data)
 
@@ -25,11 +25,11 @@ draw_sample_indicator <- function(sampling, population_data) {
     sampling_type <- "custom"
   }
   
-  if(!is.null(sampling$custom_assignment_function)){
-    if("data" %in% names(formals(sampling$custom_assignment_function)))
-      Z <- sampling$custom_assignment_function(data = population_data)
+  if(!is.null(sampling$custom_sampling_function)){
+    if("data" %in% names(formals(sampling$custom_sampling_function)))
+      Z <- sampling$custom_sampling_function(data = population_data)
     else
-      Z <- sampling$custom_assignment_function()
+      Z <- sampling$custom_sampling_function()
   } 
   
   # For "simple" random sampling

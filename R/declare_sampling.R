@@ -9,7 +9,7 @@ declare_sampling <- function(prob = NULL,
                              custom_strata_function = NULL,
                              custom_cluster_function = NULL) {
   
-  # Determine design type
+  # Determine assignment type
   sampling_type <- "complete"  ## what should this be called. Simple? 
   if(!is.null(strata_variable_name)) {sampling_type <- "stratified"}
   if(!is.null(cluster_variable_name)) {sampling_type <- "clustered"}
@@ -19,7 +19,7 @@ declare_sampling <- function(prob = NULL,
   
   # Checks ------------------------------------------------------------------
   if(sampling_type == "stratified" & !is.null(m)){
-    stop("Please do not specify m in a stratified design.  Use strata_m or strata_prob instead.")
+    stop("Please do not specify m in a stratified sampling design.  Use strata_m or strata_prob instead.")
   }
   
   if(!is.null(custom_strata_function) & !is.character(strata_variable_name)){

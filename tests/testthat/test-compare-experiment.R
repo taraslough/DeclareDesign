@@ -13,7 +13,7 @@ test_that("test compare experiment", {
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
-  design <- declare_assignment(potential_outcomes = po)
+  assignment <- declare_assignment(potential_outcomes = po)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = lm, quantity_of_interest = average_treatment_effect)
   
@@ -22,7 +22,7 @@ test_that("test compare experiment", {
   sims <- compare_experiments(N = c(10000, 500, 5),
                               potential_outcomes = po, 
                               sample =  smp_N, 
-                              design = design, 
+                              assignment = assignment, 
                               analysis = analysis_1, 
                               sims = 5)
   
@@ -30,7 +30,7 @@ test_that("test compare experiment", {
   ##sims <- compare_experiments(N_per_level = list(c(10000, 500, 5), c(50, 5), c(100, 50, 2)),
   ##                            potential_outcomes = po, 
   ##                            sample =  smp_N_per_level, 
-  ##                            design = design, 
+  ##                            assignment = assignment, 
   ##                            analysis = analysis_1, 
   ##                            sims = 100)
   

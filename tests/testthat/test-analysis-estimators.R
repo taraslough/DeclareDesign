@@ -15,17 +15,17 @@ test_that("test whether a simple experiment can be pre-registered", {
                                    outcome_formula = Y ~ rbinom(n = 850, prob = logistic(.01 + 0*Z0 + .2*Z1 + error),
                                                                 size = 1))
   
-  design <- declare_assignment(potential_outcomes = po)
+  assignment <- declare_assignment(potential_outcomes = po)
   
   analysis_diff <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
   analysis_ols <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = linear_regression, quantity_of_interest = average_treatment_effect)
   analysis_logit <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = logistic_regression, quantity_of_interest = average_treatment_effect)
   analysis_probit <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = probit_regression, quantity_of_interest = average_treatment_effect)
   
-  a <- diagnose(potential_outcomes = po, sample = smp, design = design, analysis = analysis_diff)
+  a <- diagnose(potential_outcomes = po, sample = smp, assignment = assignment, analysis = analysis_diff)
 
   mock          <- make_data(potential_outcomes = po, sample = smp)
-  mock$Z        <- assign_treatment(design, data = mock)
+  mock$Z        <- assign_treatment(assignment, data = mock)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   
   estimates_diff <- get_estimates(analysis_diff, data = mock)

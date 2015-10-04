@@ -3,7 +3,7 @@
 #' Description
 #' @param covariates A character vector of covariate names to be used in the balance assessment.
 #' @param treatment_assignment The name of the treatment assignment variable in data
-#' @param design A design object, created by \code{\link{declare_assignment}}.
+#' @param assignment A assignment object, created by \code{\link{declare_assignment}}.
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @param report_difference what is it?
 #' @param na.rm what is it?
@@ -11,7 +11,7 @@
 #' @examples
 #' ##examples go here.
 #' @export
-get_balance <- function(covariates, treatment_assignment = "Z", design, data, 
+get_balance <- function(covariates, treatment_assignment = "Z", assignment, data, 
                     report_difference = FALSE, na.rm = TRUE){
   
   if(!any(colnames(data) %in% treatment_assignment))

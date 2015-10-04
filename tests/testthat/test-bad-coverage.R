@@ -21,8 +21,8 @@ test_that("test permutation matrix", {
   
   blocks <- declare_blocks(blocks = "ethnicity", block_name = "income_groups", block_count = 4)
   
-  design_blocked <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks, prob_each = c(.9, .1))
-  design_notblocked <- declare_assignment(potential_outcomes = potential_outcomes)
+  assignment_blocked <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks, prob_each = c(.9, .1))
+  assignment_notblocked <- declare_assignment(potential_outcomes = potential_outcomes)
   
   analysis_lsdv <- declare_analysis(formula = Y ~ Z + factor(income_groups), estimator = linear_regression,
                                     quantity_of_interest = average_treatment_effect,
@@ -37,13 +37,13 @@ test_that("test permutation matrix", {
   
   power_test        <- diagnose(sims = 5, 
                                   analysis = list(analysis_lsdv, analysis_lm, analysis), 
-                                  design = design_blocked, 
+                                  assignment = assignment_blocked, 
                                   blocks = blocks, sample = sample, 
                                   potential_outcomes = potential_outcomes)
   
-  mock <- make_data(potential_outcomes = potential_outcomes, sample = sample, design = design_blocked)
+  mock <- make_data(potential_outcomes = potential_outcomes, sample = sample, assignment = assignment_blocked)
   
-  mock$Z <- assign_treatment(design = design_blocked, data = mock)
+  mock$Z <- assign_treatment(assignment = assignment_blocked, data = mock)
   mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
   dimM <- get_estimates(analysis = analysis, data = mock)

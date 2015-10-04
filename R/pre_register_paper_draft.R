@@ -3,7 +3,7 @@
 #' 
 #' Description
 #' 
-#' @param design A design object from the declare_assignment function.
+#' @param assignment A assignment object from the declare_assignment function.
 #' @param clusters what is it?
 #' @param blocks what is it?
 #' @param sample what is it?
@@ -27,7 +27,7 @@
 #' @param open_output Indicator for whether the output file is opened after it is compiled.
 #' @return what does it return?
 #' @export
-pre_register <- function(design, sample = NULL, potential_outcomes = NULL, analysis = NULL, data = NULL,
+pre_register <- function(assignment, sample = NULL, potential_outcomes = NULL, analysis = NULL, data = NULL,
                          title = NULL, authors = NULL, affiliations = NULL,
                          acknowledgements = NULL, abstract = NULL,
                          random_seed = 42, dir = getwd(), temp_dir = FALSE, format = "rmarkdown",
@@ -35,13 +35,13 @@ pre_register <- function(design, sample = NULL, potential_outcomes = NULL, analy
                          make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                          output_format = "pdf", open_output = TRUE){
   
-  if(missing(design))
-    stop("Please provide a design object created using the declare_assignment() function.")
+  if(missing(assignment))
+    stop("Please provide a assignment object created using the declare_assignment() function.")
   
   if(is.null(blocks))
-    blocks <- design$blocks
+    blocks <- assignment$blocks
   if(is.null(clusters))
-    clusters <- design$clusters
+    clusters <- assignment$clusters
   
   if(class(analysis) != "list")
     analysis <- list(analysis)
@@ -59,7 +59,7 @@ pre_register <- function(design, sample = NULL, potential_outcomes = NULL, analy
                                         substitute(potential_outcomes), " <- ", potential_outcomes$call, "\n\n", 
                                         ifelse(!is.null(clusters), paste0(substitute(clusters), " <- ", list(clusters$call)), ""), "\n\n", 
                                         ifelse(!is.null(blocks), paste0(substitute(blocks), " <- ", list(blocks$call)), ""), "\n\n", 
-                                        "design <- ", design$call, "\n\n", 
+                                        "assignment <- ", assignment$call, "\n\n", 
                                         paste(sapply(1:length(analysis), 
                                                      function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
                                               collapse = ""),
@@ -69,15 +69,15 @@ pre_register <- function(design, sample = NULL, potential_outcomes = NULL, analy
                                         ifelse(!is.null(blocks), ", blocks = blocks", ""), ")\n\n", 
                                         paste(sapply(1:length(analysis), 
                                                      function(x) paste0("mock[, analysis_treatment_variable(analysis_", x, 
-                                                                        ")] <- assign_treatment(design, data = mock)\n\n",
+                                                                        ")] <- assign_treatment(assignment, data = mock)\n\n",
                                                                         "mock[, analysis_outcome_variable(analysis_", x, 
                                                                         ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, 
                                                                         "), treatment_assignment = 'Z', data = mock) \n")), collapse = "")),
                            tex_header("Hypotheses", 1),
                            "Please write your hypotheses here. Be sure to explain each declared analysis.",
-                           tex_header("Experimental Design", 1),
-                           code_snippet("summary(design)"),
-                           code_snippet("simulations <- summary(diagnose(design = design, analysis = analysis_1,
+                           tex_header("Experimental assignment", 1),
+                           code_snippet("summary(assignment)"),
+                           code_snippet("simulations <- summary(diagnose(assignment = assignment, analysis = analysis_1,
                                            sample = sample, potential_outcomes = potential_outcomes",
                                         ifelse(!is.null(clusters), ", clusters = clusters", ""),
                                         ifelse(!is.null(blocks), ", blocks = blocks", ""), "))", "\n\n",
@@ -101,7 +101,7 @@ pre_register <- function(design, sample = NULL, potential_outcomes = NULL, analy
   output_document(doc = pre_register_doc, pre_registration_data = data, dir = dir, temp_dir = temp_dir, format = format, make_output = make_output, keep_tex = keep_tex,
                   save_r_code = save_r_code, output_format = output_format, open_output = open_output)
   
-  return_object <- list(design = design, sample = sample, potential_outcomes = potential_outcomes, 
+  return_object <- list(assignment = assignment, sample = sample, potential_outcomes = potential_outcomes, 
                         clusters = clusters, blocks = blocks, analysis = analysis, data = data,
                         title = title, authors = authors, affiliations = affiliations,
                         acknowledgements = acknowledgements, abstract = abstract, random_seed = random_seed,
@@ -143,7 +143,7 @@ draft_paper_from_pre_registration <- function(pre_registration, data, dir = getw
   if(missing(data))
     stop("To make a paper draft, you must provide a data argument.")
   
-  draft_paper(design = pre_registration$design, clusters = pre_registration$clusters,
+  draft_paper(assignment = pre_registration$assignment, clusters = pre_registration$clusters,
               blocks = pre_registration$blocks, sample = pre_registration$sample,
               potential_outcomes = pre_registration$potential_outcomes, analysis = pre_registration$analysis,
               title = pre_registration$title, authors = pre_registration$authors, 
@@ -160,7 +160,7 @@ draft_paper_from_pre_registration <- function(pre_registration, data, dir = getw
 #' 
 #' Description
 #'
-#' @param design A design object from the declare_assignment function.
+#' @param assignment A assignment object from the declare_assignment function.
 #' @param clusters what is it?
 #' @param blocks what is it?
 #' @param sample what is it?
@@ -173,7 +173,7 @@ draft_paper_from_pre_registration <- function(pre_registration, data, dir = getw
 #' @param acknowledgements what is it?
 #' @param abstract General description of the experiment.
 #' @param data what is it?
-#' @param random_seed Random seed to ensure reproducibility of the design.
+#' @param random_seed Random seed to ensure reproducibility of the assignment.
 #' @param dir what is it?
 #' @param temp_dir what is it?
 #' @param format what is it?
@@ -184,7 +184,7 @@ draft_paper_from_pre_registration <- function(pre_registration, data, dir = getw
 #' @param open_output Indicator for whether the output file is opened after it is compiled.
 #' @return what does it return
 #' @export
-draft_paper <- function(design, clusters = NULL, blocks = NULL, sample = NULL, 
+draft_paper <- function(assignment, clusters = NULL, blocks = NULL, sample = NULL, 
                         potential_outcomes = NULL, analysis = NULL, pre_registration_data = NULL,
                         title = NULL, authors = NULL, affiliations = NULL,
                         acknowledgements = NULL, abstract = NULL, data = NULL,
@@ -192,13 +192,13 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample = NULL,
                         make_output = TRUE, keep_tex = FALSE, save_r_code = FALSE, 
                         output_format = "pdf", open_output = TRUE){
   
-  if(missing(design))
-    stop("Please provide a design object created using the declare_assignment() function.")
+  if(missing(assignment))
+    stop("Please provide a assignment object created using the declare_assignment() function.")
   
   if(is.null(blocks))
-    blocks <- design$blocks
+    blocks <- assignment$blocks
   if(is.null(clusters))
-    clusters <- design$clusters
+    clusters <- assignment$clusters
   
   if(class(analysis) != "list")
     analysis <- list(analysis)
@@ -217,7 +217,7 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample = NULL,
                                        "potential_outcomes <- ", potential_outcomes$call, "\n\n", 
                                        ifelse(!is.null(clusters), paste0("clusters <- ", list(clusters$call)), ""), "\n\n", 
                                        ifelse(!is.null(blocks), paste0("blocks <- ", list(blocks$call)), ""), "\n\n", 
-                                       "design <- ", design$call, "\n\n", 
+                                       "assignment <- ", assignment$call, "\n\n", 
                                        paste(sapply(1:length(analysis), 
                                                     function(x) paste0("analysis_", x, " <- ", list(analysis[[x]]$call), "\n\n")), 
                                              collapse = ""),
@@ -227,15 +227,15 @@ draft_paper <- function(design, clusters = NULL, blocks = NULL, sample = NULL,
                                        ifelse(!is.null(blocks), ", blocks = blocks", ""), ")\n\n", 
                                        paste(sapply(1:length(analysis), 
                                                     function(x) paste0("mock[, analysis_treatment_variable(analysis_", x, 
-                                                                       ")] <- assign_treatment(design, data = mock)\n\n",
+                                                                       ")] <- assign_treatment(assignment, data = mock)\n\n",
                                                                        "mock[, analysis_outcome_variable(analysis_", x, 
                                                                        ")] <- observed_outcome(outcome = analysis_outcome_variable(analysis_", x, 
                                                                        "), treatment_assignment = 'Z', data = mock) \n")), collapse = "")),
                           tex_header("Hypotheses", 1),
                           "Please write your hypotheses here. Be sure to explain each declared analysis.",
-                          tex_header("Experimental Design", 1),
-                          code_snippet("summary(design)"),
-                          code_snippet("simulations <- summary(diagnose(design = design, analysis = analysis_1,
+                          tex_header("Experimental assignment", 1),
+                          code_snippet("summary(assignment)"),
+                          code_snippet("simulations <- summary(diagnose(assignment = assignment, analysis = analysis_1,
                                            sample = sample, potential_outcomes = potential_outcomes, 
                                            clusters = clusters, blocks = blocks))", "\n\n",
                                        "print(xtable(simulations, caption = \"Power analysis of quantities of interest\"),
@@ -375,8 +375,8 @@ code_snippet <- function(..., ## takes a character string
 
 #' @importFrom knitr kable
 #' @export
-treatment_table <- function(design, caption = "Description of each treatment condition", ...){
-  treatment_table <- data.frame(design$condition_names, "")
+treatment_table <- function(assignment, caption = "Description of each treatment condition", ...){
+  treatment_table <- data.frame(assignment$condition_names, "")
   colnames(treatment_table) <- c("Treatment condition", "Description")
   kable(treatment_table, caption = caption, row.names = FALSE, ... = ...)
 }

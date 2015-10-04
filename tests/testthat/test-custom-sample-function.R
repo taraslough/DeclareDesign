@@ -23,7 +23,7 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   make_clustered_data_experimentr <- function(N_per_level = NULL){
     if(is.null(N_per_level))
     if(N_per_level[1] %% N_per_level[2] > 0)
-      stop("You can only use a design with equally sized clusters.")
+      stop("You can only use a assignment with equally sized clusters.")
     if(length(N_per_level)!=2)
       stop("You can only use this custom DGP function if there are exactly two levels.")
     return(make_clustered_data(J = N_per_level[2], n = N_per_level[1]/N_per_level[2]))
@@ -39,13 +39,13 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   
   clusters <- declare_clusters(clusters = "j")
   
-  design <- declare_assignment(potential_outcomes = po, clusters = clusters, treatment_variable = "Z_star")
+  assignment <- declare_assignment(potential_outcomes = po, clusters = clusters, treatment_variable = "Z_star")
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z")
   
-  power_1         <- diagnose(sims = 100, analysis = analysis_1, design = design, clusters = clusters, sample = smp, potential_outcomes = po)
+  power_1         <- diagnose(sims = 100, analysis = analysis_1, assignment = assignment, clusters = clusters, sample = smp, potential_outcomes = po)
   power_1
   
-  mock          <- make_data(potential_outcomes = po, sample = smp, design = design, assign_treatment = T, observed_outcomes = T, treatment_variable = "Z_star")
+  mock          <- make_data(potential_outcomes = po, sample = smp, assignment = assignment, assign_treatment = T, observed_outcomes = T, treatment_variable = "Z_star")
   
 })

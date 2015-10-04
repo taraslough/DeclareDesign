@@ -230,7 +230,7 @@ blocked_and_clustered_ra <-
     return(as.character(merged$z_clust))
   }
 
-#' Declare the experimental design
+#' Declare the experimental assignment
 #'
 #' @param potential_outcomes potential_outcomes object, as created by \code{\link{declare_potential_outcomes}} (required).
 #' @param blocks blocks object, as created by \code{\link{declare_blocks}} (optional).
@@ -240,8 +240,8 @@ blocked_and_clustered_ra <-
 #' @param prob_each a vector describing the probability of units (or clusters) being assigned to each treatment arm. Must sum to 1.
 #' @param block_m a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.
 #' @param block_prob a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.
-#' @param excluded_arms a character vector excluding some potential outcomes from the randomization.  Used primarily when comparing designs that feature different numbers of treatment arms.
-#' @return design object
+#' @param excluded_arms a character vector excluding some potential outcomes from the randomization.  Used primarily when comparing assignments that feature different numbers of treatment arms.
+#' @return assignment object
 #' @export
 declare_assignment <- 
   function(potential_outcomes, 
@@ -259,17 +259,17 @@ declare_assignment <-
            custom_block_function = NULL,
            custom_cluster_function = NULL) {
     
-    # Determine design type
-    design_type <- "complete"   
-    if(!is.null(block_variable_name)) {design_type <- "blocked"}
-    if(!is.null(cluster_variable_name)) {design_type <- "clustered"}
+    # Determine assignment type
+    assignment_type <- "complete"   
+    if(!is.null(block_variable_name)) {assignment_type <- "blocked"}
+    if(!is.null(cluster_variable_name)) {assignment_type <- "clustered"}
     if(!is.null(cluster_variable_name) & !is.null(block_variable_name)) {
-      design_type <- "blocked and clustered"
+      assignment_type <- "blocked and clustered"
     }
     
     # Checks ------------------------------------------------------------------
-    if(design_type == "blocked" & !is.null(m)){
-      stop("Please do not specify m in a blocked design.  Use block_m or block_prob instead.")
+    if(assignment_type == "blocked" & !is.null(m)){
+      stop("Please do not specify m in a blocked assignment.  Use block_m or block_prob instead.")
     }
     
     if(!is.null(custom_block_function) & !is.character(block_variable_name)){
@@ -318,7 +318,7 @@ declare_assignment <-
                             prob_each = prob_each,
                             block_m = block_m,
                             block_prob = block_prob,
-                            design_type = design_type,
+                            assignment_type = assignment_type,
                             custom_block_function = custom_block_function,
                             custom_cluster_function = custom_cluster_function,
                             baseline_condition = baseline_condition,
@@ -332,28 +332,28 @@ declare_assignment <-
         baseline_condition = baseline_condition,
         treatment_variable = treatment_variable,
         potential_outcomes = potential_outcomes,
-        design_type = "custom",
+        assignment_type = "custom",
         call = match.call())
     }
-    class(return.object) <- "design"
+    class(return.object) <- "assignment"
     return(return.object)
   }
 
 
 #' @export
-summary.design <- function(object, ...) {
+summary.assignment <- function(object, ...) {
   ## this function itself does nothing, it's just an R package technicality
-  ## so that print.summary.design() works
-  structure(object, class = c("summary.design", class(object)))
+  ## so that print.summary.assignment() works
+  structure(object, class = c("summary.assignment", class(object)))
 }
 
 #' @export
-print.summary.design <- function(x, ...){
-  ## prints paragraph describing design
-  cat(ifelse(x$design_type == "blocked", paste("This experiment employs a block-randomized design."), ""),
-      ifelse(x$design_type == "clustered", paste("This experiment employs a cluster-randomized design."), ""),
-      ifelse(x$design_type == "blocked and clustered", paste("This experiment employs a block-and-cluster-randomized design."), ""),
-      ifelse(x$design_type == "complete", "This experiment employs a completely-randomized design.", "")
+print.summary.assignment <- function(x, ...){
+  ## prints paragraph describing assignment
+  cat(ifelse(x$assignment_type == "blocked", paste("This experiment employs a block-randomized assignment."), ""),
+      ifelse(x$assignment_type == "clustered", paste("This experiment employs a cluster-randomized assignment."), ""),
+      ifelse(x$assignment_type == "blocked and clustered", paste("This experiment employs a block-and-cluster-randomized assignment."), ""),
+      ifelse(x$assignment_type == "complete", "This experiment employs a completely-randomized assignment.", "")
   )
   cat(" The possible treatment categories are ", paste(x$condition_names, collapse = " and "), ".", sep = "")
 }

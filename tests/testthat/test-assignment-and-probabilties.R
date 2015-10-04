@@ -25,100 +25,100 @@ test_that("test assignment and probability functions", {
   
   blocks_without_clusters <- declare_blocks(blocks = "development_level", recode = FALSE)
   
-  # Complete Random Assignment Designs
-  design_1 <- declare_assignment(potential_outcomes = potential_outcomes)
-  design_2 <- declare_assignment(potential_outcomes = potential_outcomes, m = 60, excluded_arms = "Z2")
-  design_3 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(60, 100, 840))
-  design_4 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(60, 940), excluded_arms = "Z2")
-  design_5 <- declare_assignment(potential_outcomes = potential_outcomes, prob_each = c(.2, .5, .3))
+  # Complete Random Assignment assignments
+  assignment_1 <- declare_assignment(potential_outcomes = potential_outcomes)
+  assignment_2 <- declare_assignment(potential_outcomes = potential_outcomes, m = 60, excluded_arms = "Z2")
+  assignment_3 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(60, 100, 840))
+  assignment_4 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(60, 940), excluded_arms = "Z2")
+  assignment_5 <- declare_assignment(potential_outcomes = potential_outcomes, prob_each = c(.2, .5, .3))
   
-  # Blocked Designs
-  design_6 <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters)
-  design_7 <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, prob_each = c(.3, .6, .1))
-  design_8 <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, excluded_arms = "Z2")
+  # Blocked assignments
+  assignment_6 <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters)
+  assignment_7 <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, prob_each = c(.3, .6, .1))
+  assignment_8 <- declare_assignment(potential_outcomes = potential_outcomes, blocks = blocks_without_clusters, excluded_arms = "Z2")
   
   block_prob <- rbind(c(.1, .2, .7),
                       c(.1, .7, .2),
                       c(.7, .2, .1),
                       c(.7, .1, .2),
                       c(.2, .1, .7))
-  design_8.5 <- declare_assignment(potential_outcomes = potential_outcomes, 
+  assignment_8.5 <- declare_assignment(potential_outcomes = potential_outcomes, 
                                blocks = blocks_without_clusters, 
                                block_prob = block_prob)
   
-  # Clustered Designs 
-  design_9 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters)
-  design_10 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, excluded_arms = "Z2")
-  design_11 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, prob_each = c(.1, .3, .6))
+  # Clustered assignments 
+  assignment_9 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters)
+  assignment_10 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, excluded_arms = "Z2")
+  assignment_11 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, prob_each = c(.1, .3, .6))
   
-  # Blocked and Clustered Designs
-  design_12 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters)
-  design_13 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters, excluded_arms = "Z2")
-  design_14 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters, prob_each = c(.1, .3, .6))
+  # Blocked and Clustered assignments
+  assignment_12 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters)
+  assignment_13 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters, excluded_arms = "Z2")
+  assignment_14 <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks_with_clusters, prob_each = c(.1, .3, .6))
   
-  mock <- make_data(potential_outcomes = potential_outcomes, sample = smp, design = design_12)
+  mock <- make_data(potential_outcomes = potential_outcomes, sample = smp, assignment = assignment_12)
   
   # Attempt to Assign
-  mock$Z1 <- assign_treatment(design = design_1, data = mock) 
-  mock$Z2 <- assign_treatment(design = design_2, data = mock) 
-  mock$Z3 <- assign_treatment(design = design_3, data = mock) 
-  mock$Z4 <- assign_treatment(design = design_4, data = mock) 
-  mock$Z5 <- assign_treatment(design = design_5, data = mock) 
+  mock$Z1 <- assign_treatment(assignment = assignment_1, data = mock) 
+  mock$Z2 <- assign_treatment(assignment = assignment_2, data = mock) 
+  mock$Z3 <- assign_treatment(assignment = assignment_3, data = mock) 
+  mock$Z4 <- assign_treatment(assignment = assignment_4, data = mock) 
+  mock$Z5 <- assign_treatment(assignment = assignment_5, data = mock) 
   
-  mock$Z6 <- assign_treatment(design = design_6, data = mock) 
-  mock$Z7 <- assign_treatment(design = design_7, data = mock) 
-  mock$Z8 <- assign_treatment(design = design_8, data = mock) 
-  mock$Z8_5 <- assign_treatment(design = design_8.5, data = mock) 
+  mock$Z6 <- assign_treatment(assignment = assignment_6, data = mock) 
+  mock$Z7 <- assign_treatment(assignment = assignment_7, data = mock) 
+  mock$Z8 <- assign_treatment(assignment = assignment_8, data = mock) 
+  mock$Z8_5 <- assign_treatment(assignment = assignment_8.5, data = mock) 
   
   with(mock, table(block_variable, Z8_5))
   
-  mock$Z9 <- assign_treatment(design = design_9, data = mock) 
-  mock$Z10 <- assign_treatment(design = design_10, data = mock) 
-  mock$Z11 <- assign_treatment(design = design_11, data = mock) 
+  mock$Z9 <- assign_treatment(assignment = assignment_9, data = mock) 
+  mock$Z10 <- assign_treatment(assignment = assignment_10, data = mock) 
+  mock$Z11 <- assign_treatment(assignment = assignment_11, data = mock) 
   
-  mock$Z12 <- assign_treatment(design = design_12, data = mock) 
-  mock$Z13 <- assign_treatment(design = design_13, data = mock) 
-  mock$Z14 <- assign_treatment(design = design_14, data = mock) 
+  mock$Z12 <- assign_treatment(assignment = assignment_12, data = mock) 
+  mock$Z13 <- assign_treatment(assignment = assignment_13, data = mock) 
+  mock$Z14 <- assign_treatment(assignment = assignment_14, data = mock) 
   
   # Obtain Treatment Probabilities
   
-  prob_mat_1 <- get_design_probs(design = design_1, data = mock) 
-  prob_mat_2 <- get_design_probs(design = design_2, data = mock) 
-  prob_mat_3 <- get_design_probs(design = design_3, data = mock) 
-  prob_mat_4 <- get_design_probs(design = design_4, data = mock) 
-  prob_mat_5 <- get_design_probs(design = design_5, data = mock) 
+  prob_mat_1 <- get_assignment_probs(assignment = assignment_1, data = mock) 
+  prob_mat_2 <- get_assignment_probs(assignment = assignment_2, data = mock) 
+  prob_mat_3 <- get_assignment_probs(assignment = assignment_3, data = mock) 
+  prob_mat_4 <- get_assignment_probs(assignment = assignment_4, data = mock) 
+  prob_mat_5 <- get_assignment_probs(assignment = assignment_5, data = mock) 
   
-  prob_mat_6 <- get_design_probs(design = design_6, data = mock) 
-  prob_mat_7 <- get_design_probs(design = design_7, data = mock) 
-  prob_mat_8 <- get_design_probs(design = design_8, data = mock) 
+  prob_mat_6 <- get_assignment_probs(assignment = assignment_6, data = mock) 
+  prob_mat_7 <- get_assignment_probs(assignment = assignment_7, data = mock) 
+  prob_mat_8 <- get_assignment_probs(assignment = assignment_8, data = mock) 
   
-  prob_mat_8.5 <- get_design_probs(design = design_8.5, data = mock) 
+  prob_mat_8.5 <- get_assignment_probs(assignment = assignment_8.5, data = mock) 
   
-  prob_mat_9 <- get_design_probs(design = design_9, data = mock) 
-  prob_mat_10 <- get_design_probs(design = design_10, data = mock) 
-  prob_mat_11 <- get_design_probs(design = design_11, data = mock) 
+  prob_mat_9 <- get_assignment_probs(assignment = assignment_9, data = mock) 
+  prob_mat_10 <- get_assignment_probs(assignment = assignment_10, data = mock) 
+  prob_mat_11 <- get_assignment_probs(assignment = assignment_11, data = mock) 
   
-  prob_mat_12 <- get_design_probs(design = design_12, data = mock) 
-  prob_mat_13 <- get_design_probs(design = design_13, data = mock) 
-  prob_mat_14 <- get_design_probs(design = design_14, data = mock) 
+  prob_mat_12 <- get_assignment_probs(assignment = assignment_12, data = mock) 
+  prob_mat_13 <- get_assignment_probs(assignment = assignment_13, data = mock) 
+  prob_mat_14 <- get_assignment_probs(assignment = assignment_14, data = mock) 
   
   # reveal observed probs
   
-  prob_obs_1 <- observed_probs(treatment_assignment = "Z1", design = design_1, data = mock) 
-  prob_obs_2 <- observed_probs(treatment_assignment = "Z2", design = design_2, data = mock) 
-  prob_obs_3 <- observed_probs(treatment_assignment = "Z3", design = design_3, data = mock) 
-  prob_obs_4 <- observed_probs(treatment_assignment = "Z4", design = design_4, data = mock) 
-  prob_obs_5 <- observed_probs(treatment_assignment = "Z5", design = design_5, data = mock) 
+  prob_obs_1 <- observed_probs(treatment_assignment = "Z1", assignment = assignment_1, data = mock) 
+  prob_obs_2 <- observed_probs(treatment_assignment = "Z2", assignment = assignment_2, data = mock) 
+  prob_obs_3 <- observed_probs(treatment_assignment = "Z3", assignment = assignment_3, data = mock) 
+  prob_obs_4 <- observed_probs(treatment_assignment = "Z4", assignment = assignment_4, data = mock) 
+  prob_obs_5 <- observed_probs(treatment_assignment = "Z5", assignment = assignment_5, data = mock) 
   
-  prob_obs_6 <- observed_probs(treatment_assignment = "Z6", design = design_6, data = mock) 
-  prob_obs_7 <- observed_probs(treatment_assignment = "Z7", design = design_7, data = mock) 
-  prob_obs_8 <- observed_probs(treatment_assignment = "Z8", design = design_8, data = mock) 
+  prob_obs_6 <- observed_probs(treatment_assignment = "Z6", assignment = assignment_6, data = mock) 
+  prob_obs_7 <- observed_probs(treatment_assignment = "Z7", assignment = assignment_7, data = mock) 
+  prob_obs_8 <- observed_probs(treatment_assignment = "Z8", assignment = assignment_8, data = mock) 
   
-  prob_obs_9 <- observed_probs(treatment_assignment = "Z9", design = design_9, data = mock) 
-  prob_obs_10 <- observed_probs(treatment_assignment = "Z10", design = design_10, data = mock) 
-  prob_obs_11 <- observed_probs(treatment_assignment = "Z11", design = design_11, data = mock) 
+  prob_obs_9 <- observed_probs(treatment_assignment = "Z9", assignment = assignment_9, data = mock) 
+  prob_obs_10 <- observed_probs(treatment_assignment = "Z10", assignment = assignment_10, data = mock) 
+  prob_obs_11 <- observed_probs(treatment_assignment = "Z11", assignment = assignment_11, data = mock) 
   
-  prob_obs_12 <- observed_probs(treatment_assignment = "Z12", design = design_12, data = mock) 
-  prob_obs_13 <- observed_probs(treatment_assignment = "Z13", design = design_13, data = mock) 
-  prob_obs_14 <- observed_probs(treatment_assignment = "Z14", design = design_14, data = mock) 
+  prob_obs_12 <- observed_probs(treatment_assignment = "Z12", assignment = assignment_12, data = mock) 
+  prob_obs_13 <- observed_probs(treatment_assignment = "Z13", assignment = assignment_13, data = mock) 
+  prob_obs_14 <- observed_probs(treatment_assignment = "Z14", assignment = assignment_14, data = mock) 
 })

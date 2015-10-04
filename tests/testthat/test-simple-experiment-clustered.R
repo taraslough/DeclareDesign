@@ -24,17 +24,17 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   
   clusters <- declare_clusters(clusters = "villages_id")
   
-  design <- declare_assignment(potential_outcomes = po, clusters = clusters)
+  assignment <- declare_assignment(potential_outcomes = po, clusters = clusters)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
   
-  power_1         <- diagnose(sims = 100, analysis = analysis_1, design = design, clusters = clusters, sample = smp, potential_outcomes = po)
+  power_1         <- diagnose(sims = 100, analysis = analysis_1, assignment = assignment, clusters = clusters, sample = smp, potential_outcomes = po)
   power_1
   
   mock          <- make_data(potential_outcomes = po, sample = smp, clusters = clusters)
   
   head(mock)
-  mock$Z        <- assign_treatment(design, data = mock)
+  mock$Z        <- assign_treatment(assignment, data = mock)
   
   with(mock, table(Z, cluster_variable))
   
@@ -43,7 +43,7 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   M1             <- get_estimates(analysis = analysis_1, data = mock)  
   summary(M1)
     
-  ##pre_register(design = design, covariates = cov, 
+  ##pre_register(assignment = assignment, covariates = cov, 
   ##             potential_outcomes = po, analysis = analysis_1, 
   ##             registration_title = "Simplest Possible Experiment", 
   ##             registration_authors = c("Graeme Blair", "Alexander Coppock"), 

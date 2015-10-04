@@ -15,7 +15,7 @@ test_that("test sampling from population with no clusters or strata", {
   
   smp <- declare_sampling(m = 500)
   
-  design <- declare_assignment(potential_outcomes = po)
+  assignment <- declare_assignment(potential_outcomes = po)
   
   analysis_1 <- declare_estimator(formula = Y ~ Z, estimates = difference_in_means)
   
@@ -33,7 +33,7 @@ test_that("test sampling from population with no clusters or strata", {
   
   
   diagnosis <- diagnose(population = pop, sampling = smp, analysis = list(analysis_1, analysis_2),
-                        design = design, sims = 5)
+                        assignment = assignment, sims = 5)
   
   estimates <- diagnosis$estimates
   sample_estimands <- diagnosis$sample_estimands
@@ -47,7 +47,7 @@ test_that("test sampling from population with no clusters or strata", {
   
   smp_draw <- draw_sample(population_data = pop_draw, sampling = smp)
   
-  data <- reveal_design(data = smp_draw, design = design)
+  data <- reveal_assignment(data = smp_draw, assignment = assignment)
   
   expect_equal(nrow(pop_draw),  5000)
   expect_equal(nrow(smp_draw),  500)
@@ -64,7 +64,7 @@ test_that("with strata only", {
   
   smp <- declare_sampling(prob = 0.1, strata_variable_name = "villages_id")
   
-  design <- declare_assignment(potential_outcomes = po)
+  assignment <- declare_assignment(potential_outcomes = po)
   
   pop_draw <- draw_population(population = pop)
   
@@ -86,7 +86,7 @@ test_that("with clusters only", {
   
   smp <- declare_sampling(prob = 0.1, cluster_variable_name = "villages_id")
   
-  design <- declare_assignment(potential_outcomes = po)
+  assignment <- declare_assignment(potential_outcomes = po)
   
   pop_draw <- draw_population(population = pop)
   
@@ -109,7 +109,7 @@ test_that("with clusters and strata", {
   
   smp <- declare_sampling(cluster_variable_name = "villages_id", strata_variable_name = "regions_id")
   
-  design <- declare_assignment(potential_outcomes = po)
+  assignment <- declare_assignment(potential_outcomes = po)
   
   analysis_joint_weighted <- declare_analysis(Y ~ Z, treatment_variable = "Z", estimator = lm, weights_variable = "assignment_sampling_weights",
                                               quantity_of_interest = average_treatment_effect)
@@ -127,7 +127,7 @@ test_that("with clusters and strata", {
   
   smp_draw <- draw_sample(population_data = pop_draw, sampling = smp)
   
-  data <- reveal_design(data = smp_draw, design = design)
+  data <- reveal_assignment(data = smp_draw, assignment = assignment)
   
   get_estimates(list(analysis_joint_weighted, 
                      analysis_sampling_weighted,
@@ -152,7 +152,7 @@ test_that("with clusters and strata", {
   
   smp <- declare_sampling(strata_prob = c(.1, .2, .33, .1, .25), cluster_variable_name = "villages_id", strata_variable_name = "regions_id")
   
-  design <- declare_assignment(potential_outcomes = po)
+  assignment <- declare_assignment(potential_outcomes = po)
   
   analysis_joint_weighted <- declare_analysis(Y ~ Z, treatment_variable = "Z", estimator = lm, weights_variable = "assignment_sampling_weights",
                                               quantity_of_interest = average_treatment_effect)
@@ -169,13 +169,13 @@ test_that("with clusters and strata", {
   library(parallel)
   cl <- makeCluster(2)
   
-  diagnosis2 <- diagnose(population = pop, sampling = smp, design = design, analysis = analysis_joint_weighted, sims = 400)
+  diagnosis2 <- diagnose(population = pop, sampling = smp, assignment = assignment, analysis = analysis_joint_weighted, sims = 400)
   
   pop_draw <- draw_population(population = pop)
   
   smp_draw <- draw_sample(population_data = pop_draw, sampling = smp)
   
-  revealed_data <- reveal_design(data = smp_draw, design = design)
+  revealed_data <- reveal_assignment(data = smp_draw, assignment = assignment)
   
   get_estimates(list(analysis_joint_weighted, 
                      analysis_sampling_weighted,

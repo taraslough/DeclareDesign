@@ -22,7 +22,7 @@ test_that("test draft paper and pre_register functions", {
   clusters <- declare_clusters(clusters = "villages_id")
   blocks <- declare_blocks(blocks = "development_level", recode = FALSE, clusters = clusters)
   
-  design <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
+  assignment <- declare_assignment(potential_outcomes = potential_outcomes, clusters = clusters, blocks = blocks)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", method = "lm")
   analysis_2 <- declare_analysis(formula = Y ~ Z + income + development_level, treatment_variable = "Z", 
@@ -30,7 +30,7 @@ test_that("test draft paper and pre_register functions", {
   
   ## pre register experiment with EGAP
   
-  pre_registration <- pre_register(design = design, sample = sample, clusters = clusters, blocks = blocks,
+  pre_registration <- pre_register(assignment = assignment, sample = sample, clusters = clusters, blocks = blocks,
                                    potential_outcomes = potential_outcomes, analysis = analysis_1, 
                                    title = "Simplest Possible Experiment", 
                                    authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 
@@ -40,7 +40,7 @@ test_that("test draft paper and pre_register functions", {
   ## run the experiment, and create real_data (simulated here to demonstrate draft_paper)
   real_data          <- make_data(potential_outcomes = potential_outcomes, sample = sample, 
                                   blocks = blocks, clusters = clusters)
-  real_data$Z        <- assign_treatment(design, data = real_data)
+  real_data$Z        <- assign_treatment(assignment, data = real_data)
   real_data$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = real_data)
   
   ## create paper draft just from a pre_registration object
@@ -48,7 +48,7 @@ test_that("test draft paper and pre_register functions", {
                                 temp_dir = TRUE, open_output = FALSE)
   
   ## or create custom paper draft from objects
-  paper_draft <- draft_paper(design = design, sample = sample, clusters = clusters, blocks = blocks,
+  paper_draft <- draft_paper(assignment = assignment, sample = sample, clusters = clusters, blocks = blocks,
                              potential_outcomes = potential_outcomes, analysis = analysis_1, data = real_data,
                              title = "Simplest Possible Experiment", 
                              authors = c("Graeme Blair", "Jasper Cooper", "Alexander Coppock", "Macartan Humphreys"), 

@@ -9,7 +9,7 @@
 #' @importFrom doRNG %dorng%
 #' @export
 diagnose <- function(population = NULL, sampling = NULL, 
-                     design, analysis, sims = 5, label = NULL, analysis_labels = NULL){
+                     assignment, analysis, sims = 5, label = NULL, analysis_labels = NULL){
   
   if(is.null(analysis_labels)){
     if(class(analysis) == "list")
@@ -37,23 +37,23 @@ diagnose <- function(population = NULL, sampling = NULL,
       
       sample_data <- draw_sample(population_data = population_data, sampling = sampling)
       
-      sample_data <- reveal_design(data = sample_data, design = design)
+      sample_data <- reveal_assignment(data = sample_data, assignment = assignment)
       
       estimates <- get_estimates(analysis, data = sample_data, analysis_labels = analysis_labels)
       sample_estimands <- get_estimands(analysis, data = sample_data, analysis_labels = analysis_labels,
-                                        design = design)
+                                        assignment = assignment)
       
     } else {
       
-      population_data <- reveal_design(data = population_data, design = design)
+      population_data <- reveal_assignment(data = population_data, assignment = assignment)
       
       estimates <- get_estimates(analysis, data = population_data, analysis_labels = analysis_labels)
-      sample_estimands <- get_estimands(analysis, data = population_data, design = design,
+      sample_estimands <- get_estimands(analysis, data = population_data, assignment = assignment,
                                         analysis_labels = analysis_labels)
       
     }
      
-    population_estimands <- get_estimands(analysis, data = population_data, design = design,
+    population_estimands <- get_estimands(analysis, data = population_data, assignment = assignment,
                                           analysis_labels = analysis_labels)
     
     return(list(estimates, sample_estimands, population_estimands))

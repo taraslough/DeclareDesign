@@ -18,21 +18,21 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   blocks <- declare_blocks(blocks = "income",block_count = 10)
   
-  design        <- declare_assignment(potential_outcomes = po, blocks = blocks)
+  assignment        <- declare_assignment(potential_outcomes = po, blocks = blocks)
   
   mock          <- make_data(potential_outcomes = po, sample = smp, blocks = blocks)
-  mock$Z        <- assign_treatment(design, data = mock)
+  mock$Z        <- assign_treatment(assignment, data = mock)
   mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   
-  probs_mat <- get_design_probs(design = design, data = mock)
-  prob_obs <- observed_probs(treatment_assignment = "Z", design = design, data = mock)
+  probs_mat <- get_assignment_probs(assignment = assignment, data = mock)
+  prob_obs <- observed_probs(treatment_assignment = "Z", assignment = assignment, data = mock)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = linear_regression)
   
   fit_1 <- get_estimates_model(analysis = analysis_1, data = mock)
   summary(fit_1)
   
-  #   pre_register(design = design, covariates = cov, 
+  #   pre_register(assignment = assignment, covariates = cov, 
   #                potential_outcomes = po, analysis = list(analysis_1, analysis_2), 
   #                registration_title = "Simplest Possible Experiment", 
   #                registration_authors = c("Graeme Blair", "Alexander Coppock"), 
@@ -42,7 +42,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   #                open_output = TRUE)
   #   
 
-  ## after this is a non-blocked design
+  ## after this is a non-blocked assignment
   
   sample <- declare_sample(
     individuals = list(
@@ -54,7 +54,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
     outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + 5*income*Z1
   )
   
-  design <- declare_assignment(potential_outcomes = potential_outcomes)
+  assignment <- declare_assignment(potential_outcomes = potential_outcomes)
   
   analysis_lm <- declare_analysis(formula = Y ~ Z, estimator = linear_regression,
                                   quantity_of_interest = average_treatment_effect,
@@ -62,7 +62,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   analysis <- declare_analysis(formula = Y ~ Z)
   
-  power        <- diagnose(sims = 1000, analysis = list(analysis, analysis_lm), design = design, 
+  power        <- diagnose(sims = 1000, analysis = list(analysis, analysis_lm), assignment = assignment, 
                                   sample = sample, 
                                   potential_outcomes = potential_outcomes)
   
