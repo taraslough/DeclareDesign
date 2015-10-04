@@ -44,7 +44,7 @@ draw_population <- function(population, potential_outcomes = NULL) {
 
 
 #' @export
-draw_sample <- function(population = NULL, population_data = NULL, sampling = NULL, noncompliance = NULL) {
+draw_sample <- function(population = NULL, population_data = NULL, sampling = NULL, noncompliance = NULL, random_seed = NULL) {
   
   # Do checks ---------------------------------------------------------------
   
@@ -74,7 +74,7 @@ draw_sample <- function(population = NULL, population_data = NULL, sampling = NU
   
   # Draw the sample ------------------------------------------------------
   
-  sample_indicator <- draw_sample_indicator(sampling = sampling, population_data = population_data)
+  sample_indicator <- draw_sample_indicator(sampling = sampling, population_data = population_data, random_seed = random_seed)
   
   population_data <- data.frame(population_data, sample_indicator)
   
