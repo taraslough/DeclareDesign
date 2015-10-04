@@ -4,7 +4,7 @@
 \alias{pre_register}
 \title{Create pre-registration document}
 \usage{
-pre_register(design, sample = NULL, potential_outcomes = NULL,
+pre_register(assignment, sample = NULL, potential_outcomes = NULL,
   analysis = NULL, data = NULL, title = NULL, authors = NULL,
   affiliations = NULL, acknowledgements = NULL, abstract = NULL,
   random_seed = 42, dir = getwd(), temp_dir = FALSE,
@@ -13,7 +13,7 @@ pre_register(design, sample = NULL, potential_outcomes = NULL,
   open_output = TRUE)
 }
 \arguments{
-\item{design}{A design object from the declare_assignment function.}
+\item{assignment}{A assignment object from the declare_assignment function.}
 
 \item{sample}{what is it?}
 

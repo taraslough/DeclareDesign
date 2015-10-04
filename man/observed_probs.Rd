@@ -4,12 +4,12 @@
 \alias{observed_probs}
 \title{Reveal probabilties of assignment to realized treatment conditions}
 \usage{
-observed_probs(treatment_assignment, design, data)
+observed_probs(treatment_assignment, assignment, data)
 }
 \arguments{
 \item{treatment_assignment}{The name of the treatment assignment variable in data.}
 
-\item{design}{A design object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
+\item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
 
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 }
@@ -23,10 +23,10 @@ Description
 smp <- declare_population(N = 850)
 po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-design <- declare_assignment(potential_outcomes = po, m=200)
+assignment <- declare_assignment(potential_outcomes = po, m=200)
 mock          <- draw_population(potential_outcomes = po, sample =  smp)
-mock$Z        <- assign_treatment(design, data = mock)
-mock$prob_obs        <- observed_probs("Z", design, mock)
+mock$Z        <- assign_treatment(assignment, data = mock)
+mock$prob_obs        <- observed_probs("Z", assignment, mock)
 
 table(mock$prob_obs)
 }

@@ -4,7 +4,7 @@
 \alias{get_balance}
 \title{Calculate Covariate Balance}
 \usage{
-get_balance(covariates, treatment_assignment = "Z", design, data,
+get_balance(covariates, treatment_assignment = "Z", assignment, data,
   report_difference = FALSE, na.rm = TRUE)
 }
 \arguments{
@@ -12,7 +12,7 @@ get_balance(covariates, treatment_assignment = "Z", design, data,
 
 \item{treatment_assignment}{The name of the treatment assignment variable in data}
 
-\item{design}{A design object, created by \code{\link{declare_assignment}}.}
+\item{assignment}{A assignment object, created by \code{\link{declare_assignment}}.}
 
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 

@@ -4,7 +4,7 @@
 \alias{draft_paper}
 \title{Create paper draft}
 \usage{
-draft_paper(design, clusters = NULL, blocks = NULL, sample = NULL,
+draft_paper(assignment, clusters = NULL, blocks = NULL, sample = NULL,
   potential_outcomes = NULL, analysis = NULL,
   pre_registration_data = NULL, title = NULL, authors = NULL,
   affiliations = NULL, acknowledgements = NULL, abstract = NULL,
@@ -13,7 +13,7 @@ draft_paper(design, clusters = NULL, blocks = NULL, sample = NULL,
   save_r_code = FALSE, output_format = "pdf", open_output = TRUE)
 }
 \arguments{
-\item{design}{A design object from the declare_assignment function.}
+\item{assignment}{A assignment object from the declare_assignment function.}
 
 \item{clusters}{what is it?}
 
@@ -39,7 +39,7 @@ draft_paper(design, clusters = NULL, blocks = NULL, sample = NULL,
 
 \item{data}{what is it?}
 
-\item{random_seed}{Random seed to ensure reproducibility of the design.}
+\item{random_seed}{Random seed to ensure reproducibility of the assignment.}
 
 \item{dir}{what is it?}
 

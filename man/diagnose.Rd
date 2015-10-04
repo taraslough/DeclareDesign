@@ -4,8 +4,8 @@
 \alias{diagnose}
 \title{Declare the data-generating process of a variable}
 \usage{
-diagnose(population = NULL, sampling = NULL, design, analysis, sims = 5,
-  label = NULL, analysis_labels = NULL)
+diagnose(population = NULL, sampling = NULL, assignment, analysis,
+  sims = 5, label = NULL, analysis_labels = NULL)
 }
 \arguments{
 \item{population}{A population object, made with \code{\link{declare_population}}}

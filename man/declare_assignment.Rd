@@ -2,7 +2,7 @@
 % Please edit documentation in R/declare_assignment.R
 \name{declare_assignment}
 \alias{declare_assignment}
-\title{Declare the experimental design}
+\title{Declare the experimental assignment}
 \usage{
 declare_assignment(potential_outcomes, block_variable_name = NULL,
   cluster_variable_name = NULL, m = NULL, m_each = NULL,
@@ -24,16 +24,16 @@ declare_assignment(potential_outcomes, block_variable_name = NULL,
 
 \item{block_prob}{a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.}
 
-\item{excluded_arms}{a character vector excluding some potential outcomes from the randomization.  Used primarily when comparing designs that feature different numbers of treatment arms.}
+\item{excluded_arms}{a character vector excluding some potential outcomes from the randomization.  Used primarily when comparing assignments that feature different numbers of treatment arms.}
 
 \item{blocks}{blocks object, as created by \code{\link{declare_blocks}} (optional).}
 
 \item{clusters}{clusters object, as created by \code{\link{declare_clusters}} (optional).}
 }
 \value{
-design object
+assignment object
 }
 \description{
-Declare the experimental design
+Declare the experimental assignment
 }
 
