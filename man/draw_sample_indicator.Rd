@@ -4,7 +4,7 @@
 \alias{draw_sample_indicator}
 \title{draw sample from population}
 \usage{
-draw_sample_indicator(sampling, population_data)
+draw_sample_indicator(sampling, population_data, random_seed = NULL)
 }
 \arguments{
 \item{sampling}{A sampling object created by \code{\link{declare_sampling}}; or a function that samples}

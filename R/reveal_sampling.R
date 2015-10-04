@@ -5,7 +5,11 @@
 #' @param data A dataframe, often created by \code{\link{draw_population}}.
 #' @return A vector of 0's and 1's indicating which population units are sampled.
 #' @export
-draw_sample_indicator <- function(sampling, population_data) {
+draw_sample_indicator <- function(sampling, population_data, random_seed = NULL) {
+  
+  if(!is.null(random_seed)){
+    set.seed(random_seed)
+  }
   
   ## should be expanded to take either a sampling object or a function
   

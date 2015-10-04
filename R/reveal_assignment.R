@@ -1,5 +1,9 @@
 #' @export
-reveal_assignment <- function(data, assignment) {
+reveal_assignment <- function(data, assignment, random_seed = NULL) {
+  
+  if(!is.null(random_seed)){
+    set.seed(random_seed)
+  }
   
   # Checks -------------------------------------------------
   if(!class(assignment)=="assignment"){
