@@ -34,14 +34,14 @@ declare_estimand <- function(estimand = NULL, target = "population", subset = NU
     ## if a custom estimand is provided
     
     estimand_function <- function(data){
-      argument_names <- names(formals(model))
+      argument_names <- names(formals(custom_estimand_function))
       if(!is.null(subset) & "subset" %in% argument_names)
         estimand_options$subset <- with(data, eval(parse(text = subset)))
       if(!is.null(weights_variable) & "weights" %in% argument_names)
         estimand_options$weights <- data[, weights_variable]
       estimand_options$data <- data
       
-      return(do.call(model, args = estimand_options))
+      return(do.call(custom_estimand_function, args = estimand_options))
     }
     
   }
