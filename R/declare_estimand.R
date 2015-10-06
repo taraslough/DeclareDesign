@@ -1,20 +1,49 @@
 #' @export
-declare_estimand <- function(estimand, target = "population", subset = NULL, weights_variable = NULL, label = NULL) {
+declare_estimand <- function(estimand = NULL, target = "population", subset = NULL, weights_variable = NULL, 
+                             custom_estimand_function = NULL, label = NULL, ...) {
   
-  description <- as.character(estimand)
-  
-  if(!is.character(eval(estimand))){
-    estimand <- quote(estimand)
-  } else {
-    estimand <- parse(text = estimand)
+  if(!is.null(custom_estimand_function) & !is.null(estimand)){
+    stop("Please provide either an estimand as a string or an expression, or a custom_estimand_function.")
   }
   
-  estimand_function <- function(data){
-    if(!is.null(subset))
-      data <- subset(data, subset = eval(parse(text = subset)))
-    ##if(!is.null(weights_variable))
-    ##  estimator_options$weights <- data[, weights_variable]
-    return(eval(estimand, envir = data))
+  if(is.null(custom_estimand_function)){
+    
+    ## if no custom estimand is provided
+    
+    description <- as.character(estimand)
+    
+    if(!is.character(eval(estimand))){
+      estimand <- quote(estimand)
+    } else {
+      estimand <- parse(text = estimand)
+    }
+    
+    estimand_function <- function(data){
+      if(!is.null(subset))
+        data <- subset(data, subset = eval(parse(text = subset)))
+      ##if(!is.null(weights_variable))
+      ##  estimator_options$weights <- data[, weights_variable]
+      return(eval(estimand, envir = data))
+    }
+  } else {
+    
+    estimand_options <- list(...)
+    
+    description <- "custom estimand function"
+    
+    ## if a custom estimand is provided
+    
+    estimand_function <- function(data){
+      argument_names <- names(formals(model))
+      if(!is.null(subset) & "subset" %in% argument_names)
+        estimand_options$subset <- with(data, eval(parse(text = subset)))
+      if(!is.null(weights_variable) & "weights" %in% argument_names)
+        estimand_options$weights <- data[, weights_variable]
+      estimand_options$data <- data
+      
+      return(do.call(model, args = estimand_options))
+    }
+    
   }
   
   structure(list(estimand = estimand_function, description = description, target = target, label = label, call = match.call()), class = "estimand")
