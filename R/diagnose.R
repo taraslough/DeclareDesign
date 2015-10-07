@@ -18,7 +18,7 @@ diagnose <- function(population = NULL, sampling = NULL, assignment, estimator,
   }
   
   # Not necessary because it's never a list, moved to diagnose()
-  # if(class(estimator)=="estimator"){estimator <- list(estimator)}
+  if(class(estimator)=="estimator"){estimator <- list(estimator)}
   
   comb <- function(x, ...) {
     lapply(seq_along(x),
