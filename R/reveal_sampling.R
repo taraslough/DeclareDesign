@@ -18,9 +18,9 @@ draw_sample_indicator <- function(sampling, population_data, random_seed = NULL)
   strata_var <- population_data[,sampling$strata_variable_name]
   clust_var <- population_data[,sampling$cluster_variable_name]
   
-  m <- sampling$m
+  n <- sampling$n
   prob <- sampling$prob
-  strata_m <- sampling$strata_m
+  strata_n <- sampling$strata_n
   strata_prob <- sampling$strata_prob
   sampling_type <- sampling$sampling_type
   
@@ -38,22 +38,22 @@ draw_sample_indicator <- function(sampling, population_data, random_seed = NULL)
   
   # For "simple" random sampling
   if(sampling_type=="complete"){
-    Z <- complete_sample(N = N, m = m, prob = prob)
+    Z <- complete_sample(N = N, n = n, prob = prob)
   }
   
   # For stratified random sampling
   if(sampling_type=="stratified"){
-    Z <- stratified_sample(strata_var = strata_var, strata_m = strata_m, strata_prob = strata_prob, prob = prob)
+    Z <- stratified_sample(strata_var = strata_var, strata_n = strata_n, strata_prob = strata_prob, prob = prob)
   }
   
   # For clustered random sampling
   if(sampling_type=="clustered"){
-    Z <- cluster_sample(clust_var = clust_var, m = m, prob = prob)
+    Z <- cluster_sample(clust_var = clust_var, n = n, prob = prob)
   }
   
   # For stratified and clustered sampling
   if(sampling_type=="stratified and clustered"){
-    Z <- stratified_and_clustered_sample(clust_var = clust_var, strata_var = strata_var, strata_m = strata_m, prob = prob, strata_prob = strata_prob)
+    Z <- stratified_and_clustered_sample(clust_var = clust_var, strata_var = strata_var, strata_n = strata_n, prob = prob, strata_prob = strata_prob)
   }
   
   inclusion_probs <- get_inclusion_probs(sampling = sampling, population_data = population_data)

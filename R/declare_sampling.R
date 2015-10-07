@@ -2,8 +2,8 @@
 declare_sampling <- function(prob = NULL,
                              strata_variable_name = NULL, 
                              cluster_variable_name = NULL,
-                             m = NULL, 
-                             strata_m = NULL, 
+                             n = NULL, 
+                             strata_n = NULL, 
                              strata_prob = NULL,
                              custom_sampling_function = NULL,
                              custom_strata_function = NULL,
@@ -18,8 +18,8 @@ declare_sampling <- function(prob = NULL,
   }
   
   # Checks ------------------------------------------------------------------
-  if(sampling_type == "stratified" & !is.null(m)){
-    stop("Please do not specify m in a stratified sampling design.  Use strata_m or strata_prob instead.")
+  if(sampling_type == "stratified" & !is.null(n)){
+    stop("Please do not specify n in a stratified sampling design.  Use strata_n or strata_prob instead.")
   }
   
   if(!is.null(custom_strata_function) & !is.character(strata_variable_name)){
@@ -34,8 +34,8 @@ declare_sampling <- function(prob = NULL,
     return.object <- list(prob = prob,
                           strata_variable_name = strata_variable_name,
                           cluster_variable_name = cluster_variable_name,
-                          m = m,
-                          strata_m = strata_m,
+                          n = n,
+                          strata_n = strata_n,
                           strata_prob = strata_prob,
                           sampling_type = sampling_type,
                           custom_strata_function = custom_strata_function,
@@ -56,17 +56,17 @@ declare_sampling <- function(prob = NULL,
 
 
 #' @export
-complete_sample <- function(N, m = NULL, prob = NULL){
+complete_sample <- function(N, n = NULL, prob = NULL){
   prob_each <- NULL
   
   if(!is.null(prob)){
     prob_each <- c(1 - prob, prob)
   }
-  complete_ra(N = N, m = m, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
+  complete_ra(N = N, m = n, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 #' @export
-stratified_sample <- function(strata_var, prob = NULL, strata_m = NULL, strata_prob = NULL){
+stratified_sample <- function(strata_var, prob = NULL, strata_n = NULL, strata_prob = NULL){
   prob_each <- NULL
   
   if(!is.null(prob)){
@@ -78,22 +78,22 @@ stratified_sample <- function(strata_var, prob = NULL, strata_m = NULL, strata_p
     block_prob <- cbind(1-strata_prob, strata_prob)  
   }
   
-  block_ra(block_var = strata_var, block_m = strata_m, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
+  block_ra(block_var = strata_var, block_m = strata_n, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 
 #' @export
-cluster_sample <- function(clust_var, m = NULL, prob = NULL){
+cluster_sample <- function(clust_var, n = NULL, prob = NULL){
   prob_each <- NULL
   
   if(!is.null(prob)){
     prob_each <- c(1-prob, prob)
   }
-  cluster_ra(clust_var = clust_var, m = m, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
+  cluster_ra(clust_var = clust_var, m = n, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 #' @export
-stratified_and_clustered_sample <- function(clust_var, strata_var, strata_m = NULL, prob = NULL, strata_prob = NULL){
+stratified_and_clustered_sample <- function(clust_var, strata_var, strata_n = NULL, prob = NULL, strata_prob = NULL){
   
   prob_each <- NULL
   if(!is.null(prob)){
@@ -106,9 +106,9 @@ stratified_and_clustered_sample <- function(clust_var, strata_var, strata_m = NU
   }
   
   # Must do someday
-  # block_m, strata_m
+  # block_m, strata_n
   
   blocked_and_clustered_ra(clust_var = clust_var, block_var = strata_var, 
-                           block_m = strata_m, prob_each = prob_each, 
+                           block_m = strata_n, prob_each = prob_each, 
                            block_prob = block_prob, condition_names = c(0,1), baseline_condition = 0)
 }

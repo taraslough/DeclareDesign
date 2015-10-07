@@ -310,7 +310,7 @@ declare_assignment <-
       baseline_condition <- condition_names[1]
     }
     
-    if(is.null(custom_assignment_function) & is.null(existing_assignment_variable)){
+    if(is.null(custom_assignment_function) & is.null(existing_assignment_variable_name)){
       return.object <- list(block_variable_name = block_variable_name,
                             cluster_variable_name = cluster_variable_name,
                             condition_names = condition_names,
