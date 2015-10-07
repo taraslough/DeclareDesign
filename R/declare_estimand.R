@@ -88,23 +88,35 @@ get_estimands <- function(estimand = NULL, estimator = NULL, sample_data = NULL,
   }
   
   estimands_list <- list()
-  for(i in 1:length(estimand)){
-    if(estimand[[i]]$target == "population"){
-      if(is.null(population_data)){
-        stop(paste0("The target of ", estimand_labels[i], " is the population, so please send get_estimands a population data frame, i.e. one created by draw_population()."))
+  if(!is.null(estimand)){
+    for(i in 1:length(estimand)){
+      if(!is.null(estimand[[i]])){
+        ## if there is an estimand defined
+        if(estimand[[i]]$target == "population"){
+          if(is.null(population_data)){
+            stop(paste0("The target of ", estimand_labels[i], " is the population, so please send get_estimands a population data frame, i.e. one created by draw_population()."))
+          }
+          estimands_list[[i]] <- estimand[[i]]$estimand(data = population_data)
+        } else if(estimand[[i]]$target == "sample") {
+          if(is.null(sample_data)){
+            stop(paste0("The target of ", estimand_labels[i], " is the sample, so please send get_estimands a sample data frame, i.e. one created by draw_sample()."))
+          }
+          estimands_list[[i]] <- estimand[[i]]$estimand(data = sample_data)
+        }
+        names(estimands_list[[i]]) <- estimand_labels[i]
+      } else {
+        ## if there is NOT an estimand defined
+        estimands_list[[i]] <- NA
       }
-      estimands_list[[i]] <- estimand[[i]]$estimand(data = population_data)
-    } else if(estimand[[i]]$target == "sample") {
-      if(is.null(sample_data)){
-        stop(paste0("The target of ", estimand_labels[i], " is the sample, so please send get_estimands a sample data frame, i.e. one created by draw_sample()."))
-      }
-      estimands_list[[i]] <- estimand[[i]]$estimand(data = sample_data)
     }
-    names(estimands_list[[i]]) <- estimand_labels[i]
+    estimands_vector <- c(estimands_list, recursive = T)
+    
+  } else {
+    ## if estimand is null (i.e. an estimator did not have an estimand)
+    
+    estimands_vector <- NA
   }
 
-  estimands_vector <- c(estimands_list, recursive = T)
-  
   return(estimands_vector)
   
 }
