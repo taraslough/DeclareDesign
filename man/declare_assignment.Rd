@@ -9,7 +9,8 @@ declare_assignment(potential_outcomes, block_variable_name = NULL,
   prob_each = NULL, block_m = NULL, block_prob = NULL,
   excluded_arms = NULL, baseline_condition = NULL,
   treatment_variable = "Z", custom_assignment_function = NULL,
-  custom_block_function = NULL, custom_cluster_function = NULL)
+  custom_block_function = NULL, custom_cluster_function = NULL,
+  existing_assignment_variable_name = NULL)
 }
 \arguments{
 \item{potential_outcomes}{potential_outcomes object, as created by \code{\link{declare_potential_outcomes}} (required).}

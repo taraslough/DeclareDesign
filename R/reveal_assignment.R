@@ -22,21 +22,28 @@ reveal_assignment <- function(data, assignment, random_seed = NULL) {
   
   # Assign treatment and reveal outcomes ------------------------------------------------  
   
-  data[, assignment$treatment_variable] <- assign_treatment(assignment = assignment, data = data)
-  
-  if(assignment$assignment_type != "custom") {
+  if(assignment$assignment_type == "existing assignment"){
+    data[, assignment$treatment_variable] <- data[, assignment$existing_assignment_variable_name]
+  } else {
     
-    data[, "assignment_probs"] <- observed_probs(treatment_assignment = assignment$treatment_variable,
-                                                 assignment = assignment, data = data)
+    ## if the treatment is created using assign_treatment, rather than using an existing assignment variable
     
-    data[, "assignment_weights"] <- 1/data[, "assignment_probs"]
+    data[, assignment$treatment_variable] <- assign_treatment(assignment = assignment, data = data)
     
-    ## only reveal assignment_sampling_weights if there are sampling probabilities
-    if("inclusion_probs" %in% colnames(data)){
+    if(assignment$assignment_type != "custom" & assignment$assignment_type != "existing assignment") {
       
-      data[, "assignment_inclusion_probs"] <- data[, "assignment_probs"] * data[, "inclusion_probs"]
+      data[, "assignment_probs"] <- observed_probs(treatment_assignment = assignment$treatment_variable,
+                                                   assignment = assignment, data = data)
       
-      data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probs"]
+      data[, "assignment_weights"] <- 1/data[, "assignment_probs"]
+      
+      ## only reveal assignment_sampling_weights if there are sampling probabilities
+      if("inclusion_probs" %in% colnames(data)){
+        
+        data[, "assignment_inclusion_probs"] <- data[, "assignment_probs"] * data[, "inclusion_probs"]
+        
+        data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probs"]
+      }
     }
   }
   

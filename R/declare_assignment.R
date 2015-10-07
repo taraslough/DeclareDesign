@@ -257,7 +257,8 @@ declare_assignment <-
            treatment_variable = "Z",
            custom_assignment_function = NULL,
            custom_block_function = NULL,
-           custom_cluster_function = NULL) {
+           custom_cluster_function = NULL,
+           existing_assignment_variable_name = NULL) {
     
     # Determine assignment type
     assignment_type <- "complete"   
@@ -309,7 +310,7 @@ declare_assignment <-
       baseline_condition <- condition_names[1]
     }
     
-    if(is.null(custom_assignment_function)){
+    if(is.null(custom_assignment_function) & is.null(existing_assignment_variable)){
       return.object <- list(block_variable_name = block_variable_name,
                             cluster_variable_name = cluster_variable_name,
                             condition_names = condition_names,
@@ -325,7 +326,7 @@ declare_assignment <-
                             treatment_variable = treatment_variable,
                             potential_outcomes = potential_outcomes,
                             call = match.call())
-    } else {
+    } else if(!is.null(custom_assignment_function)) {
       return.object <- list(
         custom_assignment_function = custom_assignment_function,
         condition_names = condition_names,
@@ -333,6 +334,15 @@ declare_assignment <-
         treatment_variable = treatment_variable,
         potential_outcomes = potential_outcomes,
         assignment_type = "custom",
+        call = match.call())
+    } else {
+      return.object <- list(
+        existing_assignment_variable_name = existing_assignment_variable_name,
+        condition_names = condition_names,
+        baseline_condition = baseline_condition,
+        treatment_variable = treatment_variable,
+        potential_outcomes = potential_outcomes,
+        assignment_type = "existing assignment",
         call = match.call())
     }
     class(return.object) <- "assignment"
