@@ -8,8 +8,8 @@
 #' @importFrom foreach foreach registerDoSEQ getDoParWorkers %dopar%
 #' @importFrom doRNG %dorng%
 #' @export
-diagnose <- function(estimator, population = NULL, sampling = NULL, 
-                     assignment, sims = 5, label = NULL, estimator_labels = NULL){
+diagnose <- function(population = NULL, sampling = NULL, assignment, estimator, 
+                     sims = 5, label = NULL, estimator_labels = NULL){
   
   super_population <- population$super_population
   
@@ -87,7 +87,7 @@ diagnose <- function(estimator, population = NULL, sampling = NULL,
 
 #' @export
 calculate_PATE <- function(estimands, ...){
-  SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]["est", , drop = FALSE]))
+  SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]))
   
   if(class(SATE) == "matrix")
     PATE <- apply(SATE, 1, mean, na.rm = T)
@@ -100,7 +100,7 @@ calculate_PATE <- function(estimands, ...){
 
 #' @export
 calculate_sd_SATE <- function(estimands, ...){
-  SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]["est", , drop = FALSE]))
+  SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]))
   
   if(class(SATE) == "matrix")
     sd_SATE <- apply(SATE, 1, sd, na.rm = T)
@@ -125,7 +125,7 @@ calculate_power <- function(estimates, ...){
 #' @export
 calculate_RMSE <- function(estimates, estimands, ...){
   error <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - 
-                                                                estimands[[i]]["est", , drop = FALSE]))
+                                                                estimands[[i]]))
   
   if(class(error) == "matrix")
     RMSE <- apply(error, 1, function(x) sqrt(mean(x^2, na.rm = T)))
