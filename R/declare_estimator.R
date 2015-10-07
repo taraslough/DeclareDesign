@@ -60,7 +60,7 @@ declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates
   }
   
   if(is.null(estimand$label) & !is.null(estimand)){
-    estimand$label <- substitute(estimand)
+    estimand$label <- as.character(substitute(estimand))
   }
   
   return_object <- list(model = model_function, estimates = estimates_function, 
