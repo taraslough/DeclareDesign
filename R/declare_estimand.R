@@ -1,18 +1,10 @@
+##estimand = mean(Y_Z1 - Y_Z0)
+##estimand = "mean(Y_Z1 - Y_Z0)"
+##estimand = declare_ATE()
+
 #' @export
 declare_estimand <- function(estimand = NULL, target = "population", subset = NULL, weights_variable = NULL, 
                              custom_estimand_function = NULL, label = NULL, ...) {
-  
-  if(!is.null(estimand)){
-    estimand <- quote(estimand)
-  }
-  
-  if(!is.null(subset)){
-    subset <- quote(subset)
-  }
-  
-  if(is.character(eval(subset))){
-    subset <- parse(text = subset)
-  }
   
   if(!is.null(custom_estimand_function) & !is.null(estimand)){
     stop("Please provide either an estimand as a string or an expression, or a custom_estimand_function.")
@@ -22,16 +14,17 @@ declare_estimand <- function(estimand = NULL, target = "population", subset = NU
     
     ## if no custom estimand is provided
     
-    if(!is.character(estimand)){
-      description <- deparse(estimand)
+    description <- as.character(estimand)
+    
+    if(!is.character(eval(estimand))){
+      estimand <- quote(estimand)
     } else {
-      description <- estimand
       estimand <- parse(text = estimand)
     }
     
     estimand_function <- function(data){
       if(!is.null(subset))
-        data <- subset(data, subset = eval(subset))
+        data <- subset(data, subset = eval(parse(text = subset)))
       ##if(!is.null(weights_variable))
       ##  estimator_options$weights <- data[, weights_variable]
       return(eval(estimand, envir = data))
@@ -47,7 +40,7 @@ declare_estimand <- function(estimand = NULL, target = "population", subset = NU
     estimand_function <- function(data){
       argument_names <- names(formals(custom_estimand_function))
       if(!is.null(subset) & "subset" %in% argument_names)
-        estimand_options$subset <- with(data, eval(subset))
+        estimand_options$subset <- with(data, eval(parse(text = subset)))
       if(!is.null(weights_variable) & "weights" %in% argument_names)
         estimand_options$weights <- data[, weights_variable]
       estimand_options$data <- data
