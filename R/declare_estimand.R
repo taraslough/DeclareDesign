@@ -2,15 +2,17 @@
 declare_estimand <- function(estimand = NULL, target = "population", subset = NULL, weights_variable = NULL, 
                              custom_estimand_function = NULL, label = NULL, ...) {
   
+  if(!is.null(estimand)){
+    estimand <- quote(estimand)
+  }
   
-  estimand <- quote(estimand)
-  
-  subset <- quote(subset)
+  if(!is.null(subset)){
+    subset <- quote(subset)
+  }
   
   if(is.character(eval(subset))){
     subset <- parse(text = subset)
   }
-  
   
   if(!is.null(custom_estimand_function) & !is.null(estimand)){
     stop("Please provide either an estimand as a string or an expression, or a custom_estimand_function.")
