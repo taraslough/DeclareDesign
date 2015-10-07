@@ -9,6 +9,7 @@
 #' @importFrom doRNG %dorng%
 #' @export
 diagnose <- function(population = NULL, sampling = NULL, assignment, estimator, 
+                     potential_outcomes = NULL,
                      sims = 5, label = NULL, estimator_labels = NULL){
   
   super_population <- population$super_population
@@ -30,7 +31,8 @@ diagnose <- function(population = NULL, sampling = NULL, assignment, estimator,
   }
   
   if(super_population==FALSE){
-    population_data <- draw_population(population = population, potential_outcomes = potential_outcomes)
+    population_data <- draw_population(population = population, 
+                                       potential_outcomes = potential_outcomes)
   }
   
   simulations_list <- foreach(i = 1:sims, .combine = 'comb', .multicombine = TRUE, .init = list(list(), list(), list())) %dorng% {

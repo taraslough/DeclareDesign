@@ -5,7 +5,8 @@
 \title{Declare the data-generating process of a variable}
 \usage{
 diagnose(population = NULL, sampling = NULL, assignment, estimator,
-  sims = 5, label = NULL, estimator_labels = NULL)
+  potential_outcomes = NULL, sims = 5, label = NULL,
+  estimator_labels = NULL)
 }
 \arguments{
 \item{population}{A population object, made with \code{\link{declare_population}}}
