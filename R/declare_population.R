@@ -4,7 +4,8 @@ declare_population <- function(...,
                                level_ID_variables = NULL, super_population = FALSE,
                                random_seed = 42, data = NULL, 
                                custom_population_function = NULL,
-                               potential_outcomes = NULL) {
+                               potential_outcomes = NULL,
+                               generate_unique_ID = FALSE) {
   
   
   # Checks --------------------------------------------------------
@@ -26,7 +27,8 @@ declare_population <- function(...,
       
       population_function <- create_population_function(variable_list = list(...), N_per_level = N_per_level, N = N,
                                                         group_sizes_per_level = group_sizes_per_level, 
-                                                        level_ID_variables = level_ID_variables)
+                                                        level_ID_variables = level_ID_variables, 
+                                                        generate_unique_ID = generate_unique_ID)
       
     }
     
@@ -35,6 +37,8 @@ declare_population <- function(...,
     # Data provided --------------------------------------------------------
     
     if(super_population == TRUE) {
+      
+      # Super population with data --------------------------------------------------------
       
       if(!is.null(custom_population_function)){
         
@@ -49,6 +53,12 @@ declare_population <- function(...,
                                                               level_ID_variables = level_ID_variables)
         
       }
+    } else {
+      
+      # Fixed data --------------------------------------------------------
+      
+      population_function <- function() return(data)
+      
     }
     
     
@@ -87,7 +97,8 @@ wrap_custom_population_function <- function(custom_population_function, data = N
 #' @export 
 create_population_function <- function(variable_list = NULL, N_per_level = NULL, N = NULL,
                                        group_sizes_per_level = NULL, 
-                                       level_ID_variables = NULL){
+                                       level_ID_variables = NULL,
+                                       generate_unique_ID = FALSE){
   
   # Checks ------------------------------------------------------------------
   
@@ -135,7 +146,7 @@ create_population_function <- function(variable_list = NULL, N_per_level = NULL,
     no_variables <- TRUE
     level_names <- names(variable_list)
     if(is.null(level_IDs)){
-      level_IDs <- paste0(level_names,"_id")
+      level_IDs <- paste0(level_names,"_ID")
     }
   }
   
@@ -147,7 +158,7 @@ create_population_function <- function(variable_list = NULL, N_per_level = NULL,
       level_names <- paste0("level_", 1:N_levels)
     }
     if(is.null(level_IDs)){
-      level_IDs <- paste0(level_names,"_id")
+      level_IDs <- paste0(level_names,"_ID")
     }
     one_level <- N_levels==1
   }else{
@@ -189,7 +200,7 @@ create_population_function <- function(variable_list = NULL, N_per_level = NULL,
       N_levels <- length(level_names)
       
       if(is.null(level_IDs)){
-        level_IDs <- paste0(level_names,"_id")
+        level_IDs <- paste0(level_names,"_ID")
       }
       
       # Find any levels that have no variables declared
@@ -210,7 +221,7 @@ create_population_function <- function(variable_list = NULL, N_per_level = NULL,
         }
         
         if(is.null(level_IDs)){
-          level_IDs <- paste0(level_names,"_id")
+          level_IDs <- paste0(level_names,"_ID")
         }
         
       }else{stop("You must supply ... with variable declarations or lists of variable declarations.")}
@@ -236,7 +247,9 @@ create_population_function <- function(variable_list = NULL, N_per_level = NULL,
       X_mat[,level_IDs] <- 1:dim(X_mat)[1]
       X_mat <- integerize(X_mat)
       X_mat <- as.data.frame(X_mat)
-      X_mat$level_ID <- generate_ID(data = X_mat,level_names = level_IDs)
+      if(generate_unique_ID == TRUE){
+        X_mat$level_ID <- generate_ID(data = X_mat,level_names = level_IDs)
+      }
       return(X_mat)
     }
   }
@@ -249,7 +262,9 @@ create_population_function <- function(variable_list = NULL, N_per_level = NULL,
       X_mat <- data.frame(1:N)
       names(X_mat) <- level_IDs
       X_mat <- integerize(X_mat)
-      X_mat$level_ID <- generate_ID(data = X_mat,level_names = level_IDs)
+      if(generate_unique_ID == TRUE){
+        X_mat$level_ID <- generate_ID(data = X_mat,level_names = level_IDs)
+      }
       return(X_mat)
     }
   } 
@@ -301,8 +316,9 @@ create_population_function <- function(variable_list = NULL, N_per_level = NULL,
       population_matrix <- population_matrix[order(population_matrix[,level_IDs[1]]), , drop=FALSE]
       population_matrix <- integerize(population_matrix)
       population_matrix <- as.data.frame(population_matrix)
-      population_matrix$level_ID <- generate_ID(data = population_matrix,level_names = level_IDs)
-      
+      if(generate_unique_ID == TRUE){
+        population_matrix$level_ID <- generate_ID(data = population_matrix,level_names = level_IDs)
+      }      
       return(population_matrix)
     }
   }
