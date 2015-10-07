@@ -13,6 +13,7 @@ draw_population <- function(population, potential_outcomes = NULL) {
   # Get the covariates ------------------------------------------------------
   
   if(population$super_population == FALSE){
+    current_seed <- .Random.seed
     set.seed(population$random_seed)
   }
   
@@ -34,6 +35,10 @@ draw_population <- function(population, potential_outcomes = NULL) {
     
     population_data <- data.frame(outcomes, covariates)
     
+  }
+  
+  if(population$super_population == FALSE){
+    set.seed(current_seed)
   }
   
   # Return data -------------------------------------------------------------
