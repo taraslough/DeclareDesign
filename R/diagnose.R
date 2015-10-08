@@ -19,7 +19,6 @@ diagnose <- function(population = NULL, sampling = NULL, assignment, estimator,
     estimator_labels <- get_estimator_labels(estimator = estimator)
   }
   
-  # Not necessary because it's never a list, moved to diagnose()
   if(class(estimator)=="estimator"){estimator <- list(estimator)}
   
   comb <- function(x, ...) {
@@ -36,7 +35,7 @@ diagnose <- function(population = NULL, sampling = NULL, assignment, estimator,
                                        potential_outcomes = potential_outcomes)
   }
   
-  simulations_list <- foreach(i = 1:sims, .combine = 'comb', .multicombine = TRUE, .init = list(list(), list(), list())) %dorng% {
+  simulations_list <- foreach(i = 1:sims, .combine = 'comb', .multicombine = TRUE, .init = list(list(), list())) %dorng% {
     
     if(super_population==TRUE){
       population_data <- draw_population(population = population, potential_outcomes = potential_outcomes)
