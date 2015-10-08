@@ -15,6 +15,7 @@ diagnose <- function(population = NULL, sampling = NULL, assignment, estimator,
   super_population <- population$super_population
   
   if(is.null(estimator_labels)){
+    # You're doing it wrong!!
     estimator_labels <- get_estimator_labels(estimator = estimator)
   }
   
@@ -50,8 +51,7 @@ diagnose <- function(population = NULL, sampling = NULL, assignment, estimator,
       estimates <- get_estimates(estimator = estimator,data = sample_data)
       
       sample_estimands <- get_estimands(estimator = estimator,
-                                        sample_data = sample_data,
-                                        population_data = population_data)
+                                        population_data = sample_data)
       
     } else {
       
@@ -61,13 +61,12 @@ diagnose <- function(population = NULL, sampling = NULL, assignment, estimator,
       
       
       sample_estimands <- get_estimands(estimator = estimator,
-                                        sample_data = sample_data,
                                         population_data = population_data)
       
     }
     
-    population_estimands <- get_estimands(estimand = estimand,
-                                          sample_data = sample_data,
+    population_estimands <- get_estimands(estimator = estimator,
+                                          # sample_data = sample_data,
                                           population_data = population_data)
     
     return(list(estimates, sample_estimands, population_estimands))
