@@ -50,8 +50,9 @@ diagnose <- function(population = NULL, sampling = NULL, assignment, estimator,
       
       estimates <- get_estimates(estimator = estimator,data = sample_data)
       
-      sample_estimands <- get_estimands(estimator = estimator,
-                                        population_data = sample_data)
+      estimands <- get_estimands(estimator = estimator,
+                                 sample_data = sample_data,
+                                 population_data = population_data)
       
     } else {
       
@@ -59,23 +60,17 @@ diagnose <- function(population = NULL, sampling = NULL, assignment, estimator,
       
       estimates <- get_estimates(estimator = estimator,data = population_data)
       
-      
-      sample_estimands <- get_estimands(estimator = estimator,
-                                        population_data = population_data)
+      estimands <- get_estimands(estimator = estimator,
+                                 population_data = population_data)
       
     }
     
-    population_estimands <- get_estimands(estimator = estimator,
-                                          # sample_data = sample_data,
-                                          population_data = population_data)
-    
-    return(list(estimates, sample_estimands, population_estimands))
+    return(list(estimates, estimands))
     
   }
   
   return_object <- list(estimates = simulations_list[[1]], 
-                        sample_estimands = simulations_list[[2]],
-                        population_estimands = simulations_list[[3]], 
+                        estimands = simulations_list[[2]],
                         label = label)
   
   class(return_object) <- "diagnosis"
@@ -183,21 +178,19 @@ summary.diagnosis <- function(object, statistics = list(calculate_PATE, calculat
   if(class(statistics) != "list"){ statistics <- list(statistics) }
   
   estimates <- object$estimates
-  sample_estimands <- object$sample_estimands
-  population_estimands <- object$population_estimands
-  
-  return_matrix_population <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
+  estimands <- object$estimands
+
+  return_matrix <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
   for(k in 1:length(statistics))
-    return_matrix_population[ , k] <- as.matrix(statistics[[k]](estimates = estimates, estimands = population_estimands))
+    return_matrix[ , k] <- as.matrix(statistics[[k]](estimates = estimates, estimands = estimands))
   
-  if(!is.null(sample_estimands)){
-    return_matrix_sample <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
-    for(k in 1:length(statistics))
-      return_matrix_sample[ , k] <- as.matrix(statistics[[k]](estimates = estimates, estimands = sample_estimands))
-  }
+  ##if(!is.null(sample_estimands)){
+  ##  return_matrix_sample <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
+  ##  for(k in 1:length(statistics))
+  ##    return_matrix_sample[ , k] <- as.matrix(statistics[[k]](estimates = estimates, estimands = sample_estimands))
+  ##}
   
-  return(list(population = return_matrix_population,
-              sample = return_matrix_sample))
+  return(return_matrix)
 }
 
 #' @export
