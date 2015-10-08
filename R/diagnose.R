@@ -110,9 +110,9 @@ calculate_power <- function(estimates, ...){
   p <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["p", , drop = FALSE]))
   
   if(class(p) == "matrix")
-    power <- apply(p, 1, mean, na.rm = T)
+    power <- apply(p <= .05, 1, mean, na.rm = T)
   else
-    power <- mean(p, na.rm = T)
+    power <- mean(p <= .05, na.rm = T)
   
   return(power)
 }
