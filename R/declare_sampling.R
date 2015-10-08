@@ -44,6 +44,7 @@ declare_sampling <- function(prob = NULL,
   } else {
     return.object <- list(
       custom_sampling_function = custom_sampling_function,
+      sampling_type = "custom",
       call = match.call())
   }
   class(return.object) <- "sampling"

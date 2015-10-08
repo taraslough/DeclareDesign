@@ -29,7 +29,7 @@ draw_sample_indicator <- function(sampling, population_data, random_seed = NULL)
     sampling_type <- "custom"
   }
   
-  if(!is.null(sampling$custom_sampling_function)){
+  if(sampling_type == "custom"){
     if("data" %in% names(formals(sampling$custom_sampling_function)))
       Z <- sampling$custom_sampling_function(data = population_data)
     else
@@ -56,9 +56,14 @@ draw_sample_indicator <- function(sampling, population_data, random_seed = NULL)
     Z <- stratified_and_clustered_sample(clust_var = clust_var, strata_var = strata_var, strata_n = strata_n, prob = prob, strata_prob = strata_prob)
   }
   
-  inclusion_probs <- get_inclusion_probs(sampling = sampling, population_data = population_data)
+  if(!(sampling_type == "custom")){
+    inclusion_probs <- get_inclusion_probs(sampling = sampling, population_data = population_data)
+    sampling_data <- data.frame(sampled = Z, inclusion_probs = inclusion_probs, sampling_weights = 1/inclusion_probs)
+  } else {
+    sampling_data <- data.frame(sampled = Z)
+  }
   
-  return(data.frame(sampled = Z, inclusion_probs = inclusion_probs, sampling_weights = 1/inclusion_probs))
+  return(sampling_data)
   
 }
 
