@@ -141,7 +141,12 @@ get_estimator_labels <- function(estimator){
   
   if(class(estimator) == "list"){
     estimator_labels <- c(lapply(1:length(estimator), function(j) ifelse(is.null(estimator[[j]]$label), "", estimator[[j]]$label)), recursive = TRUE)
+    est_names <- names(estimator)
+    if(!is.null(est_names)){
+      estimator_labels[which(estimator_labels == "")] <- est_names[which(estimator_labels == "")]  
+    } else {
     estimator_labels[which(estimator_labels == "")] <- paste(substitute(estimator))[which(estimator_labels == "")]
+    }
   } else {
     estimator_labels <- estimator$label
     if(is.null(estimator_labels)){
