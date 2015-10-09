@@ -22,7 +22,9 @@ diagnose <- function(population = NULL, sampling = NULL, assignment, estimator,
       }
     }
   } else if(class(estimator) == "estimator"){
-    estimator$labels <- paste(substitute(estimator))
+    if(is.null(estimator$labels)){
+      estimator$labels <- paste(substitute(estimator))
+    }
   }
   
   comb <- function(x, ...) {
