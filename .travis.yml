@@ -13,7 +13,7 @@ warnings_are_errors: true
 
 script: "Rscript -e 'library(devtools); check(); test()'"
 
-after_success: "Rscript -e \'system(\"curl -s -X POST -H \"Content-Type: application/json\" -H \"Accept: application/json\" -H \"Travis-API-Version: 3\" -H \"Authorization: token zt18Nwsg6dFQay1CAt6Zrw\" -d '{\"request\": {\"branch\":\"master\", \"token\": \"zt18Nwsg6dFQay1CAt6Zrw\"}}\' https://api.travis-ci.org/repo/egap%2Fexperimentr.org/requests\")\'"
+after_success: "Rscript -e \'system(\"curl -s -X POST -H \"Content-Type: application/json\" -H \"Accept: application/json\" -H \"Travis-API-Version: 3\" -H \"Authorization: token zt18Nwsg6dFQay1CAt6Zrw\" -d '{\"request\": {\"branch\":\"master\", \"token\": \"zt18Nwsg6dFQay1CAt6Zrw\"}}\' https://api.travis-ci.org/repo/egap%2FDeclareDesign.org/requests\")\'"
 
 notifications:
   email:

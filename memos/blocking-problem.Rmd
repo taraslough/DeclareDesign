@@ -6,7 +6,7 @@ author: "Experiments in Governance and Politics (EGAP)"
   This vignette demonstrates how to design and pre-register an experiment after baseline data has been collected.
 
 ```{r, echo = FALSE}
-library(experimentr)
+library(DeclareDesign)
 library(xtable)
 set.seed(5)
 knitr::opts_knit$set(root.dir = tempdir())

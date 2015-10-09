@@ -1,4 +1,4 @@
-Package: experimentr
+Package: DeclareDesign
 Title: Tools for Power Analysis, Design and Pre-Registration of Experimental and Quasi-Experimental Studies
 Version: 0.2
 Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@columbia.edu", role = c("aut", "cre")),

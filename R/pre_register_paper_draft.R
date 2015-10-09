@@ -50,7 +50,7 @@ pre_register <- function(assignment, sample = NULL, potential_outcomes = NULL, a
   
   pre_register_doc <- list(title_header(title = title, authors = authors, 
                                         abstract = abstract, keep_tex = keep_tex),
-                           code_snippet("library(experimentr) \n library(xtable)"),
+                           code_snippet("library(DeclareDesign) \n library(xtable)"),
                            ifelse(!is.null(data), 
                                   code_snippet("load(\"pre_registration_data.RData\")"), ""),
                            code_snippet("## set fixed random seed for registration reproducibility\n\nset.seed(", 
@@ -207,7 +207,7 @@ draft_paper <- function(assignment, clusters = NULL, blocks = NULL, sample = NUL
   
   paper_draft_doc <- list(title_header(title = title, authors = authors, 
                                        abstract = abstract, keep_tex = keep_tex, pre_register = FALSE),
-                          code_snippet("library(experimentr) \n library(xtable)"),
+                          code_snippet("library(DeclareDesign) \n library(xtable)"),
                           ifelse(!is.null(pre_registration_data), 
                                  code_snippet("load(\"pre_registration_data.RData\")"), ""),
                           code_snippet("load(\"paper_data.RData\")"),
@@ -395,8 +395,8 @@ print_versions <- function(){
   loaded <- installed[installed[,1] %in% loadedNamespaces() &
                         !(installed[,1] %in% c("base", "datasets", "graphics", 
                                                "grDevices", "methods", "stats", "tools", "utils")), ]
-  experimentr_ver <- loaded[loaded[,1] %in% "experimentr"][2]
-  loaded <- loaded[!(loaded[,1] %in% "experimentr"), ]
+  DeclareDesign_ver <- loaded[loaded[,1] %in% "DeclareDesign"][2]
+  loaded <- loaded[!(loaded[,1] %in% "DeclareDesign"), ]
   
   if (.Platform$OS.type == "windows") {
     running <- win.version()
@@ -428,7 +428,7 @@ print_versions <- function(){
     }, uname)
   }
   
-  cat("This document was compiled with the R package experimentr ", ifelse(!is.na(experimentr_ver), paste0("version ", experimentr_ver, " "), ""), 
+  cat("This document was compiled with the R package DeclareDesign ", ifelse(!is.na(DeclareDesign_ver), paste0("version ", DeclareDesign_ver, " "), ""), 
       "using ", R.version.string, " with the ", running, " operating system and the R packages: ", sep = "")
   
   loaded[, 2] <- paste0("(", loaded[, 2], ")")

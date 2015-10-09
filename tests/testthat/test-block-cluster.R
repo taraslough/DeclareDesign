@@ -1,7 +1,7 @@
 
 rm(list=ls())
 library(testthat)
-library(experimentr)
+library(DeclareDesign)
 
 context("test block and cluster treatments")
 

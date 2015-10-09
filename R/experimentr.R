@@ -1,7 +1,7 @@
-#' experimentr package
+#' DeclareDesign package
 #'
 #' Some stuff about what this package is
 #'
 #' @docType package
-#' @name experimentr
+#' @name DeclareDesign
 NULL

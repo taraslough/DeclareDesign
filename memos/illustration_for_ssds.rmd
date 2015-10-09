@@ -1,5 +1,5 @@
 ---
-title: 'Simple analysis with experimentr'
+title: 'Simple analysis with DeclareDesign'
 author: 'Graeme Blair, Jasper Cooper, Alex Coppock, and Macartan Humphreys'
 output:
   html_document:
@@ -26,8 +26,8 @@ Lets go. First lets load up the package
 
 ```{r}
 rm(list=ls())
-# devtools::install_github(repo = "egap/experimentr", auth_token = "c5a7798ff2bc621f161f6e6a8155a4ecc1985045")
-library(experimentr)
+# devtools::install_github(repo = "egap/DeclareDesign", auth_token = "c5a7798ff2bc621f161f6e6a8155a4ecc1985045")
+library(DeclareDesign)
 ```
 
 ## The Sample

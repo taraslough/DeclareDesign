@@ -1,7 +1,7 @@
 
 rm(list=ls())
 library(testthat)
-library(experimentr)
+library(DeclareDesign)
 
 context("Basic experiment with clustering")
 
@@ -20,7 +20,7 @@ test_that("test whether a simple experiment with clustering can be pre-registere
     return(fake_data)
   }
   
-  make_clustered_data_experimentr <- function(N_per_level = NULL){
+  make_clustered_data_DeclareDesign <- function(N_per_level = NULL){
     if(is.null(N_per_level))
     if(N_per_level[1] %% N_per_level[2] > 0)
       stop("You can only use a assignment with equally sized clusters.")
@@ -30,7 +30,7 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   }
   
   
-  smp <- declare_sample(custom_data_function = make_clustered_data_experimentr, N_per_level = c(1000, 10))
+  smp <- declare_sample(custom_data_function = make_clustered_data_DeclareDesign, N_per_level = c(1000, 10))
   
   po     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),

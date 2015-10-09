@@ -1,4 +1,4 @@
 library(testthat)
-library(experimentr)
+library(DeclareDesign)
 
 test_check("registration")
