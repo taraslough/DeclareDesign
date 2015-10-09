@@ -10,16 +10,20 @@
 #' @export
 diagnose <- function(population = NULL, sampling = NULL, assignment, estimator, 
                      potential_outcomes = NULL,
-                     sims = 5, label = NULL, estimator_labels = NULL){
+                     sims = 5, label = NULL){
   
   super_population <- population$super_population
   
-  if(is.null(estimator_labels)){
-    # You're doing it wrong!!
-    estimator_labels <- get_estimator_labels(estimator = estimator)
+  if(class(estimator) == "list"){
+    estimator_object_names <- paste(substitute(estimator)[-1L])
+    for(i in 1:length(estimator)){
+      if(is.null(estimator[[i]]$labels)){
+        estimator[[i]]$labels <- estimator_object_names[i]
+      }
+    }
+  } else if(class(estimator) == "estimator"){
+    estimator$labels <- paste(substitute(estimator))
   }
-  
-  if(class(estimator)=="estimator"){estimator <- list(estimator)}
   
   comb <- function(x, ...) {
     lapply(seq_along(x),
@@ -182,12 +186,6 @@ summary.diagnosis <- function(object, statistics = list(calculate_PATE, calculat
   return_matrix <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
   for(k in 1:length(statistics))
     return_matrix[ , k] <- as.matrix(statistics[[k]](estimates = estimates, estimands = estimands))
-  
-  ##if(!is.null(sample_estimands)){
-  ##  return_matrix_sample <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
-  ##  for(k in 1:length(statistics))
-  ##    return_matrix_sample[ , k] <- as.matrix(statistics[[k]](estimates = estimates, estimands = sample_estimands))
-  ##}
   
   return(return_matrix)
 }

@@ -1,6 +1,6 @@
 #' @export
 declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates_options = NULL,
-                              subset = NULL, weights_variable = NULL, label = NULL, estimates_labels = NULL, 
+                              subset = NULL, weights_variable = NULL, labels = NULL, 
                               estimand = NULL, ...) {
   
   if(missing(estimates)){
@@ -49,8 +49,8 @@ declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates
       estimates_options$subset <- with(data, eval(parse(text = subset)))
     if(!is.null(weights_variable) & "weights" %in% argument_names)
       estimates_options$weights <- data[, weights_variable]
-    if(!is.null(estimates_labels) & "estimates_labels" %in% argument_names)
-      estimates_options$estimates_labels <- estimates_labels
+    if(!is.null(labels) & "labels" %in% argument_names)
+      estimates_options$labels <- labels
     if(!is.null(data) & "data" %in% argument_names)
       estimates_options$data <- data
     if(!is.null(model) & "model" %in% argument_names)
@@ -59,13 +59,12 @@ declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates
     return(do.call(estimates, args = estimates_options))
   }
   
-  if(is.null(estimand$label) & !is.null(estimand)){
-    estimand$label <- as.character(substitute(estimand))
+  if(is.null(estimand$labels) & !is.null(estimand)){
+    estimand$labels <- as.character(substitute(estimand))
   }
   
   return_object <- list(model = model_function, estimates = estimates_function, 
-                        label = label, estimates_labels = estimates_labels,
-                        estimand = estimand, arguments = arguments, call = match.call())
+                        labels = labels, estimand = estimand, arguments = arguments, call = match.call())
   
   if(is.null(model)){
     return_object$model <- NULL
@@ -102,7 +101,24 @@ get_estimates_model <- function(estimator, data){
 #' @export
 get_estimates <- function(estimator, data) {
   
-  estimator_labels <- get_estimator_labels(estimator = estimator)
+  if(class(estimator) == "list"){
+    estimator_labels <- lapply(1:length(estimator), function(j) estimator[[j]]$labels)
+    if(any(unlist(lapply(estimator_labels, is.null)))){
+      estimator_object_labels <- paste(substitute(estimator)[-1L])
+      estimator_labels <- lapply(1:length(estimator), function(j) {
+        labels <- estimator[[j]]$labels
+        if(is.null(labels)){
+          labels <- estimator_object_labels[j]
+        }
+        return(labels)})
+    }
+  } else {
+    if(!is.null(estimator$labels)){
+      estimator_labels <- list(estimator$labels)
+    } else {
+      estimator_labels <- list(paste(substitute(estimator)))
+    }
+  }
 
   if(!class(estimator) == "list"){ 
     estimator <- list(estimator)
@@ -120,7 +136,9 @@ get_estimates <- function(estimator, data) {
     if(class(estimates_list[[i]]) != "matrix" & class(estimates_list[[i]]) != "data.frame")
       stop(paste("The quantity_of_interest function you set, or in its absence the estimate function, for estimator named", estimator_labels[i], 
                  "did not produce a matrix or data frame of results."))
-    colnames(estimates_list[[i]]) <- paste(colnames(estimates_list[[i]]), estimator_labels[i], sep = "_")
+    if(ncol(estimates_list[[i]]) != length(estimator_labels[[i]]) & length(estimator_labels[[i]]) == 1)
+      estimator_labels[[i]] <- rep(estimator_labels[[i]], ncol(estimates_list[[i]]))
+    colnames(estimates_list[[i]]) <- estimator_labels[[i]] ##colnames(estimates_list[[i]]), estimator_labels[i], sep = "_")
   }
   
   ## this merges the summary statistics together such that there can be different statistics for each estimator
@@ -128,13 +146,14 @@ get_estimates <- function(estimator, data) {
   estimates_matrix <- estimates_list[[1]]
   if(length(estimator) > 1){
     for(i in 2:length(estimator)){
-      estimates_matrix <- merge(estimates_matrix, estimates_list[[i]], by = "row.names", all.x = T, all.y = T)
+      estimates_matrix <- merge(estimates_matrix, estimates_list[[i]], by = "row.names", all.x = TRUE, all.y = TRUE, sort = FALSE)
       rownames(estimates_matrix) <- estimates_matrix[,1]
-      estimates_matrix <- estimates_matrix[, 2:ncol(estimates_matrix), drop = F]
+      estimates_matrix <- estimates_matrix[, 2:ncol(estimates_matrix), drop = FALSE]
     }
   }
   return(estimates_matrix)
 }
+
 
 #' @export
 get_estimator_labels <- function(estimator){
@@ -145,7 +164,7 @@ get_estimator_labels <- function(estimator){
     if(!is.null(est_names)){
       estimator_labels[which(estimator_labels == "")] <- est_names[which(estimator_labels == "")]  
     } else {
-    estimator_labels[which(estimator_labels == "")] <- paste(substitute(estimator))[which(estimator_labels == "")]
+      estimator_labels[which(estimator_labels == "")] <- paste(substitute(estimator))[which(estimator_labels == "")]
     }
   } else {
     estimator_labels <- estimator$label
