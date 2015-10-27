@@ -384,8 +384,9 @@ treatment_table <- function(assignment, caption = "Description of each treatment
 #' @importFrom knitr kable
 #' @export
 units_table <- function(population, ...){
-  units_table <- summary(population)
-  kable(units_table, caption = "Levels of analysis", row.names = FALSE, ... = ...)
+  cat("This function will return a summary of each level of analysis of the population (i.e. villages, households, and individuals) and the numbers of units assigned to each level.")
+  ##units_table <- summary(population)
+  ##kable(units_table, caption = "Levels of analysis", row.names = FALSE, ... = ...)
 }
 
 #' @export

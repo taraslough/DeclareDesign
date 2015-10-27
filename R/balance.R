@@ -65,4 +65,10 @@ xtable.balance <- function(x, ...){
   xtable(x$summary, ... = ...)
 }
 
+#' @importFrom kable xtable
+#' @export
+kable.balance <- function(x, ...){
+  kable(x$summary, ... = ...)
+}
+
 
