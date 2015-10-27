@@ -65,10 +65,10 @@ xtable.balance <- function(x, ...){
   xtable(x$summary, ... = ...)
 }
 
-#' @importFrom kable xtable
+#' @importFrom knitr knit_print
 #' @export
-kable.balance <- function(x, ...){
-  kable(x$summary, ... = ...)
+knit_print.balance <- function(x, caption = "Balance Table", digits = 3, ...){
+  print(kable(x$summary, caption = caption, digits = digits, ... = ...))
 }
 
 
