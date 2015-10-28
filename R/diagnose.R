@@ -8,9 +8,18 @@
 #' @importFrom foreach foreach registerDoSEQ getDoParWorkers %dopar%
 #' @importFrom doRNG %dorng%
 #' @export
-diagnose <- function(population = NULL, sampling = NULL, assignment, estimator, 
-                     potential_outcomes = NULL,
-                     sims = 5, label = NULL){
+diagnose <- function(design = NULL, population = NULL, sampling = NULL, assignment, estimator, 
+                     potential_outcomes = NULL, label = NULL,
+                     sims = 5){
+  
+  if(!is.null(design)){
+    population <- design$population
+    sampling <- design$sampling
+    assignment <- design$assignment
+    estimator <- design$estimator
+    potential_outcomes <- design$potential_outcomes
+    label <- design$label
+  }
   
   super_population <- population$super_population
   

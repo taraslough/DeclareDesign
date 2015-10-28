@@ -1,0 +1,46 @@
+#' @export
+declare_design <- function(population, sampling = NULL, assignment, estimator = NULL, 
+                           potential_outcomes, label = NULL) {
+  
+  ## do checks
+  
+  ## return object
+  
+  structure(list(population = population, sampling = sampling, assignment = assignment, estimator = estimator,
+                 potential_outcomes = potential_outcomes, label = label, call = match.call()), class = "design")
+  
+}
+
+#' @export
+modify_design <- function(design, population = NULL, sampling = NULL, assignment = NULL, estimator = NULL, 
+                          potential_outcomes = NULL, label = NULL) {
+  
+  if(all(is.null(population), is.null(sampling), is.null(assignment), is.null(estimator), is.null(potential_outcomes),
+         is.null(label))){
+    warning("No part of the design was modified, so the original design is being returned.")
+    return(design)
+  }
+  
+  if(is.null(population) & !is.null(design$population)){
+    population <- design$population
+  }
+  if(is.null(sampling) & !is.null(design$sampling)){
+    sampling <- design$sampling
+  }
+  if(is.null(assignment) & !is.null(design$assignment)){
+    assignment <- design$assignment
+  }
+  if(is.null(estimator) & !is.null(design$estimator)){
+    estimator <- design$estimator
+  }
+  if(is.null(potential_outcomes) & !is.null(design$potential_outcomes)){
+    potential_outcomes <- design$potential_outcomes
+  }
+  if(is.null(label) & !is.null(design$label)){
+    label <- design$label
+  }
+  
+  declare_design(population = population, sampling = sampling, assignment = assignment, estimator = estimator, 
+                 potential_outcomes = potential_outcomes, label = label)
+  
+}
