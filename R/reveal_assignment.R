@@ -13,11 +13,11 @@ reveal_assignment <- function(data, assignment, random_seed = NULL) {
   # Make clusters and blocks ------------------------------------------------  
   
   if(!is.null(assignment$custom_cluster_function)){
-    data[, assignment$cluster_variable_name] <- assignment$custom_cluster_function
+    data[, assignment$cluster_variable_name] <- assignment$custom_cluster_function()
   }
   
   if(!is.null(assignment$custom_block_function)) { 
-    data[, assignment$block_variable_name] <- assignment$custom_block_function
+    data[, assignment$block_variable_name] <- assignment$custom_block_function()
   }
   
   # Assign treatment and reveal outcomes ------------------------------------------------  
@@ -75,7 +75,11 @@ reveal_assignment <- function(data, assignment, random_seed = NULL) {
 #' # Z        <- assign_treatment(assignment, data = mock)
 #' # table(Z)
 #' @export
-assign_treatment <- function(assignment, data) {
+assign_treatment <- function(assignment, data, random_seed = NULL) {
+  
+  if(!is.null(random_seed)){
+    set.seed(random_seed)
+  }
   
   ## should be expanded to take either a assignment object or a function
   
