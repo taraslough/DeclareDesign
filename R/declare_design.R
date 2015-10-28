@@ -4,6 +4,21 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
   
   ## do checks
   
+  ## construct estimator labels
+  
+  if(class(estimator) == "list"){
+    estimator_object_names <- paste(substitute(estimator)[-1L])
+    for(i in 1:length(estimator)){
+      if(is.null(estimator[[i]]$labels)){
+        estimator[[i]]$labels <- estimator_object_names[i]
+      }
+    }
+  } else if(class(estimator) == "estimator"){
+    if(is.null(estimator$labels)){
+      estimator$labels <- paste(substitute(estimator))
+    }
+  }
+  
   ## return object
   
   structure(list(population = population, sampling = sampling, assignment = assignment, estimator = estimator,
