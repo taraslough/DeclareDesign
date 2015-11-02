@@ -10,7 +10,9 @@ default_potential_outcomes_function <- function(formula, data){
 #' @export
 declare_potential_outcomes <- function(potential_outcomes_function = default_potential_outcomes_function,
                                        formula = NULL, outcome_name = NULL, condition_names = NULL, sep = "_", 
-                                       treatment_variable = NULL, ...){
+                                       treatment_variable = NULL,
+                                       potential_outcomes_type = "outcome",
+                                       ...){
   
   function_options <- list(...)
   
@@ -46,7 +48,9 @@ declare_potential_outcomes <- function(potential_outcomes_function = default_pot
   return_object <- list(potential_outcomes_function = potential_outcomes_function_internal, 
                         outcome_name = outcome_name, sep = "_", condition_names = condition_names,
                         treatment_variable = treatment_variable,
-                        arguments = arguments, call = match.call())
+                        arguments = arguments, 
+                        potential_outcomes_type = potential_outcomes_type,
+                        call = match.call())
   
   structure(return_object, class = "potential_outcomes")
   

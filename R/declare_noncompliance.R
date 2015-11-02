@@ -38,6 +38,7 @@ declare_noncompliance <- function(noncompliance_function = default_noncompliance
                                  condition_names = condition_names, 
                                  sep = sep, 
                                  treatment_variable = treatment_variable, 
+                                 potential_outcomes_type = "noncompliance",
                                  ... = ...)
     return(outcomes_object)
 }
