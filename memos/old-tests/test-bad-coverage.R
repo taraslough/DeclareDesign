@@ -16,7 +16,7 @@ test_that("test permutation matrix", {
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + -.1*Z1*income + runif(1000)
+    formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + -.1*Z1*income + runif(1000)
   )
   
   blocks <- declare_blocks(blocks = "ethnicity", block_name = "income_groups", block_count = 4)
@@ -43,8 +43,8 @@ test_that("test permutation matrix", {
   
   mock <- make_data(potential_outcomes = potential_outcomes, sample = sample, assignment = assignment_blocked)
   
-  mock$Z <- assign_treatment(assignment = assignment_blocked, data = mock)
-  mock$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
+  mock$Z <- assign_treatment_indicator(assignment = assignment_blocked, data = mock)
+  mock$Y <- reveal_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
   dimM <- get_estimates(analysis = analysis, data = mock)
   lsdvM <- get_estimates_model(analysis = analysis_lsdv, data = mock)

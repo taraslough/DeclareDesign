@@ -48,7 +48,7 @@ Next we describe the potential outcomes. This is a guess about what will happen 
 ```{r}
 my.potential.outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ 0*Z0*(type=="A") + 2*Z0*(type=="B") + 3*Z1*(type=="A") + 1*Z1*(type=="B")
+    formula = Y ~ 0*Z0*(type=="A") + 2*Z0*(type=="B") + 3*Z1*(type=="A") + 1*Z1*(type=="B")
     )  
 ```
 
@@ -80,8 +80,8 @@ Let's look first at  some mock data to see if this is looking like we want it to
 ```{r}
 my.mock.data <- make_data(potential_outcomes = my.potential.outcomes, sample = my.sample.frame, 
                   blocks = declare_blocks(blocks = "type", block_name = "my_blocks", block_count = 2))
-my.mock.data$Z <- assign_treatment(design = my.design, data = my.mock.data)
-my.mock.data$Y <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = my.mock.data)
+my.mock.data$Z <- assign_treatment_indicator(design = my.design, data = my.mock.data)
+my.mock.data$Y <- reveal_outcome(outcome = "Y", treatment_assignment = "Z", data = my.mock.data)
 head(my.mock.data)
 ```
 

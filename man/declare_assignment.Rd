@@ -4,37 +4,143 @@
 \alias{declare_assignment}
 \title{Declare the experimental assignment}
 \usage{
-declare_assignment(potential_outcomes, block_variable_name = NULL,
-  cluster_variable_name = NULL, m = NULL, m_each = NULL,
-  prob_each = NULL, block_m = NULL, block_prob = NULL,
-  excluded_arms = NULL, baseline_condition = NULL,
-  treatment_variable = "Z", custom_assignment_function = NULL,
-  custom_block_function = NULL, custom_cluster_function = NULL,
-  existing_assignment_variable_name = NULL)
+declare_assignment(condition_names = NULL, potential_outcomes = NULL,
+  block_variable_name = NULL, cluster_variable_name = NULL, m = NULL,
+  m_each = NULL, prob_each = NULL, block_m = NULL, block_prob = NULL,
+  baseline_condition = NULL, treatment_variable = "Z",
+  custom_assignment_function = NULL, custom_block_function = NULL,
+  custom_cluster_function = NULL, existing_assignment_variable_name = NULL)
 }
 \arguments{
-\item{potential_outcomes}{potential_outcomes object, as created by \code{\link{declare_potential_outcomes}} (required).}
+\item{condition_names}{A vector describing the conditions to which subjects can be assigned. Alternatively, condition_names can be obtained from a potential_outcomes object.}
 
-\item{m}{the number of units (or clusters) to be assigned to treatment in a two-arm trial.}
+\item{potential_outcomes}{potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. The conditions to which subjects can be assigned is obtained from the condition_names stored in a potential outcomes object.  If you prefer, you can use the condition_names argument.}
 
-\item{m_each}{a vector describing the number of units (or clusters) to be assigned to each treatment arm in a multi-arm trial.  Must sum to N (for individually randomized experments) or N_clusters (for cluster randomized experiments).}
+\item{block_variable_name}{The name of the variable according to which block random assignment should be conducted.}
 
-\item{prob_each}{a vector describing the probability of units (or clusters) being assigned to each treatment arm. Must sum to 1.}
+\item{cluster_variable_name}{The name of the variable according to which clustered random assignment should be conducted.}
 
-\item{block_m}{a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.}
+\item{m}{The number of units (or clusters) to be assigned to treatment in a two-arm trial.}
 
-\item{block_prob}{a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.}
+\item{m_each}{A vector describing the number of units (or clusters) to be assigned to each treatment arm in a multi-arm trial.  Must sum to N (for individually randomized experments) or N_clusters (for cluster randomized experiments).}
 
-\item{excluded_arms}{a character vector excluding some potential outcomes from the randomization.  Used primarily when comparing assignments that feature different numbers of treatment arms.}
+\item{prob_each}{A vector describing the probability of units (or clusters) being assigned to each treatment arm. Must sum to 1.}
 
-\item{blocks}{blocks object, as created by \code{\link{declare_blocks}} (optional).}
+\item{block_m}{A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.}
 
-\item{clusters}{clusters object, as created by \code{\link{declare_clusters}} (optional).}
+\item{block_prob}{A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.}
+
+\item{baseline_condition}{The value of condition_names that represents the "baseline" condition.  This is the condition against which treatment effects will be assessed. Defaults to the first value of condition_names.}
+
+\item{treatment_variable}{The name of the treatment variable.  Defaults to "Z"}
+
+\item{custom_assignment_function}{A function of data that returns an assignment vector of length n.}
+
+\item{custom_block_function}{A function of data that returns a blocking vector of length n.}
+
+\item{custom_cluster_function}{A function of data that returns a cluster vector of length n.}
+
+\item{existing_assignment_variable_name}{The name of an already-assigned treatment variable.}
 }
 \value{
 assignment object
 }
 \description{
 Declare the experimental assignment
+}
+\examples{
+
+population <- declare_population(individuals = list(noise = declare_variable(),
+                                                    ideo_3 = declare_variable(multinomial_probabilities = c(.2, .3, .5), 
+                                                                              multinomial_categories = c("Liberal", "Moderate", "Conservative"))),
+                                 villages = list(elevation = declare_variable(),
+                                                 high_elevation = declare_variable(transformation = "1*(elevation > 0)")), 
+                                 N_per_level = c(1000, 100))
+
+sampling <- declare_sampling(n = 10, cluster_variable_name = "villages_ID")
+
+potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*(Z==1) + .9*(Z==2) + .2*Z*elevation + noise,
+                                                 condition_names = c(0, 1, 2),
+                                                 treatment_variable = "Z")
+
+# Complete Random Assignment assignments
+assignment_1 <- declare_assignment(potential_outcomes = potential_outcomes)
+assignment_2 <- declare_assignment(potential_outcomes = potential_outcomes, m = 60, condition_names = c(0, 1))
+assignment_3 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(20, 30, 50))
+assignment_4 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(20, 80), condition_names = c(0, 1))
+assignment_5 <- declare_assignment(potential_outcomes = potential_outcomes, prob_each = c(.2, .3, .5))
+
+# Blocked assignments
+assignment_6 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3")
+assignment_7 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", prob_each = c(.3, .6, .1))
+assignment_8 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", condition_names = c(0, 1))
+
+block_prob <- rbind(c(.1, .2, .7),
+                    c(.1, .7, .2),
+                    c(.7, .2, .1),
+                    c(.7, .1, .2),
+                    c(.2, .1, .7))
+assignment_8.5 <- declare_assignment(potential_outcomes = potential_outcomes, 
+                                     block_variable_name = "ideo_3",
+                                     block_prob = block_prob)
+
+# Clustered assignments 
+assignment_9 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID")
+assignment_10 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID", condition_names = c(0, 1))
+assignment_11 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID", prob_each = c(.1, .3, .6))
+
+# Blocked and Clustered assignments
+assignment_12 <- declare_assignment(potential_outcomes = potential_outcomes, 
+                                    cluster_variable_name = "villages_ID", 
+                                    block_variable_name = "high_elevation")
+assignment_13 <- declare_assignment(potential_outcomes = potential_outcomes, 
+                                    cluster_variable_name = "villages_ID", 
+                                    block_variable_name = "high_elevation", condition_names = c(0,1))
+assignment_14 <- declare_assignment(potential_outcomes = potential_outcomes, 
+                                    cluster_variable_name = "villages_ID", 
+                                    block_variable_name = "high_elevation", prob_each = c(.1, .3, .6))
+
+# Draw Data
+pop_draw <- draw_population(population = population)
+smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
+smp_draw <- assign_treatment(data = smp_draw, assignment = assignment_1)
+
+# Attempt to Assign
+smp_draw$Z1 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_1) 
+smp_draw$Z2 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_2) 
+smp_draw$Z3 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_3) 
+smp_draw$Z4 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_4) 
+smp_draw$Z5 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_5) 
+
+smp_draw$Z6 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_6) 
+smp_draw$Z7 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_7) 
+smp_draw$Z8 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_8) 
+smp_draw$Z8_5 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_8.5) 
+
+with(smp_draw, table(ideo_3, Z6))
+with(smp_draw, table(ideo_3, Z7))
+with(smp_draw, table(ideo_3, Z8))
+with(smp_draw, table(ideo_3, Z8_5))
+
+smp_draw$Z9 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_9) 
+smp_draw$Z10 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_10) 
+smp_draw$Z11 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_11) 
+
+with(smp_draw, table(Z9 ,villages_ID))
+with(smp_draw, table(Z10,villages_ID))
+with(smp_draw, table(Z11,villages_ID))
+
+smp_draw$Z12 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_12) 
+smp_draw$Z13 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_13) 
+smp_draw$Z14 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_14) 
+
+with(smp_draw, table(Z12, villages_ID))
+with(smp_draw, table(Z12, high_elevation))
+
+with(smp_draw, table(Z13, villages_ID))
+with(smp_draw, table(Z13, high_elevation))
+
+with(smp_draw, table(Z14, villages_ID))
+with(smp_draw, table(Z14, high_elevation))
 }
 

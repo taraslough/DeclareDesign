@@ -4,7 +4,6 @@ declare_population <- function(...,
                                level_ID_variables = NULL, super_population = FALSE,
                                random_seed = 42, data = NULL, 
                                custom_population_function = NULL,
-                               potential_outcomes = NULL,
                                generate_unique_ID = FALSE) {
   
   
@@ -56,6 +55,7 @@ declare_population <- function(...,
     } else {
       
       # Fixed data --------------------------------------------------------
+      # Add ability to add and resample covariates
       
       population_function <- function() return(data)
       

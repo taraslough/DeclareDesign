@@ -1,3 +1,14 @@
+#' Declare the design
+#' 
+#' This function gathers together the declarations for population, sampling, assignment, estimator(s), and potential outcomes. Design objects can be summarized with summary(my_design), diagnosed with diagnose(my_design), and modified with modify_design(my_design).
+#' 
+#' @param population A population object, as created by \code{\link{declare_population}}.
+#' @param sampling A sampling object, as created by \code{\link{declare_sampling}}.
+#' @param assignment An assignment object, as created by \code{\link{declare_assignment}}.
+#' @param estimator An estimator object, as created by \code{\link{declare_estimator}}. Optionally a list of estimator objects.
+#' @param potential_outcomes A potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. Optionally a list of potential_outcomes objects.
+#' @param label An optional design label.
+#' @return A design object
 #' @export
 declare_design <- function(population, sampling = NULL, assignment, estimator = NULL, 
                            potential_outcomes, label = NULL) {
@@ -26,6 +37,18 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
   
 }
 
+#' Modify the design
+#' 
+#' This function takes a design object and allows the user to modify one or more of the declarations that make up a design.
+#' 
+#' @param design A design object, created by \code{\link{declare_design}}.
+#' @param population A population object, as created by \code{\link{declare_population}}.
+#' @param sampling A sampling object, as created by \code{\link{declare_sampling}}.
+#' @param assignment An assignment object, as created by \code{\link{declare_assignment}}.
+#' @param estimator An estimator object, as created by \code{\link{declare_estimator}}. Optionally a list of estimator objects.
+#' @param potential_outcomes A potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. Optionally a list of potential_outcomes objects.
+#' @param label An optional design label.
+#' @return A design object
 #' @export
 modify_design <- function(design, population = NULL, sampling = NULL, assignment = NULL, estimator = NULL, 
                           potential_outcomes = NULL, label = NULL) {
@@ -59,3 +82,4 @@ modify_design <- function(design, population = NULL, sampling = NULL, assignment
                  potential_outcomes = potential_outcomes, label = label)
   
 }
+

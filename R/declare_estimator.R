@@ -1,3 +1,16 @@
+#' Estimator declaration
+#' 
+#' @param formula 
+#'
+#' @param model 
+#' @param estimates 
+#' @param estimates_options 
+#' @param subset 
+#' @param weights_variable 
+#' @param labels 
+#' @param estimand 
+#' @param ... 
+#'
 #' @export
 declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates_options = NULL,
                               subset = NULL, weights_variable = NULL, labels = NULL, 

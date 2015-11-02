@@ -2,24 +2,48 @@
 ##estimand = "mean(Y_Z1 - Y_Z0)"
 ##estimand = declare_ATE()
 
+#' Declare Estimand
+#' 
+#' This function creates an estimand object. IMPROVE.
+#'
+#' @param estimand A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.  Users may want to use our built-in estimand functions such as \code{\link{declare_ATE}}
+#' @param text_estimand A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
+#' @param target Either "population" or "sample".  Defaults to "population".
+#' @param subset A character string that contains an expression that can be passed to the subset operator.  For example subset = "income > 50".
+#' @param weights_variable The name of the weighting variable (optional).
+#' @param label A character string for the estimand's label.
+#' @param ... 
+#'
 #' @export
-declare_estimand <- function(estimand = NULL, target = "population", subset = NULL, weights_variable = NULL, 
-                             custom_estimand_function = NULL, label = NULL, ...) {
+declare_estimand <- function(estimand = NULL, text_estimand = NULL, target = "population",
+                             potential_outcomes, condition_names = NULL,
+                             subset = NULL, weights_variable = NULL, 
+                             label = NULL, ...) {
   
-  if(!is.null(custom_estimand_function) & !is.null(estimand)){
+  if(!is.null(weights_variable)){
+    stop("Weighted estimands are not yet implemented. Please contact the authors if you are interested in using them.")
+  }
+  
+  if(!is.null(estimand) & !is.null(text_estimand)){
     stop("Please provide either an estimand as a string or an expression, or a custom_estimand_function.")
   }
   
-  if(is.null(custom_estimand_function)){
+  if(is.null(potential_outcomes)){
+    stop("Please provide a potential_outcomes object. This is used to create the potential outcomes before calculating the estimand.")
+  }
+  
+  if(!is.null(text_estimand)){
     
     ## if no custom estimand is provided
     
-    description <- as.character(estimand)
+    if(is.null(label)){
+      label <- as.character(text_estimand)
+    }
     
-    if(!is.character(eval(estimand))){
-      estimand <- quote(estimand)
+    if(!is.character(eval(text_estimand))){
+      text_estimand <- quote(text_estimand)
     } else {
-      estimand <- parse(text = estimand)
+      text_estimand <- parse(text = text_estimand)
     }
     
     estimand_function <- function(data){
@@ -27,38 +51,45 @@ declare_estimand <- function(estimand = NULL, target = "population", subset = NU
         data <- subset(data, subset = eval(parse(text = subset)))
       ##if(!is.null(weights_variable))
       ##  estimator_options$weights <- data[, weights_variable]
-      return(eval(estimand, envir = data))
+      return(eval(text_estimand, envir = data))
     }
   } else {
     
     estimand_options <- list(...)
     
-    description <- "custom estimand function"
-    
     ## if a custom estimand is provided
     
     estimand_function <- function(data){
-      argument_names <- names(formals(custom_estimand_function))
+      argument_names <- names(formals(estimand))
       if(!is.null(subset) & "subset" %in% argument_names)
         estimand_options$subset <- with(data, eval(parse(text = subset)))
       if(!is.null(weights_variable) & "weights" %in% argument_names)
         estimand_options$weights <- data[, weights_variable]
       estimand_options$data <- data
       
-      return(do.call(custom_estimand_function, args = estimand_options))
+      return(do.call(estimand, args = estimand_options))
     }
     
   }
   
-  structure(list(estimand = estimand_function, description = description, target = target, label = label, call = match.call()), class = "estimand")
+  structure(list(estimand = estimand_function, target = target, potential_outcomes = potential_outcomes, condition_names = condition_names, 
+                 label = label, call = match.call()), class = "estimand")
   
 }
 
+#' Built-in Estimand Functions: declare_ATE()
+#' 
+#' This function is designed to be passed to the estimand argument of the \code{\link{declare_estimand}} function, and can be used to specify a common estimand, the average difference between two potential outcomes.
+#' 
+#' @param condition_treat The condition name of the "treatment" condition. By default "Z1".
+#' @param condition_control The condition name of the "control" condition. By default "Z0".
+#' @param outcome The name of the outcome variable.  By default "Y".
+#' @param sep The separator used to create potential outcomes columns. By default "_", so that potential outcomes are constructed as, for example,  "Y_Z1" and "Y_Z0".
+#'
 #' @export
 declare_ATE <- function(condition_treat = "Z1", condition_control = "Z0", outcome = "Y", sep = "_"){
   return(paste0("mean(", outcome, sep, condition_treat, " - ", outcome, sep, condition_control, ")"))
 }
-
 
 #' @export
 get_estimands <- function(estimand = NULL, estimator = NULL, sample_data = NULL, population_data = NULL){
@@ -96,12 +127,12 @@ get_estimands <- function(estimand = NULL, estimator = NULL, sample_data = NULL,
           if(is.null(population_data)){
             stop(paste0("The target of ", estimand_labels[i], " is the population, so please send get_estimands a population data frame, i.e. one created by draw_population()."))
           }
-          estimands_list[[i]] <- estimand[[i]]$estimand(data = population_data)
+          estimands_list[[i]] <- estimand[[i]]$estimand(data = draw_potential_outcomes(data = population_data, potential_outcomes = estimand[[i]]$potential_outcomes, condition_names = estimand[[i]]$condition_names))
         } else if(estimand[[i]]$target == "sample") {
           if(is.null(sample_data)){
             stop(paste0("The target of ", estimand_labels[i], " is the sample, so please send get_estimands a sample data frame, i.e. one created by draw_sample()."))
           }
-          estimands_list[[i]] <- estimand[[i]]$estimand(data = sample_data)
+          estimands_list[[i]] <- estimand[[i]]$estimand(data = draw_potential_outcomes(data = sample_data, potential_outcomes = estimand[[i]]$potential_outcomes, condition_names = estimand[[i]]$condition_names))
         }
         names(estimands_list[[i]]) <- estimand_labels[i]
       } else {

@@ -13,7 +13,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   po     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income
+    formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income
   )
   
   blocks <- declare_blocks(blocks = "income",block_count = 10)
@@ -21,8 +21,8 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   assignment        <- declare_assignment(potential_outcomes = po, blocks = blocks)
   
   mock          <- make_data(potential_outcomes = po, sample = smp, blocks = blocks)
-  mock$Z        <- assign_treatment(assignment, data = mock)
-  mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
+  mock$Z        <- assign_treatment_indicator(assignment, data = mock)
+  mock$Y        <- reveal_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   
   probs_mat <- get_assignment_probs(assignment = assignment, data = mock)
   prob_obs <- observed_probs(treatment_assignment = "Z", assignment = assignment, data = mock)
@@ -51,7 +51,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + 5*income*Z1
+    formula = Y ~ .01 + 0*Z0 + .2*Z1 + .5*income + 5*income*Z1
   )
   
   assignment <- declare_assignment(potential_outcomes = potential_outcomes)

@@ -11,7 +11,7 @@ test_that("test compare experiment", {
   smp_N_per_level <- declare_sample(N_per_level = c(850, 50, 5))
   
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-                                   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+                                   formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
   assignment <- declare_assignment(potential_outcomes = po)
   

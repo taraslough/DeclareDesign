@@ -139,7 +139,7 @@ difference_in_means_blocked <- function(formula, data, subset = NULL, block_vari
     block_weights <- (sapply(block_names, function(i) sum(b==i)))/N
     
     means_by_block <- tapply(Y,list(t, b), mean, na.rm=TRUE)
-    diff <- (block_weights %*% (means_by_block[cond1,] - means_by_block[cond2,]))
+    diff <- (block_weights %*% (means_by_block[as.character(cond1),] - means_by_block[as.character(cond2),]))
     
     vars <- sapply(block_names, function(i)  {
       var(Y[b==i & t == cond1], na.rm = TRUE )/sum(b==i & t == cond1)+
@@ -179,5 +179,117 @@ difference_in_means_blocked <- function(formula, data, subset = NULL, block_vari
   }
   
   return(return_matrix)
+}
+
+
+
+# Diagnose summary functions ----------------------------------------------
+
+#' @export
+calculate_PATE <- function(estimands, ...){
+  SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]))
+  
+  if(class(SATE) == "matrix")
+    PATE <- apply(SATE, 1, mean, na.rm = T)
+  else
+    PATE <- mean(SATE, na.rm = T)
+  
+  return(PATE)
+}
+
+
+#' @export
+calculate_sd_SATE <- function(estimands, ...){
+  SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]))
+  
+  if(class(SATE) == "matrix")
+    sd_SATE <- apply(SATE, 1, sd, na.rm = T)
+  else
+    sd_SATE <- sd(SATE, na.rm = T)
+  
+  return(sd_SATE)
+}
+
+#' @export
+calculate_power <- function(estimates, ...){
+  p <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["p", , drop = FALSE]))
+  
+  if(class(p) == "matrix")
+    power <- apply(p < .05, 1, mean, na.rm = T)
+  else
+    power <- mean(p < .05, na.rm = T)
+  
+  return(power)
+}
+
+#' @export
+calculate_RMSE <- function(estimates, estimands, ...){
+  error <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - 
+                                                                estimands[[i]]))
+  
+  if(class(error) == "matrix")
+    RMSE <- apply(error, 1, function(x) sqrt(mean(x^2, na.rm = T)))
+  else
+    RMSE <- sqrt(mean(error^2, na.rm = T))
+  
+  return(RMSE)
+}
+
+#' @export
+calculate_bias <- function(estimates, estimands, ...){
+  
+  PATE <- calculate_PATE(estimands = estimands)
+  
+  est_PATE_diff <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - PATE))
+  
+  if(class(est_PATE_diff) == "matrix")
+    bias <- apply(est_PATE_diff, 1, mean, na.rm = T)
+  else
+    bias <- mean(est_PATE_diff, na.rm = T)
+  
+  return(bias)
+}
+
+#' @export
+calculate_coverage <- function(estimates, estimands, ...){
+  PATE <- calculate_PATE(estimands = estimands)
+  
+  ci_covers_estimate <- sapply(1:length(estimates), function(i) as.numeric(PATE <= estimates[[i]]["ci_upper", , drop = FALSE] & 
+                                                                             PATE >= estimates[[i]]["ci_lower", , drop = FALSE]))
+  
+  if(class(ci_covers_estimate) == "matrix")
+    coverage <- apply(ci_covers_estimate, 1, mean, na.rm = T)
+  else
+    coverage <- mean(ci_covers_estimate, na.rm = T)
+  
+  return(coverage)
+}
+
+#' @export
+calculate_type_S <- function(estimates, estimands, ...){
+  PATE <- calculate_PATE(estimands = estimands)
+  
+  sign_error <- sapply(1:length(estimates), function(i) as.numeric(sign(PATE) != sign(estimates[[i]]["est", , drop = FALSE])))
+  
+  if(class(sign_error) == "matrix")
+    type_S_rate <- apply(sign_error, 1, mean, na.rm = T)
+  else
+    type_S_rate <- mean(sign_error, na.rm = T)
+  
+  return(type_S_rate)
+}
+
+#' @export
+calculate_exaggeration_ratio <- function(estimates, estimands, ...){
+  PATE <- calculate_PATE(estimands = estimands)
+  
+  exageration_ratio <- sapply(1:length(estimates), function(i) as.numeric(abs(estimates[[i]]["est", , drop = FALSE] / PATE)))
+  
+  if(class(exageration_ratio) == "matrix")
+    mean_exageration_ratio <- apply(exageration_ratio, 1, mean, na.rm = T)
+  else
+    mean_exageration_ratio <- mean(exageration_ratio, na.rm = T)
+  
+  return(mean_exageration_ratio)
 }
 

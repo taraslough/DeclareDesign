@@ -1,3 +1,242 @@
+#' Declare the experimental assignment
+#'
+#' @param condition_names A vector describing the conditions to which subjects can be assigned. Alternatively, condition_names can be obtained from a potential_outcomes object. 
+#' @param potential_outcomes potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. The conditions to which subjects can be assigned is obtained from the condition_names stored in a potential outcomes object.  If you prefer, you can use the condition_names argument.
+#' @param block_variable_name The name of the variable according to which block random assignment should be conducted.
+#' @param cluster_variable_name The name of the variable according to which clustered random assignment should be conducted.
+#' @param m The number of units (or clusters) to be assigned to treatment in a two-arm trial.
+#' @param m_each A vector describing the number of units (or clusters) to be assigned to each treatment arm in a multi-arm trial.  Must sum to N (for individually randomized experments) or N_clusters (for cluster randomized experiments).
+#' @param prob_each A vector describing the probability of units (or clusters) being assigned to each treatment arm. Must sum to 1.
+#' @param block_m A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.
+#' @param block_prob A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.
+#' @param baseline_condition The value of condition_names that represents the "baseline" condition.  This is the condition against which treatment effects will be assessed. Defaults to the first value of condition_names.
+#' @param treatment_variable The name of the treatment variable.  Defaults to "Z"
+#' @param custom_assignment_function A function of data that returns an assignment vector of length n.
+#' @param custom_block_function  A function of data that returns a blocking vector of length n.
+#' @param custom_cluster_function A function of data that returns a cluster vector of length n.
+#' @param existing_assignment_variable_name The name of an already-assigned treatment variable.
+#'
+#' @return assignment object
+#' 
+#' @examples 
+#' 
+#' population <- declare_population(individuals = list(noise = declare_variable(),
+#'                                                     ideo_3 = declare_variable(multinomial_probabilities = c(.2, .3, .5), 
+#'                                                                               multinomial_categories = c("Liberal", "Moderate", "Conservative"))),
+#'                                  villages = list(elevation = declare_variable(),
+#'                                                  high_elevation = declare_variable(transformation = "1*(elevation > 0)")), 
+#'                                  N_per_level = c(1000, 100))
+#' 
+#' sampling <- declare_sampling(n = 10, cluster_variable_name = "villages_ID")
+#' 
+#' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*(Z==1) + .9*(Z==2) + .2*Z*elevation + noise,
+#'                                                  condition_names = c(0, 1, 2),
+#'                                                  treatment_variable = "Z")
+#' 
+#' # Complete Random Assignment assignments
+#' assignment_1 <- declare_assignment(potential_outcomes = potential_outcomes)
+#' assignment_2 <- declare_assignment(potential_outcomes = potential_outcomes, m = 60, condition_names = c(0, 1))
+#' assignment_3 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(20, 30, 50))
+#' assignment_4 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(20, 80), condition_names = c(0, 1))
+#' assignment_5 <- declare_assignment(potential_outcomes = potential_outcomes, prob_each = c(.2, .3, .5))
+#' 
+#' # Blocked assignments
+#' assignment_6 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3")
+#' assignment_7 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", prob_each = c(.3, .6, .1))
+#' assignment_8 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", condition_names = c(0, 1))
+#' 
+#' block_prob <- rbind(c(.1, .2, .7),
+#'                     c(.1, .7, .2),
+#'                     c(.7, .2, .1),
+#'                     c(.7, .1, .2),
+#'                     c(.2, .1, .7))
+#' assignment_8.5 <- declare_assignment(potential_outcomes = potential_outcomes, 
+#'                                      block_variable_name = "ideo_3",
+#'                                      block_prob = block_prob)
+#' 
+#' # Clustered assignments 
+#' assignment_9 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID")
+#' assignment_10 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID", condition_names = c(0, 1))
+#' assignment_11 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID", prob_each = c(.1, .3, .6))
+#' 
+#' # Blocked and Clustered assignments
+#' assignment_12 <- declare_assignment(potential_outcomes = potential_outcomes, 
+#'                                     cluster_variable_name = "villages_ID", 
+#'                                     block_variable_name = "high_elevation")
+#' assignment_13 <- declare_assignment(potential_outcomes = potential_outcomes, 
+#'                                     cluster_variable_name = "villages_ID", 
+#'                                     block_variable_name = "high_elevation", condition_names = c(0,1))
+#' assignment_14 <- declare_assignment(potential_outcomes = potential_outcomes, 
+#'                                     cluster_variable_name = "villages_ID", 
+#'                                     block_variable_name = "high_elevation", prob_each = c(.1, .3, .6))
+#' 
+#' # Draw Data
+#' pop_draw <- draw_population(population = population)
+#' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
+#' smp_draw <- assign_treatment(data = smp_draw, assignment = assignment_1)
+#' 
+#' # Attempt to Assign
+#' smp_draw$Z1 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_1) 
+#' smp_draw$Z2 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_2) 
+#' smp_draw$Z3 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_3) 
+#' smp_draw$Z4 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_4) 
+#' smp_draw$Z5 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_5) 
+#' 
+#' smp_draw$Z6 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_6) 
+#' smp_draw$Z7 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_7) 
+#' smp_draw$Z8 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_8) 
+#' smp_draw$Z8_5 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_8.5) 
+#' 
+#' with(smp_draw, table(ideo_3, Z6))
+#' with(smp_draw, table(ideo_3, Z7))
+#' with(smp_draw, table(ideo_3, Z8))
+#' with(smp_draw, table(ideo_3, Z8_5))
+#' 
+#' smp_draw$Z9 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_9) 
+#' smp_draw$Z10 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_10) 
+#' smp_draw$Z11 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_11) 
+#' 
+#' with(smp_draw, table(Z9 ,villages_ID))
+#' with(smp_draw, table(Z10,villages_ID))
+#' with(smp_draw, table(Z11,villages_ID))
+#' 
+#' smp_draw$Z12 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_12) 
+#' smp_draw$Z13 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_13) 
+#' smp_draw$Z14 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_14) 
+#' 
+#' with(smp_draw, table(Z12, villages_ID))
+#' with(smp_draw, table(Z12, high_elevation))
+#' 
+#' with(smp_draw, table(Z13, villages_ID))
+#' with(smp_draw, table(Z13, high_elevation))
+#' 
+#' with(smp_draw, table(Z14, villages_ID))
+#' with(smp_draw, table(Z14, high_elevation))
+
+#' @export
+declare_assignment <- 
+  function(condition_names = NULL,
+           potential_outcomes = NULL,
+           block_variable_name = NULL, 
+           cluster_variable_name = NULL,
+           m = NULL, 
+           m_each = NULL, 
+           prob_each = NULL, 
+           block_m = NULL, 
+           block_prob = NULL,
+           baseline_condition = NULL,
+           treatment_variable = "Z",
+           custom_assignment_function = NULL,
+           custom_block_function = NULL,
+           custom_cluster_function = NULL,
+           existing_assignment_variable_name = NULL) {
+    
+    # Determine assignment type
+    assignment_type <- "complete"   
+    if(!is.null(block_variable_name)) {assignment_type <- "blocked"}
+    if(!is.null(cluster_variable_name)) {assignment_type <- "clustered"}
+    if(!is.null(cluster_variable_name) & !is.null(block_variable_name)) {
+      assignment_type <- "blocked and clustered"
+    }
+    
+    # Checks ------------------------------------------------------------------
+    if(assignment_type == "blocked" & !is.null(m)){
+      stop("Please do not specify m in a blocked assignment.  Use block_m or block_prob instead.")
+    }
+    
+    if(!is.null(custom_block_function) & !is.character(block_variable_name)){
+      stop("If you supply a custom block function, you must supply the name of the block variable.")
+    }
+    
+    if(!is.null(custom_cluster_function) & !is.character(cluster_variable_name)){
+      stop("If you supply a custom cluster function, you must supply the name of the cluster variable.")
+    }
+    
+    if(is.null(potential_outcomes) & is.null(condition_names)){
+      stop("Please provide an input to condition_names or a potential_outcomes object with condition_names.")
+    }
+    
+    if(!is.null(potential_outcomes) & !is.null(potential_outcomes$condition_names) & is.null(condition_names)){
+      # Obtain Condition Names
+      if(class(potential_outcomes) == "list"){
+        # Check to make sure all list items are po objects
+        if(!all(sapply(potential_outcomes, class)=="potential_outcomes")){ 
+          stop("All objects in the potential_outcomes argument must be created by declare_potential_outcomes.")
+        }
+        if(length(unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$outcome_name})))) != length(potential_outcomes)){
+          stop("Please use different outcome names in each potential outcomes object.")
+        }
+        condition_names <- 
+          unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$condition_names})))
+      }else{
+        condition_names <- potential_outcomes$condition_names
+      }
+    } 
+    
+    
+    # Figure out baseline condition
+    if(!is.null(baseline_condition)){
+      if(!(baseline_condition %in% condition_names))
+        stop("The baseline treatment condition must match one of the treatment conditions specified in condition_names.")
+    }
+    if(is.null(baseline_condition)){
+      baseline_condition <- condition_names[1]
+    }
+    
+    if(is.null(custom_assignment_function) & is.null(existing_assignment_variable_name)){
+      return.object <- list(block_variable_name = block_variable_name,
+                            cluster_variable_name = cluster_variable_name,
+                            condition_names = condition_names,
+                            m = m,
+                            m_each = m_each,
+                            prob_each = prob_each,
+                            block_m = block_m,
+                            block_prob = block_prob,
+                            assignment_type = assignment_type,
+                            custom_block_function = custom_block_function,
+                            custom_cluster_function = custom_cluster_function,
+                            baseline_condition = baseline_condition,
+                            treatment_variable = treatment_variable,
+                            call = match.call())
+    } else if(!is.null(custom_assignment_function)) {
+      return.object <- list(
+        custom_assignment_function = custom_assignment_function,
+        condition_names = condition_names,
+        baseline_condition = baseline_condition,
+        treatment_variable = treatment_variable,
+        assignment_type = "custom",
+        call = match.call())
+    } else {
+      return.object <- list(
+        existing_assignment_variable_name = existing_assignment_variable_name,
+        condition_names = condition_names,
+        baseline_condition = baseline_condition,
+        treatment_variable = treatment_variable,
+        assignment_type = "existing assignment",
+        call = match.call())
+    }
+    class(return.object) <- "assignment"
+    return(return.object)
+  }
+
+
+#' @export
+summary.assignment <- function(object, ...) {
+  ## this function itself does nothing, it's just an R package technicality
+  ## so that print.summary.assignment() works
+  structure(object, class = c("summary.assignment", class(object)))
+}
+
+#' @export
+print.summary.assignment <- function(x, ...){
+  ## prints paragraph describing assignment
+  cat(ifelse(x$assignment_type == "blocked", paste("This experiment employs a block-randomized assignment."), ""),
+      ifelse(x$assignment_type == "clustered", paste("This experiment employs a cluster-randomized assignment."), ""),
+      ifelse(x$assignment_type == "blocked and clustered", paste("This experiment employs a block-and-cluster-randomized assignment."), ""),
+      ifelse(x$assignment_type == "complete", "This experiment employs a completely-randomized assignment.", "")
+  )
+  cat(" The possible treatment categories are ", paste(x$condition_names, collapse = " and "), ".", sep = "")
+}
 
 # random assignment functions
 
@@ -20,10 +259,10 @@ complete_ra <-
       stop("Do not specify m when there are more than 2 conditions. Use m_each instead.")
     }
     if(!is.null(m_each) & length(m_each) != length(condition_names)){
-      stop("The length of m_each must match the length of condition names. Either exclude some conditions with the excluded_arms argument or add some conditions in declare_potential_outcomes.")
+      stop("The length of m_each must match the length of condition names. Either exclude some conditions with the excluded_conditions argument or add some conditions in declare_potential_outcomes.")
     }
     if(!is.null(prob_each) & length(prob_each) != length(condition_names)){
-      stop("The length of prob_each must match the length of condition names. Either exclude some conditions with the excluded_arms argument or add some conditions in declare_potential_outcomes.")
+      stop("The length of prob_each must match the length of condition names. Either exclude some conditions with the excluded_conditions argument or add some conditions in declare_potential_outcomes.")
     }
     if(all(!is.null(m_each), sum(m_each) != N)) {
       stop("The sum of number assigned to each condition (m_each) must equal the total number of units (N)")
@@ -57,9 +296,9 @@ complete_ra <-
       assign <- ifelse(1:N %in% sample(1:N, m),  condition_names[condition_names!=baseline_condition], baseline_condition)
       return(assign)
     }
-
+    
     # Case 2: using m_each (or determining m_each from prob_each)
-        
+    
     # Figure out m_each
     if (!is.null(prob_each)) {
       if (sum(prob_each) != 1) {
@@ -227,146 +466,10 @@ blocked_and_clustered_ra <-
     merged <- merge(x = data.frame(clust_var, init_order = 1:length(clust_var)), 
                     y = data.frame(clust_var=unique_clust, z_clust), by="clust_var")
     merged <- merged[order(merged$init_order),]
-    return(as.character(merged$z_clust))
-  }
-
-#' Declare the experimental assignment
-#'
-#' @param potential_outcomes potential_outcomes object, as created by \code{\link{declare_potential_outcomes}} (required).
-#' @param blocks blocks object, as created by \code{\link{declare_blocks}} (optional).
-#' @param clusters clusters object, as created by \code{\link{declare_clusters}} (optional).
-#' @param m the number of units (or clusters) to be assigned to treatment in a two-arm trial.
-#' @param m_each a vector describing the number of units (or clusters) to be assigned to each treatment arm in a multi-arm trial.  Must sum to N (for individually randomized experments) or N_clusters (for cluster randomized experiments).
-#' @param prob_each a vector describing the probability of units (or clusters) being assigned to each treatment arm. Must sum to 1.
-#' @param block_m a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.
-#' @param block_prob a matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.
-#' @param excluded_arms a character vector excluding some potential outcomes from the randomization.  Used primarily when comparing assignments that feature different numbers of treatment arms.
-#' @return assignment object
-#' @export
-declare_assignment <- 
-  function(potential_outcomes, 
-           block_variable_name = NULL, 
-           cluster_variable_name = NULL,
-           m = NULL, 
-           m_each = NULL, 
-           prob_each = NULL, 
-           block_m = NULL, 
-           block_prob = NULL,
-           excluded_arms = NULL,
-           baseline_condition = NULL,
-           treatment_variable = "Z",
-           custom_assignment_function = NULL,
-           custom_block_function = NULL,
-           custom_cluster_function = NULL,
-           existing_assignment_variable_name = NULL) {
-    
-    # Determine assignment type
-    assignment_type <- "complete"   
-    if(!is.null(block_variable_name)) {assignment_type <- "blocked"}
-    if(!is.null(cluster_variable_name)) {assignment_type <- "clustered"}
-    if(!is.null(cluster_variable_name) & !is.null(block_variable_name)) {
-      assignment_type <- "blocked and clustered"
-    }
-    
-    # Checks ------------------------------------------------------------------
-    if(assignment_type == "blocked" & !is.null(m)){
-      stop("Please do not specify m in a blocked assignment.  Use block_m or block_prob instead.")
-    }
-    
-    if(!is.null(custom_block_function) & !is.character(block_variable_name)){
-      stop("If you supply a custom block function, you must supply the name of the block variable.")
-    }
-    
-    if(!is.null(custom_cluster_function) & !is.character(cluster_variable_name)){
-      stop("If you supply a custom cluster function, you must supply the name of the cluster variable.")
-    }
-    
-    # Obtain Condition Names
-    if(class(potential_outcomes) == "list"){
-      # Check to make sure all list items are po objects
-      if(!all(sapply(potential_outcomes, class)=="potential_outcomes")){ 
-        stop("All objects in the potential_outcomes argument must be created by declare_potential_outcomes.")
-      }
-      if(length(unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$outcome_name})))) != length(potential_outcomes)){
-        stop("Please use different outcome names in each potential outcomes object.")
-      }
-      condition_names <- 
-        unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$condition_names})))
-    }else{
-      condition_names <- potential_outcomes$condition_names
-    }
-    
-    # If necessary, exlude some arms
-    if(!is.null(excluded_arms)){
-      condition_names <- condition_names[!condition_names %in% excluded_arms]  
-    }
-    
-    # Figure out baseline condition
-    if(!is.null(baseline_condition)){
-      if(!(baseline_condition %in% condition_names))
-        stop("The baseline condition must match one of the conditions specified in declare_potential_outcomes().")
-    }
-    if(is.null(baseline_condition)){
-      baseline_condition <- condition_names[1]
-    }
-    
-    if(is.null(custom_assignment_function) & is.null(existing_assignment_variable_name)){
-      return.object <- list(block_variable_name = block_variable_name,
-                            cluster_variable_name = cluster_variable_name,
-                            condition_names = condition_names,
-                            m = m,
-                            m_each = m_each,
-                            prob_each = prob_each,
-                            block_m = block_m,
-                            block_prob = block_prob,
-                            assignment_type = assignment_type,
-                            custom_block_function = custom_block_function,
-                            custom_cluster_function = custom_cluster_function,
-                            baseline_condition = baseline_condition,
-                            treatment_variable = treatment_variable,
-                            potential_outcomes = potential_outcomes,
-                            call = match.call())
-    } else if(!is.null(custom_assignment_function)) {
-      return.object <- list(
-        custom_assignment_function = custom_assignment_function,
-        condition_names = condition_names,
-        baseline_condition = baseline_condition,
-        treatment_variable = treatment_variable,
-        potential_outcomes = potential_outcomes,
-        assignment_type = "custom",
-        call = match.call())
-    } else {
-      return.object <- list(
-        existing_assignment_variable_name = existing_assignment_variable_name,
-        condition_names = condition_names,
-        baseline_condition = baseline_condition,
-        treatment_variable = treatment_variable,
-        potential_outcomes = potential_outcomes,
-        assignment_type = "existing assignment",
-        call = match.call())
-    }
-    class(return.object) <- "assignment"
-    return(return.object)
+    return(merged$z_clust)
   }
 
 
-#' @export
-summary.assignment <- function(object, ...) {
-  ## this function itself does nothing, it's just an R package technicality
-  ## so that print.summary.assignment() works
-  structure(object, class = c("summary.assignment", class(object)))
-}
-
-#' @export
-print.summary.assignment <- function(x, ...){
-  ## prints paragraph describing assignment
-  cat(ifelse(x$assignment_type == "blocked", paste("This experiment employs a block-randomized assignment."), ""),
-      ifelse(x$assignment_type == "clustered", paste("This experiment employs a cluster-randomized assignment."), ""),
-      ifelse(x$assignment_type == "blocked and clustered", paste("This experiment employs a block-and-cluster-randomized assignment."), ""),
-      ifelse(x$assignment_type == "complete", "This experiment employs a completely-randomized assignment.", "")
-  )
-  cat(" The possible treatment categories are ", paste(x$condition_names, collapse = " and "), ".", sep = "")
-}
 
 #' @export
 treatment_indicator_name <- function(x) {

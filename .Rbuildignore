@@ -3,3 +3,5 @@
 ^\.travis\.yml$
 LICENSE
 memos
+README.md
+DeclareDesign.Rproj

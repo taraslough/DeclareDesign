@@ -12,7 +12,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   logistic <- function(x) exp(x)/(1 + exp(x))
   
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-                                   outcome_formula = Y ~ rbinom(n = 850, prob = logistic(.01 + 0*Z0 + .2*Z1 + error),
+                                   formula = Y ~ rbinom(n = 850, prob = logistic(.01 + 0*Z0 + .2*Z1 + error),
                                                                 size = 1))
   
   assignment <- declare_assignment(potential_outcomes = po)
@@ -25,8 +25,8 @@ test_that("test whether a simple experiment can be pre-registered", {
   a <- diagnose(potential_outcomes = po, sample = smp, assignment = assignment, analysis = analysis_diff)
 
   mock          <- make_data(potential_outcomes = po, sample = smp)
-  mock$Z        <- assign_treatment(assignment, data = mock)
-  mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
+  mock$Z        <- assign_treatment_indicator(assignment, data = mock)
+  mock$Y        <- reveal_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   
   estimates_diff <- get_estimates(analysis_diff, data = mock)
   estimands_diff <- get_estimands(analysis_diff, data = mock)

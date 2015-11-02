@@ -108,7 +108,7 @@ img {
 <p>Next we describe the potential outcomes. This is a guess about what will happen under different conditions. Your description of potential outcomes do not have to match the treatment arms exactly; in a sense when you choose your treatments you decide which potential outcomes will be observed.</p>
 <pre class="sourceCode r"><code class="sourceCode r">my.potential.outcomes     &lt;-<span class="st">  </span><span class="kw">declare_potential_outcomes</span>(
     <span class="dt">condition_names =</span> <span class="kw">c</span>(<span class="st">&quot;Z0&quot;</span>,<span class="st">&quot;Z1&quot;</span>),
-    <span class="dt">outcome_formula =</span> Y ~<span class="st"> </span><span class="dv">0</span>*Z0*(type==<span class="st">&quot;A&quot;</span>) +<span class="st"> </span><span class="dv">2</span>*Z0*(type==<span class="st">&quot;B&quot;</span>) +<span class="st"> </span><span class="dv">3</span>*Z1*(type==<span class="st">&quot;A&quot;</span>) +<span class="st"> </span><span class="dv">1</span>*Z1*(type==<span class="st">&quot;B&quot;</span>)
+    <span class="dt">formula =</span> Y ~<span class="st"> </span><span class="dv">0</span>*Z0*(type==<span class="st">&quot;A&quot;</span>) +<span class="st"> </span><span class="dv">2</span>*Z0*(type==<span class="st">&quot;B&quot;</span>) +<span class="st"> </span><span class="dv">3</span>*Z1*(type==<span class="st">&quot;A&quot;</span>) +<span class="st"> </span><span class="dv">1</span>*Z1*(type==<span class="st">&quot;B&quot;</span>)
     )  </code></pre>
 </div>
 <div id="the-design" class="section level2">
@@ -135,8 +135,8 @@ img {
 <p>Let’s look first at some mock data to see if this is looking like we want it to look</p>
 <pre class="sourceCode r"><code class="sourceCode r">my.mock.data &lt;-<span class="st"> </span><span class="kw">make_data</span>(<span class="dt">potential_outcomes =</span> my.potential.outcomes, <span class="dt">sample =</span> my.sample.frame, 
                   <span class="dt">blocks =</span> <span class="kw">declare_blocks</span>(<span class="dt">blocks =</span> <span class="st">&quot;type&quot;</span>, <span class="dt">block_name =</span> <span class="st">&quot;my_blocks&quot;</span>, <span class="dt">block_count =</span> <span class="dv">2</span>))
-my.mock.data$Z &lt;-<span class="st"> </span><span class="kw">assign_treatment</span>(<span class="dt">design =</span> my.design, <span class="dt">data =</span> my.mock.data)
-my.mock.data$Y &lt;-<span class="st"> </span><span class="kw">observed_outcome</span>(<span class="dt">outcome =</span> <span class="st">&quot;Y&quot;</span>, <span class="dt">treatment_assignment =</span> <span class="st">&quot;Z&quot;</span>, <span class="dt">data =</span> my.mock.data)
+my.mock.data$Z &lt;-<span class="st"> </span><span class="kw">assign_treatment_indicator</span>(<span class="dt">design =</span> my.design, <span class="dt">data =</span> my.mock.data)
+my.mock.data$Y &lt;-<span class="st"> </span><span class="kw">reveal_outcome</span>(<span class="dt">outcome =</span> <span class="st">&quot;Y&quot;</span>, <span class="dt">treatment_assignment =</span> <span class="st">&quot;Z&quot;</span>, <span class="dt">data =</span> my.mock.data)
 <span class="kw">head</span>(my.mock.data)</code></pre>
 <pre><code>##   Y_Z0 Y_Z1 type individuals_id my_blocks  Z Y
 ## 1    0    3    A              1   block_1 Z0 0

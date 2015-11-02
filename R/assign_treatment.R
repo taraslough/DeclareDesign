@@ -1,5 +1,28 @@
+#' Assign treatment
+#' 
+#' This function takes a data.frame and an assignment object and returns a data.frame with a treatment assignment, probabilities of assignment, and inverse probability weights.
+#'
+#' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}. 
+#' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
+#' @param random_seed An optional random seed, in order to ensure the replicability of a particular random assignment.
+#'
+#' @return A data.frame with new columns added for a treatment assignment, probabilities of assignment, and inverse probability weights.
+#' 
+#' @examples 
+#' population <- declare_population(noise = declare_variable(), N = 1000)
+#' sampling <- declare_sampling(n = 500)
+#' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
+#'                                                  condition_names = c(0, 1),
+#'                                                  treatment_variable = "Z")
+#' assignment <- declare_assignment(condition_names = c(0,1))
+#' pop_draw <- draw_population(population = population)
+#' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
+#' smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
+#' 
+#' head(smp_draw)
+#' 
 #' @export
-reveal_assignment <- function(data, assignment, random_seed = NULL) {
+assign_treatment <- function(data, assignment, random_seed = NULL) {
   
   if(!is.null(random_seed)){
     set.seed(random_seed)
@@ -7,17 +30,17 @@ reveal_assignment <- function(data, assignment, random_seed = NULL) {
   
   # Checks -------------------------------------------------
   if(!class(assignment)=="assignment"){
-    stop("You must give reveal_assignment a assignment object.")
+    stop("You must give assign_treatment a assignment object.")
   }
   
   # Make clusters and blocks ------------------------------------------------  
   
   if(!is.null(assignment$custom_cluster_function)){
-    data[, assignment$cluster_variable_name] <- assignment$custom_cluster_function()
+    data[, assignment$cluster_variable_name] <- assignment$custom_cluster_function(data = data)
   }
   
   if(!is.null(assignment$custom_block_function)) { 
-    data[, assignment$block_variable_name] <- assignment$custom_block_function()
+    data[, assignment$block_variable_name] <- assignment$custom_block_function(data = data)
   }
   
   # Assign treatment and reveal outcomes ------------------------------------------------  
@@ -26,9 +49,9 @@ reveal_assignment <- function(data, assignment, random_seed = NULL) {
     data[, assignment$treatment_variable] <- data[, assignment$existing_assignment_variable_name]
   } else {
     
-    ## if the treatment is created using assign_treatment, rather than using an existing assignment variable
+    ## if the treatment is created using assign_treatment_indicator, rather than using an existing assignment variable
     
-    data[, assignment$treatment_variable] <- assign_treatment(assignment = assignment, data = data)
+    data[, assignment$treatment_variable] <- assign_treatment_indicator(assignment = assignment, data = data)
     
     if(assignment$assignment_type != "custom" & assignment$assignment_type != "existing assignment") {
       
@@ -47,36 +70,32 @@ reveal_assignment <- function(data, assignment, random_seed = NULL) {
     }
   }
   
-  if(class(assignment$potential_outcomes) == "potential_outcomes") { assignment$potential_outcomes <- list(assignment$potential_outcomes) }
-  
-  for(k in 1:length(assignment$potential_outcomes)){
-    data[, assignment$potential_outcomes[[k]]$outcome_name] <- observed_outcome(outcome = assignment$potential_outcomes[[k]]$outcome_name, 
-                                                                       treatment_assignment = assignment$treatment_variable, 
-                                                                       data = data, sep = assignment$potential_outcomes[[k]]$sep)
-  }
-  
   return(data)
   
 }
 
 #' Assign treatment status
+#' 
+#' This function takes a data.frame and an assignment object and returns an assignment vector.  Users will often prefer to use \code{\link{assign_treatment}}.
 #'
 #' Description
 #' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @return A random assignment vector of length N.
-#' @examples
-#' # these examples don't work yet
-#' # smp <- declare_population(N = 850)
-#' # po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-#' #                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-#' # assignment <- declare_assignment(potential_outcomes = po, m=200)
-#' # mock          <- draw_population(potential_outcomes = po, sample =  smp)
-#' # Z        <- assign_treatment(assignment, data = mock)
-#' # table(Z)
+#' @examples 
+#' population <- declare_population(noise = declare_variable(), N = 1000)
+#' sampling <- declare_sampling(n = 500)
+#' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
+#'                                                  condition_names = c(0, 1),
+#'                                                  treatment_variable = "Z")
+#' assignment <- declare_assignment(condition_names = c(0,1))
+#' pop_draw <- draw_population(population = population)
+#' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
+#' Z <- assign_treatment_indicator(data = smp_draw, assignment=assignment)
+#' table(Z)
 #' @export
-assign_treatment <- function(assignment, data, random_seed = NULL) {
-  
+assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
+
   if(!is.null(random_seed)){
     set.seed(random_seed)
   }
@@ -84,7 +103,7 @@ assign_treatment <- function(assignment, data, random_seed = NULL) {
   ## should be expanded to take either a assignment object or a function
   
   N <- nrow(data)
-
+  
   block_var <- data[,assignment$block_variable_name]
   clust_var <- data[,assignment$cluster_variable_name]
   
@@ -96,7 +115,7 @@ assign_treatment <- function(assignment, data, random_seed = NULL) {
   block_m <- assignment$block_m
   block_prob <- assignment$block_prob
   assignment_type <- assignment$assignment_type
-
+  
   # For custom random assignment functions
   if(is.null(assignment_type)){
     assignment_type <- "custom"
@@ -152,73 +171,32 @@ assign_treatment <- function(assignment, data, random_seed = NULL) {
   return(Z)
 }
 
-#' Reveal observed outcomes based on a given treatment assignment
-#'
-#' Description
-#' @param outcome A character string
-#' @param treatment_assignment A string indicating the name of the realized treatment assignment vector 
-#' @param data A data frame including the outcome and realized treatment assignment vectors indicating by outcome and treatment_assignment
-#' @param sep The character separating outcomes from condition names in the potential outcomes columns of data
-#' @return an outcome vector of observed y
-#' @examples
-#' smp <- declare_population(N = 850)
-#' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-#'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-#' assignment <- declare_assignment(potential_outcomes = po, m=200)
-#' mock          <- draw_population(potential_outcomes = po, sample =  smp)
-#' mock$Z        <- assign_treatment(assignment, data = mock)
-#' mock$Y  <- observed_outcome("Y", "Z", mock)
-#' summary(lm(Y~Z, data=mock))
-#' @export
-observed_outcome <- function(outcome = "Y", treatment_assignment, data, sep = "_"){
-  
-  # Checks
-  if(any(is.na(data[,treatment_assignment]))>0){
-    warning("There are NA's in the treatment assignment vector.") 
-  }
-   
-  # Setup
-  observed_y <- rep(NA, nrow(data))
-  condition_names <- unique(data[,treatment_assignment])
-  all_pos <- paste(outcome, condition_names, sep = sep)
-  
-  # Check to confirm that all relevant potential outcomes have been made
-  if(!all(all_pos %in% colnames(data))){
-    stop(paste0("The following potential outcome(s) are implied by the treatment variable, but have not defined in declare_potential_outcomes(): ", 
-                all_pos[!all_pos %in% colnames(data)], ". Please either exclude a treatment arm in declare_assignment() or specify the missing potential outcomes in declare_potential_outcomes()."))
-  }
-  
-  # Loop through the conditions, select the appropriate outomes
-  for(v in condition_names){
-    treat_cond <- data[,treatment_assignment] == v
-    observed_y[treat_cond] <- data[treat_cond, paste0(outcome, sep, v)]
-  }
-  
-  return(observed_y)
-  
-}
-
 #' Reveal probabilties of assignment to realized treatment conditions
 #'
 #' Description
+#' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @param treatment_assignment The name of the treatment assignment variable in data.
 #' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
-#' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @return A vector probabilities of assignment to treatment.
-#' @examples
-#' smp <- declare_population(N = 850)
-#' po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-#'                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-#' assignment <- declare_assignment(potential_outcomes = po, m=200)
-#' mock          <- draw_population(potential_outcomes = po, sample =  smp)
-#' mock$Z        <- assign_treatment(assignment, data = mock)
-#' mock$prob_obs        <- observed_probs("Z", assignment, mock)
+#' @examples 
+#' population <- declare_population(noise = declare_variable(), N = 1000)
+#' sampling <- declare_sampling(n = 500)
+#' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
+#'                                                  condition_names = c(0, 1),
+#'                                                  treatment_variable = "Z")
+#' assignment <- declare_assignment(condition_names = c(0,1))
+#' pop_draw <- draw_population(population = population)
+#' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
+#' smp_draw$Z <- assign_treatment_indicator(data = smp_draw, assignment=assignment)
 #' 
-#' table(mock$prob_obs)
-#' 
+#' probs <- observed_probs(data = smp_draw, 
+#'                         treatment_assignment= "Z",
+#'                         assignment=assignment)
+#'                         
+#' table(probs)                         
 #' 
 #' @export
-observed_probs <- function(treatment_assignment, assignment, data){
+observed_probs <- function(data, treatment_assignment, assignment){
   prob_mat <- get_assignment_probs(assignment = assignment, data = data)
   prob_obs <- rep(NA, nrow(data))
   condition_names <- unique(data[,treatment_assignment])
@@ -232,8 +210,8 @@ observed_probs <- function(treatment_assignment, assignment, data){
 
 # Propose we nix this?
 #' @export
-make_permutation_matrix <- function(assignment, data, sims=100){
-  permutation_matrix <- replicate(n = sims, expr = assign_treatment(assignment = assignment, data = data))
+make_permutation_matrix <- function(data, assignment, sims = 100){
+  permutation_matrix <- replicate(n = sims, expr = assign_treatment_indicator(assignment = assignment, data = data))
   return(permutation_matrix)
 }
 

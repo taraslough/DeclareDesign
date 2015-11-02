@@ -9,28 +9,28 @@
 #' # these examples don't work yet
 #' # smp <- declare_population(N = 850)
 #' # po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-#' #                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+#' #                                    formula = Y ~ .01 + 0*Z0 + .2*Z1)
 #' # assignment <- declare_assignment(potential_outcomes = po, m=200)
 #' # mock          <- draw_population(potential_outcomes = po, sample =  smp)
-#' # mock$Z        <- assign_treatment(assignment, data = mock)
+#' # mock$Z        <- assign_treatment_indicator(assignment, data = mock)
 #' # assignment_probs <- get_assignment_probs(assignment, mock)
 #' 
 #' head(assignment_probs)
 #' @export
-get_inclusion_probs <- function(sampling, population_data){
+get_inclusion_probs <- function(data, sampling){
   
-  N <- nrow(population_data)  
+  N <- nrow(data)  
   strata_variable_name <- sampling$strata_variable_name
   cluster_variable_name <- sampling$cluster_variable_name
   
   if(!is.null(strata_variable_name)){
-    strata_var <- population_data[,strata_variable_name]  
+    strata_var <- data[,strata_variable_name]  
   }else{
     strata_var <- NULL
   }
   
   if(!is.null(cluster_variable_name)){
-    clust_var <- population_data[,cluster_variable_name]
+    clust_var <- data[,cluster_variable_name]
   }else{
     clust_var <- NULL
   }

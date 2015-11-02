@@ -19,7 +19,7 @@ test_that("test the sample frame functionality with user-provided covariates", {
     ))
   
   po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-                                   outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+                                   formula = Y ~ .01 + 0*Z0 + .2*Z1)
   
   userdata          <- make_data(sample = smp)
   

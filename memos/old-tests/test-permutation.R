@@ -12,7 +12,7 @@ test_that("test permutation matrix", {
   
   po     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1 
+    formula = Y ~ .01 + 0*Z0 + .2*Z1 
   )
   
   assignment        <- declare_assignment(potential_outcomes = po)

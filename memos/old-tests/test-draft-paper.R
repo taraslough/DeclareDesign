@@ -16,7 +16,7 @@ test_that("test draft paper and pre_register functions", {
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
+    formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
   )
   
   clusters <- declare_clusters(clusters = "villages_id")
@@ -40,8 +40,8 @@ test_that("test draft paper and pre_register functions", {
   ## run the experiment, and create real_data (simulated here to demonstrate draft_paper)
   real_data          <- make_data(potential_outcomes = potential_outcomes, sample = sample, 
                                   blocks = blocks, clusters = clusters)
-  real_data$Z        <- assign_treatment(assignment, data = real_data)
-  real_data$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = real_data)
+  real_data$Z        <- assign_treatment_indicator(assignment, data = real_data)
+  real_data$Y        <- reveal_outcome(outcome = "Y", treatment_assignment = "Z", data = real_data)
   
   ## create paper draft just from a pre_registration object
   draft_paper_from_pre_registration(pre_registration = pre_registration, data = real_data, 

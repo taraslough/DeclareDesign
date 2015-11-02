@@ -4,17 +4,17 @@
 \alias{get_balance}
 \title{Calculate Covariate Balance}
 \usage{
-get_balance(covariates, treatment_assignment = "Z", assignment, data,
+get_balance(data, covariates, treatment_assignment = "Z", assignment,
   report_difference = FALSE, na.rm = TRUE)
 }
 \arguments{
+\item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
+
 \item{covariates}{A character vector of covariate names to be used in the balance assessment.}
 
 \item{treatment_assignment}{The name of the treatment assignment variable in data}
 
 \item{assignment}{A assignment object, created by \code{\link{declare_assignment}}.}
-
-\item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 
 \item{report_difference}{what is it?}
 

@@ -1,3 +1,14 @@
+#' Declare the sampling strategy
+#' @param prob The probability of inclusion in the sample. Must be a scalar that takes values between 0 and 1.  
+#' @param strata_variable_name The name of the variable according to which stratified random sampling should be conducted.
+#' @param cluster_variable_name The name of the variable according to which clustered random sampling should be conducted.
+#' @param n The number of units (or clusters) to be sampled.
+#' @param strata_n A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.
+#' @param strata_prob 
+#' @param custom_sampling_function 
+#' @param custom_strata_function 
+#' @param custom_cluster_function 
+#'
 #' @export
 declare_sampling <- function(prob = NULL,
                              strata_variable_name = NULL, 
@@ -79,7 +90,15 @@ stratified_sample <- function(strata_var, prob = NULL, strata_n = NULL, strata_p
     block_prob <- cbind(1-strata_prob, strata_prob)  
   }
   
-  block_ra(block_var = strata_var, block_m = strata_n, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
+  if(!is.null(strata_n)){
+    strata_totals <- table(strata_var)
+    strata_n_matrix <- cbind(strata_totals - strata_n, strata_n)
+  }else{
+    strata_n_matrix <-NULL
+  }
+  
+  
+  block_ra(block_var = strata_var, block_m = strata_n_matrix, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 
@@ -106,10 +125,14 @@ stratified_and_clustered_sample <- function(clust_var, strata_var, strata_n = NU
     block_prob <- cbind(1-strata_prob, strata_prob)  
   }
   
-  # Must do someday
-  # block_m, strata_n
+  if(!is.null(strata_n)){
+    strata_totals <- table(strata_var)
+    strata_n_matrix <- cbind(strata_totals - strata_n, strata_n)
+  }else{
+    strata_n_matrix <-NULL
+  }
   
   blocked_and_clustered_ra(clust_var = clust_var, block_var = strata_var, 
-                           block_m = strata_n, prob_each = prob_each, 
+                           block_m = strata_n_matrix, prob_each = prob_each, 
                            block_prob = block_prob, condition_names = c(0,1), baseline_condition = 0)
 }

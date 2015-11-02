@@ -19,7 +19,7 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   
   po     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income
+    formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income
   )
   
   clusters <- declare_clusters(clusters = "villages_id")
@@ -34,11 +34,11 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   mock          <- make_data(potential_outcomes = po, sample = smp, clusters = clusters)
   
   head(mock)
-  mock$Z        <- assign_treatment(assignment, data = mock)
+  mock$Z        <- assign_treatment_indicator(assignment, data = mock)
   
   with(mock, table(Z, cluster_variable))
   
-  mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
+  mock$Y        <- reveal_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
   M1             <- get_estimates(analysis = analysis_1, data = mock)  
   summary(M1)

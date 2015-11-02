@@ -4,12 +4,12 @@
 \alias{get_assignment_probs}
 \title{Calculate probabilities of assignment}
 \usage{
-get_assignment_probs(assignment, data)
+get_assignment_probs(data, assignment)
 }
 \arguments{
-\item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
-
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
+
+\item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
 }
 \value{
 A matrix of probabilities of assignment to treatment.
@@ -18,15 +18,17 @@ A matrix of probabilities of assignment to treatment.
 Description
 }
 \examples{
-# these examples don't work yet
-# smp <- declare_population(N = 850)
-# po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-#                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
-# assignment <- declare_assignment(potential_outcomes = po, m=200)
-# mock          <- draw_population(potential_outcomes = po, sample =  smp)
-# mock$Z        <- assign_treatment(assignment, data = mock)
-# assignment_probs <- get_assignment_probs(assignment, mock)
+population <- declare_population(noise = declare_variable(), N = 1000)
+sampling <- declare_sampling(n = 500)
+potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
+                                                 condition_names = c(0, 1),
+                                                 treatment_variable = "Z")
+assignment <- declare_assignment(condition_names = c(0,1))
+pop_draw <- draw_population(population = population)
+smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
+prob_mat <- get_assignment_probs(data = smp_draw, assignment = assignment)
 
-head(assignment_probs)
+head(prob_mat)
+
 }
 

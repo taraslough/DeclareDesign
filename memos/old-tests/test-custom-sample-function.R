@@ -34,7 +34,7 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   
   po     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y_star ~ Y0*Z0 + Y1*Z1 
+    formula = Y_star ~ Y0*Z0 + Y1*Z1 
   )
   
   clusters <- declare_clusters(clusters = "j")
@@ -46,6 +46,6 @@ test_that("test whether a simple experiment with clustering can be pre-registere
   power_1         <- diagnose(sims = 100, analysis = analysis_1, assignment = assignment, clusters = clusters, sample = smp, potential_outcomes = po)
   power_1
   
-  mock          <- make_data(potential_outcomes = po, sample = smp, assignment = assignment, assign_treatment = T, observed_outcomes = T, treatment_variable = "Z_star")
+  mock          <- make_data(potential_outcomes = po, sample = smp, assignment = assignment, assign_treatment_indicator = T, reveal_outcomes = T, treatment_variable = "Z_star")
   
 })

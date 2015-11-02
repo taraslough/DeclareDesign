@@ -18,7 +18,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
+    formula = Y ~ .01 + 0*Z0 + .15*Z1 + .1*income + .15*Z1*income
   )
   
   clusters <- declare_clusters(clusters = "villages_id")
@@ -64,14 +64,14 @@ test_that("test a simple experiment with blocking and clustering works with vari
   mock          <- make_data(potential_outcomes = potential_outcomes, sample = sample, assignment = assignment)
   
   head(mock)
-  mock$Z        <- assign_treatment(assignment, data = mock)
+  mock$Z        <- assign_treatment_indicator(assignment, data = mock)
   
   with(subset(mock, development_level==1), table(as.character(cluster_variable), block_variable))
   
   M1             <- get_estimands(analysis = analysis_1, data = mock)  
   summary(M1)
   
-  mock$Y        <- observed_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
+  mock$Y        <- reveal_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
   mock$prob_assign <- runif(nrow(mock))
   

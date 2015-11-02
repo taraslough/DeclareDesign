@@ -4,12 +4,12 @@
 \alias{get_inclusion_probs}
 \title{Calculate probabilties of assignment}
 \usage{
-get_inclusion_probs(sampling, population_data)
+get_inclusion_probs(data, sampling)
 }
 \arguments{
-\item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
-
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
+
+\item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
 }
 \value{
 A matrix of probabilities of assignment to treatment.
@@ -21,10 +21,10 @@ Description
 # these examples don't work yet
 # smp <- declare_population(N = 850)
 # po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-#                                    outcome_formula = Y ~ .01 + 0*Z0 + .2*Z1)
+#                                    formula = Y ~ .01 + 0*Z0 + .2*Z1)
 # assignment <- declare_assignment(potential_outcomes = po, m=200)
 # mock          <- draw_population(potential_outcomes = po, sample =  smp)
-# mock$Z        <- assign_treatment(assignment, data = mock)
+# mock$Z        <- assign_treatment_indicator(assignment, data = mock)
 # assignment_probs <- get_assignment_probs(assignment, mock)
 
 head(assignment_probs)

@@ -22,7 +22,7 @@ test_that("test assignment and probability functions", {
   
   potential_outcomes     <-  declare_potential_outcomes(
     condition_names = c("Z0","Z1", "Z2"),
-    outcome_formula = Y ~ .01 + 0*Z0 + .15*Z1 + 0.2*Z2 + .1*income + .15*Z1*income
+    formula = Y ~ .01 + 0*Z0 + .15*Z1 + 0.2*Z2 + .1*income + .15*Z1*income
   )
   
   clusters <- declare_clusters(clusters = "villages_id")
@@ -44,6 +44,6 @@ test_that("test assignment and probability functions", {
                    sims = 100)
   
   mock <- make_data(potential_outcomes = potential_outcomes, sample = smp, assignment = assignment, 
-                    assign_treatment = T, treatment_variable = "Z", observed_outcomes = TRUE)
+                    assign_treatment_indicator = T, treatment_variable = "Z", reveal_outcomes = TRUE)
  
 })
