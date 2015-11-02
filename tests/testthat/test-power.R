@@ -2,6 +2,7 @@
 rm(list=ls())
 library(testthat)
 library(DeclareDesign)
+library(dplyr)
 
 power_calculator <- function(mu_t, mu_c, sigma, alpha=0.05, N){ 
   lowertail <- (abs(mu_t - mu_c)*sqrt(N))/(2*sigma)
@@ -18,22 +19,30 @@ population <- declare_population(noise =
 
 sampling <- declare_sampling(n = 500)
 
-potential_outcomes <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-                                                 outcome_formula = Y ~ 60 + 0*Z0 + 5*Z1 + noise)
+potential_outcomes <- declare_potential_outcomes(formula = Y ~ 60 + 5*Z + noise, treatment_variable = 'Z')
 
-assignment <- declare_assignment(potential_outcomes = potential_outcomes)
+assignment <- declare_assignment(condition_names = c(0, 1))
 
-estimand_ATE <- declare_estimand(estimand = declare_ATE(condition_treat = "Z1", 
-                                                        condition_control = "Z0", 
-                                                        outcome = "Y"), target = "population")
+estimand_ATE <- declare_estimand(estimand_text = "mean(Y_1 - Y_0)", 
+                                 target = "population",
+                                 potential_outcomes = potential_outcomes)
 
 estimator_diff_in_means <- declare_estimator(Y ~ Z, 
                                              estimates = difference_in_means, 
                                              estimand = estimand_ATE)
 
-diagnosis <- diagnose(population = population, sampling = sampling, 
-                      assignment = assignment, estimator = estimator_diff_in_means, 
-                      potential_outcomes = potential_outcomes, sims = 1000)
+design <- declare_design(population = population, sampling = sampling, 
+                         assignment = assignment, estimator = estimator_diff_in_means, 
+                         potential_outcomes = potential_outcomes)
+
+diagnosis <- diagnose(design = design, sims = 1000)
 
 diagnosis
+
+draw_population(population = population) %>%
+  reveal_design(sampling = sampling,
+                assignment = assignment, 
+                potential_outcomes = potential_outcomes) %>% 
+  head
+
 
