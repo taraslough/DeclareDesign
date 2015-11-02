@@ -36,8 +36,8 @@ draw_sample <- function(data, sampling = NULL, noncompliance = NULL, random_seed
 #' draw sample from population
 #'
 #' Description
-#' @param sampling A sampling object created by \code{\link{declare_sampling}}; or a function that samples
 #' @param data A dataframe, often created by \code{\link{draw_population}}.
+#' @param sampling A sampling object created by \code{\link{declare_sampling}}; or a function that samples
 #' @return A vector of 0's and 1's indicating which population units are sampled.
 #' @export
 draw_sample_indicator <- function(data, sampling, random_seed = NULL) {

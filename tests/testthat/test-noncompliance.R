@@ -18,23 +18,6 @@ test_that("test whether noncompliance works", {
   assignment <- declare_assignment(condition_names = c(0,1))
   
   
-  # Diagnosis ---------------------------------------------------------------
-  
-  estimand <- declare_estimand(text_estimand = declare_ATE(condition_treat = 1, condition_control = 0), potential_outcomes = potential_outcomes)
-  estimator_d_i_m <- declare_estimator(estimates = difference_in_means, formula = Y ~ Z, estimand = estimand)
-  estimator_lm <- declare_estimator(model = lm, estimates = get_regression_coefficient, 
-                                    estimates_options = list(coefficient_name = "Z"),
-                                    formula = Y ~ Z, estimand = estimand)
-  
-  design <- declare_design(population = population,
-                           sampling = sampling, 
-                           assignment = assignment, 
-                           estimator = list(estimator_d_i_m, estimator_lm), 
-                           potential_outcomes = potential_outcomes,
-                           label = "Simple Design")
-  
-  diagnosis <- diagnose(design = design, sims = 1000)
-  
   # mock data  ---------------------------------------------------------------  
   
   pop_draw <- draw_population(population = population)
