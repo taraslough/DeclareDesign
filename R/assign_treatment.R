@@ -130,7 +130,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   
   # For complete random assignment designs
   if(assignment_type=="complete"){
-    Z <- complete_ra(N = N,
+    Z <- complete_assignment(N = N,
                      m = m,
                      m_each = m_each,
                      prob_each = prob_each, 

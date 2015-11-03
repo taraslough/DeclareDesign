@@ -241,7 +241,7 @@ print.summary.assignment <- function(x, ...){
 # random assignment functions
 
 #' @export
-complete_ra <- 
+complete_assignment <- 
   function(N, m = NULL, m_each = NULL, prob_each = NULL, condition_names = NULL, baseline_condition=NULL) {
     
     # Checks
@@ -316,7 +316,7 @@ complete_ra <-
       m_each <- m_each + ifelse(1:num_arms %in% sample(1:num_arms, remainder), 1, 0)
     }
     
-    # Conduct complete_ra with multiple arms
+    # Conduct complete_assignment with multiple arms
     rand_order <- sample(1:N, replace = FALSE)
     assign <- rep(NA, N)
     for (i in 1:num_arms) {
@@ -348,13 +348,13 @@ block_ra <-
     assign <- rep(NA, length(block_var))
     
     # Case 1: Assumes equal probabilties for each condition in all block
-    # Does complete_ra() by block
+    # Does complete_assignment() by block
     
     if(is.null(block_m) & is.null(prob_each) & is.null(block_prob)){
       for(i in 1:length(blocks)){
         N_block <- sum(block_var==blocks[i])
         assign[block_var==blocks[i]] <- 
-          complete_ra(N = N_block, 
+          complete_assignment(N = N_block, 
                       condition_names=condition_names, 
                       baseline_condition = baseline_condition)
       }
@@ -369,7 +369,7 @@ block_ra <-
           stop("block_m should have the same number of rows as there are unique blocks in block_var")
         }
         N_block <- sum(block_var==blocks[i])
-        assign[block_var==blocks[i]] <- complete_ra(N = N_block, 
+        assign[block_var==blocks[i]] <- complete_assignment(N = N_block, 
                                                     m_each = block_m[i,], 
                                                     condition_names=condition_names, 
                                                     baseline_condition = baseline_condition)
@@ -385,7 +385,7 @@ block_ra <-
           stop("prob_each must sum to 1.")
         }
         N_block <- sum(block_var==blocks[i])
-        assign[block_var==blocks[i]] <- complete_ra(N = N_block, 
+        assign[block_var==blocks[i]] <- complete_assignment(N = N_block, 
                                                     prob_each = prob_each, 
                                                     condition_names=condition_names, 
                                                     baseline_condition = baseline_condition)
@@ -402,7 +402,7 @@ block_ra <-
           stop("Each row of block_prob must sum to 1.")
         }
         N_block <- sum(block_var==blocks[i])
-        assign[block_var==blocks[i]] <- complete_ra(N = N_block, 
+        assign[block_var==blocks[i]] <- complete_assignment(N = N_block, 
                                                     prob_each = prob_each_local, 
                                                     condition_names=condition_names, 
                                                     baseline_condition = baseline_condition)
@@ -420,7 +420,7 @@ cluster_ra <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condi
   n_clus <- length(unique_clus)
   
   # Conduct assignment at the cluster level
-  z_clus <- complete_ra(N = n_clus, 
+  z_clus <- complete_assignment(N = n_clus, 
                         m = m,
                         m_each = m_each, 
                         prob_each = prob_each,

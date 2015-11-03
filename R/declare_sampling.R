@@ -70,7 +70,7 @@ simple_sampling <- function(N, n = NULL, prob = NULL){
   if(!is.null(prob)){
     prob_each <- c(1 - prob, prob)
   }
-  complete_ra(N = N, m = n, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
+  complete_assignment(N = N, m = n, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 #' @export
