@@ -74,7 +74,7 @@ simple_sampling <- function(N, n = NULL, prob = NULL){
 }
 
 #' @export
-stratified_sample <- function(strata_var, prob = NULL, strata_n = NULL, strata_prob = NULL){
+stratified_sampling <- function(strata_var, prob = NULL, strata_n = NULL, strata_prob = NULL){
   prob_each <- NULL
   
   if(!is.null(prob)){
@@ -99,7 +99,7 @@ stratified_sample <- function(strata_var, prob = NULL, strata_n = NULL, strata_p
 
 
 #' @export
-cluster_sample <- function(clust_var, n = NULL, prob = NULL){
+cluster_sampling <- function(clust_var, n = NULL, prob = NULL){
   prob_each <- NULL
   
   if(!is.null(prob)){
@@ -109,7 +109,7 @@ cluster_sample <- function(clust_var, n = NULL, prob = NULL){
 }
 
 #' @export
-stratified_and_clustered_sample <- function(clust_var, strata_var, strata_n = NULL, prob = NULL, strata_prob = NULL){
+stratified_and_clustered_sampling <- function(clust_var, strata_var, strata_n = NULL, prob = NULL, strata_prob = NULL){
   
   prob_each <- NULL
   if(!is.null(prob)){

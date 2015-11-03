@@ -78,17 +78,17 @@ draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
   
   # For stratified random sampling
   if(sampling_type=="stratified"){
-    Z <- stratified_sample(strata_var = strata_var, strata_n = strata_n, strata_prob = strata_prob, prob = prob)
+    Z <- stratified_sampling(strata_var = strata_var, strata_n = strata_n, strata_prob = strata_prob, prob = prob)
   }
   
   # For clustered random sampling
   if(sampling_type=="clustered"){
-    Z <- cluster_sample(clust_var = clust_var, n = n, prob = prob)
+    Z <- cluster_sampling(clust_var = clust_var, n = n, prob = prob)
   }
   
   # For stratified and clustered sampling
   if(sampling_type=="stratified and clustered"){
-    Z <- stratified_and_clustered_sample(clust_var = clust_var, strata_var = strata_var, strata_n = strata_n, prob = prob, strata_prob = strata_prob)
+    Z <- stratified_and_clustered_sampling(clust_var = clust_var, strata_var = strata_var, strata_n = strata_n, prob = prob, strata_prob = strata_prob)
   }
   
   return(Z)
