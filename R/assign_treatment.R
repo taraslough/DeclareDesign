@@ -208,12 +208,4 @@ observed_probs <- function(data, treatment_assignment, assignment){
 }
 
 
-# Propose we nix this?
-#' @export
-make_permutation_matrix <- function(data, assignment, sims = 100){
-  permutation_matrix <- replicate(n = sims, expr = assign_treatment_indicator(assignment = assignment, data = data))
-  return(permutation_matrix)
-}
-
-
 

@@ -469,9 +469,3 @@ blocked_and_clustered_ra <-
     return(merged$z_clust)
   }
 
-
-
-#' @export
-treatment_indicator_name <- function(x) {
-  return("NOT SURE YET")
-}

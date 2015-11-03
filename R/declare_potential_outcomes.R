@@ -56,12 +56,5 @@ declare_potential_outcomes <- function(potential_outcomes_function = default_pot
   
 }
 
-#' @export
-outcomes_table <- function(x){
-  if(class(x) == "potential_outcomes")
-    x <- list(x)
-  cat("This will be a summary table of the distribution of each outcome. Not implemented yet.")
-}
-
 
 

@@ -77,20 +77,6 @@ declare_estimand <- function(estimand = NULL, text_estimand = NULL, target = "po
   
 }
 
-#' Built-in Estimand Functions: declare_ATE()
-#' 
-#' This function is designed to be passed to the estimand argument of the \code{\link{declare_estimand}} function, and can be used to specify a common estimand, the average difference between two potential outcomes.
-#' 
-#' @param condition_treat The condition name of the "treatment" condition. By default "Z1".
-#' @param condition_control The condition name of the "control" condition. By default "Z0".
-#' @param outcome The name of the outcome variable.  By default "Y".
-#' @param sep The separator used to create potential outcomes columns. By default "_", so that potential outcomes are constructed as, for example,  "Y_Z1" and "Y_Z0".
-#'
-#' @export
-declare_ATE <- function(condition_treat = "Z1", condition_control = "Z0", outcome = "Y", sep = "_"){
-  return(paste0("mean(", outcome, sep, condition_treat, " - ", outcome, sep, condition_control, ")"))
-}
-
 #' @export
 get_estimands <- function(estimand = NULL, estimator = NULL, sample_data = NULL, population_data = NULL){
   

@@ -458,15 +458,6 @@ make_covariate_matrix <- function(...,N) {
   return(X_mat)
 }
 
-
-#' Print a table describing covariates described in population
-#'
-#' @param population a population object created with declare_population frame.
-#' @export
-covariates_table <- function(population){
-  cat("This will be a summary table of the distribution of each covariate at each level. Not implemented yet.")
-}
-
 #' @export
 generate_ID <- function(data,level_names){
   # Get the maximum ID for each
