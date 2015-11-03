@@ -160,7 +160,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   
   # For blocked and clustered random assignment designs
   if(assignment_type=="blocked and clustered"){
-    Z <- blocked_and_clustered_ra(clust_var=clust_var,
+    Z <- blocked_and_clustered_assignment(clust_var=clust_var,
                                   block_var=block_var, 
                                   block_m=block_m,
                                   block_prob=block_prob,

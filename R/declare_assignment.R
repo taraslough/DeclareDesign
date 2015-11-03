@@ -435,7 +435,7 @@ clustered_assignment <- function(clust_var, m=NULL, m_each = NULL, prob_each = N
 }
 
 #' @export
-blocked_and_clustered_ra <- 
+blocked_and_clustered_assignment <- 
   function(clust_var, block_var, block_m=NULL, prob_each=NULL, block_prob=NULL,condition_names = NULL, baseline_condition=NULL) {
     
     # confirm that all units within clusters are in the same block

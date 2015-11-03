@@ -128,7 +128,7 @@ stratified_and_clustered_sampling <- function(clust_var, strata_var, strata_n = 
     strata_n_matrix <-NULL
   }
   
-  blocked_and_clustered_ra(clust_var = clust_var, block_var = strata_var, 
+  blocked_and_clustered_assignment(clust_var = clust_var, block_var = strata_var, 
                            block_m = strata_n_matrix, prob_each = prob_each, 
                            block_prob = block_prob, condition_names = c(0,1), baseline_condition = 0)
 }
