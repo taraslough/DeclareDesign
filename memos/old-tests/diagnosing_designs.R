@@ -25,7 +25,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   mock$Y        <- reveal_outcome(outcome = "Y", treatment_assignment = "Z", data = mock, sep = "_")
   
   probs_mat <- get_assignment_probs(assignment = assignment, data = mock)
-  prob_obs <- observed_probs(treatment_assignment = "Z", assignment = assignment, data = mock)
+  prob_obs <- get_observed_assignment_probabilities(treatment_assignment = "Z", assignment = assignment, data = mock)
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = linear_regression)
   

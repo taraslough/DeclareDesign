@@ -55,7 +55,7 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
     
     if(assignment$assignment_type != "custom" & assignment$assignment_type != "existing assignment") {
       
-      data[, "assignment_probs"] <- observed_probs(treatment_assignment = assignment$treatment_variable,
+      data[, "assignment_probs"] <- get_observed_assignment_probabilities(treatment_assignment = assignment$treatment_variable,
                                                    assignment = assignment, data = data)
       
       data[, "assignment_weights"] <- 1/data[, "assignment_probs"]
@@ -189,14 +189,14 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
 #' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 #' smp_draw$Z <- assign_treatment_indicator(data = smp_draw, assignment=assignment)
 #' 
-#' probs <- observed_probs(data = smp_draw, 
+#' probs <- get_observed_assignment_probabilities(data = smp_draw, 
 #'                         treatment_assignment= "Z",
 #'                         assignment=assignment)
 #'                         
 #' table(probs)                         
 #' 
 #' @export
-observed_probs <- function(data, treatment_assignment, assignment){
+get_observed_assignment_probabilities <- function(data, treatment_assignment, assignment){
   prob_mat <- get_assignment_probs(assignment = assignment, data = data)
   prob_obs <- rep(NA, nrow(data))
   condition_names <- unique(data[,treatment_assignment])

@@ -79,7 +79,7 @@ test_that("test a simple experiment with blocking and clustering works with vari
   summary(M1_est)
   
   ## below here doesn't work at the moment, working on it
-  obs <- observed_probs(treatment_assignment = "Z", assignment = assignment, data = mock)
+  obs <- get_observed_assignment_probabilities(treatment_assignment = "Z", assignment = assignment, data = mock)
   
   balance       <- get_balance(covariates = c("income", "development_level"), 
                            treatment_assignment = "Z", assignment = assignment, data = mock)
