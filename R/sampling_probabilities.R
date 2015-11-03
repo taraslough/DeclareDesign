@@ -68,7 +68,7 @@ complete_sample_probs <- function(N, m = NULL, prob = NULL){
   if(!is.null(prob)){
     prob_each <- c(1 - prob, prob)
   }
-  prob_mat <- complete_ra_probs(N = N, m = m, prob_each = prob_each, condition_names = c(0,1))
+  prob_mat <- complete_assignment_probabilities(N = N, m = m, prob_each = prob_each, condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }

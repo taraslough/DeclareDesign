@@ -46,7 +46,7 @@ get_assignment_probabilities <- function(data, assignment){
   assignment_type <- assignment$assignment_type
   
   if(assignment_type=="complete"){
-    prob_mat <- complete_ra_probs(N = N, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
+    prob_mat <- complete_assignment_probabilities(N = N, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
   }
   
   if(assignment_type=="blocked"){
@@ -65,7 +65,7 @@ get_assignment_probabilities <- function(data, assignment){
 }
 
 #' @export
-complete_ra_probs <- function(N, m = NULL, m_each = NULL, prob_each = NULL, condition_names = NULL){
+complete_assignment_probabilities <- function(N, m = NULL, m_each = NULL, prob_each = NULL, condition_names = NULL){
   
   # Setup: obtain number of arms
   num_arms <- length(condition_names)
@@ -144,7 +144,7 @@ block_ra_probs <- function(block_var, block_m=NULL, block_prob = NULL, prob_each
   if(is.null(block_m) & is.null(prob_each) & is.null(block_prob)){
     for(i in 1:length(blocks)){
       N_block <- sum(block_var==blocks[i])
-      prob_mat[block_var==blocks[i],] <- complete_ra_probs(N = N_block, condition_names=condition_names)
+      prob_mat[block_var==blocks[i],] <- complete_assignment_probabilities(N = N_block, condition_names=condition_names)
     }
     return(prob_mat)
   }
@@ -153,7 +153,7 @@ block_ra_probs <- function(block_var, block_m=NULL, block_prob = NULL, prob_each
   if(!is.null(block_m)){
     for(i in 1:length(blocks)){
       N_block <- sum(block_var==blocks[i])
-      prob_mat[block_var==blocks[i],] <- complete_ra_probs(N = N_block, 
+      prob_mat[block_var==blocks[i],] <- complete_assignment_probabilities(N = N_block, 
                                                            m_each = block_m[i,], 
                                                            condition_names=condition_names)
     }
@@ -164,7 +164,7 @@ block_ra_probs <- function(block_var, block_m=NULL, block_prob = NULL, prob_each
   if(!is.null(prob_each)){
     for(i in 1:length(blocks)){
       N_block <- sum(block_var==blocks[i])
-      prob_mat[block_var==blocks[i],] <- complete_ra_probs(N = N_block, 
+      prob_mat[block_var==blocks[i],] <- complete_assignment_probabilities(N = N_block, 
                                                            prob_each = prob_each, 
                                                            condition_names=condition_names)
     }
@@ -175,7 +175,7 @@ block_ra_probs <- function(block_var, block_m=NULL, block_prob = NULL, prob_each
   if(!is.null(block_prob)){
     for(i in 1:length(blocks)){
       N_block <- sum(block_var==blocks[i])
-      prob_mat[block_var==blocks[i],] <- complete_ra_probs(N = N_block, 
+      prob_mat[block_var==blocks[i],] <- complete_assignment_probabilities(N = N_block, 
                                                            prob_each = block_prob[i,], 
                                                            condition_names=condition_names)
     }
@@ -187,7 +187,7 @@ block_ra_probs <- function(block_var, block_m=NULL, block_prob = NULL, prob_each
 cluster_ra_probs <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL){
   unique_clus <- unique(clust_var)
   n_clus <- length(unique_clus)
-  probs_clus <- complete_ra_probs(N = n_clus, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
+  probs_clus <- complete_assignment_probabilities(N = n_clus, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
   merged <- merge(x = data.frame(clust_var, init_order = 1:length(clust_var)), 
                   data.frame(clust_var=unique_clus, probs_clus), by="clust_var")
   merged <- merged[order(merged$init_order),]
