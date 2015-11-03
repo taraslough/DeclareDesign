@@ -31,7 +31,7 @@ Attrition declarations are formally identical to potential_outcomes declarations
 The built-in default function allows for two kinds of noncompliance: the proportion of subjects who report may vary with the treatment assignment, or the proportion of subjects who report (regardless of their condition, i.e. Always-Reports) can be set.
 }
 \examples{
- population <- declare_population(noise = declare_variable(), N = 1000)
+population <- declare_population(noise = declare_variable(), N = 1000)
 sampling <- declare_sampling(n = 500)
 attrition_1 <- declare_attrition(condition_names = c(0,1), 
                                  outcome_name = "R1",

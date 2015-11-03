@@ -37,9 +37,6 @@ draw_population <- function(population,
   
 }
 
-
-
-
 #' @export
 draw_covariates <- function(population){
   if (class(population) != "population" )
