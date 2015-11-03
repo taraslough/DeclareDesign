@@ -47,7 +47,7 @@ declare_population <- function(...,
         
       } else{
   
-        population_function <- create_bootstrap_data_function(data = data, N = N, N_per_level = N_per_level,
+        population_function <- make_bootstrap_data_function(data = data, N = N, N_per_level = N_per_level,
                                                               group_sizes_per_level = group_sizes_per_level, 
                                                               level_ID_variables = level_ID_variables)
         
@@ -527,7 +527,7 @@ infer_data_hierarchy <- function(N, N_per_level, group_sizes_per_level){
 }
 
 #' @export
-create_bootstrap_data_function <- function(data, N = NULL, N_per_level = NULL,
+make_bootstrap_data_function <- function(data, N = NULL, N_per_level = NULL,
                                            group_sizes_per_level = NULL, level_ID_variables = NULL){
   
   hierarchy <- infer_data_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
