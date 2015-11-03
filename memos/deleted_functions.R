@@ -16,10 +16,3 @@ estimate_ICC <- function(variable,cluster){
   rho <- var_j/(var_i + var_j)
   return(rho)
 }
-
-  
-
-
-
-
-

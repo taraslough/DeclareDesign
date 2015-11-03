@@ -28,6 +28,4 @@ test_that("test whether noncompliance works", {
   head(smp_draw)
   with(smp_draw, table(Z, D))
   
-  estimates <- get_estimates(estimator = estimator_d_i_m, data = smp_draw)
-  
 })
