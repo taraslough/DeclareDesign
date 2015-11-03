@@ -24,7 +24,7 @@ declare_population <- function(...,
       
     } else {
       
-      population_function <- create_population_function(variable_list = list(...), N_per_level = N_per_level, N = N,
+      population_function <- make_population_function(variable_list = list(...), N_per_level = N_per_level, N = N,
                                                         group_sizes_per_level = group_sizes_per_level, 
                                                         level_ID_variables = level_ID_variables, 
                                                         generate_unique_ID = generate_unique_ID)
@@ -95,7 +95,7 @@ wrap_custom_population_function <- function(custom_population_function, data = N
 }
 
 #' @export 
-create_population_function <- function(variable_list = NULL, N_per_level = NULL, N = NULL,
+make_population_function <- function(variable_list = NULL, N_per_level = NULL, N = NULL,
                                        group_sizes_per_level = NULL, 
                                        level_ID_variables = NULL,
                                        generate_unique_ID = FALSE){
