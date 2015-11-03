@@ -1,0 +1,90 @@
+1. List of custom functions
+
+
+2.  Functions to delete
+
+compare_experiments
+covariates_table ?
+declare_ATE
+declare_variable()
+make_permutation_matrix
+get_balance
+make_ID
+outcomes_table
+plot_*
+treatment_indicator_name
+
+3.  Functions to renames
+
+declare_noncompliance?  to declare
+observed_probs -> observed_assignment_probabilities
+ALL probs funx
+
+cluster_function_generic -> default_cluster
+
+
+_ra -> complete_ra
+
+
+block -> blocked
+cluster -> clustered
+
+all creates to make
+
+make_ID
+
+
+make_covariates -> draw_covariates
+
+get_estimates_model -> fit_model
+
+get_inclusion_probs -> get_sampling_probabilities
+
+infer_data_hierarchy -> get_hierarchy
+
+
+run_simulations -> simulate_design
+diagnose -> diagnose_design
+
+
+4.  Option names to rename
+
+declare_estimand: delete text estimand option; estimand_function
+
+
+
+5. Functions to make
+text_estimand()
+summary(diagnosis)
+
+
+6. Global change
+
+functions: x_function
+object: x
+defaule: default_x_function (should there be one for all x_functions?)
+
+7. Jasper's coding style (declare_variable, make_proportions, make_covariate_matrix)
+
+
+8. list of verbs
+
+declare
+reveal
+get
+modify
+calculate
+diagnose
+draw
+wrap
+create
+make
+run
+
+
+9. Diagnose is weird re PATE
+
+
+10. functions to add
+
+f(data, design)
