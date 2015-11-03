@@ -92,19 +92,19 @@ complete_assignment_probabilities <- function(N, m = NULL, m_each = NULL, prob_e
     return(prob_mat)
   }
   
-  # Case 2: We need to obtain "condition_probs" then make a matrix.
+  # Case 2: We need to obtain "condition_probabilities" then make a matrix.
   
   # 2a: If m_each is specified
   if(!is.null(m_each) & is.null(prob_each)){
     remainder <-  N%%num_arms
-    condition_probs <- (m_each/N)
+    condition_probabilities <- (m_each/N)
   }
   
   # 2b: if neither m_each nor prob_each is specified
   if(is.null(m_each) & is.null(prob_each)){
     m_each <- rep(N%/%num_arms, num_arms)
     remainder <-  N%%num_arms
-    condition_probs <- 
+    condition_probabilities <- 
       (1-(remainder/num_arms))*(m_each/N) +
       (remainder/num_arms)*((m_each +1)/N)
   }
@@ -113,19 +113,19 @@ complete_assignment_probabilities <- function(N, m = NULL, m_each = NULL, prob_e
   if(!is.null(prob_each)){
     m_each <- floor(N*prob_each)
     remainder <- N - sum(m_each)
-    condition_probs <- 
+    condition_probabilities <- 
       (1-(remainder/length(prob_each)))* (m_each/N) +
       (remainder/length(prob_each))* ((m_each +1)/N)
   } 
   
   # 2d: if N is smaller than number of arms, we just flip coins
   if(N < num_arms){
-    condition_probs <- rep(N/num_arms, num_arms)
+    condition_probabilities <- rep(N/num_arms, num_arms)
   }
   
   # Build prob_mat
-  prob_mat <- matrix(rep(condition_probs, N), 
-                     byrow=TRUE, ncol=length(condition_probs), 
+  prob_mat <- matrix(rep(condition_probabilities, N), 
+                     byrow=TRUE, ncol=length(condition_probabilities), 
                      dimnames = list(NULL,  paste0("prob_",condition_names)))
   return(prob_mat)
   
