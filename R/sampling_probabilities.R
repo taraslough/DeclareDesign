@@ -42,7 +42,7 @@ get_sampling_probabilities <- function(data, sampling){
   strata_prob <- sampling$strata_prob
   sampling_type <- sampling$sampling_type
   
-  if(sampling_type=="complete"){
+  if(sampling_type=="simple"){
     probs <- simple_sampling_probabilities(N = N, m = m, prob = prob)
   }
   

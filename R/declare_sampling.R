@@ -21,7 +21,7 @@ declare_sampling <- function(prob = NULL,
                              custom_cluster_function = NULL) {
   
   # Determine assignment type
-  sampling_type <- "complete"  ## what should this be called. Simple? 
+  sampling_type <- "simple"  ## what should this be called. Simple? 
   if(!is.null(strata_variable_name)) {sampling_type <- "stratified"}
   if(!is.null(cluster_variable_name)) {sampling_type <- "clustered"}
   if(!is.null(cluster_variable_name) & !is.null(strata_variable_name)) {
@@ -63,12 +63,8 @@ declare_sampling <- function(prob = NULL,
 }
 
 
-
-
-
-
 #' @export
-complete_sample <- function(N, n = NULL, prob = NULL){
+simple_sampling <- function(N, n = NULL, prob = NULL){
   prob_each <- NULL
   
   if(!is.null(prob)){

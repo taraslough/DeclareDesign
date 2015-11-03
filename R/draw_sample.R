@@ -72,8 +72,8 @@ draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
   } 
   
   # For "simple" random sampling
-  if(sampling_type=="complete"){
-    Z <- complete_sample(N = N, n = n, prob = prob)
+  if(sampling_type=="simple"){
+    Z <- simple_sampling(N = N, n = n, prob = prob)
   }
   
   # For stratified random sampling
