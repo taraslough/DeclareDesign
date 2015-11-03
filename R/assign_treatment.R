@@ -140,7 +140,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   
   # For block random assignment designs
   if(assignment_type=="blocked"){
-    Z <- block_ra(block_var=block_var, 
+    Z <- blocked_assignment(block_var=block_var, 
                   block_m = block_m,
                   prob_each = prob_each,
                   block_prob=block_prob,

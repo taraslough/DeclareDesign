@@ -94,7 +94,7 @@ stratified_sampling <- function(strata_var, prob = NULL, strata_n = NULL, strata
   }
   
   
-  block_ra(block_var = strata_var, block_m = strata_n_matrix, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
+  blocked_assignment(block_var = strata_var, block_m = strata_n_matrix, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 

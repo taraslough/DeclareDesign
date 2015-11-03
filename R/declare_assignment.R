@@ -325,7 +325,7 @@ complete_assignment <-
     return(assign)
   }
 #' @export
-block_ra <- 
+blocked_assignment <- 
   function(block_var, block_m=NULL, block_prob = NULL, prob_each = NULL, condition_names = NULL, baseline_condition=NULL){
     
     # Checks
@@ -455,7 +455,7 @@ blocked_and_clustered_ra <-
     }
     
     # Conduct random assignment at cluster level
-    z_clust <- block_ra(block_var = clust_blocks, 
+    z_clust <- blocked_assignment(block_var = clust_blocks, 
                         block_m = block_m, 
                         prob_each = prob_each,
                         block_prob = block_prob,
