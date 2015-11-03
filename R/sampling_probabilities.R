@@ -119,7 +119,7 @@ stratified_and_clustered_sample_probs <- function(clust_var, strata_var, strata_
   
   # Must do someday
   # block_m, strata_m
-  prob_mat <- blocked_and_clustered_ra_probs(clust_var = clust_var, block_var = strata_var, 
+  prob_mat <- blocked_and_clustered_assignment_probabilities(clust_var = clust_var, block_var = strata_var, 
                            block_m = strata_m, prob_each = prob_each, 
                            block_prob = block_prob, condition_names = c(0,1))
   

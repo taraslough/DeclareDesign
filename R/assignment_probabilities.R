@@ -58,7 +58,7 @@ get_assignment_probabilities <- function(data, assignment){
   }
   
   if(assignment_type=="blocked and clustered"){
-    prob_mat <- blocked_and_clustered_ra_probs(clust_var = clust_var, block_var = block_var, block_m = block_m, prob_each = prob_each, block_prob = block_prob, condition_names = condition_names)
+    prob_mat <- blocked_and_clustered_assignment_probabilities(clust_var = clust_var, block_var = block_var, block_m = block_m, prob_each = prob_each, block_prob = block_prob, condition_names = condition_names)
   }
   
   return(prob_mat)
@@ -196,7 +196,7 @@ clustered_assignment_probabilities <- function(clust_var, m=NULL, m_each = NULL,
 }
 
 #' @export
-blocked_and_clustered_ra_probs <- 
+blocked_and_clustered_assignment_probabilities <- 
   function(clust_var, block_var, block_m=NULL, prob_each=NULL, block_prob=NULL,condition_names = NULL){
     unique_clus <- unique(clust_var)
     
