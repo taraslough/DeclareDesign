@@ -55,7 +55,7 @@ get_sampling_probabilities <- function(data, sampling){
   }
   
   if(sampling_type=="stratified and clustered"){
-    probs <- stratified_and_clustered_sample_probs(clust_var = clust_var, strata_var = strata_var, strata_m = strata_m, prob = prob, strata_prob = strata_prob)
+    probs <- stratified_and_clustered_sampling_probabilities(clust_var = clust_var, strata_var = strata_var, strata_m = strata_m, prob = prob, strata_prob = strata_prob)
   }
   
   return(probs)
@@ -105,7 +105,7 @@ clustered_sampling_probabilities <- function(clust_var, m = NULL, prob = NULL){
 }
 
 #' @export
-stratified_and_clustered_sample_probs <- function(clust_var, strata_var, strata_m = NULL, prob = NULL, strata_prob = NULL){
+stratified_and_clustered_sampling_probabilities <- function(clust_var, strata_var, strata_m = NULL, prob = NULL, strata_prob = NULL){
   
   prob_each <- NULL
   if(!is.null(prob)){
