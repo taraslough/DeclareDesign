@@ -16,7 +16,7 @@ draw_sample <- function(data, sampling = NULL, noncompliance = NULL, random_seed
   Z <- draw_sample_indicator(data = data, sampling = sampling, random_seed = random_seed)
   
   if(!(sampling$sampling_type == "custom")){
-    inclusion_probs <- get_inclusion_probs(data = data, sampling = sampling)
+    inclusion_probs <- get_sampling_probabilities(data = data, sampling = sampling)
     sampling_data <- data.frame(sampled = Z, inclusion_probs = inclusion_probs, sampling_weights = 1/inclusion_probs)
   } else {
     sampling_data <- data.frame(sampled = Z)

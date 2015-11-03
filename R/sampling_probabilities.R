@@ -17,7 +17,7 @@
 #' 
 #' head(assignment_probs)
 #' @export
-get_inclusion_probs <- function(data, sampling){
+get_sampling_probabilities <- function(data, sampling){
   
   N <- nrow(data)  
   strata_variable_name <- sampling$strata_variable_name

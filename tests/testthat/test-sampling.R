@@ -75,17 +75,17 @@ test_that("test sampling functions", {
   
   # Obtain Sampling Probabilities
   
-  prob_1 <- get_inclusion_probs(data = pop_draw, sampling = sampling_1) 
-  prob_2 <- get_inclusion_probs(data = pop_draw, sampling = sampling_2) 
-  prob_3 <- get_inclusion_probs(data = pop_draw, sampling = sampling_3) 
-  prob_4 <- get_inclusion_probs(data = pop_draw, sampling = sampling_4) 
-  prob_5 <- get_inclusion_probs(data = pop_draw, sampling = sampling_5) 
+  prob_1 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_1) 
+  prob_2 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_2) 
+  prob_3 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_3) 
+  prob_4 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_4) 
+  prob_5 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_5) 
   
-  prob_6 <- get_inclusion_probs(data = pop_draw, sampling = sampling_6) 
-  prob_7 <- get_inclusion_probs(data = pop_draw, sampling = sampling_7) 
-  prob_8 <- get_inclusion_probs(data = pop_draw, sampling = sampling_8) 
+  prob_6 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_6) 
+  prob_7 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_7) 
+  prob_8 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_8) 
   
-  prob_9 <- get_inclusion_probs(data = pop_draw, sampling = sampling_9) 
-  prob_10 <- get_inclusion_probs(data = pop_draw, sampling = sampling_10) 
+  prob_9 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_9) 
+  prob_10 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_10) 
   
 })
