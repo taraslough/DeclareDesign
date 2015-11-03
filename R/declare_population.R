@@ -248,7 +248,7 @@ make_population_function <- function(variable_list = NULL, N_per_level = NULL, N
       X_mat <- integerize(X_mat)
       X_mat <- as.data.frame(X_mat)
       if(generate_unique_ID == TRUE){
-        X_mat$level_ID <- generate_ID(data = X_mat,level_names = level_IDs)
+        X_mat$level_ID <- make_ID(data = X_mat,level_names = level_IDs)
       }
       return(X_mat)
     }
@@ -263,7 +263,7 @@ make_population_function <- function(variable_list = NULL, N_per_level = NULL, N
       names(X_mat) <- level_IDs
       X_mat <- integerize(X_mat)
       if(generate_unique_ID == TRUE){
-        X_mat$level_ID <- generate_ID(data = X_mat,level_names = level_IDs)
+        X_mat$level_ID <- make_ID(data = X_mat,level_names = level_IDs)
       }
       return(X_mat)
     }
@@ -317,7 +317,7 @@ make_population_function <- function(variable_list = NULL, N_per_level = NULL, N
       population_matrix <- integerize(population_matrix)
       population_matrix <- as.data.frame(population_matrix)
       if(generate_unique_ID == TRUE){
-        population_matrix$level_ID <- generate_ID(data = population_matrix,level_names = level_IDs)
+        population_matrix$level_ID <- make_ID(data = population_matrix,level_names = level_IDs)
       }      
       return(population_matrix)
     }
@@ -459,7 +459,7 @@ make_covariate_matrix <- function(...,N) {
 }
 
 #' @export
-generate_ID <- function(data,level_names){
+make_ID <- function(data,level_names){
   # Get the maximum ID for each
   max_IDs <- apply(data, 2 ,max)[level_names]
   # Re-order from lowest - highest level
