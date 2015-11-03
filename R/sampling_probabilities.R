@@ -99,7 +99,7 @@ cluster_sample_probs <- function(clust_var, m = NULL, prob = NULL){
   if(!is.null(prob)){
     prob_each <- c(1-prob, prob)
   }
-  prob_mat <- cluster_ra_probs(clust_var = clust_var, m = m, prob_each = prob_each, condition_names = c(0,1))
+  prob_mat <- clustered_assignment_probabilities(clust_var = clust_var, m = m, prob_each = prob_each, condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }

@@ -54,7 +54,7 @@ get_assignment_probabilities <- function(data, assignment){
   }
   
   if(assignment_type=="clustered"){
-    prob_mat <- cluster_ra_probs(clust_var = clust_var, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
+    prob_mat <- clustered_assignment_probabilities(clust_var = clust_var, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
   }
   
   if(assignment_type=="blocked and clustered"){
@@ -184,7 +184,7 @@ blocked_assignment_probabilities <- function(block_var, block_m=NULL, block_prob
 }
 
 #' @export
-cluster_ra_probs <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL){
+clustered_assignment_probabilities <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL){
   unique_clus <- unique(clust_var)
   n_clus <- length(unique_clus)
   probs_clus <- complete_assignment_probabilities(N = n_clus, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
