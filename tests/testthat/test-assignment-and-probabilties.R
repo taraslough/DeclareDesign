@@ -102,25 +102,25 @@ test_that("test assignment and probability functions", {
   
   # Obtain Treatment Probabilities
   
-  prob_mat_1 <- get_assignment_probs(data = smp_draw, assignment = assignment_1) 
-  prob_mat_2 <- get_assignment_probs(data = smp_draw, assignment = assignment_2) 
-  prob_mat_3 <- get_assignment_probs(data = smp_draw, assignment = assignment_3) 
-  prob_mat_4 <- get_assignment_probs(data = smp_draw, assignment = assignment_4) 
-  prob_mat_5 <- get_assignment_probs(data = smp_draw, assignment = assignment_5) 
+  prob_mat_1 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_1) 
+  prob_mat_2 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_2) 
+  prob_mat_3 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_3) 
+  prob_mat_4 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_4) 
+  prob_mat_5 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_5) 
   
-  prob_mat_6 <- get_assignment_probs(data = smp_draw, assignment = assignment_6) 
-  prob_mat_7 <- get_assignment_probs(data = smp_draw, assignment = assignment_7) 
-  prob_mat_8 <- get_assignment_probs(data = smp_draw, assignment = assignment_8) 
+  prob_mat_6 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_6) 
+  prob_mat_7 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_7) 
+  prob_mat_8 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_8) 
   
-  prob_mat_8.5 <- get_assignment_probs(data = smp_draw, assignment = assignment_8.5) 
+  prob_mat_8.5 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_8.5) 
   
-  prob_mat_9 <- get_assignment_probs(data = smp_draw, assignment = assignment_9) 
-  prob_mat_10 <- get_assignment_probs(data = smp_draw, assignment = assignment_10) 
-  prob_mat_11 <- get_assignment_probs(data = smp_draw, assignment = assignment_11) 
+  prob_mat_9 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_9) 
+  prob_mat_10 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_10) 
+  prob_mat_11 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_11) 
   
-  prob_mat_12 <- get_assignment_probs(data = smp_draw, assignment = assignment_12) 
-  prob_mat_13 <- get_assignment_probs(data = smp_draw, assignment = assignment_13) 
-  prob_mat_14 <- get_assignment_probs(data = smp_draw, assignment = assignment_14) 
+  prob_mat_12 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_12) 
+  prob_mat_13 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_13) 
+  prob_mat_14 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_14) 
   
   # reveal observed probs
   

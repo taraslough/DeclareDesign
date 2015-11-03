@@ -14,12 +14,12 @@
 #' assignment <- declare_assignment(condition_names = c(0,1))
 #' pop_draw <- draw_population(population = population)
 #' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
-#' prob_mat <- get_assignment_probs(data = smp_draw, assignment = assignment)
+#' prob_mat <- get_assignment_probabilities(data = smp_draw, assignment = assignment)
 #' 
 #' head(prob_mat)
 #' 
 #' @export
-get_assignment_probs <- function(data, assignment){
+get_assignment_probabilities <- function(data, assignment){
   
   N <- nrow(data)  
   block_variable_name <- assignment$block_variable_name

@@ -197,7 +197,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
 #' 
 #' @export
 get_observed_assignment_probabilities <- function(data, treatment_assignment, assignment){
-  prob_mat <- get_assignment_probs(assignment = assignment, data = data)
+  prob_mat <- get_assignment_probabilities(assignment = assignment, data = data)
   prob_obs <- rep(NA, nrow(data))
   condition_names <- unique(data[,treatment_assignment])
   for(i in 1:length(condition_names)){
