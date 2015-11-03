@@ -86,7 +86,7 @@ stratified_sample_probs <- function(strata_var, prob = NULL, strata_m = NULL, st
     block_prob <- cbind(1-strata_prob, strata_prob)  
   }
   
-  prob_mat <- block_ra_probs(block_var = strata_var, block_m = strata_m, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1))
+  prob_mat <- blocked_assignment_probabilities(block_var = strata_var, block_m = strata_m, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }
