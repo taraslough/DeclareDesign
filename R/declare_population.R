@@ -124,7 +124,7 @@ make_population_function <- function(variable_list = NULL, N_per_level = NULL, N
   
   # Check data structure, create data size indicators ----------------------------------
   
-  hierarchy <- infer_data_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
+  hierarchy <- get_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
   N <- hierarchy$N
   N_per_level <- hierarchy$N_per_level
   group_sizes_per_level <- hierarchy$group_sizes_per_level
@@ -470,7 +470,7 @@ make_ID <- function(data,level_names){
 }
 
 #' @export
-infer_data_hierarchy <- function(N, N_per_level, group_sizes_per_level){
+get_hierarchy <- function(N, N_per_level, group_sizes_per_level){
   
   # If group_sizes_per_level is supplied
   if(!is.null(group_sizes_per_level)){
@@ -530,7 +530,7 @@ infer_data_hierarchy <- function(N, N_per_level, group_sizes_per_level){
 make_bootstrap_data_function <- function(data, N = NULL, N_per_level = NULL,
                                            group_sizes_per_level = NULL, level_ID_variables = NULL){
   
-  hierarchy <- infer_data_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
+  hierarchy <- get_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
   N_levels <- hierarchy$N_levels
   
   ## do checks
@@ -550,7 +550,7 @@ make_bootstrap_data_function <- function(data, N = NULL, N_per_level = NULL,
 bootstrap_data <- function(data, N = NULL, N_per_level = NULL,
                            group_sizes_per_level = NULL, level_ID_variables = NULL){
   
-  hierarchy <- infer_data_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
+  hierarchy <- get_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
   N <- hierarchy$N
   N_per_level <- hierarchy$N_per_level
   group_sizes_per_level <- hierarchy$group_sizes_per_level
