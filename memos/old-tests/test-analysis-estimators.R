@@ -33,17 +33,17 @@ test_that("test whether a simple experiment can be pre-registered", {
   
   estimates_ols <- get_estimates(analysis_ols, data = mock)
   estimands_ols <- get_estimands(analysis = analysis_ols, data = mock)
-  fit_ols <- get_estimates_model(analysis = analysis_ols, data = mock)
+  fit_ols <- fit_model(analysis = analysis_ols, data = mock)
   fit_ols_estimands <- get_estimands_model(analysis = analysis_ols, data = mock)
 
   estimates_logit <- get_estimates(analysis_logit, data = mock)
   estimands_logit <- get_estimands(analysis = analysis_logit, data = mock)
-  fit_logit <- get_estimates_model(analysis = analysis_logit, data = mock)
+  fit_logit <- fit_model(analysis = analysis_logit, data = mock)
   fit_logit_estimands <- get_estimands_model(analysis = analysis_logit, data = mock)
   
   estimates_probit <- get_estimates(analysis_probit, data = mock)
   estimands_probit <- get_estimands(analysis = analysis_probit, data = mock)
-  fit_probit <- get_estimates_model(analysis = analysis_probit, data = mock)
+  fit_probit <- fit_model(analysis = analysis_probit, data = mock)
   fit_probit_estimands <- get_estimands_model(analysis = analysis_probit, data = mock)
   
   

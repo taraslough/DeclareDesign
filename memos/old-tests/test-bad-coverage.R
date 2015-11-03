@@ -47,8 +47,8 @@ test_that("test permutation matrix", {
   mock$Y <- reveal_outcome(outcome = "Y", treatment_assignment = "Z", data = mock)
   
   dimM <- get_estimates(analysis = analysis, data = mock)
-  lsdvM <- get_estimates_model(analysis = analysis_lsdv, data = mock)
-  lmM <- get_estimates_model(analysis = analysis_lm, data = mock)
+  lsdvM <- fit_model(analysis = analysis_lsdv, data = mock)
+  lmM <- fit_model(analysis = analysis_lm, data = mock)
   
   
 })

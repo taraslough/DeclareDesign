@@ -29,7 +29,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   analysis_1 <- declare_analysis(formula = Y ~ Z, treatment_variable = "Z", estimator = linear_regression)
   
-  fit_1 <- get_estimates_model(analysis = analysis_1, data = mock)
+  fit_1 <- fit_model(analysis = analysis_1, data = mock)
   summary(fit_1)
   
   #   pre_register(assignment = assignment, covariates = cov, 

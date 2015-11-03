@@ -28,7 +28,7 @@ test_that("test sampling from population with no clusters or strata", {
   analysis_2 <- declare_estimator(formula = Y ~ Z, model = lm, estimates = get_regression_coefficient, estimates_options = list(coefficient_name = "Z"),
                                   estimand = estimand1)
   
-  a <- get_estimates_model(estimator = analysis_2, data = test_data)
+  a <- fit_model(estimator = analysis_2, data = test_data)
   get_estimates(estimator = analysis_2, data = test_data)
   
   

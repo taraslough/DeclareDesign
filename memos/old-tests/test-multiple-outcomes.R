@@ -37,7 +37,7 @@ test_that("test whether various functions can accept multiple outcomes", {
   estimates <- get_estimates(analysis = list(analysis_1) ,data = mock)
   estimates
   
-  fit_1 <- get_estimates_model(analysis = analysis_1, data = mock)
+  fit_1 <- fit_model(analysis = analysis_1, data = mock)
   summary(fit_1)
   
 })

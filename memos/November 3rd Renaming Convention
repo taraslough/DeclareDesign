@@ -36,7 +36,7 @@ make_ID
 
 make_covariates -> draw_covariates
 
-get_estimates_model -> fit_model
+fit_model -> fit_model
 
 get_inclusion_probs -> get_sampling_probabilities
 

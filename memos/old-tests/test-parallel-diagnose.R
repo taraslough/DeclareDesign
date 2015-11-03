@@ -38,7 +38,7 @@ test_that("test whether a simple experiment can be pre-registered", {
   estimands <- get_estimands(analysis = analysis_1,data = mock)
   estimands
   
-  fit <- get_estimates_model(analysis = analysis_1, data = mock)
+  fit <- fit_model(analysis = analysis_1, data = mock)
   summary(fit)
   
   fit <- get_estimands_model(analysis = analysis_1, data = mock)

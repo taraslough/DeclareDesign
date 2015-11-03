@@ -88,7 +88,7 @@ declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates
 }
 
 #' @export
-get_estimates_model <- function(estimator, data){
+fit_model <- function(estimator, data){
   if(class(estimator) != "estimator")
     stop("The estimator argument must be an object created by the declare_estimator function")
   if(is.null(estimator$model))
@@ -142,7 +142,7 @@ get_estimates <- function(estimator, data) {
   estimates_list <- list()
   for(i in 1:length(estimator)) {
     if(!is.null(estimator[[i]]$model)){
-      estimates_list[[i]] <- estimator[[i]]$estimates(model = get_estimates_model(estimator = estimator[[i]], data = data), data = data)
+      estimates_list[[i]] <- estimator[[i]]$estimates(model = fit_model(estimator = estimator[[i]], data = data), data = data)
     } else {
       estimates_list[[i]] <- estimator[[i]]$estimates(data = data)
     }
