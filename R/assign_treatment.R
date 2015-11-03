@@ -55,15 +55,15 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
     
     if(assignment$assignment_type != "custom" & assignment$assignment_type != "existing assignment") {
       
-      data[, "assignment_probs"] <- get_observed_assignment_probabilities(treatment_assignment = assignment$treatment_variable,
+      data[, "assignment_probabilities"] <- get_observed_assignment_probabilities(treatment_assignment = assignment$treatment_variable,
                                                    assignment = assignment, data = data)
       
-      data[, "assignment_weights"] <- 1/data[, "assignment_probs"]
+      data[, "assignment_weights"] <- 1/data[, "assignment_probabilities"]
       
       ## only reveal assignment_sampling_weights if there are sampling probabilities
       if("inclusion_probs" %in% colnames(data)){
         
-        data[, "assignment_inclusion_probs"] <- data[, "assignment_probs"] * data[, "inclusion_probs"]
+        data[, "assignment_inclusion_probs"] <- data[, "assignment_probabilities"] * data[, "inclusion_probs"]
         
         data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probs"]
       }

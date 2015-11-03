@@ -13,9 +13,9 @@
 #' # assignment <- declare_assignment(potential_outcomes = po, m=200)
 #' # mock          <- draw_population(potential_outcomes = po, sample =  smp)
 #' # mock$Z        <- assign_treatment_indicator(assignment, data = mock)
-#' # assignment_probs <- get_assignment_probabilities(assignment, mock)
+#' # assignment_probabilities <- get_assignment_probabilities(assignment, mock)
 #' 
-#' head(assignment_probs)
+#' head(assignment_probabilities)
 #' @export
 get_sampling_probabilities <- function(data, sampling){
   
