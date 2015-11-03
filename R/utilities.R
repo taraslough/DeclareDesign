@@ -80,3 +80,8 @@ print_versions <- function(){
   
 }
 
+reorient <- function(x) {
+  obj <- c(x)
+  names(obj) <- rep(paste(rownames(x), colnames(x), sep = "_"), each = ncol(x))
+  return(obj)
+}

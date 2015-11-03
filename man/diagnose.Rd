@@ -2,22 +2,28 @@
 % Please edit documentation in R/diagnose.R
 \name{diagnose}
 \alias{diagnose}
-\title{Declare the data-generating process of a variable}
+\title{Diagnose the properties of a research design}
 \usage{
-diagnose(design = NULL, sims = 5)
+diagnose(design = NULL, simulations = NULL,
+  statistics = list(calculate_PATE, calculate_sd_SATE, calculate_power,
+  calculate_RMSE, calculate_bias, calculate_coverage, calculate_type_S_rate,
+  calculate_exaggeration_ratio), labels = c("PATE", "sd(SATE)", "Power",
+  "RMSE", "Bias", "Coverage", "Type S Rate", "Exagg. Ratio"), sims = 5, ...)
 }
 \arguments{
-\item{sims}{number of iterations}
+\item{design}{}
 
-\item{population}{A population object, made with \code{\link{declare_population}}}
+\item{simulations}{}
 
-\item{sampling}{A sampling object, made with \code{\link{declare_sampling}}}
+\item{statistics}{}
 
-\item{label}{label for the simulation}
+\item{labels}{}
 
-\item{analysis_labels}{labels for each analysis}
+\item{sims}{}
+
+\item{...}{}
 }
 \description{
-Declare the data-generating process of a variable
+Diagnose the properties of a research design
 }
 

@@ -266,7 +266,7 @@ calculate_coverage <- function(estimates, estimands, ...){
 }
 
 #' @export
-calculate_type_S <- function(estimates, estimands, ...){
+calculate_type_S_rate <- function(estimates, estimands, ...){
   PATE <- calculate_PATE(estimands = estimands)
   
   sign_error <- sapply(1:length(estimates), function(i) as.numeric(sign(PATE) != sign(estimates[[i]]["est", , drop = FALSE])))
