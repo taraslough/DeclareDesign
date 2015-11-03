@@ -43,7 +43,7 @@ get_sampling_probabilities <- function(data, sampling){
   sampling_type <- sampling$sampling_type
   
   if(sampling_type=="complete"){
-    probs <- complete_sample_probs(N = N, m = m, prob = prob)
+    probs <- simple_sampling_probabilities(N = N, m = m, prob = prob)
   }
   
   if(sampling_type=="stratified"){
@@ -62,7 +62,7 @@ get_sampling_probabilities <- function(data, sampling){
 }
 
 #' @export
-complete_sample_probs <- function(N, m = NULL, prob = NULL){
+simple_sampling_probabilities <- function(N, m = NULL, prob = NULL){
   prob_each <- NULL
   
   if(!is.null(prob)){
