@@ -105,7 +105,7 @@ cluster_sampling <- function(clust_var, n = NULL, prob = NULL){
   if(!is.null(prob)){
     prob_each <- c(1-prob, prob)
   }
-  cluster_ra(clust_var = clust_var, m = n, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
+  clustered_assignment(clust_var = clust_var, m = n, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 #' @export

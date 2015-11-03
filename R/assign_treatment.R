@@ -150,7 +150,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   
   # For cluster random assignment designs
   if(assignment_type=="clustered"){
-    Z <- cluster_ra(clust_var=clust_var, 
+    Z <- clustered_assignment(clust_var=clust_var, 
                     m = m, 
                     m_each = m_each,
                     prob_each = prob_each,

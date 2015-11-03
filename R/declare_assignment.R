@@ -413,7 +413,7 @@ blocked_assignment <-
   }
 
 #' @export
-cluster_ra <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL, baseline_condition=NULL){
+clustered_assignment <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL, baseline_condition=NULL){
   
   # Setup: get unique clusters and the number of clusters
   unique_clus <- unique(clust_var)
