@@ -107,7 +107,7 @@ Now things get more interesting.  Let's see how good this design is. Note that g
 
 
 ```{r}
-my.diagnostics         <- diagnose(sims = 1000, analysis = list(my.lsdv.analysis), 
+my.diagnostics         <- diagnose_design(sims = 1000, analysis = list(my.lsdv.analysis), 
                           design = my.design, 
                           sample = my.sample.frame, 
                           potential_outcomes = my.potential.outcomes)

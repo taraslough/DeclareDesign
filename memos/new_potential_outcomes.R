@@ -29,7 +29,7 @@ draw_population(population = pop, potential_outcomes = po) %>%
   draw_outcome(potential_outcomes = po) %>%
   head()
 
-sims <- diagnose(potential_outcomes = po, 
+sims <- diagnose_design(potential_outcomes = po, 
                  sample =  smp, 
                  assignment = assignment, 
                  analysis = analysis_1, 

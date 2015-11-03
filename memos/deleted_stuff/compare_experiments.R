@@ -84,7 +84,7 @@ compare_experiments <- function(N = NULL, N_per_level = NULL, group_sizes_per_le
     
     comparisons[[e]] <- list()
     
-    comparisons[[e]]$simulations <-   diagnose(design = design_compare[[min(length(design_compare), e)]], 
+    comparisons[[e]]$simulations <-   diagnose_design(design = design_compare[[min(length(design_compare), e)]], 
                                                analysis = analysis_compare[[min(length(analysis_compare), e)]], 
                                                sample = sample_compare[[min(length(sample_compare), e)]], 
                                                potential_outcomes = potential_outcomes_compare[[min(length(potential_outcomes_compare), e)]], 
@@ -152,7 +152,7 @@ plot_power <- function(data, design, analysis, vary_parameter = "N", vary_sequen
   
   power_sequence <- rep(NA, length(vary_sequence))
   for(parameter in vary_sequence)
-    power_sequence[parameter] <- diagnose(data = data, design = design, analysis = analysis,
+    power_sequence[parameter] <- diagnose_design(data = data, design = design, analysis = analysis,
                                           N = parameter)
   
   return(power_sequence)

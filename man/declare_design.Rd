@@ -24,6 +24,6 @@ declare_design(population, sampling = NULL, assignment, estimator = NULL,
 A design object
 }
 \description{
-This function gathers together the declarations for population, sampling, assignment, estimator(s), and potential outcomes. Design objects can be summarized with summary(my_design), diagnosed with diagnose(my_design), and modified with modify_design(my_design).
+This function gathers together the declarations for population, sampling, assignment, estimator(s), and potential outcomes. Design objects can be summarized with summary(my_design), diagnosed with diagnose_design(my_design), and modified with modify_design(my_design).
 }
 

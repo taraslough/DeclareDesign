@@ -62,7 +62,7 @@ test_that("test whether a simple blocked experiment can be pre-registered", {
   
   analysis <- declare_analysis(formula = Y ~ Z)
   
-  power        <- diagnose(sims = 1000, analysis = list(analysis, analysis_lm), assignment = assignment, 
+  power        <- diagnose_design(sims = 1000, analysis = list(analysis, analysis_lm), assignment = assignment, 
                                   sample = sample, 
                                   potential_outcomes = potential_outcomes)
   

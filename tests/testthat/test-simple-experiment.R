@@ -29,7 +29,7 @@ test_that("test simple experiment analysis and diagnosis", {
                            potential_outcomes = potential_outcomes,
                            label = "Simple Design")
     
-  diagnosis <- diagnose(design = design, sims = 5)
+  diagnosis <- diagnose_design(design = design, sims = 5)
   
 # mock data  ---------------------------------------------------------------  
   

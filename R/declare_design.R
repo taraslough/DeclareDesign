@@ -1,6 +1,6 @@
 #' Declare the design
 #' 
-#' This function gathers together the declarations for population, sampling, assignment, estimator(s), and potential outcomes. Design objects can be summarized with summary(my_design), diagnosed with diagnose(my_design), and modified with modify_design(my_design).
+#' This function gathers together the declarations for population, sampling, assignment, estimator(s), and potential outcomes. Design objects can be summarized with summary(my_design), diagnosed with diagnose_design(my_design), and modified with modify_design(my_design).
 #' 
 #' @param population A population object, as created by \code{\link{declare_population}}.
 #' @param sampling A sampling object, as created by \code{\link{declare_sampling}}.

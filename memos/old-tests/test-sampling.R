@@ -32,7 +32,7 @@ test_that("test sampling from population with no clusters or strata", {
   get_estimates(estimator = analysis_2, data = test_data)
   
   
-  diagnosis <- diagnose(population = pop, sampling = smp, analysis = list(analysis_1, analysis_2),
+  diagnosis <- diagnose_design(population = pop, sampling = smp, analysis = list(analysis_1, analysis_2),
                         assignment = assignment, sims = 5)
   
   estimates <- diagnosis$estimates
@@ -169,7 +169,7 @@ test_that("with clusters and strata", {
   library(parallel)
   cl <- makeCluster(2)
   
-  diagnosis2 <- diagnose(population = pop, sampling = smp, assignment = assignment, analysis = analysis_joint_weighted, sims = 400)
+  diagnosis2 <- diagnose_design(population = pop, sampling = smp, assignment = assignment, analysis = analysis_joint_weighted, sims = 400)
   
   pop_draw <- draw_population(population = pop)
   

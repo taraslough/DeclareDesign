@@ -37,7 +37,7 @@ test_that("test assignment and probability functions", {
  
   analysis <- declare_analysis(Y ~ Z, treatment_variable = "Z")
   
-  sims <- diagnose(potential_outcomes = potential_outcomes, 
+  sims <- diagnose_design(potential_outcomes = potential_outcomes, 
                    sample =  smp, 
                    assignment = assignment, 
                    analysis = analysis, 

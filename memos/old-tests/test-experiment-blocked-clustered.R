@@ -53,11 +53,11 @@ test_that("test a simple experiment with blocking and clustering works with vari
   
   ## nudge to set levels of sim (determined by assignment)
   
-  power_1         <- diagnose(sims = 5, analysis = list(analysis_1), assignment = assignment, 
+  power_1         <- diagnose_design(sims = 5, analysis = list(analysis_1), assignment = assignment, 
                                          sample = sample, potential_outcomes = potential_outcome)
   summary(power_1)
   
-  power_2         <- diagnose(sims = 5, analysis = list(analysis_1, analysis_2), 
+  power_2         <- diagnose_design(sims = 5, analysis = list(analysis_1, analysis_2), 
                                          assignment = assignment, sample = sample, potential_outcomes = potential_outcomes)
   summary(power_2)
   

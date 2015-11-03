@@ -67,7 +67,7 @@ design_block_cluster <- declare_assignment(potential_outcomes = potential_outcom
 Before finalizing the design, we conduct a power analysis to determine whether 500 units and 10 clusters (villages) are sufficient. To do this, we use the diagnose function.
 
 ```{r}
-simulations_block_cluster <- diagnose(potential_outcomes = potential_outcomes_block_cluster, 
+simulations_block_cluster <- diagnose_design(potential_outcomes = potential_outcomes_block_cluster, 
                                                  sample = sample_block_cluster, 
                                                  clusters = clusters,
                                                  blocks = blocks,

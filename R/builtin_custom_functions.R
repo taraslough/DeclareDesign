@@ -160,7 +160,7 @@ calculate_PATE <- function(estimands, ...){
   else
     PATE <- mean(SATE, na.rm = T)
   
-  return(PATE)
+  return(list(statistic = PATE, label = "PATE"))
 }
 
 
@@ -173,7 +173,7 @@ calculate_sd_SATE <- function(estimands, ...){
   else
     sd_SATE <- sd(SATE, na.rm = T)
   
-  return(sd_SATE)
+  return(list(statistic = sd_SATE, label = "sd(SATE)"))
 }
 
 #' @export
@@ -185,7 +185,7 @@ calculate_power <- function(estimates, ...){
   else
     power <- mean(p < .05, na.rm = T)
   
-  return(power)
+  return(list(statistic = power, label = "Power"))
 }
 
 #' @export
@@ -198,7 +198,7 @@ calculate_RMSE <- function(estimates, estimands, ...){
   else
     RMSE <- sqrt(mean(error^2, na.rm = T))
   
-  return(RMSE)
+  return(list(statistic = RMSE, label = "RMSE"))
 }
 
 #' @export
@@ -213,7 +213,7 @@ calculate_bias <- function(estimates, estimands, ...){
   else
     bias <- mean(est_PATE_diff, na.rm = T)
   
-  return(bias)
+  return(list(statistic = bias, label = "Bias"))
 }
 
 #' @export
@@ -228,7 +228,7 @@ calculate_coverage <- function(estimates, estimands, ...){
   else
     coverage <- mean(ci_covers_estimate, na.rm = T)
   
-  return(coverage)
+  return(list(statistic = coverage, label = "Coverage"))
 }
 
 #' @export
@@ -242,20 +242,20 @@ calculate_type_S_rate <- function(estimates, estimands, ...){
   else
     type_S_rate <- mean(sign_error, na.rm = T)
   
-  return(type_S_rate)
+  return(list(statistic = type_S_rate, label = "Type S Rate"))
 }
 
 #' @export
 calculate_exaggeration_ratio <- function(estimates, estimands, ...){
   PATE <- calculate_PATE(estimands = estimands)
   
-  exageration_ratio <- sapply(1:length(estimates), function(i) as.numeric(abs(estimates[[i]]["est", , drop = FALSE] / PATE)))
+  exaggeration_ratio <- sapply(1:length(estimates), function(i) as.numeric(abs(estimates[[i]]["est", , drop = FALSE] / PATE)))
   
-  if(class(exageration_ratio) == "matrix")
-    mean_exageration_ratio <- apply(exageration_ratio, 1, mean, na.rm = T)
+  if(class(mean_exaggeration_ratio) == "matrix")
+    mean_exaggeration_ratio <- apply(exaggeration_ratio, 1, mean, na.rm = T)
   else
-    mean_exageration_ratio <- mean(exageration_ratio, na.rm = T)
+    mean_exaggeration_ratio <- mean(exaggeration_ratio, na.rm = T)
   
-  return(mean_exageration_ratio)
+  return(list(statistic = mean_exaggeration_ratio, label = "Mean Exagg. Ratio"))
 }
 

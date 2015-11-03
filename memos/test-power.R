@@ -35,7 +35,7 @@ design <- declare_design(population = population, sampling = sampling,
                          assignment = assignment, estimator = estimator_diff_in_means, 
                          potential_outcomes = potential_outcomes)
 
-diagnosis <- diagnose(design = design, sims = 1000)
+diagnosis <- diagnose_design(design = design, sims = 1000)
 
 diagnosis
 

@@ -40,7 +40,7 @@ test_that("test blocked and clustered experiment", {
                            potential_outcomes = potential_outcomes,
                            label = "Blocked and Clustered Design")
   
-  diagnosis <- diagnose(design = design, sims = 5)
+  diagnosis <- diagnose_design(design = design, sims = 5)
   
   # mock data  ---------------------------------------------------------------  
   
