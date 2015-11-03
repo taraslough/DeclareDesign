@@ -63,9 +63,9 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
       ## only reveal assignment_sampling_weights if there are sampling probabilities
       if("inclusion_probs" %in% colnames(data)){
         
-        data[, "assignment_inclusion_probs"] <- data[, "assignment_probabilities"] * data[, "inclusion_probs"]
+        data[, "assignment_inclusion_probabilities"] <- data[, "assignment_probabilities"] * data[, "inclusion_probs"]
         
-        data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probs"]
+        data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probabilities"]
       }
     }
   }
