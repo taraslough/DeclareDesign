@@ -19,7 +19,7 @@ draw_population <- function(population,
     set.seed(population$random_seed)
   }
   
-  data <- get_covariates(population = population)
+  data <- draw_covariates(population = population)
   
   # Make potential outcomes -------------------------------------------------
   
@@ -41,7 +41,7 @@ draw_population <- function(population,
 
 
 #' @export
-get_covariates <- function(population){
+draw_covariates <- function(population){
   if (class(population) != "population" )
     stop("Please send the population argument an object created using declare_population. You can send just a data frame to declare_population to use your own fixed data.")
   if(class(population$population) == "function")
