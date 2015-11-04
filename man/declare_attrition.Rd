@@ -5,15 +5,15 @@
 \title{Attrition declarations}
 \usage{
 declare_attrition(attrition_function = default_attrition_function,
-  formula = NULL, outcome_name = "R", condition_names = NULL, sep = "_",
-  assignment_variable_name = NULL, ...)
+  formula = NULL, outcome_variable_name = "R", condition_names = NULL,
+  sep = "_", assignment_variable_name = NULL, ...)
 }
 \arguments{
 \item{attrition_function}{A function of data that returns a vector of 0s and 1s that indicate which subjects report their outcomes.}
 
 \item{formula}{An optional formula to be passed to attrition_function}
 
-\item{outcome_name}{The name of the variable describing whether outcomes are reported. Defaults to "R".}
+\item{outcome_variable_name}{The name of the variable describing whether outcomes are reported. Defaults to "R".}
 
 \item{condition_names}{An optional vector of treatment conditions to be passed to attrition_function.}
 
@@ -34,12 +34,12 @@ The built-in default function allows for two kinds of noncompliance: the proport
 population <- declare_population(noise = declare_variable(), N = 1000)
 sampling <- declare_sampling(n = 500)
 attrition_1 <- declare_attrition(condition_names = c(0,1), 
-                                 outcome_name = "R1",
+                                 outcome_variable_name = "R1",
                                  assignment_variable_name = "Z", 
                                  reporting_proportions = c(.5, .7))
 
 attrition_2 <- declare_attrition(condition_names = c(0,1), 
-                                 outcome_name = "R2",
+                                 outcome_variable_name = "R2",
                                  assignment_variable_name = "Z", 
                                  proportion_always_reporters = .8)
 
