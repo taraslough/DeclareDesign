@@ -1,3 +1,7 @@
+#' Integerize a data frame
+#' 
+#' @param data_frame a object of type data.frame
+#'
 #' @export
 integerize <- function(data_frame){
   for(i in 1:ncol(data_frame)){
@@ -23,6 +27,8 @@ integerize <- function(data_frame){
   return(data_frame)
 }
 
+#' Print version of R and packages to improve reproducibility
+#'
 #' @export
 print_versions <- function(){
   
