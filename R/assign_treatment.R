@@ -2,10 +2,9 @@
 #' 
 #' This function takes a data.frame and an assignment object and returns a data.frame with a treatment assignment, probabilities of assignment, and inverse probability weights.
 #'
-#' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}. 
+#' @param data A data.frame, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}. 
 #' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
 #' @param random_seed An optional random seed, in order to ensure the replicability of a particular random assignment.
-#'
 #' @return A data.frame with new columns added for a treatment assignment, probabilities of assignment, and inverse probability weights.
 #' 
 #' @examples 

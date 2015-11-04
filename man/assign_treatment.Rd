@@ -7,7 +7,7 @@
 assign_treatment(data, assignment, random_seed = NULL)
 }
 \arguments{
-\item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
+\item{data}{A data.frame, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 
 \item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
 

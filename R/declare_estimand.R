@@ -1,10 +1,6 @@
-##estimand = mean(Y_Z1 - Y_Z0)
-##estimand = "mean(Y_Z1 - Y_Z0)"
-##estimand = declare_ATE()
-
 #' Declare Estimand
 #' 
-#' This function creates an estimand object. IMPROVE.
+#' This function creates an estimand object. 
 #'
 #' @param estimand A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.  Users may want to use our built-in estimand functions such as \code{\link{declare_ATE}}
 #' @param estimand_text A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
@@ -13,6 +9,8 @@
 #' @param weights_variable_name The name of the weighting variable (optional).
 #' @param label A character string for the estimand's label.
 #' @param ... 
+#' 
+#' @return An estimand object.
 #'
 #' @export
 declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, target = "population",
@@ -77,6 +75,13 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, tar
   
 }
 
+#' Obtain Estimands
+#' 
+#' @param estimand An estimand object or list of estimand objects, created with \code{\link{declare_estimand}}.
+#' @param estimator An estimantor object or a list of estimator objects, created with \code{\link{declare_estimator}}.
+#' @param sample_data A sample data.frame, created by \code{\link{draw_sample}}.
+#' @param population_data A population data.frame, created by \code{\link{draw_population}}.
+#'
 #' @export
 get_estimands <- function(estimand = NULL, estimator = NULL, sample_data = NULL, population_data = NULL){
   

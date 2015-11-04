@@ -102,7 +102,6 @@ default_attrition_function <- function(data, condition_names,
 #' with(smp_draw, table(Z, R2))
 #' 
 #' @return A potential_outcomes object
-
 #' @export
 declare_attrition <- function(attrition_function = default_attrition_function,
                                   formula = NULL, 

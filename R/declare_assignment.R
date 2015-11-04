@@ -239,7 +239,6 @@ print.summary.assignment <- function(x, ...){
 
 # random assignment functions
 
-#' @export
 complete_assignment <- 
   function(N, m = NULL, m_each = NULL, probability_each = NULL, condition_names = NULL, baseline_condition=NULL) {
     
@@ -323,7 +322,7 @@ complete_assignment <-
     }
     return(assign)
   }
-#' @export
+
 blocked_assignment <- 
   function(block_variable, block_m=NULL, block_probabilities = NULL, probability_each = NULL, condition_names = NULL, baseline_condition=NULL){
     
@@ -411,7 +410,6 @@ blocked_assignment <-
     
   }
 
-#' @export
 clustered_assignment <- function(cluster_variable, m=NULL, m_each = NULL, probability_each = NULL, condition_names = NULL, baseline_condition=NULL){
   
   # Setup: get unique clusters and the number of clusters
@@ -433,7 +431,6 @@ clustered_assignment <- function(cluster_variable, m=NULL, m_each = NULL, probab
   return(merged$z_clus)
 }
 
-#' @export
 blocked_and_clustered_assignment <- 
   function(cluster_variable, block_variable, block_m=NULL, probability_each=NULL, block_probabilities=NULL,condition_names = NULL, baseline_condition=NULL) {
     

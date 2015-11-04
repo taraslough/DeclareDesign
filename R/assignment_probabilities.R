@@ -64,7 +64,6 @@ get_assignment_probabilities <- function(data, assignment){
   return(prob_mat)
 }
 
-#' @export
 complete_assignment_probabilities <- function(N, m = NULL, m_each = NULL, probability_each = NULL, condition_names = NULL){
   
   # Setup: obtain number of arms
@@ -131,7 +130,6 @@ complete_assignment_probabilities <- function(N, m = NULL, m_each = NULL, probab
   
 }
 
-#' @export
 blocked_assignment_probabilities <- function(block_variable, block_m=NULL, block_probabilities = NULL, probability_each = NULL, condition_names = NULL){
   
   blocks <- sort(unique(block_variable))
@@ -183,7 +181,6 @@ blocked_assignment_probabilities <- function(block_variable, block_m=NULL, block
   }
 }
 
-#' @export
 clustered_assignment_probabilities <- function(cluster_variable, m=NULL, m_each = NULL, probability_each = NULL, condition_names = NULL){
   unique_clus <- unique(cluster_variable)
   n_clus <- length(unique_clus)
@@ -195,7 +192,6 @@ clustered_assignment_probabilities <- function(cluster_variable, m=NULL, m_each 
   return(probs_mat)
 }
 
-#' @export
 blocked_and_clustered_assignment_probabilities <- 
   function(cluster_variable, block_variable, block_m=NULL, probability_each=NULL, block_probabilities=NULL,condition_names = NULL){
     unique_clus <- unique(cluster_variable)

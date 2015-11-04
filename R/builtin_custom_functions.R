@@ -183,7 +183,6 @@ difference_in_means_blocked <- function(formula, data, weights = NULL, subset = 
 
 # Diagnose summary functions ----------------------------------------------
 
-#' @export
 calculate_PATE <- function(estimands, ...){
   SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]))
   
@@ -195,8 +194,6 @@ calculate_PATE <- function(estimands, ...){
   return(list(statistic = PATE, label = "PATE"))
 }
 
-
-#' @export
 calculate_sd_SATE <- function(estimands, ...){
   SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]))
   
@@ -208,7 +205,6 @@ calculate_sd_SATE <- function(estimands, ...){
   return(list(statistic = sd_SATE, label = "sd(SATE)"))
 }
 
-#' @export
 calculate_power <- function(estimates, ...){
   p <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["p", , drop = FALSE]))
   
@@ -220,7 +216,6 @@ calculate_power <- function(estimates, ...){
   return(list(statistic = power, label = "Power"))
 }
 
-#' @export
 calculate_RMSE <- function(estimates, estimands, ...){
   error <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - 
                                                                 estimands[[i]]))
@@ -233,7 +228,6 @@ calculate_RMSE <- function(estimates, estimands, ...){
   return(list(statistic = RMSE, label = "RMSE"))
 }
 
-#' @export
 calculate_bias <- function(estimates, estimands, ...){
   
   PATE <- calculate_PATE(estimands = estimands)$statistic
@@ -248,7 +242,6 @@ calculate_bias <- function(estimates, estimands, ...){
   return(list(statistic = bias, label = "Bias"))
 }
 
-#' @export
 calculate_coverage <- function(estimates, estimands, ...){
   PATE <- calculate_PATE(estimands = estimands)$statistic
   
@@ -263,7 +256,6 @@ calculate_coverage <- function(estimates, estimands, ...){
   return(list(statistic = coverage, label = "Coverage"))
 }
 
-#' @export
 calculate_type_S_rate <- function(estimates, estimands, ...){
   PATE <- calculate_PATE(estimands = estimands)$statistic
   
@@ -277,7 +269,6 @@ calculate_type_S_rate <- function(estimates, estimands, ...){
   return(list(statistic = type_S_rate, label = "Type S Rate"))
 }
 
-#' @export
 calculate_exaggeration_ratio <- function(estimates, estimands, ...){
   PATE <- calculate_PATE(estimands = estimands)$statistic
   
