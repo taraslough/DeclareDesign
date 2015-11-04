@@ -14,20 +14,25 @@ diagnose_design <- function(design = NULL, diagnosis = NULL, statistics = list(c
                             sims = 5, ...){
   
   ## extract names of statistics objects
-  if(is.null(labels)){
-    if(class(statistics) == "list")
-      labels <- paste(substitute(statistics)[-1L])
-    else
-      labels <- paste(substitute(statistics))
-  }
+  if(class(statistics) == "list")
+    labels <- paste(substitute(statistics)[-1L])
+  else
+    labels <- paste(substitute(statistics))
   
   if(class(statistics) != "list"){ statistics <- list(statistics) }
   
-  if( (is.null(design) & is.null(simulations)) | (!is.null(design) & !is.null(simulations)) ){
+  if( (is.null(design) & is.null(diagnosis)) | (!is.null(design) & !is.null(diagnosis)) ){
     stop("Please provide either a design object created by declare_design or a diagnosis object created with diagnose_design, and not both.")
   }
   
   if(is.null(diagnosis)){
+    
+    population <- design$population
+    sampling <- design$sampling
+    assignment <- design$assignment
+    estimator <- design$estimator
+    potential_outcomes <- design$potential_outcomes
+    label <- design$label
     
     super_population <- population$super_population
     
@@ -96,19 +101,29 @@ diagnose_design <- function(design = NULL, diagnosis = NULL, statistics = list(c
       
     }
     
-    estimates <- simulations_list[[1]]
-    estimands <- simulations_list[[2]]
+    estimates = simulations_list[[1]]
+    estimands = simulations_list[[2]]
+    
+  } else {
+    
+    ## if an existing diagnosis is provided, instead take the existing simulations
+    
+    estimates <- diagnosis$estimates
+    estimands <- diagnosis$estimands
     
   }
   
-  return_matrix <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), dimnames = list(colnames(estimates[[1]]), labels))
+  return_matrix <- matrix(NA, nrow = ncol(estimates[[1]]), ncol = length(statistics), 
+                          dimnames = list(colnames(estimates[[1]]), labels))
   for(k in 1:length(statistics)){
-    statistic <- as.matrix(statistics[[k]](estimates = estimates, estimands = estimands))
-    return_matrix[ , k] <- statistic$statistic
-    colnames(return_matrix)[k] <- ifelse(is.null(statistic$label), label[k], statistic$label)
+    statistic <- statistics[[k]](estimates = estimates, estimands = estimands)
+    return_matrix[ , k] <- as.matrix(statistic$statistic)
+    if(!is.null(statistic$label)){
+      colnames(return_matrix)[k] <- statistic$label
+    }
   }
   
-  return_list <- list(diagnosis = return_matrix, simulations = simulations)
+  return_list <- list(diagnosis = return_matrix, estimates = estimates, estimands = estimands)
   
   structure(return_list, class = "diagnosis")
   
