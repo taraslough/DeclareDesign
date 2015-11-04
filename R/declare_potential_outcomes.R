@@ -11,7 +11,6 @@ default_potential_outcomes_function <- function(formula, data){
 declare_potential_outcomes <- function(potential_outcomes_function = default_potential_outcomes_function,
                                        formula = NULL, outcome_variable_name = NULL, condition_names = NULL, sep = "_", 
                                        assignment_variable_name = NULL,
-                                       potential_outcomes_type = "outcome",
                                        ...){
   
   function_options <- list(...)
@@ -49,7 +48,7 @@ declare_potential_outcomes <- function(potential_outcomes_function = default_pot
                         outcome_variable_name = outcome_variable_name, sep = "_", condition_names = condition_names,
                         assignment_variable_name = assignment_variable_name,
                         arguments = arguments, 
-                        potential_outcomes_type = potential_outcomes_type,
+                        potential_outcomes_type = "outcome",
                         call = match.call())
   
   structure(return_object, class = "potential_outcomes")

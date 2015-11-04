@@ -87,8 +87,8 @@ declare_noncompliance <- function(noncompliance_function = default_noncompliance
                                  condition_names = condition_names, 
                                  sep = sep, 
                                  assignment_variable_name = assignment_variable_name, 
-                                 potential_outcomes_type = "noncompliance",
                                  ... = ...)
+    outcomes_object$potential_outcomes_type <- "noncompliance"
     return(outcomes_object)
 }
 
