@@ -55,7 +55,7 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
     
     if(assignment$assignment_type != "custom" & assignment$assignment_type != "existing assignment") {
       
-      data[, "assignment_probabilities"] <- get_observed_assignment_probabilities(treatment_assignment = assignment$assignment_variable_name,
+      data[, "assignment_probabilities"] <- get_observed_assignment_probabilities(assignment_variable_name = assignment$assignment_variable_name,
                                                    assignment = assignment, data = data)
       
       data[, "assignment_weights"] <- 1/data[, "assignment_probabilities"]
@@ -175,7 +175,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
 #'
 #' Description
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
-#' @param treatment_assignment The name of the treatment assignment variable in data.
+#' @param assignment_variable_name The name of the treatment assignment variable in data.
 #' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
 #' @return A vector probabilities of assignment to treatment.
 #' @examples 
@@ -190,19 +190,19 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
 #' smp_draw$Z <- assign_treatment_indicator(data = smp_draw, assignment=assignment)
 #' 
 #' probs <- get_observed_assignment_probabilities(data = smp_draw, 
-#'                         treatment_assignment= "Z",
+#'                         assignment_variable_name= "Z",
 #'                         assignment=assignment)
 #'                         
 #' table(probs)                         
 #' 
 #' @export
-get_observed_assignment_probabilities <- function(data, treatment_assignment, assignment){
+get_observed_assignment_probabilities <- function(data, assignment_variable_name, assignment){
   prob_mat <- get_assignment_probabilities(assignment = assignment, data = data)
   prob_obs <- rep(NA, nrow(data))
-  condition_names <- unique(data[,treatment_assignment])
+  condition_names <- unique(data[,assignment_variable_name])
   for(i in 1:length(condition_names)){
-    prob_obs[data[,treatment_assignment]==condition_names[i]] <- 
-      prob_mat[data[,treatment_assignment]==condition_names[i], paste0("prob_", condition_names[i])]
+    prob_obs[data[,assignment_variable_name]==condition_names[i]] <- 
+      prob_mat[data[,assignment_variable_name]==condition_names[i], paste0("prob_", condition_names[i])]
   }
   return(prob_obs)  
 }
