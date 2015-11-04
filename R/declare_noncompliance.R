@@ -49,7 +49,7 @@ default_noncompliance_function <- function(data, condition_names,
 #' 
 #' @param noncompliance_function A function of data that returns a vector of treatments as received.
 #' @param formula An optional formula to be passed to noncompliance_function
-#' @param outcome_name The name of the variable describing treatment receipt. Defaults to "D".
+#' @param outcome_variable_name The name of the variable describing treatment receipt. Defaults to "D".
 #' @param condition_names An optional vector of treatment conditions to be passed to noncompliance_function
 #' @param sep A character string describing the separator for concatenating outcomes and conditions. Defaults to "_".
 #' @param assignment_variable_name The name of the treatment assignment variable
@@ -76,14 +76,14 @@ default_noncompliance_function <- function(data, condition_names,
 #' @export
 declare_noncompliance <- function(noncompliance_function = default_noncompliance_function,
                                   formula = NULL, 
-                                  outcome_name = "D", 
+                                  outcome_variable_name = "D", 
                                   condition_names = NULL, sep = "_", 
                                   assignment_variable_name = NULL, ...){
     
     outcomes_object <- 
       declare_potential_outcomes(potential_outcomes_function = noncompliance_function, 
                                  formula = formula, 
-                                 outcome_name = outcome_name, 
+                                 outcome_variable_name = outcome_variable_name, 
                                  condition_names = condition_names, 
                                  sep = sep, 
                                  assignment_variable_name = assignment_variable_name, 

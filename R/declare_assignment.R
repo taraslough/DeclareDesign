@@ -162,7 +162,7 @@ declare_assignment <-
         if(!all(sapply(potential_outcomes, class)=="potential_outcomes")){ 
           stop("All objects in the potential_outcomes argument must be created by declare_potential_outcomes.")
         }
-        if(length(unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$outcome_name})))) != length(potential_outcomes)){
+        if(length(unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$outcome_variable_name})))) != length(potential_outcomes)){
           stop("Please use different outcome names in each potential outcomes object.")
         }
         condition_names <- 

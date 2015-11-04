@@ -40,7 +40,7 @@ draw_potential_outcomes <- function(data, potential_outcomes, condition_names = 
       for(j in 1:length(condition_names[[i]])){
         data_internal <- data
         data_internal[potential_outcomes[[i]]$assignment_variable_name] <- condition_names[[i]][j]
-        data[,paste0(potential_outcomes[[i]]$outcome_name, potential_outcomes[[i]]$sep, 
+        data[,paste0(potential_outcomes[[i]]$outcome_variable_name, potential_outcomes[[i]]$sep, 
                      condition_names[[i]][j])] <- draw_outcome_vector(data = data_internal, potential_outcomes = potential_outcomes[[i]])
       }
     }
@@ -60,7 +60,7 @@ draw_outcome <- function(data, potential_outcomes){
   }
   
   for(i in 1:length(potential_outcomes)){
-      data[, potential_outcomes[[i]]$outcome_name] <- 
+      data[, potential_outcomes[[i]]$outcome_variable_name] <- 
         draw_outcome_vector(data = data, potential_outcomes = potential_outcomes[[i]])
   }
   
