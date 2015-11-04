@@ -3,7 +3,7 @@
 #' @param strata_variable_name The name of the variable according to which stratified random sampling should be conducted.
 #' @param cluster_variable_name The name of the variable according to which clustered random sampling should be conducted.
 #' @param n The number of units (or clusters) to be sampled.
-#' @param strata_n A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.
+#' @param strata_n A vector of the number of units in each stratum to be sampled.
 #' @param strata_probabilities 
 #' @param custom_sampling_function 
 #' @param custom_stratification_function 
