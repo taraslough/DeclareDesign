@@ -1,9 +1,13 @@
+##estimand = mean(Y_Z1 - Y_Z0)
+##estimand = "mean(Y_Z1 - Y_Z0)"
+##estimand = declare_ATE()
+
 #' Declare Estimand
 #' 
-#' This function creates an estimand object. 
+#' This function creates an estimand object. IMPROVE.
 #'
 #' @param estimand A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.  Users may want to use our built-in estimand functions such as \code{\link{declare_ATE}}
-#' @param text_estimand A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
+#' @param estimand_text A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
 #' @param target Either "population" or "sample".  Defaults to "population".
 #' @param subset A character string that contains an expression that can be passed to the subset operator.  For example subset = "income > 50".
 #' @param weights_variable The name of the weighting variable (optional).
@@ -11,7 +15,7 @@
 #' @param ... 
 #'
 #' @export
-declare_estimand <- function(estimand_function, target = "population",
+declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, target = "population",
                              potential_outcomes, condition_names = NULL,
                              subset = NULL, weights_variable = NULL, 
                              label = NULL, ...) {
@@ -20,23 +24,52 @@ declare_estimand <- function(estimand_function, target = "population",
     stop("Weighted estimands are not yet implemented. Please contact the authors if you are interested in using them.")
   }
   
+  if(!is.null(estimand) & !is.null(estimand_text)){
+    stop("Please provide either an estimand as a string or an expression, or a custom_estimand_function.")
+  }
+  
   if(is.null(potential_outcomes)){
     stop("Please provide a potential_outcomes object. This is used to create the potential outcomes before calculating the estimand.")
   }
   
-  estimand_options <- list(...)
-  
-  ## if a custom estimand is provided
-  
-  estimand_function <- function(data){
-    argument_names <- names(formals(estimand))
-    if(!is.null(subset) & "subset" %in% argument_names)
-      estimand_options$subset <- with(data, eval(parse(text = subset)))
-    if(!is.null(weights_variable) & "weights" %in% argument_names)
-      estimand_options$weights <- data[, weights_variable]
-    estimand_options$data <- data
+  if(!is.null(estimand_text)){
     
-    return(do.call(estimand, args = estimand_options))
+    ## if no custom estimand is provided
+    
+    if(is.null(label)){
+      label <- as.character(estimand_text)
+    }
+    
+    if(!is.character(eval(estimand_text))){
+      estimand_text <- quote(estimand_text)
+    } else {
+      estimand_text <- parse(text = estimand_text)
+    }
+    
+    estimand_function <- function(data){
+      if(!is.null(subset))
+        data <- subset(data, subset = eval(parse(text = subset)))
+      ##if(!is.null(weights_variable))
+      ##  estimator_options$weights <- data[, weights_variable]
+      return(eval(estimand_text, envir = data))
+    }
+  } else {
+    
+    estimand_options <- list(...)
+    
+    ## if a custom estimand is provided
+    
+    estimand_function <- function(data){
+      argument_names <- names(formals(estimand))
+      if(!is.null(subset) & "subset" %in% argument_names)
+        estimand_options$subset <- with(data, eval(parse(text = subset)))
+      if(!is.null(weights_variable) & "weights" %in% argument_names)
+        estimand_options$weights <- data[, weights_variable]
+      estimand_options$data <- data
+      
+      return(do.call(estimand, args = estimand_options))
+    }
+    
   }
   
   structure(list(estimand = estimand_function, target = target, potential_outcomes = potential_outcomes, condition_names = condition_names, 

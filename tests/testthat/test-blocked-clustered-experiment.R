@@ -25,7 +25,7 @@ test_that("test blocked and clustered experiment", {
   
   # Diagnosis ---------------------------------------------------------------
   
-  estimand <- declare_estimand(text_estimand = "mean(Y_1 - Y_0)", potential_outcomes = potential_outcomes)
+  estimand <- declare_estimand(estimand_text = "mean(Y_1 - Y_0)", potential_outcomes = potential_outcomes)
   estimator_d_i_m <- declare_estimator(estimates = difference_in_means_blocked,
                                        estimates_options = list(block_variable = "elevation_high"),
                                        formula = Y ~ Z, estimand = estimand)
