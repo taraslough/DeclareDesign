@@ -1,30 +1,30 @@
 #' Integerize a data frame
 #' 
-#' @param data_frame a object of type data.frame
+#' @param data a object of type data.frame
 #'
 #' @export
-integerize <- function(data_frame){
-  for(i in 1:ncol(data_frame)){
+integerize <- function(data){
+  for(i in 1:ncol(data)){
     numeric_check <- FALSE
-    numeric_check <- class(data_frame[,i])%in%c("numeric","integer")
+    numeric_check <- class(data[,i]) %in% c("numeric","integer")
     
     if(!numeric_check){
-      suppressWarnings(numeric_check <- identical(data_frame[,i],as.factor(as.integer(as.character(data_frame[,i])))))
+      suppressWarnings(numeric_check <- identical(data[,i], as.factor(as.integer(as.character(data[,i])))))
       if(!numeric_check){
-        suppressWarnings(numeric_check <- identical(data_frame[,i],as.factor(as.numeric(as.character(data_frame[,i])))))
+        suppressWarnings(numeric_check <- identical(data[,i], as.factor(as.numeric(as.character(data[,i])))))
         if(!numeric_check){
-          suppressWarnings(numeric_check <- identical(data_frame[,i],as.numeric(as.character(data_frame[,i]))))
+          suppressWarnings(numeric_check <- identical(data[,i], as.numeric(as.character(data[,i]))))
           if(!numeric_check){
-            suppressWarnings(numeric_check <- identical(data_frame[,i],as.numeric(as.character(data_frame[,i]))))
+            suppressWarnings(numeric_check <- identical(data[,i], as.numeric(as.character(data[,i]))))
           }
         }
       }
       if(numeric_check){
-        data_frame[,i] <- as.integer(as.character(data_frame[,i]))
+        data[,i] <- as.integer(as.character(data[,i]))
       }
     }
   }
-  return(data_frame)
+  return(data)
 }
 
 #' Print version of R and packages to improve reproducibility
