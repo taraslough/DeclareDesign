@@ -1,4 +1,8 @@
-#' Make the full dataset or just a sample
+#' Draw a population data frame based on a declared data structure
+#' 
+#' @param population A population object describing the population data structure created by the \code{declare_population} function.
+#' @param potential_outcomes A potential outcomes object created by the \code{potential_outcomes} object.
+#' @param condition_names A character vector indicating which conditions to draw potential outcomes for (for example c("Z0", "Z1") would create "Y_Z0" and "Y_Z1" if the outcome is named "Y").
 #'
 #' @export
 draw_population <- function(population, 
@@ -37,7 +41,6 @@ draw_population <- function(population,
   
 }
 
-#' @export
 draw_covariates <- function(population){
   if (class(population) != "population" )
     stop("Please send the population argument an object created using declare_population. You can send just a data frame to declare_population to use your own fixed data.")
@@ -48,8 +51,7 @@ draw_covariates <- function(population){
 }
 
 
-#' @export
-make_proportions <- function(population_proportions,N){
+make_proportions <- function(population_proportions, N){
   
   counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
   
@@ -66,6 +68,7 @@ make_proportions <- function(population_proportions,N){
   outcomes <- integerize(as.data.frame(outcomes))
   
   return(outcomes)
+  
 }
 
 

@@ -1,8 +1,3 @@
-#' Integerize a data frame
-#' 
-#' @param data a object of type data.frame
-#'
-#' @export
 integerize <- function(data){
   for(i in 1:ncol(data)){
     numeric_check <- FALSE

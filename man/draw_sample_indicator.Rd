@@ -2,7 +2,7 @@
 % Please edit documentation in R/draw_sample.R
 \name{draw_sample_indicator}
 \alias{draw_sample_indicator}
-\title{draw sample from population}
+\title{Draw a sample indicator from population}
 \usage{
 draw_sample_indicator(data, sampling, random_seed = NULL)
 }
@@ -10,11 +10,16 @@ draw_sample_indicator(data, sampling, random_seed = NULL)
 \item{data}{A dataframe, often created by \code{\link{draw_population}}.}
 
 \item{sampling}{A sampling object created by \code{\link{declare_sampling}}; or a function that samples}
+
+\item{random_seed}{A random seed to fix the sampling across draws.}
 }
 \value{
 A vector of 0's and 1's indicating which population units are sampled.
 }
 \description{
+This function takes a data.frame object representing the population and returns a vector of sampling indicators, 1 for sampled and 0 for not sampled.
+}
+\details{
 Description
 }
 

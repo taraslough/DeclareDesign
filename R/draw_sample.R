@@ -1,5 +1,13 @@
+#' Draw a sample from the population
+#' 
+#' This function takes a data frame representing the population and returns a data frame of the data from a sample drawn from the population.
+#' 
+#' @param data A data.frame object representing the population to sample from, typically created by \code{draw_population}.
+#' @param sampling A sampling object describing the sampling strategy created by \code{declare_sampling}.
+#' @param random_seed A random seed to fix the sampling across draws.
+#'
 #' @export
-draw_sample <- function(data, sampling = NULL, noncompliance = NULL, random_seed = NULL) {
+draw_sample <- function(data, sampling = NULL, random_seed = NULL) {
   
   # Construct strata and clusters if custom functions --------------------------------------------------
   
@@ -33,12 +41,17 @@ draw_sample <- function(data, sampling = NULL, noncompliance = NULL, random_seed
   
 }
 
-#' draw sample from population
+#' Draw a sample indicator from population
+#' 
+#' This function takes a data.frame object representing the population and returns a vector of sampling indicators, 1 for sampled and 0 for not sampled.
 #'
 #' Description
 #' @param data A dataframe, often created by \code{\link{draw_population}}.
 #' @param sampling A sampling object created by \code{\link{declare_sampling}}; or a function that samples
+#' @param random_seed A random seed to fix the sampling across draws.
+#' 
 #' @return A vector of 0's and 1's indicating which population units are sampled.
+#' 
 #' @export
 draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
   
