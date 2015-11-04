@@ -4,12 +4,13 @@
 \alias{get_observed_assignment_probabilities}
 \title{Reveal probabilties of assignment to realized treatment conditions}
 \usage{
-get_observed_assignment_probabilities(data, treatment_assignment, assignment)
+get_observed_assignment_probabilities(data, assignment_variable_name,
+  assignment)
 }
 \arguments{
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 
-\item{treatment_assignment}{The name of the treatment assignment variable in data.}
+\item{assignment_variable_name}{The name of the treatment assignment variable in data.}
 
 \item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
 }
@@ -31,7 +32,7 @@ smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 smp_draw$Z <- assign_treatment_indicator(data = smp_draw, assignment=assignment)
 
 probs <- get_observed_assignment_probabilities(data = smp_draw, 
-                        treatment_assignment= "Z",
+                        assignment_variable_name= "Z",
                         assignment=assignment)
                         
 table(probs)                         
