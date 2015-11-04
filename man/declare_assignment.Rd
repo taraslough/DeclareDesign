@@ -6,10 +6,11 @@
 \usage{
 declare_assignment(condition_names = NULL, potential_outcomes = NULL,
   block_variable_name = NULL, cluster_variable_name = NULL, m = NULL,
-  m_each = NULL, prob_each = NULL, block_m = NULL, block_prob = NULL,
-  baseline_condition = NULL, treatment_variable = "Z",
-  custom_assignment_function = NULL, custom_block_function = NULL,
-  custom_cluster_function = NULL, existing_assignment_variable_name = NULL)
+  m_each = NULL, prob_each = NULL, block_m = NULL,
+  block_probabilities = NULL, baseline_condition = NULL,
+  treatment_variable = "Z", custom_assignment_function = NULL,
+  custom_block_function = NULL, custom_cluster_function = NULL,
+  existing_assignment_variable_name = NULL)
 }
 \arguments{
 \item{condition_names}{A vector describing the conditions to which subjects can be assigned. Alternatively, condition_names can be obtained from a potential_outcomes object.}
@@ -28,7 +29,7 @@ declare_assignment(condition_names = NULL, potential_outcomes = NULL,
 
 \item{block_m}{A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.}
 
-\item{block_prob}{A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.}
+\item{block_probabilities}{A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.}
 
 \item{baseline_condition}{The value of condition_names that represents the "baseline" condition.  This is the condition against which treatment effects will be assessed. Defaults to the first value of condition_names.}
 
@@ -75,14 +76,14 @@ assignment_6 <- declare_assignment(potential_outcomes = potential_outcomes, bloc
 assignment_7 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", prob_each = c(.3, .6, .1))
 assignment_8 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", condition_names = c(0, 1))
 
-block_prob <- rbind(c(.1, .2, .7),
+block_probabilities <- rbind(c(.1, .2, .7),
                     c(.1, .7, .2),
                     c(.7, .2, .1),
                     c(.7, .1, .2),
                     c(.2, .1, .7))
 assignment_8.5 <- declare_assignment(potential_outcomes = potential_outcomes, 
                                      block_variable_name = "ideo_3",
-                                     block_prob = block_prob)
+                                     block_probabilities = block_probabilities)
 
 # Clustered assignments 
 assignment_9 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID")

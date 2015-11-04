@@ -32,14 +32,14 @@ test_that("test assignment and probability functions", {
   assignment_7 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", prob_each = c(.3, .6, .1))
   assignment_8 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", condition_names = c(0, 1))
   
-  block_prob <- rbind(c(.1, .2, .7),
+  block_probabilities <- rbind(c(.1, .2, .7),
                       c(.1, .7, .2),
                       c(.7, .2, .1),
                       c(.7, .1, .2),
                       c(.2, .1, .7))
   assignment_8.5 <- declare_assignment(potential_outcomes = potential_outcomes, 
                                        block_variable_name = "ideo_3",
-                                       block_prob = block_prob)
+                                       block_probabilities = block_probabilities)
   
   # Clustered assignments 
   assignment_9 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID")

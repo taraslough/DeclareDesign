@@ -81,9 +81,9 @@ stratified_sampling <- function(strata_var, prob = NULL, strata_n = NULL, strata
     prob_each <- c(1 - prob, prob)
   }
   
-  block_prob <- NULL
+  block_probabilities <- NULL
   if(!is.null(strata_prob)){
-    block_prob <- cbind(1-strata_prob, strata_prob)  
+    block_probabilities <- cbind(1-strata_prob, strata_prob)  
   }
   
   if(!is.null(strata_n)){
@@ -94,7 +94,7 @@ stratified_sampling <- function(strata_var, prob = NULL, strata_n = NULL, strata
   }
   
   
-  blocked_assignment(block_variable = strata_var, block_m = strata_n_matrix, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
+  blocked_assignment(block_variable = strata_var, block_m = strata_n_matrix, block_probabilities = block_probabilities, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 
@@ -116,9 +116,9 @@ stratified_and_clustered_sampling <- function(clust_var, strata_var, strata_n = 
     prob_each <- c(1-prob, prob)
   }
   
-  block_prob <- NULL
+  block_probabilities <- NULL
   if(!is.null(strata_prob)){
-    block_prob <- cbind(1-strata_prob, strata_prob)  
+    block_probabilities <- cbind(1-strata_prob, strata_prob)  
   }
   
   if(!is.null(strata_n)){
@@ -130,5 +130,5 @@ stratified_and_clustered_sampling <- function(clust_var, strata_var, strata_n = 
   
   blocked_and_clustered_assignment(clust_var = clust_var, block_variable = strata_var, 
                            block_m = strata_n_matrix, prob_each = prob_each, 
-                           block_prob = block_prob, condition_names = c(0,1), baseline_condition = 0)
+                           block_probabilities = block_probabilities, condition_names = c(0,1), baseline_condition = 0)
 }

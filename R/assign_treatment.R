@@ -113,7 +113,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   m_each <- assignment$m_each
   prob_each <- assignment$prob_each
   block_m <- assignment$block_m
-  block_prob <- assignment$block_prob
+  block_probabilities <- assignment$block_probabilities
   assignment_type <- assignment$assignment_type
   
   # For custom random assignment functions
@@ -143,7 +143,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
     Z <- blocked_assignment(block_variable=block_variable, 
                   block_m = block_m,
                   prob_each = prob_each,
-                  block_prob=block_prob,
+                  block_probabilities=block_probabilities,
                   condition_names = condition_names,
                   baseline_condition=baseline_condition)
   }
@@ -163,7 +163,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
     Z <- blocked_and_clustered_assignment(clust_var=clust_var,
                                   block_variable=block_variable, 
                                   block_m=block_m,
-                                  block_prob=block_prob,
+                                  block_probabilities=block_probabilities,
                                   prob_each = prob_each,
                                   condition_names = condition_names,
                                   baseline_condition=baseline_condition)
