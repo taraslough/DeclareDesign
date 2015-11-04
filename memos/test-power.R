@@ -40,7 +40,7 @@ diagnosis <- diagnose_design(design = design, sims = 1000)
 diagnosis
 
 draw_population(population = population) %>%
-  reveal_design(sampling = sampling,
+  draw_data(sampling = sampling,
                 assignment = assignment, 
                 potential_outcomes = potential_outcomes) %>% 
   head

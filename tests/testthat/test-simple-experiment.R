@@ -40,8 +40,8 @@ test_that("test simple experiment analysis and diagnosis", {
   estimates <- get_estimates(estimator = estimator_d_i_m, data = smp_draw)
   estimand <- get_estimands(estimator = estimator_d_i_m, population_data = pop_draw)
   
-  # test reveal_design
+  # test draw_data
   
-  smp_draw_reveal <- reveal_design(data = pop_draw, sampling = sampling, assignment = assignment, potential_outcomes = potential_outcomes)
+  smp_draw_reveal <- draw_data(population = population, sampling = sampling, assignment = assignment, potential_outcomes = potential_outcomes)
   
 })
