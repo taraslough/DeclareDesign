@@ -16,7 +16,7 @@ test_that("test simple experiment analysis and diagnosis", {
 
 # Diagnosis ---------------------------------------------------------------
 
-  estimand <- declare_estimand(default_estimand_function("mean(Y_1 - Y_0)"), potential_outcomes = potential_outcomes)
+  estimand <- declare_estimand(estimand_text = "mean(Y_1 - Y_0)", potential_outcomes = potential_outcomes)
   estimator_d_i_m <- declare_estimator(estimates = difference_in_means, formula = Y ~ Z, estimand = estimand)
   estimator_lm <- declare_estimator(model = lm, estimates = get_regression_coefficient, 
                                     estimates_options = list(coefficient_name = "Z"),

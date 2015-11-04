@@ -24,8 +24,8 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, tar
     stop("Weighted estimands are not yet implemented. Please contact the authors if you are interested in using them.")
   }
   
-  if(!is.null(estimand) & !is.null(estimand_text)){
-    stop("Please provide either an estimand as a string or an expression, or a custom_estimand_function.")
+  if(!is.null(estimand_function) & !is.null(estimand_text)){
+    stop("Please provide either estimand_function or estimand_text.")
   }
   
   if(is.null(potential_outcomes)){
