@@ -7,6 +7,8 @@
 #' @param sims 
 #' @param ... 
 #'
+#' @importFrom foreach foreach registerDoSEQ getDoParWorkers %dopar%
+#' @importFrom doRNG %dorng%
 #' @export
 diagnose_design <- function(design = NULL, diagnosis = NULL, statistics = list(calculate_PATE, calculate_sd_SATE, calculate_power, 
                                                                                calculate_RMSE, calculate_bias, calculate_coverage, 
