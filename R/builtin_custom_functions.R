@@ -1,5 +1,3 @@
-
-
 #' Estimate the ICC of a given variable
 #'
 #' @param variable A vector whose intra-cluster correlation coefficient should be estimated
@@ -19,6 +17,18 @@ calculate_ICC <- function(variable,cluster){
   return(rho)
 }
 
+
+# Built-in Estimates Functions --------------------------------------------
+
+
+#' Extract Regression Coefficients
+#' 
+#' @param model 
+#' @param formula 
+#' @param coefficient_name 
+#' @param statistics
+#' @param estimates_labels 
+#'
 #' @export
 get_regression_coefficient <- function(model, formula = NULL, coefficient_name, 
                                        statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
@@ -38,6 +48,17 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
   return(output[which(rownames(output) %in% statistics), , drop = FALSE])
 }
 
+
+# Built-in-Estimators -----------------------------------------------------
+
+#' Built-in Estimators: Difference-in-means
+#' 
+#' @param formula An object of class "formula", such as Y ~ Z
+#' @param data A data.frame, often created by \code{\link{draw_population}}.
+#' @param weights An optional vector of weights (not yet implemented).
+#' @param subset An optional vector specifying a subset of observations to be used.
+#' @param alpha The significance level, 0.05 by default.
+#'
 #' @export
 difference_in_means <- function(formula, data, weights = NULL, subset = NULL, ##cluster_variable = NULL, 
                                 alpha = .05) {
@@ -86,8 +107,19 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, ##
   return(return_matrix)
 }
 
+
+#' Built-in Estimators: Blocked Difference-in-means 
+#' 
+#' @param formula An object of class "formula", such as Y ~ Z
+#' @param data A data.frame, often created by \code{\link{draw_population}}.
+#' @param weights An optional vector of weights (not yet implemented).
+#' @param subset An optional vector specifying a subset of observations to be used.
+#' @param block_variable The name of the blocking variable.
+#' @param alpha The significance level, 0.05 by default.
+#'
 #' @export
-difference_in_means_blocked <- function(formula, data, subset = NULL, block_variable = NULL, ##cluster_variable = NULL, 
+difference_in_means_blocked <- function(formula, data, weights = NULL, subset = NULL, 
+                                        block_variable = NULL, ##cluster_variable = NULL, 
                                         alpha = .05) {
   
   if(is.null(block_variable))
