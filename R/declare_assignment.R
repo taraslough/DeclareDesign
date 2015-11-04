@@ -325,7 +325,7 @@ complete_assignment <-
   }
 #' @export
 blocked_assignment <- 
-  function(block_var, block_m=NULL, block_prob = NULL, prob_each = NULL, condition_names = NULL, baseline_condition=NULL){
+  function(block_variable, block_m=NULL, block_prob = NULL, prob_each = NULL, condition_names = NULL, baseline_condition=NULL){
     
     # Checks
     
@@ -343,16 +343,16 @@ blocked_assignment <-
     
     # Setup (obtain unique blocks and create assignment vector)
     
-    blocks <- sort(unique(block_var))
-    assign <- rep(NA, length(block_var))
+    blocks <- sort(unique(block_variable))
+    assign <- rep(NA, length(block_variable))
     
     # Case 1: Assumes equal probabilties for each condition in all block
     # Does complete_assignment() by block
     
     if(is.null(block_m) & is.null(prob_each) & is.null(block_prob)){
       for(i in 1:length(blocks)){
-        N_block <- sum(block_var==blocks[i])
-        assign[block_var==blocks[i]] <- 
+        N_block <- sum(block_variable==blocks[i])
+        assign[block_variable==blocks[i]] <- 
           complete_assignment(N = N_block, 
                       condition_names=condition_names, 
                       baseline_condition = baseline_condition)
@@ -365,10 +365,10 @@ blocked_assignment <-
     if(!is.null(block_m)){
       for(i in 1:length(blocks)){
         if(nrow(block_m)!=length(unique(blocks))){
-          stop("block_m should have the same number of rows as there are unique blocks in block_var")
+          stop("block_m should have the same number of rows as there are unique blocks in block_variable")
         }
-        N_block <- sum(block_var==blocks[i])
-        assign[block_var==blocks[i]] <- complete_assignment(N = N_block, 
+        N_block <- sum(block_variable==blocks[i])
+        assign[block_variable==blocks[i]] <- complete_assignment(N = N_block, 
                                                     m_each = block_m[i,], 
                                                     condition_names=condition_names, 
                                                     baseline_condition = baseline_condition)
@@ -383,8 +383,8 @@ blocked_assignment <-
         if(sum(prob_each)!=1){
           stop("prob_each must sum to 1.")
         }
-        N_block <- sum(block_var==blocks[i])
-        assign[block_var==blocks[i]] <- complete_assignment(N = N_block, 
+        N_block <- sum(block_variable==blocks[i])
+        assign[block_variable==blocks[i]] <- complete_assignment(N = N_block, 
                                                     prob_each = prob_each, 
                                                     condition_names=condition_names, 
                                                     baseline_condition = baseline_condition)
@@ -400,8 +400,8 @@ blocked_assignment <-
         if(sum(prob_each_local)!=1){
           stop("Each row of block_prob must sum to 1.")
         }
-        N_block <- sum(block_var==blocks[i])
-        assign[block_var==blocks[i]] <- complete_assignment(N = N_block, 
+        N_block <- sum(block_variable==blocks[i])
+        assign[block_variable==blocks[i]] <- complete_assignment(N = N_block, 
                                                     prob_each = prob_each_local, 
                                                     condition_names=condition_names, 
                                                     baseline_condition = baseline_condition)
@@ -435,12 +435,12 @@ clustered_assignment <- function(clust_var, m=NULL, m_each = NULL, prob_each = N
 
 #' @export
 blocked_and_clustered_assignment <- 
-  function(clust_var, block_var, block_m=NULL, prob_each=NULL, block_prob=NULL,condition_names = NULL, baseline_condition=NULL) {
+  function(clust_var, block_variable, block_m=NULL, prob_each=NULL, block_prob=NULL,condition_names = NULL, baseline_condition=NULL) {
     
     # confirm that all units within clusters are in the same block
     # is there a computationally faster way to confirm this (possible c++ loop?)
     
-    if(!all(rowSums(table(clust_var, block_var) != 0)==1)){
+    if(!all(rowSums(table(clust_var, block_variable) != 0)==1)){
       stop("All units within a cluster must be in the same block.")
     }
     
@@ -450,11 +450,11 @@ blocked_and_clustered_assignment <-
     # get the block for each cluster
     clust_blocks <- rep(NA, length(unique_clust))
     for(i in 1:length(unique_clust)){
-      clust_blocks[i] <- unique(block_var[clust_var==unique_clust[i]])  
+      clust_blocks[i] <- unique(block_variable[clust_var==unique_clust[i]])  
     }
     
     # Conduct random assignment at cluster level
-    z_clust <- blocked_assignment(block_var = clust_blocks, 
+    z_clust <- blocked_assignment(block_variable = clust_blocks, 
                         block_m = block_m, 
                         prob_each = prob_each,
                         block_prob = block_prob,

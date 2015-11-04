@@ -104,7 +104,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   
   N <- nrow(data)
   
-  block_var <- data[,assignment$block_variable_name]
+  block_variable <- data[,assignment$block_variable_name]
   clust_var <- data[,assignment$cluster_variable_name]
   
   condition_names <- assignment$condition_names
@@ -140,7 +140,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   
   # For block random assignment designs
   if(assignment_type=="blocked"){
-    Z <- blocked_assignment(block_var=block_var, 
+    Z <- blocked_assignment(block_variable=block_variable, 
                   block_m = block_m,
                   prob_each = prob_each,
                   block_prob=block_prob,
@@ -161,7 +161,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   # For blocked and clustered random assignment designs
   if(assignment_type=="blocked and clustered"){
     Z <- blocked_and_clustered_assignment(clust_var=clust_var,
-                                  block_var=block_var, 
+                                  block_variable=block_variable, 
                                   block_m=block_m,
                                   block_prob=block_prob,
                                   prob_each = prob_each,

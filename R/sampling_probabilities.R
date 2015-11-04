@@ -86,7 +86,7 @@ stratified_sampling_probabilities <- function(strata_var, prob = NULL, strata_m 
     block_prob <- cbind(1-strata_prob, strata_prob)  
   }
   
-  prob_mat <- blocked_assignment_probabilities(block_var = strata_var, block_m = strata_m, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1))
+  prob_mat <- blocked_assignment_probabilities(block_variable = strata_var, block_m = strata_m, block_prob = block_prob, prob_each = prob_each, condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }
@@ -119,7 +119,7 @@ stratified_and_clustered_sampling_probabilities <- function(clust_var, strata_va
   
   # Must do someday
   # block_m, strata_m
-  prob_mat <- blocked_and_clustered_assignment_probabilities(clust_var = clust_var, block_var = strata_var, 
+  prob_mat <- blocked_and_clustered_assignment_probabilities(clust_var = clust_var, block_variable = strata_var, 
                            block_m = strata_m, prob_each = prob_each, 
                            block_prob = block_prob, condition_names = c(0,1))
   
