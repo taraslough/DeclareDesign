@@ -4,15 +4,11 @@
 \alias{declare_estimand}
 \title{Declare Estimand}
 \usage{
-declare_estimand(estimand = NULL, text_estimand = NULL,
-  target = "population", potential_outcomes, condition_names = NULL,
-  subset = NULL, weights_variable = NULL, label = NULL, ...)
+declare_estimand(estimand_function, target = "population", potential_outcomes,
+  condition_names = NULL, subset = NULL, weights_variable = NULL,
+  label = NULL, ...)
 }
 \arguments{
-\item{estimand}{A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.  Users may want to use our built-in estimand functions such as \code{\link{declare_ATE}}}
-
-\item{text_estimand}{A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.}
-
 \item{target}{Either "population" or "sample".  Defaults to "population".}
 
 \item{subset}{A character string that contains an expression that can be passed to the subset operator.  For example subset = "income > 50".}
@@ -22,8 +18,12 @@ declare_estimand(estimand = NULL, text_estimand = NULL,
 \item{label}{A character string for the estimand's label.}
 
 \item{...}{}
+
+\item{estimand}{A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.  Users may want to use our built-in estimand functions such as \code{\link{declare_ATE}}}
+
+\item{text_estimand}{A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.}
 }
 \description{
-This function creates an estimand object. IMPROVE.
+This function creates an estimand object.
 }
 
