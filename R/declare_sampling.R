@@ -74,7 +74,7 @@ simple_sampling <- function(N, n = NULL, prob = NULL){
 }
 
 #' @export
-stratified_sampling <- function(strata_var, prob = NULL, strata_n = NULL, strata_prob = NULL){
+stratified_sampling <- function(strata_variable, prob = NULL, strata_n = NULL, strata_prob = NULL){
   prob_each <- NULL
   
   if(!is.null(prob)){
@@ -87,14 +87,14 @@ stratified_sampling <- function(strata_var, prob = NULL, strata_n = NULL, strata
   }
   
   if(!is.null(strata_n)){
-    strata_totals <- table(strata_var)
+    strata_totals <- table(strata_variable)
     strata_n_matrix <- cbind(strata_totals - strata_n, strata_n)
   }else{
     strata_n_matrix <-NULL
   }
   
   
-  blocked_assignment(block_variable = strata_var, block_m = strata_n_matrix, block_probabilities = block_probabilities, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
+  blocked_assignment(block_variable = strata_variable, block_m = strata_n_matrix, block_probabilities = block_probabilities, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 
@@ -109,7 +109,7 @@ cluster_sampling <- function(cluster_variable, n = NULL, prob = NULL){
 }
 
 #' @export
-stratified_and_clustered_sampling <- function(cluster_variable, strata_var, strata_n = NULL, prob = NULL, strata_prob = NULL){
+stratified_and_clustered_sampling <- function(cluster_variable, strata_variable, strata_n = NULL, prob = NULL, strata_prob = NULL){
   
   prob_each <- NULL
   if(!is.null(prob)){
@@ -122,13 +122,13 @@ stratified_and_clustered_sampling <- function(cluster_variable, strata_var, stra
   }
   
   if(!is.null(strata_n)){
-    strata_totals <- table(strata_var)
+    strata_totals <- table(strata_variable)
     strata_n_matrix <- cbind(strata_totals - strata_n, strata_n)
   }else{
     strata_n_matrix <-NULL
   }
   
-  blocked_and_clustered_assignment(cluster_variable = cluster_variable, block_variable = strata_var, 
+  blocked_and_clustered_assignment(cluster_variable = cluster_variable, block_variable = strata_variable, 
                            block_m = strata_n_matrix, prob_each = prob_each, 
                            block_probabilities = block_probabilities, condition_names = c(0,1), baseline_condition = 0)
 }
