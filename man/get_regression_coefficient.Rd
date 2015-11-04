@@ -6,7 +6,7 @@
 \usage{
 get_regression_coefficient(model, formula = NULL, coefficient_name,
   statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"),
-  estimates_labels = "")
+  label = "")
 }
 \arguments{
 \item{model}{A model fit}
@@ -17,7 +17,7 @@ get_regression_coefficient(model, formula = NULL, coefficient_name,
 
 \item{statistics}{The statistics to extract. Defaults to c("est", "se", "p", "ci_lower", "ci_upper", "df")}
 
-\item{estimates_labels}{Label}
+\item{label}{Character label for the regression coefficient}
 }
 \description{
 Extract Regression Coefficients

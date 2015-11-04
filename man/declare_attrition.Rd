@@ -6,7 +6,7 @@
 \usage{
 declare_attrition(attrition_function = default_attrition_function,
   formula = NULL, outcome_name = "R", condition_names = NULL, sep = "_",
-  treatment_variable = NULL, ...)
+  treatment_variable_name = NULL, ...)
 }
 \arguments{
 \item{attrition_function}{A function of data that returns a vector of 0s and 1s that indicate which subjects report their outcomes.}
@@ -19,7 +19,7 @@ declare_attrition(attrition_function = default_attrition_function,
 
 \item{sep}{A character string describing the separator for concatenating outcomes and conditions. Defaults to "_".}
 
-\item{treatment_variable}{The name of the treatment assignment variable}
+\item{treatment_variable_name}{The name of the treatment assignment variable}
 
 \item{...}{optional additional arguments to be passed to attrition_function.}
 }
@@ -35,12 +35,12 @@ population <- declare_population(noise = declare_variable(), N = 1000)
 sampling <- declare_sampling(n = 500)
 attrition_1 <- declare_attrition(condition_names = c(0,1), 
                                  outcome_name = "R1",
-                                 treatment_variable = "Z", 
+                                 treatment_variable_name = "Z", 
                                  reporting_proportions = c(.5, .7))
 
 attrition_2 <- declare_attrition(condition_names = c(0,1), 
                                  outcome_name = "R2",
-                                 treatment_variable = "Z", 
+                                 treatment_variable_name = "Z", 
                                  proportion_always_reporters = .8)
 
 assignment <- declare_assignment(condition_names = c(0,1))
