@@ -5,7 +5,7 @@
 \title{Estimator declaration}
 \usage{
 declare_estimator(formula = NULL, model = NULL, estimates,
-  estimates_options = NULL, subset = NULL, weights_variable = NULL,
+  estimates_options = NULL, subset = NULL, weights_variable_name = NULL,
   labels = NULL, estimand = NULL, ...)
 }
 \arguments{
@@ -19,7 +19,7 @@ declare_estimator(formula = NULL, model = NULL, estimates,
 
 \item{subset}{}
 
-\item{weights_variable}{}
+\item{weights_variable_name}{}
 
 \item{labels}{}
 

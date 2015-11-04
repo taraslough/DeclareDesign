@@ -4,13 +4,13 @@
 \alias{declare_sampling}
 \title{Declare the sampling strategy}
 \usage{
-declare_sampling(prob = NULL, strata_variable_name = NULL,
+declare_sampling(probability = NULL, strata_variable_name = NULL,
   cluster_variable_name = NULL, n = NULL, strata_n = NULL,
   strata_probabilities = NULL, custom_sampling_function = NULL,
   custom_stratification_function = NULL, custom_clustering_function = NULL)
 }
 \arguments{
-\item{prob}{The probability of inclusion in the sample. Must be a scalar that takes values between 0 and 1.}
+\item{probability}{The probability of inclusion in the sample. Must be a scalar that takes values between 0 and 1.}
 
 \item{strata_variable_name}{The name of the variable according to which stratified random sampling should be conducted.}
 
@@ -18,7 +18,7 @@ declare_sampling(prob = NULL, strata_variable_name = NULL,
 
 \item{n}{The number of units (or clusters) to be sampled.}
 
-\item{strata_n}{A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.}
+\item{strata_n}{A vector of the number of units in each stratum to be sampled.}
 
 \item{strata_probabilities}{}
 

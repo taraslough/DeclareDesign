@@ -1,5 +1,5 @@
 #' Declare the sampling strategy
-#' @param prob The probability of inclusion in the sample. Must be a scalar that takes values between 0 and 1.  
+#' @param probability The probability of inclusion in the sample. Must be a scalar that takes values between 0 and 1.  
 #' @param strata_variable_name The name of the variable according to which stratified random sampling should be conducted.
 #' @param cluster_variable_name The name of the variable according to which clustered random sampling should be conducted.
 #' @param n The number of units (or clusters) to be sampled.
@@ -10,7 +10,7 @@
 #' @param custom_clustering_function 
 #'
 #' @export
-declare_sampling <- function(prob = NULL,
+declare_sampling <- function(probability = NULL,
                              strata_variable_name = NULL, 
                              cluster_variable_name = NULL,
                              n = NULL, 
@@ -42,7 +42,7 @@ declare_sampling <- function(prob = NULL,
   }
 
   if(is.null(custom_sampling_function)){
-    return.object <- list(prob = prob,
+    return.object <- list(probability = probability,
                           strata_variable_name = strata_variable_name,
                           cluster_variable_name = cluster_variable_name,
                           n = n,
@@ -64,21 +64,21 @@ declare_sampling <- function(prob = NULL,
 
 
 #' @export
-simple_sampling <- function(N, n = NULL, prob = NULL){
+simple_sampling <- function(N, n = NULL, probability = NULL){
   probability_each <- NULL
   
-  if(!is.null(prob)){
-    probability_each <- c(1 - prob, prob)
+  if(!is.null(probability)){
+    probability_each <- c(1 - probability, probability)
   }
   complete_assignment(N = N, m = n, probability_each = probability_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 #' @export
-stratified_sampling <- function(strata_variable, prob = NULL, strata_n = NULL, strata_probabilities = NULL){
+stratified_sampling <- function(strata_variable, probability = NULL, strata_n = NULL, strata_probabilities = NULL){
   probability_each <- NULL
   
-  if(!is.null(prob)){
-    probability_each <- c(1 - prob, prob)
+  if(!is.null(probability)){
+    probability_each <- c(1 - probability, probability)
   }
   
   block_probabilities <- NULL
@@ -99,21 +99,21 @@ stratified_sampling <- function(strata_variable, prob = NULL, strata_n = NULL, s
 
 
 #' @export
-cluster_sampling <- function(cluster_variable, n = NULL, prob = NULL){
+cluster_sampling <- function(cluster_variable, n = NULL, probability = NULL){
   probability_each <- NULL
   
-  if(!is.null(prob)){
-    probability_each <- c(1-prob, prob)
+  if(!is.null(probability)){
+    probability_each <- c(1-probability, probability)
   }
   clustered_assignment(cluster_variable = cluster_variable, m = n, probability_each = probability_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 #' @export
-stratified_and_clustered_sampling <- function(cluster_variable, strata_variable, strata_n = NULL, prob = NULL, strata_probabilities = NULL){
+stratified_and_clustered_sampling <- function(cluster_variable, strata_variable, strata_n = NULL, probability = NULL, strata_probabilities = NULL){
   
   probability_each <- NULL
-  if(!is.null(prob)){
-    probability_each <- c(1-prob, prob)
+  if(!is.null(probability)){
+    probability_each <- c(1-probability, probability)
   }
   
   block_probabilities <- NULL

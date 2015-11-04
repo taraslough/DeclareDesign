@@ -16,7 +16,7 @@ test_that("test sampling functions", {
   
   # Complete Random sampling
   sampling_0 <- declare_sampling()
-  sampling_1 <- declare_sampling(prob = .5)
+  sampling_1 <- declare_sampling(probability = .5)
   sampling_2 <- declare_sampling(n = 100)
   
   # Blocked samplings
@@ -26,7 +26,7 @@ test_that("test sampling functions", {
   
   # Clustered samplings 
   sampling_6 <- declare_sampling(cluster_variable_name = "villages_ID")
-  sampling_7 <- declare_sampling(cluster_variable_name = "villages_ID", prob = .2)
+  sampling_7 <- declare_sampling(cluster_variable_name = "villages_ID", probability = .2)
   sampling_8 <- declare_sampling(cluster_variable_name = "villages_ID", n = 30)
   
   # Blocked and Clustered samplings

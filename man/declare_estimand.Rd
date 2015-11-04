@@ -6,7 +6,7 @@
 \usage{
 declare_estimand(estimand_function = NULL, estimand_text = NULL,
   target = "population", potential_outcomes, condition_names = NULL,
-  subset = NULL, weights_variable = NULL, label = NULL, ...)
+  subset = NULL, weights_variable_name = NULL, label = NULL, ...)
 }
 \arguments{
 \item{estimand_text}{A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.}
@@ -15,7 +15,7 @@ declare_estimand(estimand_function = NULL, estimand_text = NULL,
 
 \item{subset}{A character string that contains an expression that can be passed to the subset operator.  For example subset = "income > 50".}
 
-\item{weights_variable}{The name of the weighting variable (optional).}
+\item{weights_variable_name}{The name of the weighting variable (optional).}
 
 \item{label}{A character string for the estimand's label.}
 

@@ -54,7 +54,7 @@ draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
   cluster_variable <- data[,sampling$cluster_variable_name]
   
   n <- sampling$n
-  prob <- sampling$prob
+  probability <- sampling$probability
   strata_n <- sampling$strata_n
   strata_probabilities <- sampling$strata_probabilities
   sampling_type <- sampling$sampling_type
@@ -73,22 +73,22 @@ draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
   
   # For "simple" random sampling
   if(sampling_type=="simple"){
-    Z <- simple_sampling(N = N, n = n, prob = prob)
+    Z <- simple_sampling(N = N, n = n, probability = probability)
   }
   
   # For stratified random sampling
   if(sampling_type=="stratified"){
-    Z <- stratified_sampling(strata_variable = strata_variable, strata_n = strata_n, strata_probabilities = strata_probabilities, prob = prob)
+    Z <- stratified_sampling(strata_variable = strata_variable, strata_n = strata_n, strata_probabilities = strata_probabilities, probability = probability)
   }
   
   # For clustered random sampling
   if(sampling_type=="clustered"){
-    Z <- cluster_sampling(cluster_variable = cluster_variable, n = n, prob = prob)
+    Z <- cluster_sampling(cluster_variable = cluster_variable, n = n, probability = probability)
   }
   
   # For stratified and clustered sampling
   if(sampling_type=="stratified and clustered"){
-    Z <- stratified_and_clustered_sampling(cluster_variable = cluster_variable, strata_variable = strata_variable, strata_n = strata_n, prob = prob, strata_probabilities = strata_probabilities)
+    Z <- stratified_and_clustered_sampling(cluster_variable = cluster_variable, strata_variable = strata_variable, strata_n = strata_n, probability = probability, strata_probabilities = strata_probabilities)
   }
   
   return(Z)
