@@ -3,7 +3,7 @@
 #' @param variable A vector whose intra-cluster correlation coefficient should be estimated
 #' @param cluster A vector of cluster IDs indicating the cluster corresponding to each element of variable 
 #' @export
-calculate_ICC <- function(variable,cluster){
+calculate_ICC <- function(variable, cluster_variable){
   # Code inspired by ICC package, Matthew Wolak <matthewwolak@gmail.com>
   # 2015-06-17 licensed under GPL (>= 2)
   anova_out <- anova(aov(variable ~ as.factor(cluster)))
