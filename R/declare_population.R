@@ -111,7 +111,6 @@ wrap_custom_population_function <- function(custom_population_function, data = N
   return(make_population)
 }
 
-#' @export 
 make_population_function <- function(variable_list = NULL, N_per_level = NULL, N = NULL,
                                        group_sizes_per_level = NULL, 
                                        level_ID_variables = NULL,
@@ -344,7 +343,6 @@ make_population_function <- function(variable_list = NULL, N_per_level = NULL, N
   
 }
 
-#' @export
 remaindr <- function(numerator,denominator) {
   m_each <- rep(numerator %/% denominator, denominator)
   remainder <- numerator %% denominator
@@ -353,7 +351,6 @@ remaindr <- function(numerator,denominator) {
   return(m_each)
 }
 
-#' @export 
 make_covariate_matrix <- function(...,N) {
   
   variables  <- list(...)
@@ -475,7 +472,6 @@ make_covariate_matrix <- function(...,N) {
   return(X_mat)
 }
 
-#' @export
 make_ID <- function(data,level_names){
   # Get the maximum ID for each
   max_IDs <- apply(data, 2 ,max)[level_names]
@@ -486,7 +482,6 @@ make_ID <- function(data,level_names){
   return(IDs)
 }
 
-#' @export
 get_hierarchy <- function(N, N_per_level, group_sizes_per_level){
   
   # If group_sizes_per_level is supplied
@@ -543,7 +538,6 @@ get_hierarchy <- function(N, N_per_level, group_sizes_per_level){
   return(list(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level, N_levels = N_levels))
 }
 
-#' @export
 make_bootstrap_data_function <- function(data, N = NULL, N_per_level = NULL,
                                            group_sizes_per_level = NULL, level_ID_variables = NULL){
   

@@ -1,7 +1,6 @@
 #' Estimator declaration
 #' 
-#' @param formula 
-#'
+#' @param formula An object of class "formula".
 #' @param model 
 #' @param estimates 
 #' @param estimates_options 

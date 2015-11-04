@@ -282,3 +282,55 @@ calculate_exaggeration_ratio <- function(estimates, estimands, ...){
   return(list(statistic = mean_exaggeration_ratio, label = "Mean Exagg. Ratio"))
 }
 
+
+# Bootstrap ---------------------------------------------------------------
+
+
+
+#' @param data A data.frame, usually provided by the user and not created with the DeclareDesign package.
+#' @param N The number of units in the resulting bootstrapped data.frame.
+#' @param N_per_level The number of units in each level of the bootstrapped heirarchy.
+#' @param group_sizes_per_level A list of group sizes per level in the heirarchy.
+#' @param level_ID_variables A vector of variable names, indicating the variables that desibe the heirarchy.
+#' 
+#' @return A data.frame
+#'
+#' @export
+bootstrap_data <- function(data, N = NULL, N_per_level = NULL,
+                           group_sizes_per_level = NULL, level_ID_variables = NULL){
+  
+  hierarchy <- get_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
+  N <- hierarchy$N
+  N_per_level <- hierarchy$N_per_level
+  group_sizes_per_level <- hierarchy$group_sizes_per_level
+  N_levels <- hierarchy$N_levels
+  
+  sample_by_level <- list()
+  for(j in N_levels:1){
+    if(j == N_levels){
+      if(is.null(level_ID_variables) & N_levels==1){
+        sample_by_level[[j]] <- sample(1:nrow(data), N_per_level[j], replace = TRUE)
+      }
+      sample_by_level[[j]] <- sample(data[, level_ID_variables[j]], N_per_level[j], replace = TRUE)
+    } else {
+      ## now go through each of the units in the level above it
+      sample_current_level <- c()
+      for(k in sample_by_level[[j+1]]){
+        sample_current_level <- c(sample_current_level, 
+                                  sample(data[data[, level_ID_variables[j+1]] == k, level_ID_variables[j]], 
+                                         round(N_per_level[j]/N_per_level[j+1]), replace = TRUE))
+      }
+      sample_by_level[[j]] <- sample_current_level
+    }
+  }
+  data <- data[sample_by_level[[1]], , drop = FALSE]
+  
+  ## reset row names so they are unique
+  rownames(data) <- 1:nrow(data)
+  
+  return(data)
+}
+
+
+
+
