@@ -4,10 +4,10 @@
 \alias{integerize}
 \title{Integerize a data frame}
 \usage{
-integerize(data_frame)
+integerize(data)
 }
 \arguments{
-\item{data_frame}{a object of type data.frame}
+\item{data}{a object of type data.frame}
 }
 \description{
 Integerize a data frame
