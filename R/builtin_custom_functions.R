@@ -204,7 +204,7 @@ calculate_RMSE <- function(estimates, estimands, ...){
 #' @export
 calculate_bias <- function(estimates, estimands, ...){
   
-  PATE <- calculate_PATE(estimands = estimands)
+  PATE <- calculate_PATE(estimands = estimands)$statistic
   
   est_PATE_diff <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - PATE))
   
@@ -218,7 +218,7 @@ calculate_bias <- function(estimates, estimands, ...){
 
 #' @export
 calculate_coverage <- function(estimates, estimands, ...){
-  PATE <- calculate_PATE(estimands = estimands)
+  PATE <- calculate_PATE(estimands = estimands)$statistic
   
   ci_covers_estimate <- sapply(1:length(estimates), function(i) as.numeric(PATE <= estimates[[i]]["ci_upper", , drop = FALSE] & 
                                                                              PATE >= estimates[[i]]["ci_lower", , drop = FALSE]))
@@ -233,7 +233,7 @@ calculate_coverage <- function(estimates, estimands, ...){
 
 #' @export
 calculate_type_S_rate <- function(estimates, estimands, ...){
-  PATE <- calculate_PATE(estimands = estimands)
+  PATE <- calculate_PATE(estimands = estimands)$statistic
   
   sign_error <- sapply(1:length(estimates), function(i) as.numeric(sign(PATE) != sign(estimates[[i]]["est", , drop = FALSE])))
   
@@ -247,11 +247,11 @@ calculate_type_S_rate <- function(estimates, estimands, ...){
 
 #' @export
 calculate_exaggeration_ratio <- function(estimates, estimands, ...){
-  PATE <- calculate_PATE(estimands = estimands)
+  PATE <- calculate_PATE(estimands = estimands)$statistic
   
   exaggeration_ratio <- sapply(1:length(estimates), function(i) as.numeric(abs(estimates[[i]]["est", , drop = FALSE] / PATE)))
   
-  if(class(mean_exaggeration_ratio) == "matrix")
+  if(class(exaggeration_ratio) == "matrix")
     mean_exaggeration_ratio <- apply(exaggeration_ratio, 1, mean, na.rm = T)
   else
     mean_exaggeration_ratio <- mean(exaggeration_ratio, na.rm = T)
