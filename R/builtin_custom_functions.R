@@ -114,16 +114,16 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, ##
 #' @param data A data.frame, often created by \code{\link{draw_population}}.
 #' @param weights An optional vector of weights (not yet implemented).
 #' @param subset An optional vector specifying a subset of observations to be used.
-#' @param block_variable The name of the blocking variable.
+#' @param block_variable_name The name of the blocking variable.
 #' @param alpha The significance level, 0.05 by default.
 #'
 #' @export
 difference_in_means_blocked <- function(formula, data, weights = NULL, subset = NULL, 
-                                        block_variable = NULL, ##cluster_variable = NULL, 
+                                        block_variable_name = NULL, ##cluster_variable = NULL, 
                                         alpha = .05) {
   
-  if(is.null(block_variable))
-    stop("This difference-in-means estimator can only be used if you specify block_variable, a string indicating which variable in the data frame contains the blocks.")
+  if(is.null(block_variable_name))
+    stop("This difference-in-means estimator can only be used if you specify block_variable_name, a string indicating which variable in the data frame contains the blocks.")
   
   if(length(all.vars(formula[[3]]))>1)
     stop("The formula should only include one variable on the right-hand side: the treatment variable.")
@@ -166,7 +166,7 @@ difference_in_means_blocked <- function(formula, data, weights = NULL, subset = 
   
   Y <- data[, all.vars(formula[[2]])]
   t <- data[, all.vars(formula[[3]])]
-  b <- data[, block_variable]
+  b <- data[, block_variable_name]
   
   return_matrix <- matrix(NA, nrow = 6, ncol = ncol(combn), 
                           dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 

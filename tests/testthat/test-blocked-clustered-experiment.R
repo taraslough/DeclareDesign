@@ -27,7 +27,7 @@ test_that("test blocked and clustered experiment", {
   
   estimand <- declare_estimand(estimand_text = "mean(Y_1 - Y_0)", potential_outcomes = potential_outcomes)
   estimator_d_i_m <- declare_estimator(estimates = difference_in_means_blocked,
-                                       estimates_options = list(block_variable = "elevation_high"),
+                                       estimates_options = list(block_variable_name = "elevation_high"),
                                        formula = Y ~ Z, estimand = estimand)
   estimator_lm <- declare_estimator(model = lm, estimates = get_regression_coefficient, 
                                     estimates_options = list(coefficient_name = "Z"),
