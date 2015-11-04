@@ -1,10 +1,6 @@
-##estimand = mean(Y_Z1 - Y_Z0)
-##estimand = "mean(Y_Z1 - Y_Z0)"
-##estimand = declare_ATE()
-
 #' Declare Estimand
 #' 
-#' This function creates an estimand object. IMPROVE.
+#' This function creates an estimand object. 
 #'
 #' @param estimand A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.  Users may want to use our built-in estimand functions such as \code{\link{declare_ATE}}
 #' @param text_estimand A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
@@ -15,7 +11,7 @@
 #' @param ... 
 #'
 #' @export
-declare_estimand <- function(estimand = NULL, text_estimand = NULL, target = "population",
+declare_estimand <- function(estimand_function, target = "population",
                              potential_outcomes, condition_names = NULL,
                              subset = NULL, weights_variable = NULL, 
                              label = NULL, ...) {
@@ -24,52 +20,23 @@ declare_estimand <- function(estimand = NULL, text_estimand = NULL, target = "po
     stop("Weighted estimands are not yet implemented. Please contact the authors if you are interested in using them.")
   }
   
-  if(!is.null(estimand) & !is.null(text_estimand)){
-    stop("Please provide either an estimand as a string or an expression, or a custom_estimand_function.")
-  }
-  
   if(is.null(potential_outcomes)){
     stop("Please provide a potential_outcomes object. This is used to create the potential outcomes before calculating the estimand.")
   }
   
-  if(!is.null(text_estimand)){
+  estimand_options <- list(...)
+  
+  ## if a custom estimand is provided
+  
+  estimand_function <- function(data){
+    argument_names <- names(formals(estimand))
+    if(!is.null(subset) & "subset" %in% argument_names)
+      estimand_options$subset <- with(data, eval(parse(text = subset)))
+    if(!is.null(weights_variable) & "weights" %in% argument_names)
+      estimand_options$weights <- data[, weights_variable]
+    estimand_options$data <- data
     
-    ## if no custom estimand is provided
-    
-    if(is.null(label)){
-      label <- as.character(text_estimand)
-    }
-    
-    if(!is.character(eval(text_estimand))){
-      text_estimand <- quote(text_estimand)
-    } else {
-      text_estimand <- parse(text = text_estimand)
-    }
-    
-    estimand_function <- function(data){
-      if(!is.null(subset))
-        data <- subset(data, subset = eval(parse(text = subset)))
-      ##if(!is.null(weights_variable))
-      ##  estimator_options$weights <- data[, weights_variable]
-      return(eval(text_estimand, envir = data))
-    }
-  } else {
-    
-    estimand_options <- list(...)
-    
-    ## if a custom estimand is provided
-    
-    estimand_function <- function(data){
-      argument_names <- names(formals(estimand))
-      if(!is.null(subset) & "subset" %in% argument_names)
-        estimand_options$subset <- with(data, eval(parse(text = subset)))
-      if(!is.null(weights_variable) & "weights" %in% argument_names)
-        estimand_options$weights <- data[, weights_variable]
-      estimand_options$data <- data
-      
-      return(do.call(estimand, args = estimand_options))
-    }
-    
+    return(do.call(estimand, args = estimand_options))
   }
   
   structure(list(estimand = estimand_function, target = target, potential_outcomes = potential_outcomes, condition_names = condition_names, 

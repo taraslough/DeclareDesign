@@ -259,3 +259,21 @@ calculate_exaggeration_ratio <- function(estimates, estimands, ...){
   return(list(statistic = mean_exaggeration_ratio, label = "Mean Exagg. Ratio"))
 }
 
+#' @export
+default_estimand_function <- function(text, subset){
+  
+  if(!is.character(eval(text))){
+    text_estimand <- quote(text)
+  } else {
+    text_estimand <- parse(text = text)
+  }
+  
+  estimand_function <- function(data){
+    if(!is.null(subset))
+      data <- data[subset, ]
+    return(eval(text_estimand, envir = data))
+  }
+  
+  return(estimand_function)
+}
+
