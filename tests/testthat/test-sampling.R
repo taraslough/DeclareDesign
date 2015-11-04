@@ -22,7 +22,7 @@ test_that("test sampling functions", {
   # Blocked samplings
   sampling_3 <- declare_sampling(strata_variable_name = "ideo_3")
   sampling_4 <- declare_sampling(strata_variable_name = "ideo_3", strata_n = c(35, 40, 45))
-  sampling_5 <- declare_sampling(strata_variable_name = "ideo_3", strata_prob = c(.1, .2, .3))
+  sampling_5 <- declare_sampling(strata_variable_name = "ideo_3", strata_probabilities = c(.1, .2, .3))
   
   # Clustered samplings 
   sampling_6 <- declare_sampling(cluster_variable_name = "villages_ID")
@@ -34,7 +34,7 @@ test_that("test sampling functions", {
                                  strata_variable_name = "high_elevation")
   sampling_10 <- declare_sampling(cluster_variable_name = "villages_ID", 
                                   strata_variable_name = "high_elevation", 
-                                  strata_prob = c(.1, .9))
+                                  strata_probabilities = c(.1, .9))
   
   # Draw Data
   pop_draw <- draw_population(population = population)

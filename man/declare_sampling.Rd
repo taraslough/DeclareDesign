@@ -6,7 +6,7 @@
 \usage{
 declare_sampling(prob = NULL, strata_variable_name = NULL,
   cluster_variable_name = NULL, n = NULL, strata_n = NULL,
-  strata_prob = NULL, custom_sampling_function = NULL,
+  strata_probabilities = NULL, custom_sampling_function = NULL,
   custom_stratification_function = NULL, custom_clustering_function = NULL)
 }
 \arguments{
@@ -20,7 +20,7 @@ declare_sampling(prob = NULL, strata_variable_name = NULL,
 
 \item{strata_n}{A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.}
 
-\item{strata_prob}{}
+\item{strata_probabilities}{}
 
 \item{custom_sampling_function}{}
 

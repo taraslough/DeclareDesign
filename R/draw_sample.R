@@ -56,7 +56,7 @@ draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
   n <- sampling$n
   prob <- sampling$prob
   strata_n <- sampling$strata_n
-  strata_prob <- sampling$strata_prob
+  strata_probabilities <- sampling$strata_probabilities
   sampling_type <- sampling$sampling_type
   
   # For custom random assignment functions
@@ -78,7 +78,7 @@ draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
   
   # For stratified random sampling
   if(sampling_type=="stratified"){
-    Z <- stratified_sampling(strata_variable = strata_variable, strata_n = strata_n, strata_prob = strata_prob, prob = prob)
+    Z <- stratified_sampling(strata_variable = strata_variable, strata_n = strata_n, strata_probabilities = strata_probabilities, prob = prob)
   }
   
   # For clustered random sampling
@@ -88,7 +88,7 @@ draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
   
   # For stratified and clustered sampling
   if(sampling_type=="stratified and clustered"){
-    Z <- stratified_and_clustered_sampling(cluster_variable = cluster_variable, strata_variable = strata_variable, strata_n = strata_n, prob = prob, strata_prob = strata_prob)
+    Z <- stratified_and_clustered_sampling(cluster_variable = cluster_variable, strata_variable = strata_variable, strata_n = strata_n, prob = prob, strata_probabilities = strata_probabilities)
   }
   
   return(Z)
