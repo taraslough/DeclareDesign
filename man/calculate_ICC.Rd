@@ -4,7 +4,7 @@
 \alias{calculate_ICC}
 \title{Estimate the ICC of a given variable}
 \usage{
-calculate_ICC(variable, cluster)
+calculate_ICC(variable, cluster_variable)
 }
 \arguments{
 \item{variable}{A vector whose intra-cluster correlation coefficient should be estimated}

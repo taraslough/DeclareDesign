@@ -19,7 +19,7 @@ test_that("test blocked and clustered experiment", {
   
   assignment <- declare_assignment(condition_names = c(0,1),
                                    block_variable_name = "elevation_high", 
-                                   custom_block_function = function(data) return(1*(data$elevation > 0)),
+                                   custom_blocking_function = function(data) return(1*(data$elevation > 0)),
                                    cluster_variable_name = "villages_ID")
   
   

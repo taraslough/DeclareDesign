@@ -7,7 +7,7 @@
 declare_sampling(prob = NULL, strata_variable_name = NULL,
   cluster_variable_name = NULL, n = NULL, strata_n = NULL,
   strata_prob = NULL, custom_sampling_function = NULL,
-  custom_strata_function = NULL, custom_cluster_function = NULL)
+  custom_stratification_function = NULL, custom_clustering_function = NULL)
 }
 \arguments{
 \item{prob}{The probability of inclusion in the sample. Must be a scalar that takes values between 0 and 1.}
@@ -24,9 +24,9 @@ declare_sampling(prob = NULL, strata_variable_name = NULL,
 
 \item{custom_sampling_function}{}
 
-\item{custom_strata_function}{}
+\item{custom_stratification_function}{}
 
-\item{custom_cluster_function}{}
+\item{custom_clustering_function}{}
 }
 \description{
 Declare the sampling strategy

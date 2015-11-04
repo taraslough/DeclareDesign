@@ -3,12 +3,12 @@ draw_sample <- function(data, sampling = NULL, noncompliance = NULL, random_seed
   
   # Construct strata and clusters if custom functions --------------------------------------------------
   
-  if(!is.null(sampling$custom_cluster_function)){
-    data[, sampling$cluster_variable_name] <- sampling$custom_cluster_function(data = data)
+  if(!is.null(sampling$custom_clustering_function)){
+    data[, sampling$cluster_variable_name] <- sampling$custom_clustering_function(data = data)
   }
   
-  if(!is.null(sampling$custom_strata_function)) { 
-    data[, sampling$strata_variable_name] <- sampling$custom_strata_function(data = data)
+  if(!is.null(sampling$custom_stratification_function)) { 
+    data[, sampling$strata_variable_name] <- sampling$custom_stratification_function(data = data)
   }
   
   # Draw the sample ------------------------------------------------------

@@ -6,8 +6,8 @@
 #' @param strata_n A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.
 #' @param strata_prob 
 #' @param custom_sampling_function 
-#' @param custom_strata_function 
-#' @param custom_cluster_function 
+#' @param custom_stratification_function 
+#' @param custom_clustering_function 
 #'
 #' @export
 declare_sampling <- function(prob = NULL,
@@ -17,8 +17,8 @@ declare_sampling <- function(prob = NULL,
                              strata_n = NULL, 
                              strata_prob = NULL,
                              custom_sampling_function = NULL,
-                             custom_strata_function = NULL,
-                             custom_cluster_function = NULL) {
+                             custom_stratification_function = NULL,
+                             custom_clustering_function = NULL) {
   
   # Determine assignment type
   sampling_type <- "simple"  ## what should this be called. Simple? 
@@ -33,11 +33,11 @@ declare_sampling <- function(prob = NULL,
     stop("Please do not specify n in a stratified sampling design.  Use strata_n or strata_prob instead.")
   }
   
-  if(!is.null(custom_strata_function) & !is.character(strata_variable_name)){
+  if(!is.null(custom_stratification_function) & !is.character(strata_variable_name)){
     stop("If you supply a custom strata function, you must supply the name of the strata variable.")
   }
   
-  if(!is.null(custom_cluster_function) & !is.character(cluster_variable_name)){
+  if(!is.null(custom_clustering_function) & !is.character(cluster_variable_name)){
     stop("If you supply a custom cluster function, you must supply the name of the cluster variable.")
   }
 
@@ -49,8 +49,8 @@ declare_sampling <- function(prob = NULL,
                           strata_n = strata_n,
                           strata_prob = strata_prob,
                           sampling_type = sampling_type,
-                          custom_strata_function = custom_strata_function,
-                          custom_cluster_function = custom_cluster_function,
+                          custom_stratification_function = custom_stratification_function,
+                          custom_clustering_function = custom_clustering_function,
                           call = match.call())
   } else {
     return.object <- list(

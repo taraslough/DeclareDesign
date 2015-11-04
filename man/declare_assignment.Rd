@@ -9,7 +9,7 @@ declare_assignment(condition_names = NULL, potential_outcomes = NULL,
   m_each = NULL, prob_each = NULL, block_m = NULL,
   block_probabilities = NULL, baseline_condition = NULL,
   treatment_variable = "Z", custom_assignment_function = NULL,
-  custom_block_function = NULL, custom_cluster_function = NULL,
+  custom_blocking_function = NULL, custom_clustering_function = NULL,
   existing_assignment_variable_name = NULL)
 }
 \arguments{
@@ -37,9 +37,9 @@ declare_assignment(condition_names = NULL, potential_outcomes = NULL,
 
 \item{custom_assignment_function}{A function of data that returns an assignment vector of length n.}
 
-\item{custom_block_function}{A function of data that returns a blocking vector of length n.}
+\item{custom_blocking_function}{A function of data that returns a blocking vector of length n.}
 
-\item{custom_cluster_function}{A function of data that returns a cluster vector of length n.}
+\item{custom_clustering_function}{A function of data that returns a cluster vector of length n.}
 
 \item{existing_assignment_variable_name}{The name of an already-assigned treatment variable.}
 }

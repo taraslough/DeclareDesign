@@ -12,8 +12,8 @@
 #' @param baseline_condition The value of condition_names that represents the "baseline" condition.  This is the condition against which treatment effects will be assessed. Defaults to the first value of condition_names.
 #' @param treatment_variable The name of the treatment variable.  Defaults to "Z"
 #' @param custom_assignment_function A function of data that returns an assignment vector of length n.
-#' @param custom_block_function  A function of data that returns a blocking vector of length n.
-#' @param custom_cluster_function A function of data that returns a cluster vector of length n.
+#' @param custom_blocking_function  A function of data that returns a blocking vector of length n.
+#' @param custom_clustering_function A function of data that returns a cluster vector of length n.
 #' @param existing_assignment_variable_name The name of an already-assigned treatment variable.
 #'
 #' @return assignment object
@@ -126,8 +126,8 @@ declare_assignment <-
            baseline_condition = NULL,
            treatment_variable = "Z",
            custom_assignment_function = NULL,
-           custom_block_function = NULL,
-           custom_cluster_function = NULL,
+           custom_blocking_function = NULL,
+           custom_clustering_function = NULL,
            existing_assignment_variable_name = NULL) {
     
     # Determine assignment type
@@ -143,11 +143,11 @@ declare_assignment <-
       stop("Please do not specify m in a blocked assignment.  Use block_m or block_probabilities instead.")
     }
     
-    if(!is.null(custom_block_function) & !is.character(block_variable_name)){
+    if(!is.null(custom_blocking_function) & !is.character(block_variable_name)){
       stop("If you supply a custom block function, you must supply the name of the block variable.")
     }
     
-    if(!is.null(custom_cluster_function) & !is.character(cluster_variable_name)){
+    if(!is.null(custom_clustering_function) & !is.character(cluster_variable_name)){
       stop("If you supply a custom cluster function, you must supply the name of the cluster variable.")
     }
     
@@ -192,8 +192,8 @@ declare_assignment <-
                             block_m = block_m,
                             block_probabilities = block_probabilities,
                             assignment_type = assignment_type,
-                            custom_block_function = custom_block_function,
-                            custom_cluster_function = custom_cluster_function,
+                            custom_blocking_function = custom_blocking_function,
+                            custom_clustering_function = custom_clustering_function,
                             baseline_condition = baseline_condition,
                             treatment_variable = treatment_variable,
                             call = match.call())

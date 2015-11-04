@@ -35,12 +35,12 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
   
   # Make clusters and blocks ------------------------------------------------  
   
-  if(!is.null(assignment$custom_cluster_function)){
-    data[, assignment$cluster_variable_name] <- assignment$custom_cluster_function(data = data)
+  if(!is.null(assignment$custom_clustering_function)){
+    data[, assignment$cluster_variable_name] <- assignment$custom_clustering_function(data = data)
   }
   
-  if(!is.null(assignment$custom_block_function)) { 
-    data[, assignment$block_variable_name] <- assignment$custom_block_function(data = data)
+  if(!is.null(assignment$custom_blocking_function)) { 
+    data[, assignment$block_variable_name] <- assignment$custom_blocking_function(data = data)
   }
   
   # Assign treatment and reveal outcomes ------------------------------------------------  
