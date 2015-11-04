@@ -43,7 +43,7 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
   
   output <- matrix(c(est, se, p, conf_int, df), 
                    dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                   paste0(summary(model)$terms[[2]], "~", paste(all.vars(summary(model)$terms[[3]]), collapse = "+"), "_", estimates_labels)))
+                                   paste0(summary(model)$terms[[2]], "~", paste(all.vars(summary(model)$terms[[3]]), collapse = "+"), "_", label)))
   
   return(output[which(rownames(output) %in% statistics), , drop = FALSE])
 }
