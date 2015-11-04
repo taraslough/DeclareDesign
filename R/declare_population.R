@@ -13,7 +13,7 @@
 #'
 #' @examples 
 #' 
-#' Lots of nice examples go here.
+#' # Lots of nice examples go here.
 #'
 #' @export
 declare_population <- function(..., 

@@ -21,9 +21,12 @@ declare_estimand(estimand_function = NULL, estimand_text = NULL,
 
 \item{...}{}
 
-\item{estimand}{A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.  Users may want to use our built-in estimand functions such as \code{\link{declare_ATE}}}
+\item{estimand}{A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.}
+}
+\value{
+An estimand object.
 }
 \description{
-This function creates an estimand object. IMPROVE.
+This function creates an estimand object.
 }
 

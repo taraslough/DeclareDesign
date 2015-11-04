@@ -9,7 +9,7 @@ declare_estimator(formula = NULL, model = NULL, estimates,
   labels = NULL, estimand = NULL, ...)
 }
 \arguments{
-\item{formula}{}
+\item{formula}{An object of class "formula".}
 
 \item{model}{}
 

@@ -30,7 +30,6 @@ draw_sample <- function(data, sampling = NULL, random_seed = NULL) {
     sampling_data <- data.frame(sampled = Z)
   }
   
-
   data <- data.frame(data, sampling_data)
   
   sample_data <- subset(data, sampled == 1, select = -c(sampled))

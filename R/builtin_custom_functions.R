@@ -6,11 +6,11 @@
 calculate_ICC <- function(variable, cluster_variable){
   # Code inspired by ICC package, Matthew Wolak <matthewwolak@gmail.com>
   # 2015-06-17 licensed under GPL (>= 2)
-  anova_out <- anova(aov(variable ~ as.factor(cluster)))
-  J <- length(unique(cluster))
+  anova_out <- anova(aov(variable ~ as.factor(cluster_variable)))
+  J <- length(unique(cluster_variable))
   mean_sq_j <- anova_out$"Mean Sq"[1]
   mean_sq_i <- var_i <- anova_out$"Mean Sq"[2]
-  n_j <- tapply(variable,as.factor(cluster), FUN = length)
+  n_j <- tapply(variable,as.factor(cluster_variable), FUN = length)
   k <- (1/(J - 1)) * (sum(n_j) - (sum(n_j^2)/sum(n_j)))
   var_j <- (mean_sq_j - mean_sq_i)/k
   rho <- var_j/(var_i + var_j)
@@ -283,10 +283,26 @@ calculate_exaggeration_ratio <- function(estimates, estimands, ...){
 }
 
 
+# Potential outcomes ------------------------------------------------------
+
+#' Default potential outcomes function
+#' 
+#' @param formula A formula describing the outcomes as a function of a 
+#' @param data 
+#'
+#' @export
+default_potential_outcomes_function <- function(formula, data){
+  
+  return(eval(expr = formula[[3]], envir = data))
+  
+}
+
+
 # Bootstrap ---------------------------------------------------------------
 
 
-
+#' Bootstrap data, including multi-level data
+#' 
 #' @param data A data.frame, usually provided by the user and not created with the DeclareDesign package.
 #' @param N The number of units in the resulting bootstrapped data.frame.
 #' @param N_per_level The number of units in each level of the bootstrapped heirarchy.

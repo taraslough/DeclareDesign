@@ -1,15 +1,20 @@
-
-
+#' Declare potential outcomes
+#' 
+#' @param potential_outcomes_function 
+#' @param formula 
+#' @param outcome_variable_name 
+#' @param condition_names 
+#' @param sep 
+#' @param assignment_variable_name 
+#' @param ... 
+#' 
+#' @return potential_outcomes object.
+#'
 #' @export
-default_potential_outcomes_function <- function(formula, data){
-  
-  return(eval(expr = formula[[3]], envir = data))
-  
-}
-
-#' @export
-declare_potential_outcomes <- function(potential_outcomes_function = default_potential_outcomes_function,
-                                       formula = NULL, outcome_variable_name = NULL, condition_names = NULL, sep = "_", 
+declare_potential_outcomes <- function(potential_outcomes_function = 
+                                         default_potential_outcomes_function,
+                                       formula = NULL, outcome_variable_name = NULL, 
+                                       condition_names = NULL, sep = "_", 
                                        assignment_variable_name = NULL,
                                        ...){
   

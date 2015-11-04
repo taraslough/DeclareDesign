@@ -138,7 +138,7 @@ print.diagnosis <- function(x, ...){
 }
 
 #' @export
-summary.diagnosis <- function(x, ...){
-  print(x$diagnosis)
+summary.diagnosis <- function(object, ...){
+  print(object$diagnosis)
   return()
 }

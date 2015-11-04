@@ -35,7 +35,7 @@ Declare the Study Population
 }
 \examples{
 
-Lots of nice examples go here.
+# Lots of nice examples go here.
 
 }
 

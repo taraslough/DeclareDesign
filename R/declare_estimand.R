@@ -2,7 +2,7 @@
 #' 
 #' This function creates an estimand object. 
 #'
-#' @param estimand A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.  Users may want to use our built-in estimand functions such as \code{\link{declare_ATE}}
+#' @param estimand A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.
 #' @param estimand_text A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
 #' @param target Either "population" or "sample".  Defaults to "population".
 #' @param subset A character string that contains an expression that can be passed to the subset operator.  For example subset = "income > 50".
@@ -44,7 +44,7 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, tar
       estimand_text <- parse(text = estimand_text)
     }
     
-    estimand_function <- function(data){
+    estimand_function_internal <- function(data){
       if(!is.null(subset))
         data <- subset(data, subset = eval(parse(text = subset)))
       ##if(!is.null(weights_variable_name))
@@ -57,20 +57,21 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, tar
     
     ## if a custom estimand is provided
     
-    estimand_function <- function(data){
-      argument_names <- names(formals(estimand))
+    estimand_function_internal <- function(data){
+      argument_names <- names(formals(estimand_function))
       if(!is.null(subset) & "subset" %in% argument_names)
         estimand_options$subset <- with(data, eval(parse(text = subset)))
       if(!is.null(weights_variable_name) & "weights" %in% argument_names)
         estimand_options$weights <- data[, weights_variable_name]
       estimand_options$data <- data
       
-      return(do.call(estimand, args = estimand_options))
+      return(do.call(estimand_function, args = estimand_options))
     }
     
   }
   
-  structure(list(estimand = estimand_function, target = target, potential_outcomes = potential_outcomes, condition_names = condition_names, 
+  structure(list(estimand = estimand_function_internal, target = target, 
+                 potential_outcomes = potential_outcomes, condition_names = condition_names, 
                  label = label, call = match.call()), class = "estimand")
   
 }
