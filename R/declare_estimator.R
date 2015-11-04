@@ -6,14 +6,14 @@
 #' @param estimates 
 #' @param estimates_options 
 #' @param subset 
-#' @param weights_variable 
+#' @param weights_variable_name 
 #' @param labels 
 #' @param estimand 
 #' @param ... 
 #'
 #' @export
 declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates_options = NULL,
-                              subset = NULL, weights_variable = NULL, labels = NULL, 
+                              subset = NULL, weights_variable_name = NULL, labels = NULL, 
                               estimand = NULL, ...) {
   
   if(missing(estimates)){
@@ -47,8 +47,8 @@ declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates
       estimator_options$formula <- stats::formula(unclass(formula))
     if(!is.null(subset) & "subset" %in% argument_names)
       estimator_options$subset <- with(data, eval(parse(text = subset)))
-    if(!is.null(weights_variable) & "weights" %in% argument_names)
-      estimator_options$weights <- data[, weights_variable]
+    if(!is.null(weights_variable_name) & "weights" %in% argument_names)
+      estimator_options$weights <- data[, weights_variable_name]
     estimator_options$data <- data
     
     return(do.call(model, args = estimator_options))
@@ -60,8 +60,8 @@ declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates
       estimates_options$formula <- stats::formula(unclass(formula))
     if(!is.null(subset) & "subset" %in% argument_names)
       estimates_options$subset <- with(data, eval(parse(text = subset)))
-    if(!is.null(weights_variable) & "weights" %in% argument_names)
-      estimates_options$weights <- data[, weights_variable]
+    if(!is.null(weights_variable_name) & "weights" %in% argument_names)
+      estimates_options$weights <- data[, weights_variable_name]
     if(!is.null(labels) & "labels" %in% argument_names)
       estimates_options$labels <- labels
     if(!is.null(data) & "data" %in% argument_names)

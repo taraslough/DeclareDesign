@@ -10,17 +10,17 @@
 #' @param estimand_text A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
 #' @param target Either "population" or "sample".  Defaults to "population".
 #' @param subset A character string that contains an expression that can be passed to the subset operator.  For example subset = "income > 50".
-#' @param weights_variable The name of the weighting variable (optional).
+#' @param weights_variable_name The name of the weighting variable (optional).
 #' @param label A character string for the estimand's label.
 #' @param ... 
 #'
 #' @export
 declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, target = "population",
                              potential_outcomes, condition_names = NULL,
-                             subset = NULL, weights_variable = NULL, 
+                             subset = NULL, weights_variable_name = NULL, 
                              label = NULL, ...) {
   
-  if(!is.null(weights_variable)){
+  if(!is.null(weights_variable_name)){
     stop("Weighted estimands are not yet implemented. Please contact the authors if you are interested in using them.")
   }
   
@@ -49,8 +49,8 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, tar
     estimand_function <- function(data){
       if(!is.null(subset))
         data <- subset(data, subset = eval(parse(text = subset)))
-      ##if(!is.null(weights_variable))
-      ##  estimator_options$weights <- data[, weights_variable]
+      ##if(!is.null(weights_variable_name))
+      ##  estimator_options$weights <- data[, weights_variable_name]
       return(eval(estimand_text, envir = data))
     }
   } else {
@@ -63,8 +63,8 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, tar
       argument_names <- names(formals(estimand))
       if(!is.null(subset) & "subset" %in% argument_names)
         estimand_options$subset <- with(data, eval(parse(text = subset)))
-      if(!is.null(weights_variable) & "weights" %in% argument_names)
-        estimand_options$weights <- data[, weights_variable]
+      if(!is.null(weights_variable_name) & "weights" %in% argument_names)
+        estimand_options$weights <- data[, weights_variable_name]
       estimand_options$data <- data
       
       return(do.call(estimand, args = estimand_options))
