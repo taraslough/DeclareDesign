@@ -4,7 +4,7 @@
 #' 
 #' @param data A dataframe, often created by \code{\link{draw_population}}.
 #' @param condition_names A vector describing the conditions to which subjects can be assigned. Often inherited from \code{\link{declare_attrition}}.
-#' @param treatment_variable The name of the treatment variable.
+#' @param treatment_variable_name The name of the treatment variable.
 #' @param proportion_always_reporters The proportion of the sample that reports their outcomes regardless of their treatment condition.
 #' @param reporting_proportions A vector of proportions that describes the proportion of subjects who report in each condition. Each entry in this vector must be a number between 0 and 1.
 #'
@@ -13,12 +13,12 @@
 #' sampling <- declare_sampling(n = 500)
 #' attrition_1 <- declare_attrition(condition_names = c(0,1), 
 #'                                  outcome_name = "R1",
-#'                                  treatment_variable = "Z", 
+#'                                  treatment_variable_name = "Z", 
 #'                                  reporting_proportions = c(.5, .7))
 #' 
 #' attrition_2 <- declare_attrition(condition_names = c(0,1), 
 #'                                  outcome_name = "R2",
-#'                                  treatment_variable = "Z", 
+#'                                  treatment_variable_name = "Z", 
 #'                                  proportion_always_reporters = .8)
 #' 
 #' assignment <- declare_assignment(condition_names = c(0,1))
@@ -33,7 +33,7 @@
 #'
 #' @export
 default_attrition_function <- function(data, condition_names, 
-                                           treatment_variable,
+                                           treatment_variable_name,
                                            proportion_always_reporters = NULL,
                                            reporting_proportions = NULL){
   
@@ -44,7 +44,7 @@ default_attrition_function <- function(data, condition_names,
     stop("Please specify either reporting_proportions and proportion_always_reporters.")
   }
   
-  Z <- data[,treatment_variable]
+  Z <- data[,treatment_variable_name]
   R <- rep(NA, nrow(data))  
   
   if(!is.null(reporting_proportions)){
@@ -75,7 +75,7 @@ default_attrition_function <- function(data, condition_names,
 #' @param outcome_name The name of the variable describing whether outcomes are reported. Defaults to "R".
 #' @param condition_names An optional vector of treatment conditions to be passed to attrition_function.
 #' @param sep A character string describing the separator for concatenating outcomes and conditions. Defaults to "_".
-#' @param treatment_variable The name of the treatment assignment variable
+#' @param treatment_variable_name The name of the treatment assignment variable
 #' @param ... optional additional arguments to be passed to attrition_function.
 #' 
 #' @examples 
@@ -83,12 +83,12 @@ default_attrition_function <- function(data, condition_names,
 #' sampling <- declare_sampling(n = 500)
 #' attrition_1 <- declare_attrition(condition_names = c(0,1), 
 #'                                  outcome_name = "R1",
-#'                                  treatment_variable = "Z", 
+#'                                  treatment_variable_name = "Z", 
 #'                                  reporting_proportions = c(.5, .7))
 #' 
 #' attrition_2 <- declare_attrition(condition_names = c(0,1), 
 #'                                  outcome_name = "R2",
-#'                                  treatment_variable = "Z", 
+#'                                  treatment_variable_name = "Z", 
 #'                                  proportion_always_reporters = .8)
 #' 
 #' assignment <- declare_assignment(condition_names = c(0,1))
@@ -108,7 +108,7 @@ declare_attrition <- function(attrition_function = default_attrition_function,
                                   formula = NULL, 
                                   outcome_name = "R", 
                                   condition_names = NULL, sep = "_", 
-                                  treatment_variable = NULL, ...){
+                                  treatment_variable_name = NULL, ...){
     
     outcomes_object <- 
       declare_potential_outcomes(potential_outcomes_function = attrition_function, 
@@ -116,7 +116,7 @@ declare_attrition <- function(attrition_function = default_attrition_function,
                                  outcome_name = outcome_name, 
                                  condition_names = condition_names, 
                                  sep = sep, 
-                                 treatment_variable = treatment_variable, 
+                                 treatment_variable_name = treatment_variable_name, 
                                  potential_outcomes_type = "attrition",
                                  ... = ...)
     return(outcomes_object)

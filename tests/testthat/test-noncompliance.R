@@ -10,9 +10,9 @@ test_that("test whether noncompliance works", {
   sampling <- declare_sampling(n = 500)
   potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
                                                    condition_names = c(0, 1),
-                                                   treatment_variable = "Z")
+                                                   treatment_variable_name = "Z")
   noncompliance <- declare_noncompliance(condition_names = c(0,1), 
-                                         treatment_variable = "Z", 
+                                         treatment_variable_name = "Z", 
                                          compliance_proportions=c(1, .5), 
                                          baseline_condition=0)
   assignment <- declare_assignment(condition_names = c(0,1))

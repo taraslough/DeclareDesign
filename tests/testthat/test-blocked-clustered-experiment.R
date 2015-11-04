@@ -15,7 +15,7 @@ test_that("test blocked and clustered experiment", {
   
   potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + .2*Z*elevation + noise,
                                                    condition_names = c(0, 1),
-                                                   treatment_variable = "Z")
+                                                   treatment_variable_name = "Z")
   
   assignment <- declare_assignment(condition_names = c(0,1),
                                    block_variable_name = "elevation_high", 

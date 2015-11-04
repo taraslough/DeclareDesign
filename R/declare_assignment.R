@@ -10,7 +10,7 @@
 #' @param block_m A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.
 #' @param block_probabilities A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.
 #' @param baseline_condition The value of condition_names that represents the "baseline" condition.  This is the condition against which treatment effects will be assessed. Defaults to the first value of condition_names.
-#' @param treatment_variable The name of the treatment variable.  Defaults to "Z"
+#' @param treatment_variable_name The name of the treatment variable.  Defaults to "Z"
 #' @param custom_assignment_function A function of data that returns an assignment vector of length n.
 #' @param custom_blocking_function  A function of data that returns a blocking vector of length n.
 #' @param custom_clustering_function A function of data that returns a cluster vector of length n.
@@ -31,7 +31,7 @@
 #' 
 #' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*(Z==1) + .9*(Z==2) + .2*Z*elevation + noise,
 #'                                                  condition_names = c(0, 1, 2),
-#'                                                  treatment_variable = "Z")
+#'                                                  treatment_variable_name = "Z")
 #' 
 #' # Complete Random Assignment assignments
 #' assignment_1 <- declare_assignment(potential_outcomes = potential_outcomes)
@@ -124,7 +124,7 @@ declare_assignment <-
            block_m = NULL, 
            block_probabilities = NULL,
            baseline_condition = NULL,
-           treatment_variable = "Z",
+           treatment_variable_name = "Z",
            custom_assignment_function = NULL,
            custom_blocking_function = NULL,
            custom_clustering_function = NULL,
@@ -195,14 +195,14 @@ declare_assignment <-
                             custom_blocking_function = custom_blocking_function,
                             custom_clustering_function = custom_clustering_function,
                             baseline_condition = baseline_condition,
-                            treatment_variable = treatment_variable,
+                            treatment_variable_name = treatment_variable_name,
                             call = match.call())
     } else if(!is.null(custom_assignment_function)) {
       return.object <- list(
         custom_assignment_function = custom_assignment_function,
         condition_names = condition_names,
         baseline_condition = baseline_condition,
-        treatment_variable = treatment_variable,
+        treatment_variable_name = treatment_variable_name,
         assignment_type = "custom",
         call = match.call())
     } else {
@@ -210,7 +210,7 @@ declare_assignment <-
         existing_assignment_variable_name = existing_assignment_variable_name,
         condition_names = condition_names,
         baseline_condition = baseline_condition,
-        treatment_variable = treatment_variable,
+        treatment_variable_name = treatment_variable_name,
         assignment_type = "existing assignment",
         call = match.call())
     }
