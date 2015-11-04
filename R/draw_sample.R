@@ -51,7 +51,7 @@ draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
   N <- nrow(data)
 
   strata_var <- data[,sampling$strata_variable_name]
-  clust_var <- data[,sampling$cluster_variable_name]
+  cluster_variable <- data[,sampling$cluster_variable_name]
   
   n <- sampling$n
   prob <- sampling$prob
@@ -83,12 +83,12 @@ draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
   
   # For clustered random sampling
   if(sampling_type=="clustered"){
-    Z <- cluster_sampling(clust_var = clust_var, n = n, prob = prob)
+    Z <- cluster_sampling(cluster_variable = cluster_variable, n = n, prob = prob)
   }
   
   # For stratified and clustered sampling
   if(sampling_type=="stratified and clustered"){
-    Z <- stratified_and_clustered_sampling(clust_var = clust_var, strata_var = strata_var, strata_n = strata_n, prob = prob, strata_prob = strata_prob)
+    Z <- stratified_and_clustered_sampling(cluster_variable = cluster_variable, strata_var = strata_var, strata_n = strata_n, prob = prob, strata_prob = strata_prob)
   }
   
   return(Z)

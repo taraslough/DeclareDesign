@@ -412,10 +412,10 @@ blocked_assignment <-
   }
 
 #' @export
-clustered_assignment <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL, baseline_condition=NULL){
+clustered_assignment <- function(cluster_variable, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL, baseline_condition=NULL){
   
   # Setup: get unique clusters and the number of clusters
-  unique_clus <- unique(clust_var)
+  unique_clus <- unique(cluster_variable)
   n_clus <- length(unique_clus)
   
   # Conduct assignment at the cluster level
@@ -427,30 +427,30 @@ clustered_assignment <- function(clust_var, m=NULL, m_each = NULL, prob_each = N
                         baseline_condition = baseline_condition)
   
   # Merge back up to the individual level, maintaining original ordering
-  merged <- merge(x = data.frame(clust_var, init_order = 1:length(clust_var)), 
-                  y = data.frame(clust_var=unique_clus, z_clus, stringsAsFactors=FALSE), by="clust_var")
+  merged <- merge(x = data.frame(cluster_variable, init_order = 1:length(cluster_variable)), 
+                  y = data.frame(cluster_variable=unique_clus, z_clus, stringsAsFactors=FALSE), by="cluster_variable")
   merged <- merged[order(merged$init_order),]
   return(merged$z_clus)
 }
 
 #' @export
 blocked_and_clustered_assignment <- 
-  function(clust_var, block_variable, block_m=NULL, prob_each=NULL, block_probabilities=NULL,condition_names = NULL, baseline_condition=NULL) {
+  function(cluster_variable, block_variable, block_m=NULL, prob_each=NULL, block_probabilities=NULL,condition_names = NULL, baseline_condition=NULL) {
     
     # confirm that all units within clusters are in the same block
     # is there a computationally faster way to confirm this (possible c++ loop?)
     
-    if(!all(rowSums(table(clust_var, block_variable) != 0)==1)){
+    if(!all(rowSums(table(cluster_variable, block_variable) != 0)==1)){
       stop("All units within a cluster must be in the same block.")
     }
     
     # Setup: obtain unique clusters
-    unique_clust <- unique(clust_var)
+    unique_clust <- unique(cluster_variable)
     
     # get the block for each cluster
     clust_blocks <- rep(NA, length(unique_clust))
     for(i in 1:length(unique_clust)){
-      clust_blocks[i] <- unique(block_variable[clust_var==unique_clust[i]])  
+      clust_blocks[i] <- unique(block_variable[cluster_variable==unique_clust[i]])  
     }
     
     # Conduct random assignment at cluster level
@@ -462,8 +462,8 @@ blocked_and_clustered_assignment <-
                         baseline_condition = baseline_condition)
     
     # Merge back up to the individual level, maintaining original ordering
-    merged <- merge(x = data.frame(clust_var, init_order = 1:length(clust_var)), 
-                    y = data.frame(clust_var=unique_clust, z_clust), by="clust_var")
+    merged <- merge(x = data.frame(cluster_variable, init_order = 1:length(cluster_variable)), 
+                    y = data.frame(cluster_variable=unique_clust, z_clust), by="cluster_variable")
     merged <- merged[order(merged$init_order),]
     return(merged$z_clust)
   }

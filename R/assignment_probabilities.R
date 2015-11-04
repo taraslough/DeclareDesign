@@ -32,9 +32,9 @@ get_assignment_probabilities <- function(data, assignment){
   }
   
   if(!is.null(cluster_variable_name)){
-    clust_var <- data[,cluster_variable_name]
+    cluster_variable <- data[,cluster_variable_name]
   }else{
-    clust_var <- NULL
+    cluster_variable <- NULL
   }
   
   condition_names <- assignment$condition_names
@@ -54,11 +54,11 @@ get_assignment_probabilities <- function(data, assignment){
   }
   
   if(assignment_type=="clustered"){
-    prob_mat <- clustered_assignment_probabilities(clust_var = clust_var, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
+    prob_mat <- clustered_assignment_probabilities(cluster_variable = cluster_variable, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
   }
   
   if(assignment_type=="blocked and clustered"){
-    prob_mat <- blocked_and_clustered_assignment_probabilities(clust_var = clust_var, block_variable = block_variable, block_m = block_m, prob_each = prob_each, block_probabilities = block_probabilities, condition_names = condition_names)
+    prob_mat <- blocked_and_clustered_assignment_probabilities(cluster_variable = cluster_variable, block_variable = block_variable, block_m = block_m, prob_each = prob_each, block_probabilities = block_probabilities, condition_names = condition_names)
   }
   
   return(prob_mat)
@@ -184,12 +184,12 @@ blocked_assignment_probabilities <- function(block_variable, block_m=NULL, block
 }
 
 #' @export
-clustered_assignment_probabilities <- function(clust_var, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL){
-  unique_clus <- unique(clust_var)
+clustered_assignment_probabilities <- function(cluster_variable, m=NULL, m_each = NULL, prob_each = NULL, condition_names = NULL){
+  unique_clus <- unique(cluster_variable)
   n_clus <- length(unique_clus)
   probs_clus <- complete_assignment_probabilities(N = n_clus, m = m, m_each = m_each, prob_each = prob_each, condition_names = condition_names)
-  merged <- merge(x = data.frame(clust_var, init_order = 1:length(clust_var)), 
-                  data.frame(clust_var=unique_clus, probs_clus), by="clust_var")
+  merged <- merge(x = data.frame(cluster_variable, init_order = 1:length(cluster_variable)), 
+                  data.frame(cluster_variable=unique_clus, probs_clus), by="cluster_variable")
   merged <- merged[order(merged$init_order),]
   probs_mat <- as.matrix(merged[,colnames(probs_clus)])
   return(probs_mat)
@@ -197,13 +197,13 @@ clustered_assignment_probabilities <- function(clust_var, m=NULL, m_each = NULL,
 
 #' @export
 blocked_and_clustered_assignment_probabilities <- 
-  function(clust_var, block_variable, block_m=NULL, prob_each=NULL, block_probabilities=NULL,condition_names = NULL){
-    unique_clus <- unique(clust_var)
+  function(cluster_variable, block_variable, block_m=NULL, prob_each=NULL, block_probabilities=NULL,condition_names = NULL){
+    unique_clus <- unique(cluster_variable)
     
     ## get the block for each cluster
     clust_blocks <- rep(NA, length(unique_clus))
     for(i in 1:length(unique_clus)){
-      clust_blocks[i] <- unique(block_variable[clust_var==unique_clus[i]])  
+      clust_blocks[i] <- unique(block_variable[cluster_variable==unique_clus[i]])  
     }
     
     probs_clus <- blocked_assignment_probabilities(block_variable = clust_blocks, 
@@ -212,8 +212,8 @@ blocked_and_clustered_assignment_probabilities <-
                                  block_probabilities=block_probabilities,
                                  condition_names = condition_names)
     
-    merged <- merge(x = data.frame(clust_var, init_order = 1:length(clust_var)), 
-                    data.frame(clust_var=unique_clus, probs_clus), by="clust_var")
+    merged <- merge(x = data.frame(cluster_variable, init_order = 1:length(cluster_variable)), 
+                    data.frame(cluster_variable=unique_clus, probs_clus), by="cluster_variable")
     merged <- merged[order(merged$init_order),]
     probs_mat <- as.matrix(merged[,colnames(probs_clus)])
     return(probs_mat)

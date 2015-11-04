@@ -99,17 +99,17 @@ stratified_sampling <- function(strata_var, prob = NULL, strata_n = NULL, strata
 
 
 #' @export
-cluster_sampling <- function(clust_var, n = NULL, prob = NULL){
+cluster_sampling <- function(cluster_variable, n = NULL, prob = NULL){
   prob_each <- NULL
   
   if(!is.null(prob)){
     prob_each <- c(1-prob, prob)
   }
-  clustered_assignment(clust_var = clust_var, m = n, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
+  clustered_assignment(cluster_variable = cluster_variable, m = n, prob_each = prob_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 #' @export
-stratified_and_clustered_sampling <- function(clust_var, strata_var, strata_n = NULL, prob = NULL, strata_prob = NULL){
+stratified_and_clustered_sampling <- function(cluster_variable, strata_var, strata_n = NULL, prob = NULL, strata_prob = NULL){
   
   prob_each <- NULL
   if(!is.null(prob)){
@@ -128,7 +128,7 @@ stratified_and_clustered_sampling <- function(clust_var, strata_var, strata_n = 
     strata_n_matrix <-NULL
   }
   
-  blocked_and_clustered_assignment(clust_var = clust_var, block_variable = strata_var, 
+  blocked_and_clustered_assignment(cluster_variable = cluster_variable, block_variable = strata_var, 
                            block_m = strata_n_matrix, prob_each = prob_each, 
                            block_probabilities = block_probabilities, condition_names = c(0,1), baseline_condition = 0)
 }
