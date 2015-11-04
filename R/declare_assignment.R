@@ -112,7 +112,6 @@
 #' 
 #' with(smp_draw, table(Z14, villages_ID))
 #' with(smp_draw, table(Z14, high_elevation))
-
 #' @export
 declare_assignment <- 
   function(condition_names = NULL,

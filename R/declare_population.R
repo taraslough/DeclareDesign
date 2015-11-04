@@ -1,3 +1,20 @@
+#' Declare the Study Population
+#' 
+#' @param ... A possibly heirarchical set of variable declarations.
+#' @param N_per_level A vector of the number of units at each heirarchical level.
+#' @param group_sizes_per_level A list of sizes at each heirarchical level.
+#' @param N The total number of units in the population. Use only when the heirarchy only contains one level.
+#' @param level_ID_variables The labels associated with each level of the heirarchy.
+#' @param super_population A logical indicating if populations should be drawn from a super population. If FALSE (the default), the population will be fixed.
+#' @param random_seed An optional random seed (for reproducibility).
+#' @param data An optional data.frame, usually containing pre-treatment covariates.
+#' @param custom_population_function A function that returns a data.frame.
+#' @param generate_unique_ID A logical, indicating if unique IDs should be created. By default FALSE.
+#'
+#' @examples 
+#' 
+#' Lots of nice examples go here.
+#'
 #' @export
 declare_population <- function(..., 
                                N_per_level = NULL, group_sizes_per_level = NULL, N = NULL, 
