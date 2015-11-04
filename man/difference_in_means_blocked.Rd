@@ -5,7 +5,7 @@
 \title{Built-in Estimators: Blocked Difference-in-means}
 \usage{
 difference_in_means_blocked(formula, data, weights = NULL, subset = NULL,
-  block_variable = NULL, alpha = 0.05)
+  block_variable_name = NULL, alpha = 0.05)
 }
 \arguments{
 \item{formula}{An object of class "formula", such as Y ~ Z}
@@ -16,7 +16,7 @@ difference_in_means_blocked(formula, data, weights = NULL, subset = NULL,
 
 \item{subset}{An optional vector specifying a subset of observations to be used.}
 
-\item{block_variable}{The name of the blocking variable.}
+\item{block_variable_name}{The name of the blocking variable.}
 
 \item{alpha}{The significance level, 0.05 by default.}
 }
