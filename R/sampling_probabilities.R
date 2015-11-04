@@ -63,22 +63,22 @@ get_sampling_probabilities <- function(data, sampling){
 
 #' @export
 simple_sampling_probabilities <- function(N, m = NULL, prob = NULL){
-  prob_each <- NULL
+  probability_each <- NULL
   
   if(!is.null(prob)){
-    prob_each <- c(1 - prob, prob)
+    probability_each <- c(1 - prob, prob)
   }
-  prob_mat <- complete_assignment_probabilities(N = N, m = m, prob_each = prob_each, condition_names = c(0,1))
+  prob_mat <- complete_assignment_probabilities(N = N, m = m, probability_each = probability_each, condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }
 
 #' @export
 stratified_sampling_probabilities <- function(strata_variable, prob = NULL, strata_m = NULL, strata_probabilities = NULL){
-  prob_each <- NULL
+  probability_each <- NULL
   
   if(!is.null(prob)){
-    prob_each <- c(1 - prob, prob)
+    probability_each <- c(1 - prob, prob)
   }
   
   block_probabilities <- NULL
@@ -86,7 +86,7 @@ stratified_sampling_probabilities <- function(strata_variable, prob = NULL, stra
     block_probabilities <- cbind(1-strata_probabilities, strata_probabilities)  
   }
   
-  prob_mat <- blocked_assignment_probabilities(block_variable = strata_variable, block_m = strata_m, block_probabilities = block_probabilities, prob_each = prob_each, condition_names = c(0,1))
+  prob_mat <- blocked_assignment_probabilities(block_variable = strata_variable, block_m = strata_m, block_probabilities = block_probabilities, probability_each = probability_each, condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }
@@ -94,12 +94,12 @@ stratified_sampling_probabilities <- function(strata_variable, prob = NULL, stra
 
 #' @export
 clustered_sampling_probabilities <- function(cluster_variable, m = NULL, prob = NULL){
-  prob_each <- NULL
+  probability_each <- NULL
   
   if(!is.null(prob)){
-    prob_each <- c(1-prob, prob)
+    probability_each <- c(1-prob, prob)
   }
-  prob_mat <- clustered_assignment_probabilities(cluster_variable = cluster_variable, m = m, prob_each = prob_each, condition_names = c(0,1))
+  prob_mat <- clustered_assignment_probabilities(cluster_variable = cluster_variable, m = m, probability_each = probability_each, condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }
@@ -107,9 +107,9 @@ clustered_sampling_probabilities <- function(cluster_variable, m = NULL, prob = 
 #' @export
 stratified_and_clustered_sampling_probabilities <- function(cluster_variable, strata_variable, strata_m = NULL, prob = NULL, strata_probabilities = NULL){
   
-  prob_each <- NULL
+  probability_each <- NULL
   if(!is.null(prob)){
-    prob_each <- c(1-prob, prob)
+    probability_each <- c(1-prob, prob)
   }
   
   block_probabilities <- NULL
@@ -120,7 +120,7 @@ stratified_and_clustered_sampling_probabilities <- function(cluster_variable, st
   # Must do someday
   # block_m, strata_m
   prob_mat <- blocked_and_clustered_assignment_probabilities(cluster_variable = cluster_variable, block_variable = strata_variable, 
-                           block_m = strata_m, prob_each = prob_each, 
+                           block_m = strata_m, probability_each = probability_each, 
                            block_probabilities = block_probabilities, condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])

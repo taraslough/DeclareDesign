@@ -25,11 +25,11 @@ test_that("test assignment and probability functions", {
   assignment_2 <- declare_assignment(potential_outcomes = potential_outcomes, m = 60, condition_names = c(0, 1))
   assignment_3 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(20, 30, 50))
   assignment_4 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(20, 80), condition_names = c(0, 1))
-  assignment_5 <- declare_assignment(potential_outcomes = potential_outcomes, prob_each = c(.2, .3, .5))
+  assignment_5 <- declare_assignment(potential_outcomes = potential_outcomes, probability_each = c(.2, .3, .5))
   
   # Blocked assignments
   assignment_6 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3")
-  assignment_7 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", prob_each = c(.3, .6, .1))
+  assignment_7 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", probability_each = c(.3, .6, .1))
   assignment_8 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", condition_names = c(0, 1))
   
   block_probabilities <- rbind(c(.1, .2, .7),
@@ -44,7 +44,7 @@ test_that("test assignment and probability functions", {
   # Clustered assignments 
   assignment_9 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID")
   assignment_10 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID", condition_names = c(0, 1))
-  assignment_11 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID", prob_each = c(.1, .3, .6))
+  assignment_11 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID", probability_each = c(.1, .3, .6))
   
   # Blocked and Clustered assignments
   assignment_12 <- declare_assignment(potential_outcomes = potential_outcomes, 
@@ -55,7 +55,7 @@ test_that("test assignment and probability functions", {
                                       block_variable_name = "high_elevation", condition_names = c(0,1))
   assignment_14 <- declare_assignment(potential_outcomes = potential_outcomes, 
                                       cluster_variable_name = "villages_ID", 
-                                      block_variable_name = "high_elevation", prob_each = c(.1, .3, .6))
+                                      block_variable_name = "high_elevation", probability_each = c(.1, .3, .6))
   
   # Draw Data
   pop_draw <- draw_population(population = population)

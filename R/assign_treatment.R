@@ -111,7 +111,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   baseline_condition <- assignment$baseline_condition
   m <- assignment$m
   m_each <- assignment$m_each
-  prob_each <- assignment$prob_each
+  probability_each <- assignment$probability_each
   block_m <- assignment$block_m
   block_probabilities <- assignment$block_probabilities
   assignment_type <- assignment$assignment_type
@@ -133,7 +133,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
     Z <- complete_assignment(N = N,
                      m = m,
                      m_each = m_each,
-                     prob_each = prob_each, 
+                     probability_each = probability_each, 
                      condition_names = condition_names,
                      baseline_condition=baseline_condition)
   }
@@ -142,7 +142,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   if(assignment_type=="blocked"){
     Z <- blocked_assignment(block_variable=block_variable, 
                   block_m = block_m,
-                  prob_each = prob_each,
+                  probability_each = probability_each,
                   block_probabilities=block_probabilities,
                   condition_names = condition_names,
                   baseline_condition=baseline_condition)
@@ -153,7 +153,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
     Z <- clustered_assignment(cluster_variable=cluster_variable, 
                     m = m, 
                     m_each = m_each,
-                    prob_each = prob_each,
+                    probability_each = probability_each,
                     condition_names = condition_names,
                     baseline_condition=baseline_condition)
   }
@@ -164,7 +164,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
                                   block_variable=block_variable, 
                                   block_m=block_m,
                                   block_probabilities=block_probabilities,
-                                  prob_each = prob_each,
+                                  probability_each = probability_each,
                                   condition_names = condition_names,
                                   baseline_condition=baseline_condition)
   }
