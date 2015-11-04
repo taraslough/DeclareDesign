@@ -23,11 +23,11 @@ calculate_ICC <- function(variable,cluster){
 
 #' Extract Regression Coefficients
 #' 
-#' @param model 
-#' @param formula 
-#' @param coefficient_name 
-#' @param statistics
-#' @param estimates_labels 
+#' @param model A model fit
+#' @param formula An optional formula
+#' @param coefficient_name The name of the coefficient to extract.
+#' @param statistics The statistics to extract. Defaults to c("est", "se", "p", "ci_lower", "ci_upper", "df")
+#' @param estimates_labels Label
 #'
 #' @export
 get_regression_coefficient <- function(model, formula = NULL, coefficient_name, 

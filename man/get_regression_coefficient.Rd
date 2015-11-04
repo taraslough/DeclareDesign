@@ -9,13 +9,15 @@ get_regression_coefficient(model, formula = NULL, coefficient_name,
   estimates_labels = "")
 }
 \arguments{
-\item{model}{}
+\item{model}{A model fit}
 
-\item{formula}{}
+\item{formula}{An optional formula}
 
-\item{coefficient_name}{}
+\item{coefficient_name}{The name of the coefficient to extract.}
 
-\item{estimates_labels}{}
+\item{statistics}{The statistics to extract. Defaults to c("est", "se", "p", "ci_lower", "ci_upper", "df")}
+
+\item{estimates_labels}{Label}
 }
 \description{
 Extract Regression Coefficients
