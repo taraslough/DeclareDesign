@@ -2,14 +2,14 @@
 #' @param data A dataframe, often created by \code{\link{draw_population}}.
 #' @param condition_names A vector describing the conditions to which subjects can be assigned. Often inherited from \code{\link{declare_noncompliance}}.
 #' @param baseline_condition The value of condition_names that represents the "baseline" condition. This is the condition that subjects will be in if they do not comply with their treatment status. Often a "control" condition.
-#' @param treatment_variable_name The name of the treatment variable.
+#' @param assignment_variable_name The name of the treatment variable.
 #' @param compliance_proportions A vector of proportions that describes the proportion of subjects who comply in each condition. Each entry in this vector must be a number between 0 and 1.
 #' 
 #' @examples 
 #' population <- declare_population(noise = declare_variable(), N = 1000)
 #' sampling <- declare_sampling(n = 500)
 #' noncompliance <- declare_noncompliance(condition_names = c(0,1), 
-#'                                        treatment_variable_name = "Z", 
+#'                                        assignment_variable_name = "Z", 
 #'                                        compliance_proportions=c(1, .5), 
 #'                                        baseline_condition=0)
 #' assignment <- declare_assignment(condition_names = c(0,1))
@@ -24,10 +24,10 @@
 #' @export
 default_noncompliance_function <- function(data, condition_names, 
                                            baseline_condition, 
-                                           treatment_variable_name,
+                                           assignment_variable_name,
                                            compliance_proportions){
   
-  Z <- data[,treatment_variable_name]
+  Z <- data[,assignment_variable_name]
   D <- rep(baseline_condition, nrow(data))
   
   for(i in 1:length(condition_names)){
@@ -52,7 +52,7 @@ default_noncompliance_function <- function(data, condition_names,
 #' @param outcome_name The name of the variable describing treatment receipt. Defaults to "D".
 #' @param condition_names An optional vector of treatment conditions to be passed to noncompliance_function
 #' @param sep A character string describing the separator for concatenating outcomes and conditions. Defaults to "_".
-#' @param treatment_variable_name The name of the treatment assignment variable
+#' @param assignment_variable_name The name of the treatment assignment variable
 #' @param ... optional additional arguments to be passed to noncompliance_function
 #' 
 #' @return A potential_outcomes object
@@ -61,7 +61,7 @@ default_noncompliance_function <- function(data, condition_names,
 #' population <- declare_population(noise = declare_variable(), N = 1000)
 #' sampling <- declare_sampling(n = 500)
 #' noncompliance <- declare_noncompliance(condition_names = c(0,1), 
-#'                                        treatment_variable_name = "Z", 
+#'                                        assignment_variable_name = "Z", 
 #'                                        compliance_proportions=c(1, .5), 
 #'                                        baseline_condition=0)
 #' assignment <- declare_assignment(condition_names = c(0,1))
@@ -78,7 +78,7 @@ declare_noncompliance <- function(noncompliance_function = default_noncompliance
                                   formula = NULL, 
                                   outcome_name = "D", 
                                   condition_names = NULL, sep = "_", 
-                                  treatment_variable_name = NULL, ...){
+                                  assignment_variable_name = NULL, ...){
     
     outcomes_object <- 
       declare_potential_outcomes(potential_outcomes_function = noncompliance_function, 
@@ -86,7 +86,7 @@ declare_noncompliance <- function(noncompliance_function = default_noncompliance
                                  outcome_name = outcome_name, 
                                  condition_names = condition_names, 
                                  sep = sep, 
-                                 treatment_variable_name = treatment_variable_name, 
+                                 assignment_variable_name = assignment_variable_name, 
                                  potential_outcomes_type = "noncompliance",
                                  ... = ...)
     return(outcomes_object)

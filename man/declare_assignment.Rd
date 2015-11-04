@@ -8,7 +8,7 @@ declare_assignment(condition_names = NULL, potential_outcomes = NULL,
   block_variable_name = NULL, cluster_variable_name = NULL, m = NULL,
   m_each = NULL, prob_each = NULL, block_m = NULL,
   block_probabilities = NULL, baseline_condition = NULL,
-  treatment_variable_name = "Z", custom_assignment_function = NULL,
+  assignment_variable_name = "Z", custom_assignment_function = NULL,
   custom_blocking_function = NULL, custom_clustering_function = NULL,
   existing_assignment_variable_name = NULL)
 }
@@ -33,7 +33,7 @@ declare_assignment(condition_names = NULL, potential_outcomes = NULL,
 
 \item{baseline_condition}{The value of condition_names that represents the "baseline" condition.  This is the condition against which treatment effects will be assessed. Defaults to the first value of condition_names.}
 
-\item{treatment_variable_name}{The name of the treatment variable.  Defaults to "Z"}
+\item{assignment_variable_name}{The name of the treatment variable.  Defaults to "Z"}
 
 \item{custom_assignment_function}{A function of data that returns an assignment vector of length n.}
 
@@ -62,7 +62,7 @@ sampling <- declare_sampling(n = 10, cluster_variable_name = "villages_ID")
 
 potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*(Z==1) + .9*(Z==2) + .2*Z*elevation + noise,
                                                  condition_names = c(0, 1, 2),
-                                                 treatment_variable_name = "Z")
+                                                 assignment_variable_name = "Z")
 
 # Complete Random Assignment assignments
 assignment_1 <- declare_assignment(potential_outcomes = potential_outcomes)

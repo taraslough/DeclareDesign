@@ -5,7 +5,7 @@
 \title{Built-in noncompliance function (one-sided noncompliance)}
 \usage{
 default_noncompliance_function(data, condition_names, baseline_condition,
-  treatment_variable_name, compliance_proportions)
+  assignment_variable_name, compliance_proportions)
 }
 \arguments{
 \item{data}{A dataframe, often created by \code{\link{draw_population}}.}
@@ -14,7 +14,7 @@ default_noncompliance_function(data, condition_names, baseline_condition,
 
 \item{baseline_condition}{The value of condition_names that represents the "baseline" condition. This is the condition that subjects will be in if they do not comply with their treatment status. Often a "control" condition.}
 
-\item{treatment_variable_name}{The name of the treatment variable.}
+\item{assignment_variable_name}{The name of the treatment variable.}
 
 \item{compliance_proportions}{A vector of proportions that describes the proportion of subjects who comply in each condition. Each entry in this vector must be a number between 0 and 1.}
 }
@@ -25,7 +25,7 @@ Built-in noncompliance function (one-sided noncompliance)
 population <- declare_population(noise = declare_variable(), N = 1000)
 sampling <- declare_sampling(n = 500)
 noncompliance <- declare_noncompliance(condition_names = c(0,1), 
-                                       treatment_variable_name = "Z", 
+                                       assignment_variable_name = "Z", 
                                        compliance_proportions=c(1, .5), 
                                        baseline_condition=0)
 assignment <- declare_assignment(condition_names = c(0,1))

@@ -4,7 +4,7 @@
 \alias{default_attrition_function}
 \title{Default attrition function}
 \usage{
-default_attrition_function(data, condition_names, treatment_variable_name,
+default_attrition_function(data, condition_names, assignment_variable_name,
   proportion_always_reporters = NULL, reporting_proportions = NULL)
 }
 \arguments{
@@ -12,7 +12,7 @@ default_attrition_function(data, condition_names, treatment_variable_name,
 
 \item{condition_names}{A vector describing the conditions to which subjects can be assigned. Often inherited from \code{\link{declare_attrition}}.}
 
-\item{treatment_variable_name}{The name of the treatment variable.}
+\item{assignment_variable_name}{The name of the treatment variable.}
 
 \item{proportion_always_reporters}{The proportion of the sample that reports their outcomes regardless of their treatment condition.}
 
@@ -26,12 +26,12 @@ population <- declare_population(noise = declare_variable(), N = 1000)
 sampling <- declare_sampling(n = 500)
 attrition_1 <- declare_attrition(condition_names = c(0,1), 
                                  outcome_name = "R1",
-                                 treatment_variable_name = "Z", 
+                                 assignment_variable_name = "Z", 
                                  reporting_proportions = c(.5, .7))
 
 attrition_2 <- declare_attrition(condition_names = c(0,1), 
                                  outcome_name = "R2",
-                                 treatment_variable_name = "Z", 
+                                 assignment_variable_name = "Z", 
                                  proportion_always_reporters = .8)
 
 assignment <- declare_assignment(condition_names = c(0,1))

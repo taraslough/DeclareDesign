@@ -24,22 +24,22 @@ draw_potential_outcomes <- function(data, potential_outcomes, condition_names = 
   }
   
   has_condition_names <- all(sapply(condition_names, function(x) is.null(x))) == FALSE
-  has_treatment_variable_names <- all(sapply(potential_outcomes, function(x) !is.null(x$treatment_variable_name))) == TRUE
-  create_columns <- has_condition_names & has_treatment_variable_names
+  has_assignment_variable_names <- all(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) == TRUE
+  create_columns <- has_condition_names & has_assignment_variable_names
   
-  if(has_condition_names & !has_treatment_variable_names){
-    stop("Please provide the name of the treatment variable to the treatment_variable_name argument in declare_potential_outcomes if you provide condition_names.")
+  if(has_condition_names & !has_assignment_variable_names){
+    stop("Please provide the name of the treatment variable to the assignment_variable_name argument in declare_potential_outcomes if you provide condition_names.")
   }
   
-  if(sapply(potential_outcomes, function(x) !is.null(x$treatment_variable_name)) != length(potential_outcomes)){
-    stop("If you provide a treatment_variable_name for any of the potential_outcomes, you must provide it for all of them.")
+  if(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name)) != length(potential_outcomes)){
+    stop("If you provide a assignment_variable_name for any of the potential_outcomes, you must provide it for all of them.")
   }
   
   if(create_columns == TRUE) {
     for(i in 1:length(potential_outcomes)){
       for(j in 1:length(condition_names[[i]])){
         data_internal <- data
-        data_internal[potential_outcomes[[i]]$treatment_variable_name] <- condition_names[[i]][j]
+        data_internal[potential_outcomes[[i]]$assignment_variable_name] <- condition_names[[i]][j]
         data[,paste0(potential_outcomes[[i]]$outcome_name, potential_outcomes[[i]]$sep, 
                      condition_names[[i]][j])] <- draw_outcome_vector(data = data_internal, potential_outcomes = potential_outcomes[[i]])
       }

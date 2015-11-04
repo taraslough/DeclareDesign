@@ -10,7 +10,7 @@ default_potential_outcomes_function <- function(formula, data){
 #' @export
 declare_potential_outcomes <- function(potential_outcomes_function = default_potential_outcomes_function,
                                        formula = NULL, outcome_name = NULL, condition_names = NULL, sep = "_", 
-                                       treatment_variable_name = NULL,
+                                       assignment_variable_name = NULL,
                                        potential_outcomes_type = "outcome",
                                        ...){
   
@@ -35,8 +35,8 @@ declare_potential_outcomes <- function(potential_outcomes_function = default_pot
       function_options$data <- data
     if(!is.null(condition_names) & "condition_names" %in% argument_names)
       function_options$condition_names <- condition_names
-    if(!is.null(treatment_variable_name) & "treatment_variable_name" %in% argument_names)
-      function_options$treatment_variable_name <- treatment_variable_name
+    if(!is.null(assignment_variable_name) & "assignment_variable_name" %in% argument_names)
+      function_options$assignment_variable_name <- assignment_variable_name
     
     return(do.call(potential_outcomes_function, args = function_options))
   }
@@ -47,7 +47,7 @@ declare_potential_outcomes <- function(potential_outcomes_function = default_pot
   
   return_object <- list(potential_outcomes_function = potential_outcomes_function_internal, 
                         outcome_name = outcome_name, sep = "_", condition_names = condition_names,
-                        treatment_variable_name = treatment_variable_name,
+                        assignment_variable_name = assignment_variable_name,
                         arguments = arguments, 
                         potential_outcomes_type = potential_outcomes_type,
                         call = match.call())

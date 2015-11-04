@@ -10,7 +10,7 @@ test_that("test simple experiment analysis and diagnosis", {
   sampling <- declare_sampling(n = 500)
   potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
                                    condition_names = c(0, 1),
-                                   treatment_variable_name = "Z")
+                                   assignment_variable_name = "Z")
   assignment <- declare_assignment(condition_names = c(0,1))
   
 

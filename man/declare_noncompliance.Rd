@@ -7,7 +7,7 @@
 
   declare_noncompliance(noncompliance_function = default_noncompliance_function,
   formula = NULL, outcome_name = "D", condition_names = NULL, sep = "_",
-  treatment_variable_name = NULL, ...)
+  assignment_variable_name = NULL, ...)
 }
 \arguments{
 \item{noncompliance_function}{A function of data that returns a vector of treatments as received.}
@@ -20,7 +20,7 @@
 
 \item{sep}{A character string describing the separator for concatenating outcomes and conditions. Defaults to "_".}
 
-\item{treatment_variable_name}{The name of the treatment assignment variable}
+\item{assignment_variable_name}{The name of the treatment assignment variable}
 
 \item{...}{optional additional arguments to be passed to noncompliance_function}
 }
@@ -35,7 +35,7 @@ The built-in default function implements one-sided noncompliance in which some s
 population <- declare_population(noise = declare_variable(), N = 1000)
 sampling <- declare_sampling(n = 500)
 noncompliance <- declare_noncompliance(condition_names = c(0,1), 
-                                       treatment_variable_name = "Z", 
+                                       assignment_variable_name = "Z", 
                                        compliance_proportions=c(1, .5), 
                                        baseline_condition=0)
 assignment <- declare_assignment(condition_names = c(0,1))
