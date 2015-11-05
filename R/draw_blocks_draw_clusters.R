@@ -3,8 +3,7 @@
 #' @param data 
 #' @param assignment 
 #' @param random_seed 
-#'
-#' @return
+#' @return thing
 #'
 #' @export
 draw_blocks <- function(data, assignment, random_seed = NULL){
@@ -20,7 +19,7 @@ draw_blocks <- function(data, assignment, random_seed = NULL){
 #' @param assignment 
 #' @param random_seed 
 #'
-#' @return
+#' @return thing
 #'
 #' @export
 draw_clusters <- function(data, assignment, random_seed = NULL){
