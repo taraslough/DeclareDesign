@@ -13,7 +13,7 @@
 #' @return An estimand object.
 #'
 #' @export
-declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, target = "population",
+declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
                              potential_outcomes, condition_names = NULL,
                              subset = NULL, weights_variable_name = NULL, 
                              label = NULL, ...) {
@@ -70,9 +70,8 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, tar
     
   }
   
-  structure(list(estimand = estimand_function_internal, target = target, 
-                 potential_outcomes = potential_outcomes, condition_names = condition_names, 
-                 label = label, call = match.call()), class = "estimand")
+  structure(list(estimand = estimand_function_internal, potential_outcomes = potential_outcomes, 
+                 condition_names = condition_names, label = label, call = match.call()), class = "estimand")
   
 }
 
@@ -80,11 +79,10 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL, tar
 #' 
 #' @param estimand An estimand object or list of estimand objects, created with \code{\link{declare_estimand}}.
 #' @param estimator An estimantor object or a list of estimator objects, created with \code{\link{declare_estimator}}.
-#' @param sample_data A sample data.frame, created by \code{\link{draw_sample}}.
-#' @param population_data A population data.frame, created by \code{\link{draw_population}}.
+#' @param data A data.frame, created by \code{\link{draw_sample}} or \code{\link{draw_population}} depending on the target of the estimate (sample or population).
 #'
 #' @export
-get_estimands <- function(estimand = NULL, estimator = NULL, sample_data = NULL, population_data = NULL){
+get_estimands <- function(estimand = NULL, estimator = NULL, data){
   
   if(!is.null(estimand) & !is.null(estimator)){
     stop("Please either send estimand(s) or estimator(s) only to get_estimands().")
@@ -115,17 +113,7 @@ get_estimands <- function(estimand = NULL, estimator = NULL, sample_data = NULL,
     for(i in 1:length(estimand)){
       if(!is.null(estimand[[i]])){
         ## if there is an estimand defined
-        if(estimand[[i]]$target == "population"){
-          if(is.null(population_data)){
-            stop(paste0("The target of ", estimand_labels[i], " is the population, so please send get_estimands a population data frame, i.e. one created by draw_population()."))
-          }
-          estimands_list[[i]] <- estimand[[i]]$estimand(data = draw_potential_outcomes(data = population_data, potential_outcomes = estimand[[i]]$potential_outcomes, condition_names = estimand[[i]]$condition_names))
-        } else if(estimand[[i]]$target == "sample") {
-          if(is.null(sample_data)){
-            stop(paste0("The target of ", estimand_labels[i], " is the sample, so please send get_estimands a sample data frame, i.e. one created by draw_sample()."))
-          }
-          estimands_list[[i]] <- estimand[[i]]$estimand(data = draw_potential_outcomes(data = sample_data, potential_outcomes = estimand[[i]]$potential_outcomes, condition_names = estimand[[i]]$condition_names))
-        }
+        estimands_list[[i]] <- estimand[[i]]$estimand(data = draw_potential_outcomes(data = data, potential_outcomes = estimand[[i]]$potential_outcomes, condition_names = estimand[[i]]$condition_names))
         names(estimands_list[[i]]) <- estimand_labels[i]
       } else {
         ## if there is NOT an estimand defined
@@ -139,7 +127,7 @@ get_estimands <- function(estimand = NULL, estimator = NULL, sample_data = NULL,
     
     estimands_vector <- NA
   }
-
+  
   return(estimands_vector)
   
 }

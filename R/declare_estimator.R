@@ -21,11 +21,6 @@ declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates
   
   estimator_options <- list(...)
   
-  ##outcome_variable <- all.vars(formula[[2]])
-  
-  ##if(length(all.vars(formula)) == 2 & substitute(estimates) == "difference_in_means")
-  ##  assignment_variable_name <- all.vars(formula[[3]])
-  
   arguments <- mget(names(formals()), sys.frame(sys.nframe()))
   arguments$... <- NULL
   if(length(estimator_options) > 0) {

@@ -183,103 +183,198 @@ difference_in_means_blocked <- function(formula, data, weights = NULL, subset = 
 
 # Diagnose summary functions ----------------------------------------------
 
-calculate_PATE <- function(estimands, ...){
-  SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]))
-  
-  if(class(SATE) == "matrix")
-    PATE <- apply(SATE, 1, mean, na.rm = T)
-  else
-    PATE <- mean(SATE, na.rm = T)
-  
-  return(list(statistic = PATE, label = "PATE"))
+summary_internal <- function(object, statistic, na.rm = T, ...){
+  if(class(object) == "matrix"){
+    return(apply(object, 1, statistic, na.rm = na.rm, ... = ...))
+  } else {
+    return(statistic(object, na.rm = na.rm, ... = ...))
+  }
 }
 
-calculate_sd_SATE <- function(estimands, ...){
-  SATE <- sapply(1:length(estimands), function(i) as.numeric(estimands[[i]]))
-  
-  if(class(SATE) == "matrix")
-    sd_SATE <- apply(SATE, 1, sd, na.rm = T)
-  else
-    sd_SATE <- sd(SATE, na.rm = T)
-  
-  return(list(statistic = sd_SATE, label = "sd(SATE)"))
+get_estimand_internal <- function(estimands, ...){
+  return(sapply(1:length(estimands), function(i) as.numeric(estimands[[i]])))
 }
 
-calculate_power <- function(estimates, ...){
-  p <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["p", , drop = FALSE]))
-  
-  if(class(p) == "matrix")
-    power <- apply(p < .05, 1, mean, na.rm = T)
-  else
-    power <- mean(p < .05, na.rm = T)
-  
-  return(list(statistic = power, label = "Power"))
+get_estimate_internal <- function(estimates, statistic, ...){
+  return(sapply(1:length(estimates), function(i) as.numeric(estimates[[i]][statistic, , drop = FALSE])))
 }
 
-calculate_RMSE <- function(estimates, estimands, ...){
-  error <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - 
-                                                                estimands[[i]]))
-  
-  if(class(error) == "matrix")
-    RMSE <- apply(error, 1, function(x) sqrt(mean(x^2, na.rm = T)))
-  else
-    RMSE <- sqrt(mean(error^2, na.rm = T))
-  
-  return(list(statistic = RMSE, label = "RMSE"))
+calculate_mean_PATE <- function(population_estimands, ...){
+  return(list(statistic = summary_internal(get_estimand_internal(population_estimands), mean),
+              label = "Mean, PATE"))
 }
 
-calculate_bias <- function(estimates, estimands, ...){
-  
-  PATE <- calculate_PATE(estimands = estimands)$statistic
-  
-  est_PATE_diff <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]]["est", , drop = FALSE] - PATE))
-  
-  if(class(est_PATE_diff) == "matrix")
-    bias <- apply(est_PATE_diff, 1, mean, na.rm = T)
-  else
-    bias <- mean(est_PATE_diff, na.rm = T)
-  
-  return(list(statistic = bias, label = "Bias"))
+calculate_sd_PATE <- function(population_estimands, ...){
+  return(list(statistic = summary_internal(get_estimand_internal(population_estimands), sd),
+              label = "S.D., PATE"))
 }
 
-calculate_coverage <- function(estimates, estimands, ...){
-  PATE <- calculate_PATE(estimands = estimands)$statistic
-  
-  ci_covers_estimate <- sapply(1:length(estimates), function(i) as.numeric(PATE <= estimates[[i]]["ci_upper", , drop = FALSE] & 
-                                                                             PATE >= estimates[[i]]["ci_lower", , drop = FALSE]))
-  
-  if(class(ci_covers_estimate) == "matrix")
-    coverage <- apply(ci_covers_estimate, 1, mean, na.rm = T)
-  else
-    coverage <- mean(ci_covers_estimate, na.rm = T)
-  
-  return(list(statistic = coverage, label = "Coverage"))
+calculate_mean_SATE <- function(sample_estimands, ...){
+  SATEs <- sapply(1:length(sample_estimands), function(i) summary_internal(get_estimand_internal(sample_estimands[[i]]), mean))
+  return(list(statistic = summary_internal(SATEs, mean),
+              label = "Mean, SATE"))
 }
 
-calculate_type_S_rate <- function(estimates, estimands, ...){
-  PATE <- calculate_PATE(estimands = estimands)$statistic
-  
-  sign_error <- sapply(1:length(estimates), function(i) as.numeric(sign(PATE) != sign(estimates[[i]]["est", , drop = FALSE])))
-  
-  if(class(sign_error) == "matrix")
-    type_S_rate <- apply(sign_error, 1, mean, na.rm = T)
-  else
-    type_S_rate <- mean(sign_error, na.rm = T)
-  
-  return(list(statistic = type_S_rate, label = "Type S Rate"))
+calculate_sd_SATE <- function(sample_estimands, ...){
+  SATEs <- sapply(1:length(sample_estimands), function(i) summary_internal(get_estimand_internal(sample_estimands[[i]]), mean))
+  return(list(statistic = summary_internal(SATEs, sd),
+              label = "S.D., SATE"))
 }
 
-calculate_exaggeration_ratio <- function(estimates, estimands, ...){
-  PATE <- calculate_PATE(estimands = estimands)$statistic
+calculate_mean_power <- function(estimates, ...){
+  power <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "p") < .05, mean))
   
-  exaggeration_ratio <- sapply(1:length(estimates), function(i) as.numeric(abs(estimates[[i]]["est", , drop = FALSE] / PATE)))
+  return(list(statistic = summary_internal(power, mean),
+              label = "Mean, Power"))
+}
+
+calculate_sd_power <- function(estimates, ...){
+  power <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "p") < .05, mean))
   
-  if(class(exaggeration_ratio) == "matrix")
-    mean_exaggeration_ratio <- apply(exaggeration_ratio, 1, mean, na.rm = T)
-  else
-    mean_exaggeration_ratio <- mean(exaggeration_ratio, na.rm = T)
+  return(list(statistic = summary_internal(power, sd), 
+              label = "S.D., Power"))
+}
+
+calculate_superpopulation_RMSE <- function(estimates, population_estimands, ...){
+  PATE <- calculate_mean_PATE(population_estimands)$statistic
+  error <- do.call(cbind, lapply(1:length(estimates), function(i) get_estimate_internal(estimates[[i]], "est") - PATE))
   
-  return(list(statistic = mean_exaggeration_ratio, label = "Mean Exagg. Ratio"))
+  return(list(statistic = summary_internal(error, function(x, na.rm = T) sqrt(mean(x^2))),
+              label = "Super-Population RMSE"))               
+  
+}
+
+calculate_population_RMSE <- function(estimates, population_estimands, ...){
+  RMSE <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "est") - get_estimand_internal(population_estimands[[i]]), function(x, na.rm = T) sqrt(mean(x^2))))
+  
+  return(list(statistic = summary_internal(RMSE, mean),
+              label = "Mean Population RMSE"))               
+  
+}
+
+calculate_sample_RMSE <- function(estimates, sample_estimands, ...){
+  RMSE <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "est") - get_estimand_internal(sample_estimands[[i]]), function(x, na.rm = T) sqrt(mean(x^2))))
+  
+  return(list(statistic = summary_internal(RMSE, mean),
+              label = "Mean Sample RMSE"))           
+  
+}
+
+calculate_superpopulation_bias <- function(estimates, population_estimands, ...){
+  PATE <- calculate_mean_PATE(population_estimands)$statistic
+  bias <- do.call(cbind, lapply(1:length(estimates), function(i) get_estimate_internal(estimates[[i]], "est") - PATE))
+  
+  return(list(statistic = summary_internal(bias, mean),
+              label = "Super-Population Bias"))               
+  
+}
+
+calculate_population_bias <- function(estimates, population_estimands, ...){
+  bias <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "est") - get_estimand_internal(population_estimands[[i]]), mean))
+  
+  return(list(statistic = summary_internal(bias, mean),
+              label = "Mean Population Bias"))               
+  
+}
+
+calculate_sample_bias <- function(estimates, sample_estimands, ...){
+  bias <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "est") - get_estimand_internal(sample_estimands[[i]]), mean))
+  
+  return(list(statistic = summary_internal(bias, mean),
+              label = "Mean Sample Bias"))           
+  
+}
+
+calculate_superpopulation_coverage <- function(estimates, population_estimands, ...){
+  PATE <- calculate_mean_PATE(population_estimands)$statistic
+  ci_covers_estimate <- do.call(cbind, lapply(1:length(estimates), function(i) PATE <= get_estimate_internal(estimates[[i]], "ci_upper") 
+                                              & PATE >= get_estimate_internal(estimates[[i]], "ci_lower") ))
+  
+  return(list(statistic = summary_internal(ci_covers_estimate, mean),
+              label = "Super-Population Coverage"))               
+  
+}
+
+calculate_population_coverage <- function(estimates, population_estimands, ...){
+  ci_covers_estimate <- sapply(1:length(estimates), function(i) summary_internal(get_estimand_internal(population_estimands[[i]]) <= get_estimate_internal(estimates[[i]], "ci_upper") & get_estimand_internal(population_estimands[[i]]) >= get_estimate_internal(estimates[[i]], "ci_lower"), mean))
+  
+  return(list(statistic = summary_internal(ci_covers_estimate, mean),
+              label = "Mean Population Coverage"))               
+  
+}
+
+calculate_sample_coverage <- function(estimates, sample_estimands, ...){
+  ci_covers_estimate <- sapply(1:length(estimates), function(i) summary_internal(get_estimand_internal(sample_estimands[[i]]) <= get_estimate_internal(estimates[[i]], "ci_upper") & get_estimand_internal(sample_estimands[[i]]) >= get_estimate_internal(estimates[[i]], "ci_lower"), mean))
+  
+  return(list(statistic = summary_internal(ci_covers_estimate, mean),
+              label = "Mean Sample Coverage"))               
+  
+}
+
+calculate_superpopulation_type_S_rate <- function(estimates, population_estimands, ...){
+  PATE <- calculate_mean_PATE(population_estimands)$statistic
+  bias <- do.call(cbind, lapply(1:length(estimates), function(i) sign(get_estimate_internal(estimates[[i]], "est")) != sign(PATE)))
+  
+  return(list(statistic = summary_internal(bias, mean),
+              label = "Super-Population Type S Rate"))               
+  
+}
+
+calculate_population_type_S_rate <- function(estimates, population_estimands, ...){
+  bias <- sapply(1:length(estimates), function(i) summary_internal(sign(get_estimate_internal(estimates[[i]], "est")) != sign(get_estimand_internal(population_estimands[[i]])), mean))
+  
+  return(list(statistic = summary_internal(bias, mean),
+              label = "Mean Population Type S Rate"))               
+  
+}
+
+calculate_sample_type_S_rate <- function(estimates, sample_estimands, ...){
+  bias <- sapply(1:length(estimates), function(i) summary_internal(sign(get_estimate_internal(estimates[[i]], "est")) != sign(get_estimand_internal(sample_estimands[[i]])), mean))
+  
+  return(list(statistic = summary_internal(bias, mean),
+              label = "Mean Sample Type S Rate"))           
+  
+}
+
+calculate_superpopulation_exaggeration_ratio <- function(estimates, population_estimands, ...){
+  PATE <- calculate_mean_PATE(population_estimands)$statistic
+  bias <- do.call(cbind, lapply(1:length(estimates), function(i) get_estimate_internal(estimates[[i]], "est") / PATE))
+  
+  return(list(statistic = summary_internal(bias, mean),
+              label = "Super-Population Exaggeration Ratio"))               
+  
+}
+
+calculate_population_exaggeration_ratio <- function(estimates, population_estimands, ...){
+  bias <- sapply(1:length(estimates), function(i) summary_internal( get_estimate_internal(estimates[[i]], "est") != get_estimand_internal(population_estimands[[i]]), mean))
+  
+  return(list(statistic = summary_internal(bias, mean),
+              label = "Mean Population Exaggeration Ratio"))               
+  
+}
+
+calculate_sample_exaggeration_ratio <- function(estimates, sample_estimands, ...){
+  bias <- sapply(1:length(estimates), function(i) summary_internal( get_estimate_internal(estimates[[i]], "est") / get_estimand_internal(sample_estimands[[i]]), mean))
+  
+  return(list(statistic = summary_internal(bias, mean),
+              label = "Mean Sample Exaggeration Ratio"))           
+  
+}
+
+calculate_mean_estimate <- function(estimates, ...){
+  bias <- do.call(cbind, lapply(1:length(estimates), function(i) get_estimate_internal(estimates[[i]], "est")))
+  
+  return(list(statistic = summary_internal(bias, mean),
+              label = "Mean, Estimate"))               
+  
+}
+
+calculate_sd_estimate <- function(estimates, ...){
+  bias <- do.call(cbind, lapply(1:length(estimates), function(i) get_estimate_internal(estimates[[i]], "est")))
+  
+  return(list(statistic = summary_internal(bias, sd),
+              label = "S.D., Estimate"))               
+  
 }
 
 
