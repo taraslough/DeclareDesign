@@ -62,8 +62,6 @@ declare_sampling <- function(probability = NULL,
   return(return.object)
 }
 
-
-#' @export
 simple_sampling <- function(N, n = NULL, probability = NULL){
   probability_each <- NULL
   
@@ -73,7 +71,6 @@ simple_sampling <- function(N, n = NULL, probability = NULL){
   complete_assignment(N = N, m = n, probability_each = probability_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
-#' @export
 stratified_sampling <- function(strata_variable, probability = NULL, strata_n = NULL, strata_probabilities = NULL){
   probability_each <- NULL
   
@@ -97,8 +94,6 @@ stratified_sampling <- function(strata_variable, probability = NULL, strata_n = 
   blocked_assignment(block_variable = strata_variable, block_m = strata_n_matrix, block_probabilities = block_probabilities, probability_each = probability_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
-
-#' @export
 cluster_sampling <- function(cluster_variable, n = NULL, probability = NULL){
   probability_each <- NULL
   
@@ -108,7 +103,6 @@ cluster_sampling <- function(cluster_variable, n = NULL, probability = NULL){
   clustered_assignment(cluster_variable = cluster_variable, m = n, probability_each = probability_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
-#' @export
 stratified_and_clustered_sampling <- function(cluster_variable, strata_variable, strata_n = NULL, probability = NULL, strata_probabilities = NULL){
   
   probability_each <- NULL
