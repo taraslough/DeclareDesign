@@ -1,7 +1,7 @@
 #' Estimate the ICC of a given variable
 #'
 #' @param variable A vector whose intra-cluster correlation coefficient should be estimated
-#' @param cluster A vector of cluster IDs indicating the cluster corresponding to each element of variable 
+#' @param cluster_variable A vector of cluster IDs indicating the cluster corresponding to each element of variable 
 #' @export
 calculate_ICC <- function(variable, cluster_variable){
   # Code inspired by ICC package, Matthew Wolak <matthewwolak@gmail.com>

@@ -88,7 +88,6 @@ declare_population <- function(...,
   
 }
 
-#' @export
 wrap_custom_population_function <- function(custom_population_function, data = NULL, 
                                             N = NULL, N_per_level = NULL, group_sizes_per_level = NULL){
   

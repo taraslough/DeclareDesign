@@ -7,15 +7,9 @@
 draw_data(design, random_seed = NULL)
 }
 \arguments{
+\item{design}{A design object created by \code{\link{declare_design}}.}
+
 \item{random_seed}{}
-
-\item{population}{}
-
-\item{sampling}{}
-
-\item{assignment}{}
-
-\item{potential_outcomes}{}
 }
 \description{
 Draw mock data based on a design

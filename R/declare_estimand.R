@@ -2,9 +2,10 @@
 #' 
 #' This function creates an estimand object. 
 #'
-#' @param estimand A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.
+#' @param estimand_function A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.
 #' @param estimand_text A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
-#' @param target Either "population" or "sample".  Defaults to "population".
+#' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
+#' @param condition_names A string vector indicating which conditions to create potential outcomes for.
 #' @param subset A character string that contains an expression that can be passed to the subset operator.  For example subset = "income > 50".
 #' @param weights_variable_name The name of the weighting variable (optional).
 #' @param label A character string for the estimand's label.

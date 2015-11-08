@@ -81,6 +81,11 @@ declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates
   
 }
 
+#' Fit model 
+#' 
+#' @param estimator 
+#' @param data 
+#'
 #' @export
 fit_model <- function(estimator, data){
   if(class(estimator) != "estimator")
@@ -105,6 +110,11 @@ fit_model <- function(estimator, data){
   return(model_list)
 }
 
+#' Get estimates
+#' 
+#' @param estimator 
+#' @param data 
+#'
 #' @export
 get_estimates <- function(estimator, data) {
   

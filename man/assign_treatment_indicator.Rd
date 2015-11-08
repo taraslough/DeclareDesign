@@ -10,15 +10,14 @@ assign_treatment_indicator(data, assignment, random_seed = NULL)
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 
 \item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
+
+\item{random_seed}{A random seed to fix treatment assignments.}
 }
 \value{
 A random assignment vector of length N.
 }
 \description{
 This function takes a data.frame and an assignment object and returns an assignment vector.  Users will often prefer to use \code{\link{assign_treatment}}.
-}
-\details{
-Description
 }
 \examples{
 population <- declare_population(noise = declare_variable(), N = 1000)
@@ -31,5 +30,6 @@ pop_draw <- draw_population(population = population)
 smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 Z <- assign_treatment_indicator(data = smp_draw, assignment=assignment)
 table(Z)
+
 }
 

@@ -1,9 +1,6 @@
 #' Draw mock data based on a design
 #'
-#' @param population 
-#' @param sampling 
-#' @param assignment 
-#' @param potential_outcomes 
+#' @param design A design object created by \code{\link{declare_design}}. 
 #' @param random_seed 
 #'
 #' @export

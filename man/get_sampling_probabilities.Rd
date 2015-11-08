@@ -9,10 +9,10 @@ get_sampling_probabilities(data, sampling)
 \arguments{
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 
-\item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
+\item{sampling}{A sampling object created by \code{\link{declare_sampling}}; or a function that assigns treatment}
 }
 \value{
-A matrix of probabilities of assignment to treatment.
+A matrix of probabilities of selection.
 }
 \description{
 Description
@@ -26,7 +26,6 @@ Description
 # mock          <- draw_population(potential_outcomes = po, sample =  smp)
 # mock$Z        <- assign_treatment_indicator(assignment, data = mock)
 # assignment_probabilities <- get_assignment_probabilities(assignment, mock)
-
-head(assignment_probabilities)
+# head(assignment_probabilities)
 }
 
