@@ -1,4 +1,10 @@
 
+#' Draw potential outcomes
+#' 
+#' @param data 
+#' @param potential_outcomes 
+#' @param condition_names
+#'
 #' @export
 draw_potential_outcomes <- function(data, potential_outcomes, condition_names = NULL) {
   
@@ -50,10 +56,13 @@ draw_potential_outcomes <- function(data, potential_outcomes, condition_names = 
   
 }
 
+#' Draw observed outcome
+#' 
+#' @param data 
+#' @param potential_outcomes 
+#'
 #' @export
 draw_outcome <- function(data, potential_outcomes){
-  
-  # Draw the outcome ------------------------------------------------------
   
   if(class(potential_outcomes) == "potential_outcomes"){
     potential_outcomes <- list(potential_outcomes)
@@ -64,12 +73,14 @@ draw_outcome <- function(data, potential_outcomes){
         draw_outcome_vector(data = data, potential_outcomes = potential_outcomes[[i]])
   }
   
-  # Return data -------------------------------------------------------------
-  
   return(data)
   
 }
 
+#' Draw observed outcome (vector)
+#' @param data 
+#' @param potential_outcomes 
+#'
 #' @export
 draw_outcome_vector <- function(data, potential_outcomes){
   
