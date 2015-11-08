@@ -61,7 +61,6 @@ get_sampling_probabilities <- function(data, sampling){
   return(probs)
 }
 
-#' @export
 simple_sampling_probabilities <- function(N, m = NULL, probability = NULL){
   probability_each <- NULL
   
@@ -73,7 +72,6 @@ simple_sampling_probabilities <- function(N, m = NULL, probability = NULL){
   return(prob_mat[,"prob_1"])
 }
 
-#' @export
 stratified_sampling_probabilities <- function(strata_variable, probability = NULL, strata_n = NULL, strata_probabilities = NULL){
   probability_each <- NULL
   
@@ -99,8 +97,6 @@ stratified_sampling_probabilities <- function(strata_variable, probability = NUL
   return(prob_mat[,"prob_1"])
 }
 
-
-#' @export
 clustered_sampling_probabilities <- function(cluster_variable, m = NULL, probability = NULL){
   probability_each <- NULL
   
@@ -112,7 +108,6 @@ clustered_sampling_probabilities <- function(cluster_variable, m = NULL, probabi
   return(prob_mat[,"prob_1"])
 }
 
-#' @export
 stratified_and_clustered_sampling_probabilities <- function(cluster_variable, strata_variable, strata_n = NULL, probability = NULL, strata_probabilities = NULL){
   
   probability_each <- NULL
