@@ -72,7 +72,7 @@ test_that("test simple experiment analysis and diagnosis", {
   
   # test draw_data
   
-  smp_draw_reveal <- draw_data(population = population, sampling = sampling, assignment = assignment, potential_outcomes = potential_outcomes)
+  smp_draw_reveal <- draw_data(design = design)
   
 })
 
