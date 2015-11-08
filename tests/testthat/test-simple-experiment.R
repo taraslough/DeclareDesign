@@ -21,14 +21,44 @@ test_that("test simple experiment analysis and diagnosis", {
   estimator_lm <- declare_estimator(model = lm, estimates = get_regression_coefficient, 
                                     estimates_options = list(coefficient_name = "Z"),
                                     formula = Y ~ Z, estimand = estimand)
+  get_regression_coefficient_vector <- function(model, formula = NULL, coefficient_name, 
+                                                statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                                label = ""){
+    
+    coef_num <- which(names(coef(model)) == coefficient_name)
+    df <- df.residual(model)
+    est <- coef(model)[coef_num]
+    se <- sqrt(diag(vcov(model)))[coef_num]
+    p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
+    conf_int <- suppressMessages(confint(model))[coef_num, ]
+    
+    output <- matrix(c(est, se, p, conf_int, df), 
+                     dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                     paste0(summary(model)$terms[[2]], "~", paste(all.vars(summary(model)$terms[[3]]), collapse = "+"), "_", label)))[,1]
+    
+    return(output[which(names(output) %in% statistics)])
+  }
+  
+  estimator_lm_vector <- declare_estimator(model = lm, estimates = get_regression_coefficient_vector, 
+                                    estimates_options = list(coefficient_name = "Z"),
+                                    formula = Y ~ Z, estimand = estimand)
   
   design <- declare_design(population = population,
                            sampling = sampling, 
                            assignment = assignment, 
-                           estimator = list(estimator_d_i_m, estimator_lm), 
+                           estimator = list(estimator_d_i_m, estimator_lm, estimator_lm_vector), 
                            potential_outcomes = potential_outcomes,
                            label = "Simple Design")
     
+  diagnosis <- diagnose_design(design = design)
+  
+  design <- declare_design(population = population,
+                           sampling = sampling, 
+                           assignment = assignment, 
+                           estimator = estimator_d_i_m, 
+                           potential_outcomes = potential_outcomes,
+                           label = "Simple Design")
+  
   diagnosis <- diagnose_design(design = design)
   
 # mock data  ---------------------------------------------------------------  
@@ -45,3 +75,4 @@ test_that("test simple experiment analysis and diagnosis", {
   smp_draw_reveal <- draw_data(population = population, sampling = sampling, assignment = assignment, potential_outcomes = potential_outcomes)
   
 })
+

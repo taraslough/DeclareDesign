@@ -140,9 +140,13 @@ get_estimates <- function(estimator, data) {
     } else {
       estimates_list[[i]] <- estimator[[i]]$estimates(data = data)
     }
-    if(class(estimates_list[[i]]) != "matrix" & class(estimates_list[[i]]) != "data.frame")
+    if(class(estimates_list[[i]]) == "numeric" & !is.null(names(estimates_list[[i]]))){
+      estimates_list[[i]] <- as.matrix(estimates_list[[i]])
+    }
+    if(class(estimates_list[[i]]) != "matrix" & class(estimates_list[[i]]) != "data.frame"){
       stop(paste("The quantity_of_interest function you set, or in its absence the estimate function, for estimator named", estimator_labels[i], 
                  "did not produce a matrix or data frame of results."))
+    }
     if(ncol(estimates_list[[i]]) != length(estimator_labels[[i]]) & length(estimator_labels[[i]]) == 1)
       estimator_labels[[i]] <- rep(estimator_labels[[i]], ncol(estimates_list[[i]]))
     colnames(estimates_list[[i]]) <- estimator_labels[[i]] ##colnames(estimates_list[[i]]), estimator_labels[i], sep = "_")

@@ -196,7 +196,11 @@ get_estimand_internal <- function(estimands, ...){
 }
 
 get_estimate_internal <- function(estimates, statistic, ...){
-  return(sapply(1:length(estimates), function(i) as.numeric(estimates[[i]][statistic, , drop = FALSE])))
+  est <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]][statistic, , drop = FALSE]))
+  if(class(est) != "matrix"){
+    est <- matrix(est, nrow = 1, ncol = length(est))
+  }
+  return(est)
 }
 
 calculate_mean_PATE <- function(population_estimands, ...){
