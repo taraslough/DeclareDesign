@@ -1,9 +1,22 @@
+#' Draw mock data based on a design
+#'
+#' @param population 
+#' @param sampling 
+#' @param assignment 
+#' @param potential_outcomes 
+#' @param random_seed 
+#'
 #' @export
-draw_data <- function(population, sampling = NULL, assignment = NULL, potential_outcomes = NULL, random_seed = NULL) {
+draw_data <- function(design, random_seed = NULL) {
   
   if(!is.null(random_seed)){
     set.seed(random_seed)
   }
+  
+  population <- design$population
+  potential_outcomes <- design$potential_outcomes
+  sampling <- design$sampling
+  assignment <- design$assignment
   
   data <- draw_population(population = population, potential_outcomes = potential_outcomes)
   
