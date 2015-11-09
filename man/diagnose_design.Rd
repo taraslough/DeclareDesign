@@ -15,7 +15,7 @@ diagnose_design(design = NULL, diagnosis = NULL,
   calculate_sample_bias, calculate_sample_coverage,     
   calculate_sample_type_S_rate, calculate_sample_exaggeration_ratio,
   calculate_mean_power, calculate_sd_power, calculate_mean_estimate,
-  calculate_sd_estimate), population_draws = 10, sample_draws = 5, ...)
+  calculate_sd_estimate), population_draws = 10, sample_draws = 5)
 }
 \arguments{
 \item{design}{A design object created by \code{\link{declare_design}}.}
@@ -27,8 +27,6 @@ diagnose_design(design = NULL, diagnosis = NULL,
 \item{population_draws}{Number of draws of the population, if using super-population.}
 
 \item{sample_draws}{Number of draws of a sample from each population draw.}
-
-\item{...}{}
 }
 \description{
 Diagnose the properties of a research design

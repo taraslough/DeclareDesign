@@ -4,20 +4,21 @@
 #'
 #' @param estimand_function A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.
 #' @param estimand_text A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
+#' @param estimand_options A list of named options to be used by the estimand function.
 #' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
 #' @param condition_names A string vector indicating which conditions to create potential outcomes for.
 #' @param subset A character string that contains an expression that can be passed to the subset operator.  For example subset = "income > 50".
 #' @param weights_variable_name The name of the weighting variable (optional).
 #' @param label A character string for the estimand's label.
-#' @param ... 
 #' 
 #' @return An estimand object.
 #'
 #' @export
 declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
+                             estimand_options = NULL,
                              potential_outcomes, condition_names = NULL,
                              subset = NULL, weights_variable_name = NULL, 
-                             label = NULL, ...) {
+                             label = NULL) {
   
   if(!is.null(weights_variable_name)){
     stop("Weighted estimands are not yet implemented. Please contact the authors if you are interested in using them.")
@@ -53,8 +54,6 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
       return(eval(estimand_text, envir = data))
     }
   } else {
-    
-    estimand_options <- list(...)
     
     ## if a custom estimand is provided
     

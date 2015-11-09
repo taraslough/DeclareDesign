@@ -2,50 +2,42 @@
 #' 
 #' @param formula An object of class "formula".
 #' @param model 
+#' @param model_options 
 #' @param estimates 
 #' @param estimates_options 
 #' @param subset 
 #' @param weights_variable_name 
 #' @param labels 
 #' @param estimand 
-#' @param ... 
 #'
 #' @export
-declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates_options = NULL,
-                              subset = NULL, weights_variable_name = NULL, labels = NULL, 
-                              estimand = NULL, ...) {
+declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL, estimates, estimates_options = NULL,
+                              subset = NULL, weights_variable_name = NULL, labels = NULL, estimand = NULL) {
   
   if(missing(estimates)){
     stop("Please provide an estimates function. If you provided a model function, the estimates function should extract the quantity of interest (for example, the coefficient associated with the treatment variable). If you did not, the estimates function should take the data and return the quantity of interest directly.")
   }
   
-  estimator_options <- list(...)
-  
-  arguments <- mget(names(formals()), sys.frame(sys.nframe()))
-  arguments$... <- NULL
-  if(length(estimator_options) > 0) {
-    for(k in 1:length(estimator_options))
-      arguments[[names(estimator_options)[[k]]]] <- estimator_options[[k]]
-  }
-  
-  if(is.null(estimates) | !(class(estimates) == "function")){
+  if(is.null(estimates) | (class(estimates) != "function")){
     stop("Please provide a function in the estimates argument.")
   }
   
   if(substitute(estimates) == "difference_in_means" & (length(all.vars(formula)) > 2))
     stop("When using the difference_in_means method, there should only be one covariate listed in the formula on the right-hand side: the treatment variable.")
   
+  ##model_function <- build_function_internal(formula, model, subset, weights_variable_name, ddd = list(...))
+  
   model_function <- function(data){
     argument_names <- names(formals(model))
     if(!is.null(formula) & "formula" %in% argument_names)
-      estimator_options$formula <- stats::formula(unclass(formula))
+      model_options$formula <- stats::formula(unclass(formula))
     if(!is.null(subset) & "subset" %in% argument_names)
-      estimator_options$subset <- with(data, eval(parse(text = subset)))
+      model_options$subset <- with(data, eval(parse(text = subset)))
     if(!is.null(weights_variable_name) & "weights" %in% argument_names)
-      estimator_options$weights <- data[, weights_variable_name]
-    estimator_options$data <- data
+      model_options$weights <- data[, weights_variable_name]
+    model_options$data <- data
     
-    return(do.call(model, args = estimator_options))
+    return(do.call(model, args = model_options))
   }
   
   estimates_function <- function(model = NULL, data = NULL){
@@ -71,7 +63,7 @@ declare_estimator <- function(formula = NULL, model = NULL, estimates, estimates
   }
   
   return_object <- list(model = model_function, estimates = estimates_function, 
-                        labels = labels, estimand = estimand, arguments = arguments, call = match.call())
+                        labels = labels, estimand = estimand, call = match.call())
   
   if(is.null(model)){
     return_object$model <- NULL
