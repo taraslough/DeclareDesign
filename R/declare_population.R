@@ -100,7 +100,7 @@ declare_population <- function(...,
   
 }
 
-<<<<<<< HEAD
+
 #' @export
 make_population_function <- function(
   expressions,
@@ -232,16 +232,7 @@ make_population_function <- function(
     return(return_data)
     
   }
-=======
-wrap_custom_population_function <- function(custom_population_function, data = NULL, 
-                                            N = NULL, N_per_level = NULL, group_sizes_per_level = NULL){
-  
-  ## this is a helper function for custom function so it can pass N or N_per_level or group_sizes_per_level
-  
-  required_arguments <- c("N_per_level", "group_sizes_per_level", "N")
-  custom_arguments <- names(formals(custom_population_function))
->>>>>>> origin/master
-  
+
   # Create the environment that make_population needs to do the above, 
   # but only if it doesn't have values provided for .size, .other_arguments
   make_pop_env <- list2env(
@@ -533,6 +524,8 @@ get_hierarchy <- function(size){
   
   return(list(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level, N_levels = N_levels))
 }
+
+
 
 wrap_custom_population_function <- function(
   custom_population_function,
