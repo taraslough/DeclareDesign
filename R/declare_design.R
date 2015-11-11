@@ -83,3 +83,22 @@ modify_design <- function(design, population = NULL, sampling = NULL, assignment
   
 }
 
+
+#' Summary of design in code
+#'
+#' @param design 
+#'
+#' @return character string representing the design in R code
+#' 
+#' @export
+summary_code <- function(design){
+  paste_skip_lines <- function()
+  steps <- c("population", "potential_outcomes", "sampling", "estimand", "assignment", "estimator")
+  code <- list()
+  for(i in 1:length(steps)){
+    code[[i]] <- trim_spaces(deparse(get(steps[i], design)$call))
+  }
+  return(do.call(paste_skip_lines, args = code, sep = "\n\n"))
+}
+
+
