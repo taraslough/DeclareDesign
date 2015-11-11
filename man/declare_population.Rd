@@ -2,23 +2,17 @@
 % Please edit documentation in R/declare_population.R
 \name{declare_population}
 \alias{declare_population}
-\title{Declare the Study Population}
+\title{New Declare the Study Population}
 \usage{
-declare_population(..., N_per_level = NULL, group_sizes_per_level = NULL,
-  N = NULL, level_ID_variables = NULL, super_population = FALSE,
+declare_population(..., size, global_transformations = NULL,
+  other_arguments = NULL, level_IDs = NULL, super_population = FALSE,
   random_seed = 42, data = NULL, custom_population_function = NULL,
-  generate_unique_ID = FALSE)
+  make_unique_ID = FALSE)
 }
 \arguments{
 \item{...}{A possibly heirarchical set of variable declarations.}
 
-\item{N_per_level}{A vector of the number of units at each heirarchical level.}
-
-\item{group_sizes_per_level}{A list of sizes at each heirarchical level.}
-
-\item{N}{The total number of units in the population. Use only when the heirarchy only contains one level.}
-
-\item{level_ID_variables}{The labels associated with each level of the heirarchy.}
+\item{level_IDs}{The labels associated with each level of the heirarchy.}
 
 \item{super_population}{A logical indicating if populations should be drawn from a super population. If FALSE (the default), the population will be fixed.}
 
@@ -28,10 +22,16 @@ declare_population(..., N_per_level = NULL, group_sizes_per_level = NULL,
 
 \item{custom_population_function}{A function that returns a data.frame.}
 
-\item{generate_unique_ID}{A logical, indicating if unique IDs should be created. By default FALSE.}
+\item{make_unique_ID}{A logical, indicating if unique IDs should be created. By default FALSE.}
+
+\item{N_per_level}{A vector of the number of units at each heirarchical level.}
+
+\item{group_sizes_per_level}{A list of sizes at each heirarchical level.}
+
+\item{N}{The total number of units in the population. Use only when the heirarchy only contains one level.}
 }
 \description{
-Declare the Study Population
+New Declare the Study Population
 }
 \examples{
 
