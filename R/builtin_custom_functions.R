@@ -312,10 +312,9 @@ default_potential_outcomes_function <- function(formula, data){
 #' @return A data.frame
 #'
 #' @export
-bootstrap_data <- function(data, N = NULL, N_per_level = NULL,
-                           group_sizes_per_level = NULL, level_ID_variables = NULL){
+bootstrap_data <- function(data, size, level_IDs = NULL){
   
-  hierarchy <- get_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
+  hierarchy <- get_hierarchy(size = size)
   N <- hierarchy$N
   N_per_level <- hierarchy$N_per_level
   group_sizes_per_level <- hierarchy$group_sizes_per_level
@@ -324,16 +323,16 @@ bootstrap_data <- function(data, N = NULL, N_per_level = NULL,
   sample_by_level <- list()
   for(j in N_levels:1){
     if(j == N_levels){
-      if(is.null(level_ID_variables) & N_levels==1){
+      if(is.null(level_IDs) & N_levels==1){
         sample_by_level[[j]] <- sample(1:nrow(data), N_per_level[j], replace = TRUE)
       }
-      sample_by_level[[j]] <- sample(data[, level_ID_variables[j]], N_per_level[j], replace = TRUE)
+      sample_by_level[[j]] <- sample(data[, level_IDs[j]], N_per_level[j], replace = TRUE)
     } else {
       ## now go through each of the units in the level above it
       sample_current_level <- c()
       for(k in sample_by_level[[j+1]]){
         sample_current_level <- c(sample_current_level, 
-                                  sample(data[data[, level_ID_variables[j+1]] == k, level_ID_variables[j]], 
+                                  sample(data[data[, level_IDs[j+1]] == k, level_IDs[j]], 
                                          round(N_per_level[j]/N_per_level[j+1]), replace = TRUE))
       }
       sample_by_level[[j]] <- sample_current_level
@@ -347,6 +346,23 @@ bootstrap_data <- function(data, N = NULL, N_per_level = NULL,
   return(data)
 }
 
+
+
+
+
+#' @export
+make_list <- function(...) list(...)
+
+
+
+#' @export
+remaindr <- function(numerator,denominator) {
+  m_each <- rep(numerator %/% denominator, denominator)
+  remainder <- numerator %% denominator
+  m_each <-
+    m_each + ifelse(1:denominator %in% sample(1:denominator, remainder), 1, 0)
+  return(m_each)
+}
 
 
 
