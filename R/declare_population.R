@@ -1,77 +1,86 @@
-#' Declare the Study Population
-#' 
-#' @param ... A possibly heirarchical set of variable declarations.
-#' @param N_per_level A vector of the number of units at each heirarchical level.
-#' @param group_sizes_per_level A list of sizes at each heirarchical level.
-#' @param N The total number of units in the population. Use only when the heirarchy only contains one level.
-#' @param level_ID_variables The labels associated with each level of the heirarchy.
-#' @param super_population A logical indicating if populations should be drawn from a super population. If FALSE (the default), the population will be fixed.
-#' @param random_seed An optional random seed (for reproducibility).
-#' @param data An optional data.frame, usually containing pre-treatment covariates.
-#' @param custom_population_function A function that returns a data.frame.
-#' @param generate_unique_ID A logical, indicating if unique IDs should be created. By default FALSE.
+#' New Declare the Study Population
 #'
+#' @param ... A named list of expressions or list of named lists of expressions that generate data. These should generate vectors, the privileged name n_ can be used to specify the leve-specific N (i.e. rnorm(n_) creates 100 normal draws if it is at the level of 100 individuals, or 10 normal draws if it is at the level of 10 cities). These must be declared consecutively and are level-specific (see global_transformations for expressions that can be evaluated over the entire dataset). 
+#' @param size A scalar (for single-level datasets) indicating the N, a vector of N's for each level (i.e. c(100,50,2) for 100 individuals in 50 cities in 2 regions), or a list of vectors specifying how many of the lower-level units are in each unit at that level (i.e. list(rep(1,100),rep(2,50),rep(25,2)) for the same example).
+#' @param global_transformations An optional named list of expressions that can be evaluated across levels. For example, if group-invariant means and SDs have been created, these can be used with an expression in global_transformations in order to create individual-level draws of these group-level parameters.
+#' @param other_arguments An optional list of objects that are used by the expressions passed to ... and global_transformations.
+#' @param level_IDs An optional list of level ID indicators that are otherwise inferred from ... or generated using a default.
+#' @param super_population If TRUE, data is thought of as a single draw from a super-population, and data-resampling is performed during the diagnostics phase. If FALSE, the population is thought of as finite. 
+#' @param random_seed The random seed used for re-sampling. 
+#' @param data User-provided data for bootrstrapping.
+#' @param custom_population_function User-provided function for regenerating data.
+#' @param make_unique_ID If TRUE, an ID is made for each unit that indicates all of the other level IDs.
+#
 #' @examples 
 #' 
 #' # Lots of nice examples go here.
 #'
 #' @export
 declare_population <- function(..., 
-                               N_per_level = NULL, group_sizes_per_level = NULL, N = NULL, 
-                               level_ID_variables = NULL, super_population = FALSE,
-                               random_seed = 42, data = NULL, 
+                               size, 
+                               global_transformations = NULL,
+                               other_arguments = NULL,
+                               level_IDs = NULL, 
+                               super_population = FALSE,
+                               random_seed = 42, 
+                               data = NULL, 
                                custom_population_function = NULL,
-                               generate_unique_ID = FALSE) {
-  
-  
-  # Checks --------------------------------------------------------
+                               make_unique_ID = FALSE) {
   
   # Check whether the user has supplied data
+  
   no_data <- is.null(data)
   
-  # Create population function --------------------------------------------------------
+  # Create user function
   
   if(no_data){
     
     if(!is.null(custom_population_function)){
       
-      population_function <- wrap_custom_population_function(custom_population_function = custom_population_function, 
-                                                             N = N, N_per_level = N_per_level,
-                                                             group_sizes_per_level = group_sizes_per_level)
+      population_function <- wrap_custom_population_function(
+        custom_population_function = custom_population_function,
+        size = size,
+        data = data)
       
     } else {
       
-      population_function <- make_population_function(variable_list = list(...), N_per_level = N_per_level, N = N,
-                                                        group_sizes_per_level = group_sizes_per_level, 
-                                                        level_ID_variables = level_ID_variables, 
-                                                        generate_unique_ID = generate_unique_ID)
+      population_function <- make_population_function(
+        expressions = list(...),
+        size = size, 
+        global_transformations = global_transformations,
+        other_arguments = other_arguments,
+        level_IDs = level_IDs, 
+        make_unique_ID = make_unique_ID)
       
     }
     
   } else {
     
-    # Data provided --------------------------------------------------------
+    # Data provided 
     
     if(super_population == TRUE) {
       
-      # Super population with data --------------------------------------------------------
+      # Super population with data 
       
       if(!is.null(custom_population_function)){
         
-        population_function <- wrap_custom_population_function(custom_population_function = custom_population_function, 
-                                                               data = data, N = N, N_per_level = N_per_level,
-                                                               group_sizes_per_level = group_sizes_per_level)
+        population_function <- wrap_custom_population_function(
+          custom_population_function = custom_population_function,
+          size = size,
+          data = data,
+          other_arguments = other_arguments)
         
       } else{
-  
-        population_function <- make_bootstrap_data_function(data = data, N = N, N_per_level = N_per_level,
-                                                              group_sizes_per_level = group_sizes_per_level, 
-                                                              level_ID_variables = level_ID_variables)
+        
+        population_function <- make_bootstrap_data_function(
+          data = data, 
+          size = size, 
+          level_IDs = level_IDs)
         
       }
     } else {
       
-      # Fixed data --------------------------------------------------------
+      # Fixed data 
       # Add ability to add and resample covariates
       
       population_function <- function() return(data)
@@ -81,7 +90,10 @@ declare_population <- function(...,
     
   } 
   
-  return_object <- list(population = population_function, super_population = super_population, random_seed = random_seed, call = match.call())
+  return_object <- list(population = population_function, 
+                        super_population = super_population, 
+                        random_seed = random_seed, 
+                        call = match.call())
   class(return_object) <- "population"
   
   return(return_object)
@@ -89,87 +101,172 @@ declare_population <- function(...,
 }
 
 #' @export
-wrap_custom_population_function <- function(custom_population_function, data = NULL, 
-                                            N = NULL, N_per_level = NULL, group_sizes_per_level = NULL){
+make_population_function <- function(
+  expressions,
+  size,
+  level_IDs,
+  global_transformations,
+  other_arguments,
+  make_unique_ID
+){
+  # Make sure that all of the levels are properly named
+  expressions <- make_level_names(expressions = expressions,
+                                  level_IDs = level_IDs)
   
-  ## this is a helper function for custom function so it can pass N or N_per_level or group_sizes_per_level
-  
-  required_arguments <- c("N_per_level", "group_sizes_per_level", "N")
-  custom_arguments <- names(formals(custom_population_function))
-  
-  if(!any(required_arguments %in% custom_arguments))
-    stop("Your custom data function must include as arguments at least one of N_per_level, group_sizes_per_level, or N.")
-  
-  if("group_sizes_per_level" %in% names(formals(custom_population_function))){
-    make_population <- function() custom_population_function(group_sizes_per_level = group_sizes_per_level)
-  } else if("N_per_level" %in% names(formals(custom_population_function))){
-    make_population <- function() custom_population_function(N_per_level = N_per_level)
-  } else if("N" %in% names(formals(custom_population_function))){
-    make_population <- function() custom_population_function(N = N)
+  # Start creating custom function here
+  make_population <- function(
+    .size, 
+    .other_arguments 
+  ){
+    
+    # If the defaults are missing, grab them from the environment of the 
+    # function, defined below
+    if(!missing(.size)){
+      size <- .size
+    } else {
+      size <- get("size",envir = make_pop_env)
+    }
+    
+    if(!missing(.other_arguments)){
+      other_arguments <- .other_arguments 
+    } else {
+      other_arguments <- get("other_arguments",envir = make_pop_env)
+    }
+    
+    # Infer the data structure from the size argument
+    hierarchy <- get_hierarchy(size = size)
+    
+    # Unpack the data hierarchy
+    N_levels <- hierarchy$N_levels
+    N <- hierarchy$N
+    N_per_level <- hierarchy$N_per_level
+    group_sizes <- hierarchy$group_sizes_per_level
+    
+    # Get the names of the level IDs
+    level_IDs <- get_level_IDs(expression_list = expressions,
+                               level_IDs = level_IDs,
+                               N_levels = N_levels)
+    
+    # Get the IDs that are not the first level, to merge by
+    merge_IDs <- level_IDs[-1]
+    
+    # make_structure goes through and creates an ID for each level in a list,
+    # this can be thought of as the "skeleton" of the data
+    data_structure <- make_structure(
+      hierarchy = hierarchy,
+      level_IDs = level_IDs)
+    
+    # at each level, make_environ creates an environment with the n_ object, 
+    # other arguments, and all the expressions specific to a level
+    environ_list <- mapply(
+      FUN = make_environ,
+      data_structure = data_structure,
+      exprs = expressions,
+      MoreArgs = list(other_arguments = other_arguments)
+    )
+    
+    # At each level, make_data_frame takes an environment and
+    # - evaluates all of the expressions specific to that level
+    # - removes all of the objects that aren't variables
+    # - coerces the resultant to a data.frame 
+    # So this produces a list of data.frames:
+    data_list <- lapply(X = environ_list,
+                        FUN = make_data_frame,
+                        other_arguments = other_arguments)
+    
+    # Create a list of IDs of the level higher for each lower level, 
+    # for use in merging (in multi-level cases)
+    merge_vars <- mapply(FUN = make_merge_ID, 
+                         group_sizes = group_sizes[-1],
+                         level_ID = level_IDs[-1],
+                         data_structure = data_structure[-1]
+    )
+    
+    # Name the IDs that will be used for merging (in multi-level cases)
+    names(merge_vars) <- merge_IDs
+    
+    # Store the data as return_data for sinle-level cases
+    return_data <- data_list[[1]]
+    
+    # If the data is multi-level
+    if(length(merge_vars)>0){
+      
+      # Go through the merge IDs and put it in the list of data to merge
+      for (i in 1:length(merge_IDs)){
+        data_list[[i]][,merge_IDs[i]] <- merge_vars[i]
+      }
+      
+      # Store the return_data again, since it now has the merge variable
+      return_data <- data_list[[1]]
+      merge_data <- data_list[-1]
+      
+      # Go through and merge all of the levels
+      for (i in 1:length(merge_data)){
+        return_data <- merge(x = return_data,
+                             y = merge_data[[i]],
+                             by = merge_IDs[i],
+                             all.x = T)
+      }
+    }
+    
+    # Now create the environment for evaluating all of the global transformatons
+    return_env <- make_environ(
+      data_structure = return_data,
+      exprs = global_transformations,
+      other_arguments = other_arguments)
+    
+    # And evaluate them, returning a data frame
+    return_data <- make_data_frame(temp_env = return_env,
+                                   other_arguments = other_arguments)
+    return_data <- as.data.frame(as.list(return_env))
+    
+    # If the data is multilevel, reorder the data frame in order of the IDs
+    if(length(level_IDs)>1){
+      return_data <- reorder_by_ID(
+        level_IDs = level_IDs,
+        data = return_data,
+        make_unique_ID = make_unique_ID)
+    }
+    
+    return(return_data)
+    
   }
+  
+  # Create the environment that make_population needs to do the above, 
+  # but only if it doesn't have values provided for .size, .other_arguments
+  make_pop_env <- list2env(
+    list(expressions = expressions,
+         size = size,
+         level_IDs = level_IDs,
+         global_transformations = global_transformations,
+         other_arguments = other_arguments,
+         make_unique_ID = make_unique_ID)
+  )
+  
+  environment(make_population) <- make_pop_env
   
   return(make_population)
+  
 }
 
-make_population_function <- function(variable_list = NULL, N_per_level = NULL, N = NULL,
-                                       group_sizes_per_level = NULL, 
-                                       level_ID_variables = NULL,
-                                       generate_unique_ID = FALSE){
+get_level_IDs <- function(expression_list, level_IDs, N_levels){
   
-  # Checks ------------------------------------------------------------------
-  
-  # N_per_level and N should not be provided simultaneously
-  if(!is.null(N_per_level) & !is.null(N)) {
-    stop("You may not specify N and N_per_level simultaneously.")
-  }
-  
-  # group_sizes_per_level and N should not be provided simultaneously
-  if(!is.null(group_sizes_per_level) & !is.null(N)){
-    stop("You may not specify N and group_sizes_per_level simultaneously.")
-  }
-  
-  # N_per_level and group_sizes_per_level should not be provided simultaneously
-  if(!is.null(group_sizes_per_level) & !is.null(N_per_level)){
-    stop("You may not specify N_per_level and group_sizes_per_level simultaneously.") 
-  }
-  
-  # Check that the necessary data structure info has been provided
-  if(all(is.null(N_per_level), is.null(N), is.null(group_sizes_per_level))){
-    stop("You must either specify N, group_sizes_per_level, N_per_level.")
-  }
-  
-  # Check data structure, create data size indicators ----------------------------------
-  
-  hierarchy <- get_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
-  N <- hierarchy$N
-  N_per_level <- hierarchy$N_per_level
-  group_sizes_per_level <- hierarchy$group_sizes_per_level
-  
-  # Make the objects used to generate data ----------------------------------
-  
-  level_IDs <- level_names <- NULL
-  
-  if(!is.null(level_ID_variables)){
-    level_IDs <- level_ID_variables
-  }
-  
-  any_empty <- FALSE
+  level_names <- NULL
   
   # Check whether the user has supplied variables
-  no_variables <- length(variable_list)==0
+  no_variables <- length(expression_list)==0
   
-  if(!no_variables & all(sapply(variable_list, length)==0)){
+  if(!no_variables & all(sapply(expression_list, length)==0)){
     no_variables <- TRUE
-    level_names <- names(variable_list)
+    level_names <- names(expression_list)
     if(is.null(level_IDs)){
       level_IDs <- paste0(level_names,"_ID")
     }
   }
   
-  
   # If there are no variables specified, just data structure
   if(no_variables){
-    N_levels <- length(N_per_level)
+    
     if(is.null(level_names)){
       level_names <- paste0("level_", 1:N_levels)
     }
@@ -178,19 +275,19 @@ make_population_function <- function(variable_list = NULL, N_per_level = NULL, N
     }
     one_level <- N_levels==1
   }else{
+    # Check all this stuff for finding names: 
     
     # Get the classes of the variables
-    variable_classes <- sapply(variable_list,class)
+    variable_classes <- sapply(expression_list,class)
     
     # If all of the variables are list objects, then they are levels
     if(all(variable_classes=="list")){
       
-      level_names <- names(variable_list)
+      level_names <- names(expression_list)
       
       # If there are no level names, generate them
       if(is.null(level_names)){
-        level_names <- paste0("level_",1:length(variable_list))
-        warning(paste0("You have not supplied level_names  (i.e. level_1 = list(variables)), using the following defaults: \n", level_names))
+        level_names <- paste0("level_",1:length(expression_list))
       }
       
       # If some level names not provided
@@ -198,17 +295,16 @@ make_population_function <- function(variable_list = NULL, N_per_level = NULL, N
         N_missing_names <- sum(level_names=="")
         
         level_names[level_names==""] <- paste0("level_",LETTERS[1:N_missing_names])
-        warning(paste0("You have not supplied level_names for all levels, using the following defaults for some levels: \n", level_names))
       }
       
       # Indicator for whether there is just one level
       one_level <- FALSE
       
       # in the case of just one level, bring it back to the no-list case
-      if(length(variable_list)==1){
-        # variable_list <- unlist(variable_list,recursive = F)
-        variable_list <- variable_list[[1]]
-        variable_classes <- sapply(variable_list,class)
+      if(length(expression_list)==1){
+        # expression_list <- unlist(expression_list,recursive = F)
+        expression_list <- expression_list[[1]]
+        variable_classes <- sapply(expression_list,class)
         one_level <- TRUE
       }
       
@@ -220,7 +316,7 @@ make_population_function <- function(variable_list = NULL, N_per_level = NULL, N
       }
       
       # Find any levels that have no variables declared
-      level_lengths <- sapply(variable_list,length)
+      level_lengths <- sapply(expression_list,length)
       any_empty <- any(!level_lengths>0)
       which_empty <- level_lengths==0
       
@@ -243,249 +339,129 @@ make_population_function <- function(variable_list = NULL, N_per_level = NULL, N
       }else{stop("You must supply ... with variable declarations or lists of variable declarations.")}
     }
   }
-  
-  
-  if(length(N_per_level)>N_levels){
-    stop("The argument supplied to N_per_level or group_sizes_per_level implies more levels than you have allowed for in the variable declarations or user data provided to declare_population().")
-  }
-  
-  if(length(N_per_level)<N_levels){
-    stop("The argument supplied to N_per_level or group_sizes_per_level implies fewer levels than you have allowed for in the variable declarations or user data provided to declare_population().")
-  }
-  
-  # Now generate the make_population() function when there is...
-  
-  # ... no data, one level, variables, and no empty lists
-  if(one_level & !no_variables & !any_empty){
-    make_population <- function(){
-      X_mat <- make_covariate_matrix(variable_list,
-                                     N = N)
-      X_mat[,level_IDs] <- 1:dim(X_mat)[1]
-      X_mat <- integerize(X_mat)
-      X_mat <- as.data.frame(X_mat)
-      if(generate_unique_ID == TRUE){
-        X_mat$level_ID <- make_ID(data = X_mat,level_names = level_IDs)
-      }
-      return(X_mat)
-    }
-  }
-  
-  
-  
-  # ... no data, one level and no variables
-  if(one_level & no_variables){
-    make_population <- function(){
-      X_mat <- data.frame(1:N)
-      names(X_mat) <- level_IDs
-      X_mat <- integerize(X_mat)
-      if(generate_unique_ID == TRUE){
-        X_mat$level_ID <- make_ID(data = X_mat,level_names = level_IDs)
-      }
-      return(X_mat)
-    }
-  } 
-  
-  # ... no data, multiple levels and either variables or no variables
-  if(!one_level){
-    
-    make_population <- function(){
-      
-      X_list <- lapply(1:N_levels,function(i){
-        # Case when variables are supplied
-        if(!no_variables){
-          
-          if(which_empty[i]){
-            X_mat <- data.frame(id = 1:N_per_level[i])
-          }else{
-            X_mat <- make_covariate_matrix(variables = variable_list[[i]],
-                                           N = N_per_level[i])  
-            X_mat$id <- 1:dim(X_mat)[1]
-          }
-          names(X_mat)[names(X_mat)=="id"] <- level_IDs[i]
-          # Case when variables not supplied
-        }else{
-          X_mat <- matrix(1:N_per_level[i], 
-                          dimnames = list(NULL, level_IDs[i]))
-        }
-        X_mat <- data.frame(X_mat)
-        X_mat <- integerize(X_mat)
-        return(X_mat)
-      })
-      
-      
-      if(N_levels > 1){ 
-        for(i in N_levels:2){
-          X_list[[i-1]]$merge_id <- 
-            sample(rep(X_list[[i]][,level_IDs[i]],
-                       group_sizes_per_level[[i]]))
-          
-          names(X_list[[i-1]])[names(X_list[[i-1]])=="merge_id"] <- level_IDs[i]
-          
-          X_list[[i-1]] <- 
-            merge(x  = X_list[[i-1]],
-                  y  = X_list[[i]],
-                  by = level_IDs[i])
-        }
-        population_matrix <- X_list[[1]]
-      }
-      
-      population_matrix <- population_matrix[order(population_matrix[,level_IDs[1]]), , drop=FALSE]
-      population_matrix <- integerize(population_matrix)
-      population_matrix <- as.data.frame(population_matrix)
-      if(generate_unique_ID == TRUE){
-        population_matrix$level_ID <- make_ID(data = population_matrix,level_names = level_IDs)
-      }      
-      return(population_matrix)
-    }
-  }
-  
-  return(make_population)
-  
+  return(level_IDs)
 }
 
-remaindr <- function(numerator,denominator) {
-  m_each <- rep(numerator %/% denominator, denominator)
-  remainder <- numerator %% denominator
-  m_each <-
-    m_each + ifelse(1:denominator %in% sample(1:denominator, remainder), 1, 0)
-  return(m_each)
+make_structure <- function(hierarchy,level_IDs){
+  dat_list <- lapply(hierarchy$N_per_level,
+                     function(n)
+                       data.frame(1:n)
+  )
+  for(i in 1:length(dat_list)) 
+    names(dat_list[[i]]) <- level_IDs[i]
+  return(dat_list)
 }
 
-make_covariate_matrix <- function(...,N) {
-  
-  variables  <- list(...)
-  
-  class_list <- sapply(variables,class)
-  
-  if (all(c("function","list") %in% class_list) |
-      all(c("DGP_object","list") %in% class_list))
-    stop(
-      "Function takes either direct variable declarations or a list of variable declarations, not both at once."
+make_environ <- function(data_structure,exprs,other_arguments){
+  temp_env <- list2env(data_structure)
+  temp_env$n_ <- nrow(data_structure)
+  temp_env$expressions <- exprs
+  if(!is.null(other_arguments)){
+    if(is.null(names(other_arguments))){
+      stop("Elements of the other_arguments list should be named.")
+    }
+    list2env(x = other_arguments,envir = temp_env)
+  }
+  return(temp_env)
+}
+
+make_data_frame <- function(temp_env,other_arguments){
+  other_names <- names(other_arguments)
+  temp_expr <- get("expressions",envir = temp_env)
+  varnames <- names(temp_expr)
+  for (variable in varnames){
+    assign(x = variable,
+           value = eval(parse(text = temp_expr[variable]), 
+                        envir = temp_env),
+           envir = temp_env
     )
-  
-  if ("list" %in% class_list) {
-    if(length(class_list)>1){
-      stop("You should provide one single list of variables to make_covariate_matrix()")
-    }
-    variables <- variables[[1]]
   }
-  
-  # Get the variable names
-  variable_names <- names(variables)
-  
-  if(is.null(variable_names)){
-    variable_names <- ""
-  }
-  variable_name_missing <- variable_names == ""
-  
-  if(any(variable_name_missing)){
-    N_varname_missing <- sum(variable_name_missing)
-    variable_names[variable_name_missing] <-
-      paste0("variable_",letters[1:N_varname_missing])
-  }
-  
-  transformation_check <- sapply(variables,function(variable_elements){
-    element_names <- names(variable_elements)
-    is_transformation <- "transformation"%in%element_names
-    return(is_transformation)
-  })
-  
-  names(variables) <- variable_names
-  
-  transformations <- variables[which(transformation_check)]
-  variables <- variables[which(!transformation_check)]
-  
-  var_names <- names(variables)
-  trans_names <- names(transformations)
-  
-  
-  fun.list <- lapply(variables,function(variable) {
-    
-    if (!class(variable) %in% c("function","DGP_object")) {
-      stop(
-        "Variables should either be random number functions or DGP_object (see declare_variable())"
-      )
-    }
-    if (class(variable) == "function") {
-      return(variable)
-    }
-    if (variable$distribution == "normal") {
-      return(function() {
-        rnorm(n = N,mean = variable$mean, sd = variable$sd)
-      })
-    }
-    if (variable$distribution == "binary") {
-      return(function() {
-        binom_out <- rbinom(n = N,size = 1,prob = variable$probability)
-        if (!is.null(variable$categories)) {
-          binom_out <-
-            factor(binom_out,c(0,1),
-                   variable$categories)
-        }
-        return(binom_out)
-      })
-    }
-    if (variable$distribution == "multinomial") {
-      return(function() {
-        multinom_out <-
-          apply(rmultinom(
-            n = N,size = 1,
-            prob = variable$probability
-          ),2,function(i)
-            which(i == 1))
-        if (!is.null(variable$categories)) {
-          multinom_out <- factor(
-            multinom_out,
-            levels = 1:length(variable$categories),
-            labels = variable$categories
-          )
-        }
-        return(multinom_out)
-      })
-    }
-  })
-  
-  mat_out <- lapply(fun.list,function(each_function){each_function()})
-  
-  mat_out.char <- do.call(cbind.data.frame,mat_out)
-  
-  X_mat <- data.frame(matrix(rep(NA, dim(mat_out.char)[1] * dim(mat_out.char)[2]),
-                             nrow = dim(mat_out.char)[1]))
-  
-  for (i in 1:dim(mat_out.char)[2]) {
-    X_mat[,i] <- mat_out.char [i][,1]
-  }
-  
-  names(X_mat) <- var_names
-  
-  if(length(transformations)>0){
-    
-    transformation_calls <- sapply(transformations,function(trans){
-      trans$transformation
-    })
-    
-    for(i in 1:length(trans_names)){
-      X_mat[trans_names[i]] <- with(data = X_mat,expr = eval(parse(text = transformation_calls[i])))
-    }
-  }
-  X_mat <- integerize(X_mat)
-  return(X_mat)
+  rm(list = c("n_","expressions",other_names),envir = temp_env)
+  data <- as.data.frame(as.list(temp_env))
+  return(data)
 }
 
-make_ID <- function(data,level_names){
-  # Get the maximum ID for each
-  max_IDs <- apply(data, 2 ,max)[level_names]
-  # Re-order from lowest - highest level
-  level_names <- level_names[order(max_IDs, decreasing = T)]
-  ID_mat <- data[,level_names, drop = FALSE]
-  IDs <- apply(ID_mat, 1 , paste ,collapse = "_")
-  return(IDs)
+make_merge_ID <- function(group_sizes,data_structure,level_ID){
+  rep(data_structure[,level_ID],group_sizes)
 }
 
-get_hierarchy <- function(N, N_per_level, group_sizes_per_level){
+make_level_names <- function(expressions, level_IDs){
+  if(!is.null(level_IDs)){
+    level_names <- level_IDs
+  }
+  # Check it is a list of lists
+  all_lists <- all(sapply(expressions,class)=="list")
+  
+  
+  if(!all_lists){
+    expressions <- list(expressions)
+  }
+  
+  level_names <- names(expressions)
+  
+  # Check if all have names
+  if(is.null(level_names)){
+    level_names <- ""
+  }
+  
+  if( "" %in% level_names ){
+    N_missing_names <- sum(level_names=="")
+    
+    level_names[level_names==""] <- paste0("level_",LETTERS[1:N_missing_names])
+    
+  }
+  
+  names(expressions) <- level_names
+  
+  return(expressions)
+}
+
+reorder_by_ID <- function(
+  level_IDs, data , make_unique_ID
+){
+  not_IDs <- names(data)[!names(data) %in% level_IDs]
+  ID_data <- subset(data,select = level_IDs)
+  not_ID_data <- subset(data,select = not_IDs)
+  max_IDs <- sapply(ID_data, function(x)length(unique(x)))
+  level_IDs <- level_IDs[order(max_IDs, decreasing = T)]
+  ID_data <- ID_data[,level_IDs]
+  if(make_unique_ID){
+    unique_ID <- apply(ID_data, 1 , paste ,collapse = "_")
+    data <- data.frame(ID_data[,level_IDs],
+                       unique_ID = unique_ID,
+                       not_ID_data)
+  } else {
+    data <- data.frame(ID_data[,level_IDs],
+                       not_ID_data)
+  }
+  return(data)
+} 
+
+get_hierarchy <- function(size){
+  
+  size_class <- class(size)
+  is_list <- size_class == "list"
+  
+  if(is_list){
+    N <- N_per_level <- NULL
+    group_sizes_per_level <- size
+  }
+  
+  is_numeric <- size_class %in% c("numeric","integer")
+  
+  if(is_numeric){
+    if(length(size) == 1){
+      group_sizes_per_level <- N_per_level <- NULL
+      N <- size
+    } else {
+      group_sizes_per_level <- N <- NULL
+      N_per_level <- size
+    }
+  }
   
   # If group_sizes_per_level is supplied
   if(!is.null(group_sizes_per_level)){
+    
     # Test that the structure is logical
     lower_units_test <- sapply(length(group_sizes_per_level):2,
                                function(i){
@@ -496,8 +472,18 @@ get_hierarchy <- function(N, N_per_level, group_sizes_per_level){
       stop("The argument supplied to group_sizes_per_level is not logical. The sum of every higher level should be equal to the length of the preceding lower level. For example, in a study with 4 units and 2 groups, group_sizes_per_level = list(c(1,1,1,1),c(2,2)).")
     }
     # Generate N_per_level and N
-    N_per_level <- sapply(group_sizes_per_level,length)
     N <- sum(group_sizes_per_level[[1]])
+    
+    # Check if first level is all 1's
+    all_ones <- all(unique(group_sizes_per_level[[1]])==1)
+    
+    # If not, add in the ones level
+    if(!all_ones){
+      first_level <- list(rep(1,N))
+      group_sizes_per_level <- c(first_level,group_sizes_per_level)
+    }
+    N_per_level <- sapply(group_sizes_per_level,length)
+    
   } else {
     # If N_per_level is supplied
     if(!is.null(N_per_level)){
@@ -538,22 +524,96 @@ get_hierarchy <- function(N, N_per_level, group_sizes_per_level){
   return(list(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level, N_levels = N_levels))
 }
 
-make_bootstrap_data_function <- function(data, N = NULL, N_per_level = NULL,
-                                           group_sizes_per_level = NULL, level_ID_variables = NULL){
+wrap_custom_population_function <- function(
+  custom_population_function,
+  size,
+  data = NULL, 
+  other_arguments = NULL
+  ){
   
-  hierarchy <- get_hierarchy(N = N, N_per_level = N_per_level, group_sizes_per_level = group_sizes_per_level)
+  if(!any("size" %in% custom_arguments))
+    stop("Your custom data function must include a size argument.")
+  
+  custom_pop_env <- list2env(
+    list(size = size,
+         custom_arguments = custom_arguments,
+         data = data)
+  )
+  
+  make_population <- function(.size,.custom_arguments,.data) {
+    
+    if(!missing(.size)){
+      size <- .size
+    } else {
+      size <- get("size",envir = custom_pop_env)
+    }
+    
+    if(!missing(.data)){
+      data <- .data
+    } else {
+      data <- get("data",envir = custom_pop_env)
+    }
+    
+    if(!missing(.custom_arguments)){
+      custom_arguments <- .custom_arguments 
+    } else {
+      custom_arguments <- get("custom_arguments",envir = custom_pop_env)
+    }
+    
+    function_args <- c(size = size, data = data, custom_arguments)
+    
+    function_args <- get_custom_args(other_arguments = function_args,
+                                     custom_function = custom_population_function) 
+
+    do.call(what = custom_population_function,args = function_args)
+
+    }
+
+  environment(make_population) <- custom_pop_env
+
+  return(make_population)
+}
+
+make_bootstrap_data_function <- function(data, size, level_IDs = NULL){
+  
+  hierarchy <- get_hierarchy(size = size)
   N_levels <- hierarchy$N_levels
   
   ## do checks
-  if(is.null(level_ID_variables) & N_levels > 1){
-    stop("Please provide level_id_variables if N_levels is greater than 1")
+  if(is.null(level_IDs) & N_levels > 1){
+    stop("Please provide level_IDs if N_levels is greater than 1")
   }
   
-  population_function <- function(){
-    bootstrap_data(data = data, N = N, N_per_level = N_per_level,
-                   group_sizes_per_level = group_sizes_per_level, level_ID_variables = level_ID_variables)
+  boot_pop_env <- list2env(
+    list(size = size,
+         level_IDs = level_IDs,
+         data = data)
+  )
+  
+  population_function <- function(.size){
+    
+    if(!missing(.size)){
+      size <- .size
+    } else {
+      size <- get("size",envir = boot_pop_env)
+    }
+    
+    data <- get("data",envir = boot_pop_env)
+    level_IDs <- get("level_IDs",envir = boot_pop_env)
+    
+    bootstrap_data(data = data, size = size, level_IDs = level_IDs)
+    
   }
+  
+  environment(make_population) <- boot_pop_env
+  
   return(population_function)
   
 }
+
+get_custom_args <- function(other_arguments,custom_function){
+  arg_list <- other_arguments[names(other_arguments) %in% names(formals(custom_function))]
+  return(arg_list)
+}
+
 
