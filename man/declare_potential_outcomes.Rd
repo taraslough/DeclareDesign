@@ -7,7 +7,7 @@
 
   declare_potential_outcomes(potential_outcomes_function = default_potential_outcomes_function,
   formula = NULL, outcome_variable_name = NULL, condition_names = NULL,
-  sep = "_", assignment_variable_name = NULL, ...)
+  sep = "_", assignment_variable_name = NULL, options = NULL)
 }
 \arguments{
 \item{potential_outcomes_function}{}
@@ -22,7 +22,7 @@
 
 \item{assignment_variable_name}{}
 
-\item{...}{}
+\item{options}{}
 }
 \value{
 potential_outcomes object.

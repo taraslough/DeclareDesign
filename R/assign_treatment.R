@@ -77,10 +77,12 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
 #' 
 #' This function takes a data.frame and an assignment object and returns an assignment vector.  Users will often prefer to use \code{\link{assign_treatment}}.
 #'
-#' Description
 #' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
+#' @param random_seed A random seed to fix treatment assignments.
+#' 
 #' @return A random assignment vector of length N.
+#'
 #' @examples 
 #' population <- declare_population(noise = declare_variable(), N = 1000)
 #' sampling <- declare_sampling(n = 500)
@@ -92,6 +94,7 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
 #' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 #' Z <- assign_treatment_indicator(data = smp_draw, assignment=assignment)
 #' table(Z)
+#' 
 #' @export
 assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
 
@@ -173,6 +176,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
 #' Reveal probabilties of assignment to realized treatment conditions
 #'
 #' Description
+#' 
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
 #' @param assignment_variable_name The name of the treatment assignment variable in data.
 #' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment

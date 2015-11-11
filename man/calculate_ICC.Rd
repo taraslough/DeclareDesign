@@ -9,7 +9,7 @@ calculate_ICC(variable, cluster_variable)
 \arguments{
 \item{variable}{A vector whose intra-cluster correlation coefficient should be estimated}
 
-\item{cluster}{A vector of cluster IDs indicating the cluster corresponding to each element of variable}
+\item{cluster_variable}{A vector of cluster IDs indicating the cluster corresponding to each element of variable}
 }
 \description{
 Estimate the ICC of a given variable

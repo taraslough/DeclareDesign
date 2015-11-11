@@ -4,17 +4,14 @@
 \alias{get_estimands}
 \title{Obtain Estimands}
 \usage{
-get_estimands(estimand = NULL, estimator = NULL, sample_data = NULL,
-  population_data = NULL)
+get_estimands(estimand = NULL, estimator = NULL, data)
 }
 \arguments{
 \item{estimand}{An estimand object or list of estimand objects, created with \code{\link{declare_estimand}}.}
 
 \item{estimator}{An estimantor object or a list of estimator objects, created with \code{\link{declare_estimator}}.}
 
-\item{sample_data}{A sample data.frame, created by \code{\link{draw_sample}}.}
-
-\item{population_data}{A population data.frame, created by \code{\link{draw_population}}.}
+\item{data}{A data.frame, created by \code{\link{draw_sample}} or \code{\link{draw_population}} depending on the target of the estimate (sample or population).}
 }
 \description{
 Obtain Estimands

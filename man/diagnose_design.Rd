@@ -5,22 +5,28 @@
 \title{Diagnose the properties of a research design}
 \usage{
 diagnose_design(design = NULL, diagnosis = NULL,
-  statistics = list(calculate_PATE, calculate_sd_SATE, calculate_power,
-  calculate_RMSE, calculate_bias, calculate_coverage, calculate_type_S_rate,
-  calculate_exaggeration_ratio), sims = 5, ...)
+  statistics = list(calculate_mean_PATE, calculate_sd_PATE,
+  calculate_superpopulation_RMSE, calculate_superpopulation_bias,
+  calculate_superpopulation_coverage, calculate_superpopulation_type_S_rate,
+  calculate_superpopulation_exaggeration_ratio, calculate_population_RMSE,
+  calculate_population_bias, calculate_population_coverage,
+  calculate_population_type_S_rate, calculate_population_exaggeration_ratio,
+  calculate_mean_SATE, calculate_sd_SATE, calculate_sample_RMSE,
+  calculate_sample_bias, calculate_sample_coverage,     
+  calculate_sample_type_S_rate, calculate_sample_exaggeration_ratio,
+  calculate_mean_power, calculate_sd_power, calculate_mean_estimate,
+  calculate_sd_estimate), population_draws = 10, sample_draws = 5)
 }
 \arguments{
-\item{design}{}
+\item{design}{A design object created by \code{\link{declare_design}}.}
 
-\item{statistics}{}
+\item{diagnosis}{A diagnosis object created by \code{\link{diagnose_design}}. This allows you to calculate additional summary statistics for existing diagnosis simulations.}
 
-\item{sims}{}
+\item{statistics}{A list of statistic functions that take a list of estimates, sample_estimands, and/or population_estimands and return a statistic (scalar) and a label.}
 
-\item{...}{}
+\item{population_draws}{Number of draws of the population, if using super-population.}
 
-\item{simulations}{}
-
-\item{labels}{}
+\item{sample_draws}{Number of draws of a sample from each population draw.}
 }
 \description{
 Diagnose the properties of a research design

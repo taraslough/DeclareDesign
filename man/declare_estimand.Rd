@@ -5,23 +5,25 @@
 \title{Declare Estimand}
 \usage{
 declare_estimand(estimand_function = NULL, estimand_text = NULL,
-  target = "population", potential_outcomes, condition_names = NULL,
-  subset = NULL, weights_variable_name = NULL, label = NULL, ...)
+  estimand_options = NULL, potential_outcomes, condition_names = NULL,
+  subset = NULL, weights_variable_name = NULL, label = NULL)
 }
 \arguments{
+\item{estimand_function}{A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.}
+
 \item{estimand_text}{A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.}
 
-\item{target}{Either "population" or "sample".  Defaults to "population".}
+\item{estimand_options}{A list of named options to be used by the estimand function.}
+
+\item{potential_outcomes}{A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.}
+
+\item{condition_names}{A string vector indicating which conditions to create potential outcomes for.}
 
 \item{subset}{A character string that contains an expression that can be passed to the subset operator.  For example subset = "income > 50".}
 
 \item{weights_variable_name}{The name of the weighting variable (optional).}
 
 \item{label}{A character string for the estimand's label.}
-
-\item{...}{}
-
-\item{estimand}{A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.}
 }
 \value{
 An estimand object.

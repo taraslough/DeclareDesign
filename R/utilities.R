@@ -22,6 +22,10 @@ integerize <- function(data){
   return(data)
 }
 
+trim_spaces <- function(text){
+  gsub("^\\s+|\\s+$", "", gsub("\\s+", " ", text))
+}
+
 #' Print version of R and packages to improve reproducibility
 #'
 #' @export

@@ -2,9 +2,9 @@
 #' Calculate probabilties of assignment
 #'
 #' Description
-#' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
-#' @return A matrix of probabilities of assignment to treatment.
+#' @param sampling A sampling object created by \code{\link{declare_sampling}}; or a function that assigns treatment
+#' @return A matrix of probabilities of selection.
 #' @examples
 #' # these examples don't work yet
 #' # smp <- declare_population(N = 850)
@@ -14,8 +14,7 @@
 #' # mock          <- draw_population(potential_outcomes = po, sample =  smp)
 #' # mock$Z        <- assign_treatment_indicator(assignment, data = mock)
 #' # assignment_probabilities <- get_assignment_probabilities(assignment, mock)
-#' 
-#' head(assignment_probabilities)
+#' # head(assignment_probabilities)
 #' @export
 get_sampling_probabilities <- function(data, sampling){
   
@@ -61,7 +60,6 @@ get_sampling_probabilities <- function(data, sampling){
   return(probs)
 }
 
-#' @export
 simple_sampling_probabilities <- function(N, m = NULL, probability = NULL){
   probability_each <- NULL
   
@@ -73,7 +71,6 @@ simple_sampling_probabilities <- function(N, m = NULL, probability = NULL){
   return(prob_mat[,"prob_1"])
 }
 
-#' @export
 stratified_sampling_probabilities <- function(strata_variable, probability = NULL, strata_n = NULL, strata_probabilities = NULL){
   probability_each <- NULL
   
@@ -99,8 +96,6 @@ stratified_sampling_probabilities <- function(strata_variable, probability = NUL
   return(prob_mat[,"prob_1"])
 }
 
-
-#' @export
 clustered_sampling_probabilities <- function(cluster_variable, m = NULL, probability = NULL){
   probability_each <- NULL
   
@@ -112,7 +107,6 @@ clustered_sampling_probabilities <- function(cluster_variable, m = NULL, probabi
   return(prob_mat[,"prob_1"])
 }
 
-#' @export
 stratified_and_clustered_sampling_probabilities <- function(cluster_variable, strata_variable, strata_n = NULL, probability = NULL, strata_probabilities = NULL){
   
   probability_each <- NULL
