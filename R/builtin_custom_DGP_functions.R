@@ -28,6 +28,7 @@ declare_variable <-
     
     if (!is.null(normal_mean)) {
       if (!is.null(normal_sd)) {
+        
         variable <- list(distribution = "normal",
                          mean = normal_mean,
                          sd = normal_sd)
@@ -93,3 +94,55 @@ declare_variable <-
     return(variable)
     
   }
+
+
+
+# A function for grabbing variables at a given level in multi-level structures
+#' @export
+get_variable <- function(
+  level_ID, 
+  variable_name, 
+  data, 
+  aggregate_function = NULL,
+  other_arguments = NULL
+){
+  default_fun <- "function(x)unique(x)[1]"
+  
+  if(is.null(aggregate_function)){
+    aggregate_function_string <- default_fun
+  } else {
+    aggregate_function_string <- as.character(substitute(aggregate_function))
+  }
+  
+  data_string <- as.character(substitute(data))
+  variable_name_string <- as.character(substitute(variable_name))
+  level_ID_string <- as.character(substitute(level_ID))
+  other_arguments_string <- as.character(substitute(other_arguments))
+  
+  expr <- paste0(
+    "with(",data_string,",tapply(X = ",variable_name_string,",INDEX = ",level_ID_string,
+    ",FUN = ",aggregate_function_string,other_arguments_string,"))"
+  )
+  return(expr)
+}
+
+#' @export
+make_proportions <- function(population_proportions, N){
+  
+  counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
+  
+  con_names <- rownames(population_proportions)
+  
+  outcomes <- apply(counts,2,function(times){
+    sample(
+      rep(con_names,times = times)
+    )
+  })
+  
+  colnames(outcomes) <- colnames(population_proportions)
+  
+  outcomes <- integerize(as.data.frame(outcomes))
+  
+  return(outcomes)
+  
+}
