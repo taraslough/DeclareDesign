@@ -4,8 +4,7 @@
 \alias{bootstrap_data}
 \title{Bootstrap data, including multi-level data}
 \usage{
-bootstrap_data(data, N = NULL, N_per_level = NULL,
-  group_sizes_per_level = NULL, level_ID_variables = NULL)
+bootstrap_data(data, size, level_IDs = NULL)
 }
 \arguments{
 \item{data}{A data.frame, usually provided by the user and not created with the DeclareDesign package.}
