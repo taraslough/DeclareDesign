@@ -10,25 +10,25 @@ declare_population(..., size, global_transformations = NULL,
   make_unique_ID = FALSE)
 }
 \arguments{
-\item{...}{A possibly heirarchical set of variable declarations.}
+\item{...}{A named list of expressions or list of named lists of expressions that generate data. These should generate vectors, the privileged name n_ can be used to specify the leve-specific N (i.e. rnorm(n_) creates 100 normal draws if it is at the level of 100 individuals, or 10 normal draws if it is at the level of 10 cities). These must be declared consecutively and are level-specific (see global_transformations for expressions that can be evaluated over the entire dataset).}
 
-\item{level_IDs}{The labels associated with each level of the heirarchy.}
+\item{size}{A scalar (for single-level datasets) indicating the N, a vector of N's for each level (i.e. c(100,50,2) for 100 individuals in 50 cities in 2 regions), or a list of vectors specifying how many of the lower-level units are in each unit at that level (i.e. list(rep(1,100),rep(2,50),rep(25,2)) for the same example).}
 
-\item{super_population}{A logical indicating if populations should be drawn from a super population. If FALSE (the default), the population will be fixed.}
+\item{global_transformations}{An optional named list of expressions that can be evaluated across levels. For example, if group-invariant means and SDs have been created, these can be used with an expression in global_transformations in order to create individual-level draws of these group-level parameters.}
 
-\item{random_seed}{An optional random seed (for reproducibility).}
+\item{other_arguments}{An optional list of objects that are used by the expressions passed to ... and global_transformations.}
 
-\item{data}{An optional data.frame, usually containing pre-treatment covariates.}
+\item{level_IDs}{An optional list of level ID indicators that are otherwise inferred from ... or generated using a default.}
 
-\item{custom_population_function}{A function that returns a data.frame.}
+\item{super_population}{If TRUE, data is thought of as a single draw from a super-population, and data-resampling is performed during the diagnostics phase. If FALSE, the population is thought of as finite.}
 
-\item{make_unique_ID}{A logical, indicating if unique IDs should be created. By default FALSE.}
+\item{random_seed}{The random seed used for re-sampling.}
 
-\item{N_per_level}{A vector of the number of units at each heirarchical level.}
+\item{data}{User-provided data for bootrstrapping.}
 
-\item{group_sizes_per_level}{A list of sizes at each heirarchical level.}
+\item{custom_population_function}{User-provided function for regenerating data.}
 
-\item{N}{The total number of units in the population. Use only when the heirarchy only contains one level.}
+\item{make_unique_ID}{If TRUE, an ID is made for each unit that indicates all of the other level IDs.}
 }
 \description{
 New Declare the Study Population
