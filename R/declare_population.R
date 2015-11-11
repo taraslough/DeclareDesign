@@ -169,7 +169,7 @@ make_population_function <- function(
     # At each level, make_data_frame takes an environment and
     # - evaluates all of the expressions specific to that level
     # - removes all of the objects that aren't variables
-    # - coerces the resultant to a data.frame 
+    # - coerces the resultant stuff to a data.frame 
     # So this produces a list of data.frames:
     data_list <- lapply(X = environ_list,
                         FUN = make_data_frame,
@@ -377,6 +377,7 @@ make_data_frame <- function(temp_env,other_arguments){
            envir = temp_env
     )
   }
+  # See if it speeds things up to just keep stuff that's not varnames
   rm(list = c("n_","expressions",other_names),envir = temp_env)
   data <- as.data.frame(as.list(temp_env))
   return(data)
