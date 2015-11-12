@@ -7,13 +7,12 @@ context("Assignment and probability functions")
 
 test_that("test assignment and probability functions", {
   
-  population <- declare_population(individuals = list(noise = declare_variable(),
-                                                      ideo_3 = declare_variable(multinomial_probabilities = c(.2, .3, .5), 
-                                                                                multinomial_categories = c("Liberal", "Moderate", "Conservative"))),
-                                   villages = list(elevation = declare_variable(),
-                                                   high_elevation = declare_variable(transformation = "1*(elevation > 0)")), 
-                                   N_per_level = c(1000, 100))
-  
+  population <- declare_population(individuals = list(noise = "rnorm(n_)",
+                                                      ideo_3 = "sample(c('Liberal', 'Moderate', 'Conservative'), size = n_, prob = c(.2, .3, .5), replace = T)"),
+                                   villages = list(elevation = "rnorm(n_)",
+                                                   high_elevation = "1*(elevation > 0)"), 
+                                   regions = list(),
+                                   size = c(1000, 100, 1))
   sampling <- declare_sampling(n = 10, cluster_variable_name = "villages_ID")
   
   potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*(Z==1) + .9*(Z==2) + .2*Z*elevation + noise,
@@ -33,10 +32,10 @@ test_that("test assignment and probability functions", {
   assignment_8 <- declare_assignment(potential_outcomes = potential_outcomes, block_variable_name = "ideo_3", condition_names = c(0, 1))
   
   block_probabilities <- rbind(c(.1, .2, .7),
-                      c(.1, .7, .2),
-                      c(.7, .2, .1),
-                      c(.7, .1, .2),
-                      c(.2, .1, .7))
+                               c(.1, .7, .2),
+                               c(.7, .2, .1),
+                               c(.7, .1, .2),
+                               c(.2, .1, .7))
   assignment_8.5 <- declare_assignment(potential_outcomes = potential_outcomes, 
                                        block_variable_name = "ideo_3",
                                        block_probabilities = block_probabilities)
@@ -140,4 +139,14 @@ test_that("test assignment and probability functions", {
   prob_obs_12 <- get_observed_assignment_probabilities(data = smp_draw, assignment_variable_name = "Z12", assignment = assignment_12) 
   prob_obs_13 <- get_observed_assignment_probabilities(data = smp_draw, assignment_variable_name = "Z13", assignment = assignment_13) 
   prob_obs_14 <- get_observed_assignment_probabilities(data = smp_draw, assignment_variable_name = "Z14", assignment = assignment_14) 
+  
+  assignment_transform <- declare_assignment(potential_outcomes = potential_outcomes,
+                                             transform_options = list(Z1 = c(0, 1),
+                                                                                                                                           Z2 = 2))
+  smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
+  smp_draw <- assign_treatment(data = smp_draw, assignment = assignment_transform)
+  
+  with(smp_draw, table(Z, Z1))
+  with(smp_draw, table(Z, Z2))
+  
 })

@@ -21,7 +21,7 @@
 #' head(smp_draw)
 #' 
 #' @export
-assign_treatment <- function(data, assignment, random_seed = NULL) {
+function(data, assignment, random_seed = NULL) {
   
   if(!is.null(random_seed)){
     set.seed(random_seed)
@@ -55,7 +55,7 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
     if(assignment$assignment_type != "custom" & assignment$assignment_type != "existing assignment") {
       
       data[, "assignment_probabilities"] <- get_observed_assignment_probabilities(assignment_variable_name = assignment$assignment_variable_name,
-                                                   assignment = assignment, data = data)
+                                                                                  assignment = assignment, data = data)
       
       data[, "assignment_weights"] <- 1/data[, "assignment_probabilities"]
       
@@ -66,6 +66,16 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
         
         data[, "assignment_sampling_weights"] <- 1/data[, "assignment_inclusion_probabilities"]
       }
+    }
+  }
+  
+  if(!is.null(assignment$custom_transform_function) | !is.null(assignment$transform_options)){
+    if(is.null(assignment$custom_transform_function)){
+      data <- default_transform_function(data = data, options = assignment$transform_options,
+                                         assignment_variable_name = assignment$assignment_variable_name)
+    } else {
+      data <- assignment$custom_transform_function(data = data, options = assignment$transform_options,
+                                                   assignment_variable_name = assignment$assignment_variable_name)
     }
   }
   

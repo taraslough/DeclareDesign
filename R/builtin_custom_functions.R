@@ -18,6 +18,18 @@ calculate_ICC <- function(variable, cluster_variable){
 }
 
 
+# Default transform function ----------------------------------------------
+
+default_transform_function <- function(data, options, assignment_variable_name){
+  if(!is.null(options)){
+    for(i in 1:length(options)){
+      data[, names(options)[i]] <- as.numeric(data[, assignment_variable_name] %in% options[[i]])
+    }
+  }
+  return(data)
+}
+
+
 # Built-in Estimates Functions --------------------------------------------
 
 

@@ -146,6 +146,8 @@ declare_assignment <-
            block_probabilities = NULL,
            baseline_condition = NULL,
            assignment_variable_name = "Z",
+           transform_options = NULL,
+           custom_transform_function = NULL, 
            custom_assignment_function = NULL,
            custom_blocking_function = NULL,
            custom_clustering_function = NULL,
@@ -217,6 +219,7 @@ declare_assignment <-
                             custom_clustering_function = custom_clustering_function,
                             baseline_condition = baseline_condition,
                             assignment_variable_name = assignment_variable_name,
+                            custom_transform_function = custom_transform_function, transform_options = transform_options,
                             call = match.call())
     } else if(!is.null(custom_assignment_function)) {
       return.object <- list(
@@ -224,6 +227,7 @@ declare_assignment <-
         condition_names = condition_names,
         baseline_condition = baseline_condition,
         assignment_variable_name = assignment_variable_name,
+        custom_transform_function = custom_transform_function, transform_options = transform_options,
         assignment_type = "custom",
         call = match.call())
     } else {
@@ -232,6 +236,7 @@ declare_assignment <-
         condition_names = condition_names,
         baseline_condition = baseline_condition,
         assignment_variable_name = assignment_variable_name,
+        custom_transform_function = custom_transform_function, transform_options = transform_options,
         assignment_type = "existing assignment",
         call = match.call())
     }
