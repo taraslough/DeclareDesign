@@ -90,3 +90,20 @@ reorient <- function(x) {
   names(obj) <- rep(paste(rownames(x), colnames(x), sep = "_"), each = ncol(x))
   return(obj)
 }
+
+
+clean_inputs <- function(object, object_class){
+  
+  if(!all(sapply(object, class)==object_class)){ 
+    stop(paste0("All objects in the ", object_class, " argument must be created by declare_", object_class, "."))
+  }
+  
+  if(class(object) == object_class){
+    object <- list(object)
+  }  
+  
+  
+}
+
+
+
