@@ -21,7 +21,7 @@
 #' head(smp_draw)
 #' 
 #' @export
-function(data, assignment, random_seed = NULL) {
+assign_treatment <- function(data, assignment, random_seed = NULL) {
   
   if(!is.null(random_seed)){
     set.seed(random_seed)
