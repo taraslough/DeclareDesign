@@ -4,7 +4,7 @@
 \alias{draw_outcome_vector}
 \title{Draw observed outcome (vector)}
 \usage{
-draw_outcome_vector(data, potential_outcomes)
+draw_outcome_vector(data, potential_outcomes, attrition = NULL)
 }
 \arguments{
 \item{data}{}

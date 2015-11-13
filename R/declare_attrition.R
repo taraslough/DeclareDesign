@@ -117,7 +117,6 @@ declare_attrition <- function(attrition_function = default_attrition_function,
                                  sep = sep, 
                                  assignment_variable_name = assignment_variable_name, 
                                  options = options)
-    outcomes_object$potential_outcomes_type <- "attrition"
     return(outcomes_object)
 }
 

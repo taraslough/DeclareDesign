@@ -63,19 +63,84 @@ draw_potential_outcomes <- function(data, potential_outcomes, condition_names = 
                 paste(names(condition_combination), condition_combinations[j,], sep = sep, collapse = sep),
                 sep = sep)
         
-        
-        
         data[,outcome_name_internal] <- 
           draw_potential_outcome_vector(data = data, 
                                         potential_outcomes = potential_outcomes[[i]],
                                         condition_name = condition_combination)
       }
+      
+      if(!is.null(potential_outcomes[[i]]$attrition)){
+        data <- draw_potential_outcomes(data = data, 
+                                       potential_outcomes = potential_outcomes[[i]]$attrition, 
+                                       condition_names= condition_combination)
+      }
+    
     }
+    
+    if(!is.null(attrition)){
+      data <- draw_potential_outcomes(data = data, 
+                                     potential_outcomes = attrition, 
+                                     condition_names = attrition$condition_names)
+    }
+    
+    
   }
   
   return(data)
   
 }
+
+#' @export
+draw_observed_outcome <- function(data, potential_outcomes, condition_names = NULL){
+  
+  sep = potential_outcomes$sep
+  condition_combinations <- expand.grid(condition_names)
+  
+  if(is.null(names(condition_names))){
+    colnames(condition_combinations) <- potential_outcomes$assignment_variable_name
+  }
+  
+  outcome_name_internal <- list()
+  
+  for(j in 1:nrow(condition_combinations)){
+    
+    if(ncol(condition_combinations) > 1){
+      condition_combination <- lapply(1:ncol(condition_combinations[j, ]), function(x){ condition_combinations[j, x] })
+    } else {
+      condition_combination <- list(condition_combinations[j, ])
+    }
+    names(condition_combination) <- colnames(condition_combinations)
+    
+    outcome_name_internal[[j]] <- 
+      paste(potential_outcomes$outcome_variable_name, 
+            paste(names(condition_combination), condition_combinations[j,], sep = sep, collapse = sep),
+            sep = sep)
+  }
+  
+  if(all(outcome_name_internal %in% colnames(data))){
+    
+    ## switching equation
+    data[, potential_outcomes$outcome_variable_name] <- NA
+    for(j in 1:nrow(condition_combinations)){
+      multi_condition_status_internal <- eval(parse(text = paste(colnames(condition_combinations), condition_combinations[j, ], sep= "==", collapse = "&")), 
+                                              envir = data)
+      data[multi_condition_status_internal, potential_outcomes$outcome_variable_name] <- 
+        data[multi_condition_status_internal, outcome_name_internal[[j]]]
+    }
+    
+    if(!is.null(potential_outcomes$attrition)){
+      draw_potential_outcome_vector(data = data, potential_outcomes = potential_outcomes$attrition)
+    }
+    
+  } else {
+    # Is correct for continuous!
+    data[, potential_outcomes$outcome_variable_name] <- 
+      draw_outcome_vector(data = data, potential_outcomes = potential_outcomes)
+  }
+  return(data)
+}
+
+
 
 #' Draw observed outcome
 #' 
@@ -83,7 +148,7 @@ draw_potential_outcomes <- function(data, potential_outcomes, condition_names = 
 #' @param potential_outcomes 
 #'
 #' @export
-draw_outcome <- function(data, potential_outcomes, condition_names){
+draw_outcome <- function(data, potential_outcomes, condition_names = NULL, attrition = NULL){
   
   if(is.null(potential_outcomes)){
     stop("You must provide a potential_outcomes object to draw_outcome.")
@@ -116,56 +181,30 @@ draw_outcome <- function(data, potential_outcomes, condition_names){
     
     
     for(i in 1:length(potential_outcomes)){
+      data <- draw_observed_outcome(data = data, 
+                                    potential_outcomes = potential_outcomes[[i]], 
+                                    condition_names= condition_names[[i]])
       
-      # make the combinations
-      
-      sep = potential_outcomes[[i]]$sep
-      
-      condition_combinations <- expand.grid(condition_names[[i]])
-      if(is.null(names(condition_names[[i]]))){
-        colnames(condition_combinations) <- potential_outcomes[[i]]$assignment_variable_name
-      }
-      
-      outcome_name_internal <- list()
-      
-      for(j in 1:nrow(condition_combinations)){
+      if(!is.null(potential_outcomes[[i]]$attrition)){
+        data <- draw_observed_outcome(data = data, 
+                                      potential_outcomes = potential_outcomes[[i]]$attrition, 
+                                      condition_names= condition_names[[i]])
+
+        data[data[,potential_outcomes[[i]]$attrition$outcome_variable_name]==0, potential_outcomes[[i]]$outcome_variable_name] <- NA
         
-        if(ncol(condition_combinations) > 1){
-          condition_combination <- lapply(1:ncol(condition_combinations[j, ]), function(x){ condition_combinations[j, x] })
-        } else {
-          condition_combination <- list(condition_combinations[j, ])
-        }
-        names(condition_combination) <- colnames(condition_combinations)
-        
-        outcome_name_internal[[j]] <- 
-          paste(potential_outcomes[[i]]$outcome_variable_name, 
-                paste(names(condition_combination), condition_combinations[j,], sep = sep, collapse = sep),
-                sep = sep)
-        
-      }
-      
-      if(all(outcome_name_internal[[i]] %in% colnames(data))){
-        
-        ## switching equation
-        
-        data[, potential_outcomes[[i]]$outcome_variable_name] <- NA
-        for(j in 1:nrow(condition_combinations)){
-          multi_condition_status_internal <- eval(parse(text = paste(colnames(condition_combinations), condition_combinations[j, ], sep= "==", collapse = "&")), 
-                                                  envir = data)
-          data[multi_condition_status_internal, potential_outcomes[[i]]$outcome_variable_name] <- 
-            data[multi_condition_status_internal, outcome_name_internal[[j]]]
-        }
-        
-      } else {
-        # Is correct for continuous!
-        for(i in 1:length(potential_outcomes)){
-          data[, potential_outcomes[[i]]$outcome_variable_name] <- 
-            draw_outcome_vector(data = data, potential_outcomes = potential_outcomes[[i]])
-        }
       }
       
     }
-  
+    
+    if(!is.null(attrition)){
+      data <- draw_observed_outcome(data = data, 
+                                    potential_outcomes = attrition, 
+                                    condition_names = attrition$condition_names)
+      
+      for(i in 1:length(potential_outcomes)){
+        data[data[,attrition$outcome_variable_name]==0, potential_outcomes[[i]]$outcome_variable_name] <- NA  
+      }
+    }
   }
   
   return(data)
@@ -177,7 +216,7 @@ draw_outcome <- function(data, potential_outcomes, condition_names){
 #' @param potential_outcomes 
 #'
 #' @export
-draw_outcome_vector <- function(data, potential_outcomes){
+draw_outcome_vector <- function(data, potential_outcomes, attrition = NULL){
   
   outcome_draw <- potential_outcomes$potential_outcomes_function(data = data)
   
