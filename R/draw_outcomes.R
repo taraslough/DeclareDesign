@@ -9,7 +9,7 @@
 draw_potential_outcomes <- function(data, potential_outcomes, condition_names = NULL, attrition = NULL) {
   
   if(is.null(potential_outcomes)){
-    stop("You must provide a potential_outcomes object to draw potential_outcomes. This error may indicate you did not provide potential_outcomes to declare_estimand() if you did not directly call draw_potential_outcomes.")
+    stop("You must provide a potential_outcomes object to draw_potential_outcomes. ")
   }
   
   if(class(potential_outcomes) == "list" & class(condition_names) == "list" &
@@ -83,15 +83,89 @@ draw_potential_outcomes <- function(data, potential_outcomes, condition_names = 
 #' @param potential_outcomes 
 #'
 #' @export
-draw_outcome <- function(data, potential_outcomes){
+draw_outcome <- function(data, potential_outcomes, condition_names){
   
-  if(class(potential_outcomes) == "potential_outcomes"){
-    potential_outcomes <- list(potential_outcomes)
+  if(is.null(potential_outcomes)){
+    stop("You must provide a potential_outcomes object to draw_outcome.")
   }
   
-  for(i in 1:length(potential_outcomes)){
-    data[, potential_outcomes[[i]]$outcome_variable_name] <- 
-      draw_outcome_vector(data = data, potential_outcomes = potential_outcomes[[i]])
+  if(class(potential_outcomes) == "list" & class(condition_names) == "list" &
+     length(potential_outcomes) != length(condition_names)){
+    stop("If you provide a list of potential_outcomes, you must provide a list of condition_names of the same length.")
+  }
+  
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = "potential_outcomes")
+  
+  if(is.null(condition_names)){
+    condition_names <- lapply(potential_outcomes, function(x) x$condition_names)
+  }else{
+    condition_names <- replicate(length(potential_outcomes), condition_names, simplify = FALSE)
+  }
+  has_condition_names <- all(sapply(condition_names, function(x) is.null(x))) == FALSE
+  has_assignment_variable_names <- all(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) == TRUE
+  
+  if(has_condition_names & !has_assignment_variable_names){
+    stop("Please provide the name of the treatment variable to the assignment_variable_name argument in declare_potential_outcomes if you provide condition_names.")
+  }
+  
+  if(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name)) != length(potential_outcomes)){
+    stop("If you provide a assignment_variable_name for any of the potential_outcomes, you must provide it for all of them.")
+  }
+  
+  if(has_condition_names & has_assignment_variable_names) {
+    
+    
+    for(i in 1:length(potential_outcomes)){
+      
+      # make the combinations
+      
+      sep = potential_outcomes[[i]]$sep
+      
+      condition_combinations <- expand.grid(condition_names[[i]])
+      if(is.null(names(condition_names[[i]]))){
+        colnames(condition_combinations) <- potential_outcomes[[i]]$assignment_variable_name
+      }
+      
+      outcome_name_internal <- list()
+      
+      for(j in 1:nrow(condition_combinations)){
+        
+        if(ncol(condition_combinations) > 1){
+          condition_combination <- lapply(1:ncol(condition_combinations[j, ]), function(x){ condition_combinations[j, x] })
+        } else {
+          condition_combination <- list(condition_combinations[j, ])
+        }
+        names(condition_combination) <- colnames(condition_combinations)
+        
+        outcome_name_internal[[j]] <- 
+          paste(potential_outcomes[[i]]$outcome_variable_name, 
+                paste(names(condition_combination), condition_combinations[j,], sep = sep, collapse = sep),
+                sep = sep)
+        
+      }
+      
+      if(all(outcome_name_internal[[i]] %in% colnames(data))){
+        
+        ## switching equation
+        
+        data[, potential_outcomes[[i]]$outcome_variable_name] <- NA
+        for(j in 1:nrow(condition_combinations)){
+          multi_condition_status_internal <- eval(parse(text = paste(colnames(condition_combinations), condition_combinations[j, ], sep= "==", collapse = "&")), 
+                                                  envir = data)
+          data[multi_condition_status_internal, potential_outcomes[[i]]$outcome_variable_name] <- 
+            data[multi_condition_status_internal, outcome_name_internal[[j]]]
+        }
+        
+      } else {
+        # Is correct for continuous!
+        for(i in 1:length(potential_outcomes)){
+          data[, potential_outcomes[[i]]$outcome_variable_name] <- 
+            draw_outcome_vector(data = data, potential_outcomes = potential_outcomes[[i]])
+        }
+      }
+      
+    }
+  
   }
   
   return(data)
