@@ -94,15 +94,16 @@ reorient <- function(x) {
 
 clean_inputs <- function(object, object_class){
   
-  if(!all(sapply(object, class)==object_class)){ 
-    stop(paste0("All objects in the ", object_class, " argument must be created by declare_", object_class, "."))
-  }
-  
   if(class(object) == object_class){
     object <- list(object)
   }  
   
+  if(!all(sapply(object, function(i) class(i)==object_class))){ 
+    stop(paste0("All objects in the ", object_class, " argument must be created by declare_", object_class, "."))
+  }
   
+  return(object)
+
 }
 
 

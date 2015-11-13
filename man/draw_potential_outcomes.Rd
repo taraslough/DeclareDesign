@@ -4,7 +4,8 @@
 \alias{draw_potential_outcomes}
 \title{Draw potential outcomes}
 \usage{
-draw_potential_outcomes(data, potential_outcomes, condition_names = NULL)
+draw_potential_outcomes(data, potential_outcomes, condition_names = NULL,
+  attrition = NULL)
 }
 \arguments{
 \item{data}{}

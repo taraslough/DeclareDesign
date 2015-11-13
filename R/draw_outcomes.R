@@ -45,26 +45,30 @@ draw_potential_outcomes <- function(data, potential_outcomes, condition_names = 
       sep = potential_outcomes[[i]]$sep
       
       condition_combinations <- expand.grid(condition_names[[i]])
-      
       if(is.null(names(condition_names[[i]]))){
-        combination_names <- assignment_variable_name[i]
-      }else{
-        combination_names <- colnames(condition_combinations)
+        colnames(condition_combinations) <- potential_outcomes[[i]]$assignment_variable_name
       }
       
       for(j in 1:nrow(condition_combinations)){
         
+        if(ncol(condition_combinations) > 1){
+          condition_combination <- lapply(1:ncol(condition_combinations[j, ]), function(x){ condition_combinations[j, x] })
+        } else {
+          condition_combination <- list(condition_combinations[j, ])
+        }
+        names(condition_combination) <- colnames(condition_combinations)
+        
         outcome_name_internal <- 
           paste(potential_outcomes[[i]]$outcome_variable_name, 
-                paste(combination_names, condition_combinations[j,], sep = sep, collapse = sep),
+                paste(names(condition_combination), condition_combinations[j,], sep = sep, collapse = sep),
                 sep = sep)
+        
         
         
         data[,outcome_name_internal] <- 
           draw_potential_outcome_vector(data = data, 
                                         potential_outcomes = potential_outcomes[[i]],
-                                        condition_name = condition_names[[i]][j], 
-                                        assignment_variable_name = potential_outcomes[[i]]$assignment_variable_name[k])
+                                        condition_name = condition_combination)
       }
     }
   }
@@ -124,9 +128,11 @@ draw_outcome_vector <- function(data, potential_outcomes){
 #' @param assignment_variable_name 
 #'
 #' @export
-draw_potential_outcome_vector <- function(data, potential_outcomes, condition_name, assignment_variable_name){
+draw_potential_outcome_vector <- function(data, potential_outcomes, condition_name){
   
-  data[,assignment_variable_name] <- condition_name
+  for(i in 1:length(condition_name)){
+    data[,names(condition_name)[i]] <- condition_name[[i]]
+  }
   
   outcome_draw <- potential_outcomes$potential_outcomes_function(data = data)
   

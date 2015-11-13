@@ -8,7 +8,8 @@ declare_assignment(condition_names = NULL, potential_outcomes = NULL,
   block_variable_name = NULL, cluster_variable_name = NULL, m = NULL,
   m_each = NULL, probability_each = NULL, block_m = NULL,
   block_probabilities = NULL, baseline_condition = NULL,
-  assignment_variable_name = "Z", custom_assignment_function = NULL,
+  assignment_variable_name = "Z", transform_options = NULL,
+  custom_transform_function = NULL, custom_assignment_function = NULL,
   custom_blocking_function = NULL, custom_clustering_function = NULL,
   existing_assignment_variable_name = NULL)
 }

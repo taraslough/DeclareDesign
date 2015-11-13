@@ -6,7 +6,7 @@ context("Simple experiment")
 
 test_that("test simple experiment analysis and diagnosis", {
   
-  population <- declare_population(noise = declare_variable(), N = 250)
+  population <- declare_population(noise = "rnorm(n_)", size = 250)
   sampling <- declare_sampling(n = 100)
   potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
                                    condition_names = c(0, 1),
@@ -16,7 +16,7 @@ test_that("test simple experiment analysis and diagnosis", {
 
 # Diagnosis ---------------------------------------------------------------
 
-  estimand <- declare_estimand(estimand_text = "mean(Y_1 - Y_0)", potential_outcomes = potential_outcomes)
+  estimand <- declare_estimand(estimand_text = "mean(Y_Z_1 - Y_Z_0)", potential_outcomes = potential_outcomes)
   estimator_d_i_m <- declare_estimator(estimates = difference_in_means, formula = Y ~ Z, estimand = estimand)
   estimator_lm <- declare_estimator(model = lm, estimates = get_regression_coefficient, 
                                     estimates_options = list(coefficient_name = "Z"),
@@ -64,6 +64,7 @@ test_that("test simple experiment analysis and diagnosis", {
 # mock data  ---------------------------------------------------------------  
   
   pop_draw <- draw_population(population = population, potential_outcomes = potential_outcomes)
+  
   smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
   smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
   smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = potential_outcomes)

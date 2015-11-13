@@ -46,7 +46,7 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
                                        statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
                                        label = ""){
   
-  coef_num <- which(names(coef(model)) == coefficient_name)
+  coef_num <- which(names(coef(model)) %in% coefficient_name)
   df <- df.residual(model)
   est <- coef(model)[coef_num]
   se <- sqrt(diag(vcov(model)))[coef_num]
