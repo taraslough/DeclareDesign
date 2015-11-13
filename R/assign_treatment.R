@@ -119,8 +119,8 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   block_variable <- data[,assignment$block_variable_name]
   cluster_variable <- data[,assignment$cluster_variable_name]
   
-  condition_names <- assignment$condition_names
-  baseline_condition <- assignment$baseline_condition
+  condition_names <- assignment$condition_names[[assignment$assignment_variable_name]]
+  baseline_condition <- assignment$baseline_condition[[assignment$assignment_variable_name]]
   m <- assignment$m
   m_each <- assignment$m_each
   probability_each <- assignment$probability_each

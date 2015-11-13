@@ -142,7 +142,7 @@ test_that("test assignment and probability functions", {
   
   assignment_transform <- declare_assignment(potential_outcomes = potential_outcomes,
                                              transform_options = list(Z1 = c(0, 1),
-                                                                                                                                           Z2 = 2))
+                                                                      Z2 = 2))
   smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
   smp_draw <- assign_treatment(data = smp_draw, assignment = assignment_transform)
   
