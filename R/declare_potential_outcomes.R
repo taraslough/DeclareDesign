@@ -16,7 +16,20 @@ declare_potential_outcomes <- function(potential_outcomes_function =
                                        formula = NULL, outcome_variable_name = NULL, 
                                        condition_names = NULL, sep = "_", 
                                        assignment_variable_name = NULL,
+                                       attrition = NULL,
                                        options = NULL){
+  
+  if(is.list(condition_names) & (length(assignment_variable_name) != length(condition_names))){
+    stop("If you provide a list of vectors of condition names, you must provide a vector to assignment_variable_name of the same length.")
+  }
+  
+  if(is.list(condition_names) & (!all(names(condition_names) %in% assignment_variable_name))){
+    stop("If you provide a list of vectors of condition names, that list must be named with the same assignment variable names as you provide to assignment_variable_name.")
+  }
+  
+  if(is.list(condition_names) & (!all(assignment_variable_name %in% names(condition_names)))){
+    stop("If you provide a list of vectors of condition names, that list must be named with the same assignment variable names as you provide to assignment_variable_name.")
+  }
   
   if(class(potential_outcomes_function) != "function"){
     stop("Please provide a function in the potential_outcomes_function argument.")
@@ -43,7 +56,7 @@ declare_potential_outcomes <- function(potential_outcomes_function =
   return_object <- list(potential_outcomes_function = potential_outcomes_function_internal, 
                         outcome_variable_name = outcome_variable_name, sep = "_", condition_names = condition_names,
                         assignment_variable_name = assignment_variable_name,
-                        potential_outcomes_type = "outcome",
+                        attrition = attrition,
                         call = match.call())
   
   structure(return_object, class = "potential_outcomes")
