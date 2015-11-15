@@ -184,6 +184,7 @@ make_population_function <- function(
     )
     
     # Name the IDs that will be used for merging (in multi-level cases)
+    merge_vars <- data.frame(merge_vars)
     names(merge_vars) <- merge_IDs
     
     # Store the data as return_data for sinle-level cases

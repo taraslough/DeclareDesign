@@ -204,6 +204,19 @@ test_that("test data generation functions", {
     other_arguments = original_args
   )
   grab_vars$population()
+  
+  
+  # Fixed weird bug
+  
+  population <- declare_population(
+    individuals = list(noise = "rnorm(n_)"
+    ),
+    villages = list(elevation = "rnorm(n_)"
+    ), 
+    make_unique_ID = TRUE,
+    size = c(1000, 100))
+  
+  table(population$population()$villages_ID)
 
 })
 
