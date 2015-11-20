@@ -4,15 +4,15 @@
 \alias{draw_population}
 \title{Draw a population data frame based on a declared data structure}
 \usage{
-draw_population(population, potential_outcomes = NULL,
-  condition_names = NULL, attrition = NULL)
+draw_population(population, condition_names = NULL,
+  potential_outcomes = NULL, noncompliance = NULL, attrition = NULL)
 }
 \arguments{
 \item{population}{A population object describing the population data structure created by the \code{declare_population} function.}
 
-\item{potential_outcomes}{A potential outcomes object created by the \code{potential_outcomes} object.}
-
 \item{condition_names}{A character vector indicating which conditions to draw potential outcomes for (for example c("Z0", "Z1") would create "Y_Z0" and "Y_Z1" if the outcome is named "Y").}
+
+\item{potential_outcomes}{A potential outcomes object created by the \code{potential_outcomes} object.}
 }
 \description{
 Draw a population data frame based on a declared data structure

@@ -6,8 +6,9 @@
 #'
 #' @export
 draw_population <- function(population, 
-                            potential_outcomes = NULL, 
                             condition_names = NULL,
+                            potential_outcomes = NULL, 
+                            noncompliance = NULL,
                             attrition = NULL) {
   
   # Do checks ---------------------------------------------------------------
@@ -30,8 +31,9 @@ draw_population <- function(population,
   
   if(!is.null(potential_outcomes)){
     data <- draw_potential_outcomes(data = data,
-                                    potential_outcomes = potential_outcomes, 
                                     condition_names = condition_names,
+                                    potential_outcomes = potential_outcomes, 
+                                    noncompliance = noncompliance,
                                     attrition = attrition)
   }
   

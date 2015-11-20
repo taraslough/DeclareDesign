@@ -6,7 +6,7 @@
 #' @param condition_names
 #'
 #' @export
-draw_potential_outcomes <- function(data, potential_outcomes, condition_names = NULL, attrition = NULL) {
+draw_potential_outcomes <- function(data, condition_names = NULL, potential_outcomes, noncompliance = NULL, attrition = NULL) {
   
   if(is.null(potential_outcomes)){
     stop("You must provide a potential_outcomes object to draw_potential_outcomes. ")
@@ -18,6 +18,10 @@ draw_potential_outcomes <- function(data, potential_outcomes, condition_names = 
   }
   
   potential_outcomes <- clean_inputs(potential_outcomes, object_class = "potential_outcomes")
+  
+  if(!is.null(noncompliance)){
+    potential_outcomes <- c(list(noncompliance), potential_outcomes)
+  }
   
   if(is.null(condition_names)){
     condition_names <- lapply(potential_outcomes, function(x) x$condition_names)
@@ -33,7 +37,7 @@ draw_potential_outcomes <- function(data, potential_outcomes, condition_names = 
     stop("Please provide the name of the treatment variable to the assignment_variable_name argument in declare_potential_outcomes if you provide condition_names.")
   }
   
-  if(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name)) != length(potential_outcomes)){
+  if(sum(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) != length(potential_outcomes)){
     stop("If you provide a assignment_variable_name for any of the potential_outcomes, you must provide it for all of them.")
   }
   
@@ -67,6 +71,24 @@ draw_potential_outcomes <- function(data, potential_outcomes, condition_names = 
           draw_potential_outcome_vector(data = data, 
                                         potential_outcomes = potential_outcomes[[i]],
                                         condition_name = condition_combination)
+      }
+      
+      if(!is.null(noncompliance) & class(potential_outcomes[[i]]) != "noncompliance"){
+        
+        for(j in condition_names[[i]]){
+          local_d_column <- paste(noncompliance$outcome_variable_name, noncompliance$assignment_variable_name, j, sep = noncompliance$sep)
+          local_y_z_column <- paste(potential_outcomes[[i]]$outcome_variable_name, noncompliance$assignment_variable_name,
+                                    j, sep = potential_outcomes[[i]]$sep)
+          data[, local_y_z_column] <- NA
+          local_d_values <- unique(data[, local_d_column])
+          
+          for(k in local_d_values){
+            local_y_d_column <- paste(potential_outcomes[[i]]$outcome_variable_name, potential_outcomes[[i]]$assignment_variable_name, k,
+                  sep = potential_outcomes[[i]]$sep)
+            data[data[,local_d_column] == k, local_y_z_column] <- data[data[,local_d_column] == k, local_y_d_column]
+          }
+        }
+        
       }
       
       if(!is.null(potential_outcomes[[i]]$attrition)){
@@ -148,7 +170,8 @@ draw_observed_outcome <- function(data, potential_outcomes, condition_names = NU
 #' @param potential_outcomes 
 #'
 #' @export
-draw_outcome <- function(data, potential_outcomes, condition_names = NULL, attrition = NULL){
+draw_outcome <- function(data, condition_names = NULL, potential_outcomes, 
+                         noncompliance = NULL, attrition = NULL){
   
   if(is.null(potential_outcomes)){
     stop("You must provide a potential_outcomes object to draw_outcome.")
@@ -160,6 +183,10 @@ draw_outcome <- function(data, potential_outcomes, condition_names = NULL, attri
   }
   
   potential_outcomes <- clean_inputs(potential_outcomes, object_class = "potential_outcomes")
+  
+  if(!is.null(noncompliance)){
+    potential_outcomes <- c(noncompliance, potential_outcomes)
+  }
   
   if(is.null(condition_names)){
     condition_names <- lapply(potential_outcomes, function(x) x$condition_names)
@@ -173,7 +200,7 @@ draw_outcome <- function(data, potential_outcomes, condition_names = NULL, attri
     stop("Please provide the name of the treatment variable to the assignment_variable_name argument in declare_potential_outcomes if you provide condition_names.")
   }
   
-  if(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name)) != length(potential_outcomes)){
+  if(sum(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) != length(potential_outcomes)){
     stop("If you provide a assignment_variable_name for any of the potential_outcomes, you must provide it for all of them.")
   }
   

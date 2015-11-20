@@ -4,8 +4,8 @@
 \alias{draw_outcome}
 \title{Draw observed outcome}
 \usage{
-draw_outcome(data, potential_outcomes, condition_names = NULL,
-  attrition = NULL)
+draw_outcome(data, condition_names = NULL, potential_outcomes,
+  noncompliance = NULL, attrition = NULL)
 }
 \arguments{
 \item{data}{}

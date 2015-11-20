@@ -4,15 +4,15 @@
 \alias{draw_potential_outcomes}
 \title{Draw potential outcomes}
 \usage{
-draw_potential_outcomes(data, potential_outcomes, condition_names = NULL,
-  attrition = NULL)
+draw_potential_outcomes(data, condition_names = NULL, potential_outcomes,
+  noncompliance = NULL, attrition = NULL)
 }
 \arguments{
 \item{data}{}
 
-\item{potential_outcomes}{}
-
 \item{condition_names}{}
+
+\item{potential_outcomes}{}
 }
 \description{
 Draw potential outcomes

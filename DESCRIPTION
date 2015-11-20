@@ -1,11 +1,17 @@
 Package: DeclareDesign
-Title: Tools for Characterizing, Diagnosing, and Pre-Registering Research Designs
+Title: Tools for Characterizing, Diagnosing, and Pre-Registering Research
+    Designs
 Version: 0.1
 Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@columbia.edu", role = c("aut", "cre")),
              person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = c("aut")),
              person("Alexander", "Coppock", email = "a.coppock@columbia.edu", role = c("aut")),
              person("Macartan", "Humphreys", email = "macartan@gmail.com", role = c("aut")))
-Description: Tools for characterizing, diagnosing, and pre-registering research designs. This software provides a way for scholars to characterize research designs formally, and then to learn about their designs before conducting the study. This includes creating mock data and diagnosing the properties of the design. Finalized designs can be straightforwardly pre-registered with the package.
+Description: Tools for characterizing, diagnosing, and pre-registering research
+    designs. This software provides a way for scholars to characterize research
+    designs formally, and then to learn about their designs before conducting the
+    study. This includes creating mock data and diagnosing the properties of the
+    design. Finalized designs can be straightforwardly pre-registered with the
+    package.
 Depends:
     R (>= 3.2.0)
 Imports:
@@ -15,4 +21,4 @@ Suggests:
     testthat
 License: GPL (>= 2)
 LazyData: true
-RoxygenNote: 5.0.0
+RoxygenNote: 5.0.1

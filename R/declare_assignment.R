@@ -146,6 +146,7 @@ declare_assignment <-
            block_probabilities = NULL,
            baseline_condition = NULL,
            assignment_variable_name = "Z",
+           noncompliance = NULL,
            transform_options = NULL,
            custom_transform_function = NULL, 
            custom_assignment_function = NULL,
@@ -215,6 +216,7 @@ declare_assignment <-
                             block_m = block_m,
                             block_probabilities = block_probabilities,
                             assignment_type = assignment_type,
+                            noncompliance = noncompliance,
                             custom_blocking_function = custom_blocking_function,
                             custom_clustering_function = custom_clustering_function,
                             baseline_condition = baseline_condition,
@@ -227,6 +229,7 @@ declare_assignment <-
         condition_names = condition_names,
         baseline_condition = baseline_condition,
         assignment_variable_name = assignment_variable_name,
+        noncompliance = noncompliance,
         custom_transform_function = custom_transform_function, transform_options = transform_options,
         assignment_type = "custom",
         call = match.call())
@@ -236,6 +239,7 @@ declare_assignment <-
         condition_names = condition_names,
         baseline_condition = baseline_condition,
         assignment_variable_name = assignment_variable_name,
+        noncompliance = noncompliance,
         custom_transform_function = custom_transform_function, transform_options = transform_options,
         assignment_type = "existing assignment",
         call = match.call())
