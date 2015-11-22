@@ -7,12 +7,11 @@ context("sampling and probability functions")
 
 test_that("test sampling functions", {
   
-  population <- declare_population(individuals = list(noise = declare_variable(),
-                                                      ideo_3 = declare_variable(multinomial_probabilities = c(.2, .3, .5), 
-                                                                                multinomial_categories = c("Liberal", "Moderate", "Conservative"))),
-                                   villages = list(elevation = declare_variable(),
-                                                   high_elevation = declare_variable(transformation = "1*(elevation > 0)")), 
-                                   N_per_level = c(1000, 100))
+  population <- declare_population(individuals = list(noise = "rnorm(n_)",
+                                                      ideo_3 = "sample(c('Liberal', 'Moderate', 'Conservative'), size = n_, prob = c(.2, .3, .5), replace = T)"),
+                                   villages = list(elevation = "rnorm(n_)",
+                                                   high_elevation = "1*(elevation > 0)"), 
+                                   size = c(1000, 100))
   
   # Complete Random sampling
   sampling_0 <- declare_sampling()
@@ -87,5 +86,28 @@ test_that("test sampling functions", {
   
   prob_9 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_9) 
   prob_10 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_10) 
+  
+  smp_draw_1 <- draw_sample(pop_draw, sampling = sampling_1)
+  smp_draw_2 <- draw_sample(pop_draw, sampling = sampling_2)
+  smp_draw_3 <- draw_sample(pop_draw, sampling = sampling_3)
+  smp_draw_4 <- draw_sample(pop_draw, sampling = sampling_4)
+  smp_draw_5 <- draw_sample(pop_draw, sampling = sampling_5)
+  smp_draw_6 <- draw_sample(pop_draw, sampling = sampling_6)
+  smp_draw_7 <- draw_sample(pop_draw, sampling = sampling_7)
+  smp_draw_8 <- draw_sample(pop_draw, sampling = sampling_8)
+  smp_draw_9 <- draw_sample(pop_draw, sampling = sampling_9)
+  smp_draw_10 <- draw_sample(pop_draw, sampling = sampling_10)
+  
+  
+  with(smp_draw_1, table(inclusion_probabilities))
+  with(smp_draw_2, table(inclusion_probabilities))
+  with(smp_draw_3, table(inclusion_probabilities))
+  with(smp_draw_4, table(inclusion_probabilities))
+  with(smp_draw_5, table(inclusion_probabilities))
+  with(smp_draw_6, table(inclusion_probabilities))
+  with(smp_draw_7, table(inclusion_probabilities))
+  with(smp_draw_8, table(inclusion_probabilities))
+  with(smp_draw_9, table(inclusion_probabilities))
+  with(smp_draw_10, table(inclusion_probabilities))
   
 })

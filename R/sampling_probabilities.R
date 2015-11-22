@@ -10,7 +10,7 @@
 #' # smp <- declare_population(N = 850)
 #' # po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #' #                                    formula = Y ~ .01 + 0*Z0 + .2*Z1)
-#' # assignment <- declare_assignment(potential_outcomes = po, m=200)
+#' # assignment <- declare_assignment(potential_outcomes = po, n=200)
 #' # mock          <- draw_population(potential_outcomes = po, sample =  smp)
 #' # mock$Z        <- assign_treatment_indicator(assignment, data = mock)
 #' # assignment_probabilities <- get_assignment_probabilities(assignment, mock)
@@ -35,43 +35,57 @@ get_sampling_probabilities <- function(data, sampling){
   }
   
   
-  m <- sampling$m
+  n <- sampling$n
   probability <- sampling$probability
   strata_n <- sampling$strata_n
   strata_probabilities <- sampling$strata_probabilities
   sampling_type <- sampling$sampling_type
   
   if(sampling_type=="simple"){
-    probs <- simple_sampling_probabilities(N = N, m = m, probability = probability)
+    probs <- simple_sampling_probabilities(N = N, n = n, probability = probability)
   }
   
   if(sampling_type=="stratified"){
-    probs <- stratified_sampling_probabilities(strata_variable = strata_variable, probability = probability, strata_n = strata_n, strata_probabilities = strata_probabilities)
+    probs <- stratified_sampling_probabilities(strata_variable = strata_variable, 
+                                               probability = probability, 
+                                               strata_n = strata_n, 
+                                               strata_probabilities = strata_probabilities)
   }
   
   if(sampling_type=="clustered"){
-    probs <- clustered_sampling_probabilities(cluster_variable = cluster_variable, m = m, probability = probability)
+    probs <- clustered_sampling_probabilities(cluster_variable = cluster_variable, 
+                                              n = n, 
+                                              probability = probability)
   }
   
   if(sampling_type=="stratified and clustered"){
-    probs <- stratified_and_clustered_sampling_probabilities(cluster_variable = cluster_variable, strata_variable = strata_variable, strata_n = strata_n, probability = probability, strata_probabilities = strata_probabilities)
+    probs <- stratified_and_clustered_sampling_probabilities(cluster_variable = cluster_variable, 
+                                                             strata_variable = strata_variable, 
+                                                             strata_n = strata_n, 
+                                                             probability = probability, 
+                                                             strata_probabilities = strata_probabilities)
   }
   
   return(probs)
 }
 
-simple_sampling_probabilities <- function(N, m = NULL, probability = NULL){
+simple_sampling_probabilities <- function(N, n = NULL, probability = NULL){
   probability_each <- NULL
   
   if(!is.null(probability)){
     probability_each <- c(1 - probability, probability)
   }
-  prob_mat <- complete_assignment_probabilities(N = N, m = m, probability_each = probability_each, condition_names = c(0,1))
+  prob_mat <- complete_assignment_probabilities(N = N, m = n, 
+                                                probability_each = probability_each, 
+                                                condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }
 
-stratified_sampling_probabilities <- function(strata_variable, probability = NULL, strata_n = NULL, strata_probabilities = NULL){
+stratified_sampling_probabilities <- function(strata_variable, 
+                                              probability = NULL, 
+                                              strata_n = NULL, 
+                                              strata_probabilities = NULL){
   probability_each <- NULL
   
   if(!is.null(probability)){
@@ -91,23 +105,36 @@ stratified_sampling_probabilities <- function(strata_variable, probability = NUL
   }
   
   
-  prob_mat <- blocked_assignment_probabilities(block_variable = strata_variable, block_m = strata_n_matrix, block_probabilities = block_probabilities, probability_each = probability_each, condition_names = c(0,1))
+  prob_mat <- blocked_assignment_probabilities(block_variable = strata_variable, 
+                                               block_m = strata_n_matrix, 
+                                               block_probabilities = block_probabilities, 
+                                               probability_each = probability_each, 
+                                               condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }
 
-clustered_sampling_probabilities <- function(cluster_variable, m = NULL, probability = NULL){
+clustered_sampling_probabilities <- function(cluster_variable, 
+                                             n = NULL, 
+                                             probability = NULL){
   probability_each <- NULL
   
   if(!is.null(probability)){
     probability_each <- c(1-probability, probability)
   }
-  prob_mat <- clustered_assignment_probabilities(cluster_variable = cluster_variable, m = m, probability_each = probability_each, condition_names = c(0,1))
+  prob_mat <- clustered_assignment_probabilities(cluster_variable = cluster_variable, 
+                                                 m = n, 
+                                                 probability_each = probability_each, 
+                                                 condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }
 
-stratified_and_clustered_sampling_probabilities <- function(cluster_variable, strata_variable, strata_n = NULL, probability = NULL, strata_probabilities = NULL){
+stratified_and_clustered_sampling_probabilities <- function(cluster_variable, 
+                                                            strata_variable, 
+                                                            strata_n = NULL, 
+                                                            probability = NULL, 
+                                                            strata_probabilities = NULL){
   
   probability_each <- NULL
   if(!is.null(probability)){
@@ -121,9 +148,10 @@ stratified_and_clustered_sampling_probabilities <- function(cluster_variable, st
   
   # Must do someday
   # block_m, strata_n
-  prob_mat <- blocked_and_clustered_assignment_probabilities(cluster_variable = cluster_variable, block_variable = strata_variable, 
-                           block_m = strata_n, probability_each = probability_each, 
-                           block_probabilities = block_probabilities, condition_names = c(0,1))
+  prob_mat <- blocked_and_clustered_assignment_probabilities(cluster_variable = cluster_variable, 
+                                                             block_variable = strata_variable, 
+                                                             block_m = strata_n, probability_each = probability_each, 
+                                                             block_probabilities = block_probabilities, condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
 }

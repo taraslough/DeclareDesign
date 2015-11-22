@@ -22,7 +22,7 @@ Description
 # smp <- declare_population(N = 850)
 # po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
 #                                    formula = Y ~ .01 + 0*Z0 + .2*Z1)
-# assignment <- declare_assignment(potential_outcomes = po, m=200)
+# assignment <- declare_assignment(potential_outcomes = po, n=200)
 # mock          <- draw_population(potential_outcomes = po, sample =  smp)
 # mock$Z        <- assign_treatment_indicator(assignment, data = mock)
 # assignment_probabilities <- get_assignment_probabilities(assignment, mock)
