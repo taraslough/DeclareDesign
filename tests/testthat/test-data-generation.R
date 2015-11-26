@@ -221,7 +221,7 @@ test_that("test data generation functions", {
   
   # Using objects from the global environment
   
-  my_function <- function(x) x + 100
+  my_function <- function(x) x + 10
   a <- 1000
   
   global_objects <- declare_population(
@@ -236,17 +236,61 @@ test_that("test data generation functions", {
   a <- 500
   
   global_objects$population()
-
+  
+  # testing user-provided data with transformations
+  
+  my_data <- declare_population(
+    individual = list(
+      income = "rnorm(n_)"
+    ),
+    village = list(
+      development = "rnorm(n_)"
+    ),
+    region = list(
+      reg_dev = "rnorm(n_)"
+    ),
+    size = c(1000,100,10)
+  )$population()
+  
+  user_data_pop <- declare_population(
+    individual = list(
+      age = "rpois(n = n_,lambda = 30)"
+    ),
+    village = list(
+      village_school = "rbinom(n = n_,size = 1,prob = .3)"
+    ),
+    region = list(),
+    level_IDs = c("individual_ID","village_ID","region_ID"),
+    global_transformations = list(
+      income_Z = "scale(income)",
+      dist_max_dev = "development - max(development)"
+    ),
+    data = my_data
+  )
+  
+  head(user_data_pop$population())
+  
+ 
 })
 
 
 
-
-
-
-
-
-
+data <- my_data
+expressions <- make_list(
+  individual = list(
+    age = "rpois(n = n_,lambda = 30)"
+  ),
+  village = list(
+    village_school = "rbinom(n = n_,size = 1,prob = .3)"
+  ),
+  region = list()
+)
+global_transformations <- list(
+  income_Z = "scale(income)",
+  dist_max_dev = "development - max(development)"
+)
+other_arguments <- NULL
+level_IDs <- c("individual_ID","village_ID","region_ID")
 
 
 

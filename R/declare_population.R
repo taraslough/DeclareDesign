@@ -31,6 +31,10 @@ declare_population <- function(...,
   
   no_data <- is.null(data)
   
+  # Get expressions
+   
+  expressions <- list(...)
+  
   # Create user function
   
   if(no_data){
@@ -45,7 +49,7 @@ declare_population <- function(...,
     } else {
       
       population_function <- make_population_function(
-        expressions = list(...),
+        expressions = expressions,
         size = size, 
         global_transformations = global_transformations,
         other_arguments = other_arguments,
@@ -81,11 +85,27 @@ declare_population <- function(...,
     } else {
       
       # Fixed data 
-      # Add ability to add and resample covariates
+      
+      if(length(expressions > 0)){
+        
+        if(!missing(size)){
+          warning("Please note that arguments provided to size will be ignored, and size will be inferred from the level_IDs in the data.")
+        }
+        
+        population_function <- make_population_data_function(
+          expressions = expressions,
+          data = data,
+          global_transformations = global_transformations,
+          other_arguments = other_arguments,
+          level_IDs = level_IDs, 
+          make_unique_ID = make_unique_ID
+        )
+      } else {
       
       population_function <- function() return(data)
       
-    }
+      }
+      }
     
     
   } 
@@ -624,5 +644,214 @@ get_custom_args <- function(other_arguments,custom_function){
   arg_list <- other_arguments[names(other_arguments) %in% names(formals(custom_function))]
   return(arg_list)
 }
+
+
+
+
+
+
+make_population_data_function <- function(
+  expressions,
+  data,
+  global_transformations,
+  other_arguments,
+  level_IDs,
+  make_unique_ID
+){
+  # Make sure that all of the levels are properly named
+  expressions <- make_level_names(expressions = expressions,
+                                  level_IDs = level_IDs)
+  
+  if(is.null(level_IDs)){
+    stop("If you wish to generate new variables within an existing dataset, please provide the names of the variables that indicate levels to level_IDs.")
+  }
+  
+  IDs_in_data <- all(level_IDs %in% names(data))
+  
+  if(!IDs_in_data){
+    stop("All of the level_IDs should correspond to variable names in the data.")
+  }
+  
+  if(length(expressions) != length(level_IDs)){
+    stop("The number of levels for which you declare (possibly empty) lists of variables must be the same as the number of level_IDs that you have indicated (i.e. length(list(...)) == length(level_IDs) must be true).")
+  }
+  
+  
+  
+  N_per_level <- sapply(level_IDs,function(ID) length(unique(data[,ID])))
+  N_per_level <- N_per_level[order(N_per_level,decreasing = T)]
+  level_IDs <- names(N_per_level)
+  
+  
+  if(nrow(data) > N_per_level[1]){
+    level_IDs <- c("unit_ID",level_IDs)
+    data$unit_ID <- 1:nrow(data)
+  }
+  
+  group_sizes_per_level <- list()
+  
+  group_sizes_per_level$level_1 <- get_group_per_level(
+    lower_level = level_IDs[1],
+    upper_level = level_IDs[1],
+    data = data
+  )
+  
+  for (i in 2:length(level_IDs)) {
+    group_sizes_per_level[[i]] <- get_group_per_level(
+      lower_level = level_IDs[i-1],
+      upper_level = level_IDs[i],
+      data = data
+    )
+  }
+  
+  hierarchy <- get_hierarchy(size = group_sizes_per_level)
+  
+  N_levels <- hierarchy$N_levels
+  N <- hierarchy$N
+  N_per_level <- hierarchy$N_per_level
+  group_sizes <- hierarchy$group_sizes_per_level
+  
+  # Start creating custom function here
+  make_population <- function(){
+    
+    # Get the IDs that are not the first level, to merge by
+    merge_IDs <- level_IDs[-1]
+    
+    # make_structure goes through and creates an ID for each level in a list,
+    # this can be thought of as the "skeleton" of the data
+    data_structure <- lapply(level_IDs,function(id){
+      ID <- data.frame(unique(data[,id]))
+      names(ID) <- id
+      return(ID)
+      })
+    
+    # at each level, make_environ creates an environment with the n_ object, 
+    # other arguments, and all the expressions specific to a level
+    environ_list <- mapply(
+      FUN = make_environ,
+      data_structure = data_structure,
+      exprs = expressions,
+      MoreArgs = list(other_arguments = other_arguments)
+    )
+    
+    # At each level, make_data_frame takes an environment and
+    # - evaluates all of the expressions specific to that level
+    # - removes all of the objects that aren't variables
+    # - coerces the resultant stuff to a data.frame 
+    # So this produces a list of data.frames:
+    data_list <- lapply(X = environ_list,
+                        FUN = make_data_frame,
+                        other_arguments = other_arguments)
+    
+    # Create a list of IDs of the level higher for each lower level, 
+    # for use in merging (in multi-level cases)
+    merge_vars <- mapply(FUN = make_merge_ID, 
+                         group_sizes = group_sizes[-1],
+                         level_ID = level_IDs[-1],
+                         data_structure = data_structure[-1]
+    )
+    
+    # Name the IDs that will be used for merging (in multi-level cases)
+    if(length(merge_IDs)==1){
+      merge_vars <- data.frame(merge_vars)
+    }
+    names(merge_vars) <- merge_IDs
+    
+    # Store the data as return_data for sinle-level cases
+    return_data <- data_list[[1]]
+    
+    # If the data is multi-level
+    if(length(merge_vars)>0){
+      
+      # Go through the merge IDs and put it in the list of data to merge
+      for (i in 1:length(merge_IDs)){
+        data_list[[i]][,merge_IDs[i]] <- merge_vars[i]
+      }
+      
+      # Store the return_data again, since it now has the merge variable
+      return_data <- data_list[[1]]
+      merge_data <- data_list[-1]
+      
+      # Go through and merge all of the levels
+      for (i in 1:length(merge_data)){
+        return_data <- merge(x = return_data,
+                             y = merge_data[[i]],
+                             by = merge_IDs[i],
+                             all.x = T)
+      }
+    }
+    
+    
+    drop_vars <- names(return_data) %in% level_IDs[-1]
+    return_data <- return_data[!drop_vars]
+    return_data <- merge(x = data,y = return_data,by = level_IDs[1])
+    
+    # Now create the environment for evaluating all of the global transformatons
+    return_env <- make_environ(
+      data_structure = return_data,
+      exprs = global_transformations,
+      other_arguments = other_arguments)
+    
+    # And evaluate them, returning a data frame
+    return_data <- make_data_frame(temp_env = return_env,
+                                   other_arguments = other_arguments)
+    return_data <- as.data.frame(as.list(return_env))
+    
+    # If the data is multilevel, reorder the data frame in order of the IDs
+    if(length(level_IDs)>1){
+      return_data <- reorder_by_ID(
+        level_IDs = level_IDs,
+        data = return_data,
+        make_unique_ID = make_unique_ID)
+    }
+    
+    return(return_data)
+    
+  }
+  
+  # Create the environment that make_population needs to do the above, 
+  # but only if it doesn't have values provided for .size, .other_arguments
+  make_pop_env <- list2env(
+    list(expressions = expressions,
+         hierarchy = hierarchy,
+         level_IDs = level_IDs,
+         global_transformations = global_transformations,
+         other_arguments = other_arguments,
+         make_unique_ID = make_unique_ID)
+  )
+  
+  environment(make_population) <- make_pop_env
+  
+  return(make_population)
+  
+}
+
+
+get_group_per_level <- function(lower_level,upper_level,data){
+  tapply(X = data[,lower_level],INDEX = data[,upper_level],
+         FUN = function(x)length(unique(x)))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
