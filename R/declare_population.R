@@ -16,23 +16,25 @@
 #' # Lots of nice examples go here.
 #'
 #' @export
-declare_population <- function(..., 
-                               size, 
-                               global_transformations = NULL,
-                               other_arguments = NULL,
-                               level_IDs = NULL, 
-                               super_population = FALSE,
-                               random_seed = 42, 
-                               data = NULL, 
-                               custom_population_function = NULL,
-                               make_unique_ID = FALSE) {
+declare_population <- function(
+  ..., 
+  size, 
+  global_transformations = NULL,
+  other_arguments = NULL,
+  level_IDs = NULL, 
+  super_population = FALSE,
+  random_seed = 42, 
+  data = NULL, 
+  custom_population_function = NULL,
+  make_unique_ID = FALSE
+) {
   
   # Check whether the user has supplied data
   
   no_data <- is.null(data)
   
   # Get expressions
-   
+  
   expressions <- list(...)
   
   # Create user function
@@ -101,11 +103,11 @@ declare_population <- function(...,
           make_unique_ID = make_unique_ID
         )
       } else {
-      
-      population_function <- function() return(data)
-      
+        
+        population_function <- function() return(data)
+        
       }
-      }
+    }
     
     
   } 
@@ -255,7 +257,7 @@ make_population_function <- function(
     return(return_data)
     
   }
-
+  
   # Create the environment that make_population needs to do the above, 
   # but only if it doesn't have values provided for .size, .other_arguments
   make_pop_env <- list2env(
@@ -556,7 +558,7 @@ wrap_custom_population_function <- function(
   size,
   data = NULL, 
   other_arguments = NULL
-  ){
+){
   
   if(!any("size" %in% custom_arguments))
     stop("Your custom data function must include a size argument.")
@@ -593,13 +595,13 @@ wrap_custom_population_function <- function(
     
     function_args <- get_custom_args(other_arguments = function_args,
                                      custom_function = custom_population_function) 
-
+    
     do.call(what = custom_population_function,args = function_args)
-
-    }
-
+    
+  }
+  
   environment(make_population) <- custom_pop_env
-
+  
   return(make_population)
 }
 
@@ -723,7 +725,7 @@ make_population_data_function <- function(
       ID <- data.frame(unique(data[,id]))
       names(ID) <- id
       return(ID)
-      })
+    })
     
     # at each level, make_environ creates an environment with the n_ object, 
     # other arguments, and all the expressions specific to a level
