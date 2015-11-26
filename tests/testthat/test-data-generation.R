@@ -149,6 +149,7 @@ test_that("test data generation functions", {
     other_arguments = original_args,
     size = c(10,5,2)
   ) 
+  
   # Data with original arguments
   multi_lev4$population()
   
@@ -217,6 +218,24 @@ test_that("test data generation functions", {
     size = c(1000, 100))
   
   table(population$population()$villages_ID)
+  
+  # Using objects from the global environment
+  
+  my_function <- function(x) x + 100
+  a <- 1000
+  
+  global_objects <- declare_population(
+    income = "my_function(rnorm(n_))",
+    age = "rpois(10,30)",
+    a = "a",
+    size = 10
+  ) 
+  
+  global_objects$population()
+  
+  a <- 500
+  
+  global_objects$population()
 
 })
 
