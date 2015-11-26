@@ -30,9 +30,9 @@ test_that("test data generation functions", {
   draw_population(one_lev3)
   
   # Changing size
-  one_lev1$population(.size = 20)
-  one_lev2$population(.size = 20)
-  one_lev3$population(.size = 20)
+  one_lev1$population(size = 20)
+  one_lev2$population(size = 20)
+  one_lev3$population(size = 20)
   
   # Simple multi-level cases
   multi_lev1 <- declare_population(
@@ -88,17 +88,17 @@ test_that("test data generation functions", {
   multi_lev3$population()
   
   # Changing size
-  head(multi_lev1$population(.size = c(100,20,5)))
+  head(multi_lev1$population(size = c(100,20,5)))
   # Heterogeneous city and region sizes
   het_sizes <- multi_lev2$population(
-    .size = list(
+    size = list(
       # Note that 1's are no longer necessary
       cities = c(3,4,4,5,6,7,9),
       regions = c(3,4)
     ))
   table(het_sizes$city_ID,het_sizes$region_ID)
   # We can see that the individual-level draws are close to the higher level
-  ml_vars <- multi_lev3$population(.size = c(10^5,10^3,10))
+  ml_vars <- multi_lev3$population(size = c(10^5,10^3,10))
   
   mean_of_individuals <- tapply(X = ml_vars$ml_educ,
                                 INDEX = ml_vars$city_ID,
@@ -158,15 +158,15 @@ test_that("test data generation functions", {
   new_args$age_lambda <- 20
   new_args$city_educ_shape <- 5
   
-  multi_lev4$population(.other_arguments = new_args)
+  multi_lev4$population(other_arguments = new_args)
   
   # Changing arguments and size together
   multi_lev4$population(
-    .size = c(12,6,1),
-    .other_arguments = new_args)
+    size = c(12,6,1),
+    other_arguments = new_args)
   
   # Bringing in data from other datasets with respect to levels
-  original_args$user_data <- multi_lev4$population(.size = c(100,30,10))
+  original_args$user_data <- multi_lev4$population(size = c(100,30,10))
   
   names(original_args$user_data)
   

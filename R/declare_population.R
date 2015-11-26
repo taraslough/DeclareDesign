@@ -116,26 +116,26 @@ make_population_function <- function(
   
   # Start creating custom function here
   make_population <- function(
-    .size, 
-    .other_arguments 
+    size, 
+    other_arguments 
   ){
     
     # If the defaults are missing, grab them from the environment of the 
     # function, defined below
-    if(!missing(.size)){
-      size <- .size
+    if(!missing(size)){
+      size_internal <- size
     } else {
-      size <- get("size",envir = make_pop_env)
+      size_internal <- get("size",envir = make_pop_env)
     }
     
-    if(!missing(.other_arguments)){
-      other_arguments <- .other_arguments 
+    if(!missing(other_arguments)){
+      other_arguments_internal <- other_arguments 
     } else {
-      other_arguments <- get("other_arguments",envir = make_pop_env)
+      other_arguments_internal <- get("other_arguments",envir = make_pop_env)
     }
     
     # Infer the data structure from the size argument
-    hierarchy <- get_hierarchy(size = size)
+    hierarchy <- get_hierarchy(size = size_internal)
     
     # Unpack the data hierarchy
     N_levels <- hierarchy$N_levels
@@ -163,7 +163,7 @@ make_population_function <- function(
       FUN = make_environ,
       data_structure = data_structure,
       exprs = expressions,
-      MoreArgs = list(other_arguments = other_arguments)
+      MoreArgs = list(other_arguments = other_arguments_internal)
     )
     
     # At each level, make_data_frame takes an environment and
@@ -173,7 +173,7 @@ make_population_function <- function(
     # So this produces a list of data.frames:
     data_list <- lapply(X = environ_list,
                         FUN = make_data_frame,
-                        other_arguments = other_arguments)
+                        other_arguments = other_arguments_internal)
     
     # Create a list of IDs of the level higher for each lower level, 
     # for use in merging (in multi-level cases)
@@ -215,11 +215,11 @@ make_population_function <- function(
     return_env <- make_environ(
       data_structure = return_data,
       exprs = global_transformations,
-      other_arguments = other_arguments)
+      other_arguments = other_arguments_internal)
     
     # And evaluate them, returning a data frame
     return_data <- make_data_frame(temp_env = return_env,
-                                   other_arguments = other_arguments)
+                                   other_arguments = other_arguments_internal)
     return_data <- as.data.frame(as.list(return_env))
     
     # If the data is multilevel, reorder the data frame in order of the IDs
@@ -545,27 +545,29 @@ wrap_custom_population_function <- function(
          data = data)
   )
   
-  make_population <- function(.size,.custom_arguments,.data) {
+  make_population <- function(size,custom_arguments,data) {
     
-    if(!missing(.size)){
-      size <- .size
+    if(!missing(size)){
+      size_internal <- size
     } else {
-      size <- get("size",envir = custom_pop_env)
+      size_internal <- get("size",envir = custom_pop_env)
     }
     
-    if(!missing(.data)){
-      data <- .data
+    if(!missing(data)){
+      data_internal <- data
     } else {
-      data <- get("data",envir = custom_pop_env)
+      data_internal <- get("data",envir = custom_pop_env)
     }
     
-    if(!missing(.custom_arguments)){
-      custom_arguments <- .custom_arguments 
+    if(!missing(custom_arguments)){
+      custom_arguments_internal <- custom_arguments 
     } else {
-      custom_arguments <- get("custom_arguments",envir = custom_pop_env)
+      custom_arguments_internal <- get("custom_arguments",envir = custom_pop_env)
     }
     
-    function_args <- c(size = size, data = data, custom_arguments)
+    function_args <- c(size = size_internal, 
+                       data = data_internal, 
+                       custom_arguments =  custom_arguments_internal)
     
     function_args <- get_custom_args(other_arguments = function_args,
                                      custom_function = custom_population_function) 
