@@ -354,6 +354,13 @@ test_that("test data generation functions", {
     size = 20
   )$population()
   
+  # Demos of "temp_var"
+  declare_population(
+    cut_age = "temp_var <- rpois(n_,30);cut(temp_var,breaks = c(0,15,25,100))",
+    make_factor = "temp_var <- sample(1:3,n_,TRUE);temp_var <- as.factor(temp_var);levels(temp_var) <- letters[1:3];temp_var <- relevel(temp_var,ref = 'c')",
+    size = 20
+  )$population()
+  
 })
 
 
