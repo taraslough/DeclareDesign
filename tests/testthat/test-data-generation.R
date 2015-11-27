@@ -270,28 +270,91 @@ test_that("test data generation functions", {
   
   head(user_data_pop$population())
   
- 
+  # Testing declare_variable()
+  
+  # See available variable types: 
+  get_variable_types()
+  
+  # Continuous variables
+  declare_population(
+    stan_normal = declare_variable(),
+    normal1 = declare_variable(location_scale = c(0,10)),
+    normal2 = declare_variable(type = "continuous",
+                               location_scale = c(0,10)),
+    # Case insensitive
+    normal3 = declare_variable(type = "CoNTInUOuS",
+                               location_scale = c(0,10)),
+    normal4 = declare_variable(type = "Normal",
+                               # Doesn't require scale, defaults to scale = mean/2
+                               location_scale = 50),
+    stan_unif = declare_variable(type = "uniform"),
+    uniform100 = declare_variable(type = "uniform",min_max = c(-100,100)),
+    size = 20
+  )$population()
+  
+  # Categorical variables
+  declare_population(
+    multinom1 = declare_variable("multinomial"),
+    multinom2 = declare_variable("categorical"),
+    multinom3 = declare_variable("categorical",probabilities = c(.25,0,0,.75)),
+    multinom4 = declare_variable("categorical",outcome_categories = c("happy","sad")),
+    multinom5 = declare_variable("categorical",
+                                 outcome_categories = c("happy","sad"),
+                                 probabilities = c(.2,.8)
+                                 ),
+    race = declare_variable("race"),
+    US_party = declare_variable("US_party"),
+    us_party = declare_variable("us_party",probabilities = c(.4,.4,.2)),
+    size = 20
+  )$population()
+  
+  # Binary variables
+  declare_population(
+    binomial = declare_variable("binomial"),
+    binary1 = declare_variable("binary"),
+    binary2 = declare_variable("binary",probabilities = .8),
+    gender = declare_variable("gender"),
+    hotcold = declare_variable("BINOMIAL",outcome_categories = c("hot","cold")),
+    hotcold2 = declare_variable("binary",
+                                outcome_categories = c("hot","cold"),
+                                probabilities = .9),
+    size = 20
+  )$population()
+  
+  # Count variables
+  declare_population(
+   poisson = declare_variable("poisson"),
+   poisson2 = declare_variable("poisson",location_scale = 500),
+   count = declare_variable("count",location_scale = 20),
+   gamma = declare_variable("gamma",location_scale = 20),
+   gamma2 = declare_variable("gamma",location_scale = c(20,5)),
+   age = declare_variable("age",location_scale = 30),
+   events = declare_variable("events"),
+   size = 20
+  )$population()
+  
+  # Rate / proportion variables
+  # uses reparameterization of beta
+  declare_variable("rate",location_scale = c(.5,.01))
+  declare_variable("rate",location_scale = c(.1,.01))
+  # Informative error:
+  declare_variable("rate",location_scale = c(.1,10))
+  
+  declare_population(
+    beta = declare_variable("beta"),
+    beta1 = declare_variable("beta",location_scale = .3),
+    # These are just synonynms for beta:
+    proportion = declare_variable("proportion"),
+    ratio = declare_variable("ratio"),
+    rate = declare_variable("rate"),
+    elections = declare_variable("percentage"),
+    comp_elections = declare_variable("percentage",location_scale = c(.5,.00001)),
+    # You could use this for RD designs
+    RD_forcing_var = "round(comp_elections - .5,2)",
+    size = 20
+  )$population()
+  
 })
-
-
-
-data <- my_data
-expressions <- make_list(
-  individual = list(
-    age = "rpois(n = n_,lambda = 30)"
-  ),
-  village = list(
-    village_school = "rbinom(n = n_,size = 1,prob = .3)"
-  ),
-  region = list()
-)
-global_transformations <- list(
-  income_Z = "scale(income)",
-  dist_max_dev = "development - max(development)"
-)
-other_arguments <- NULL
-level_IDs <- c("individual_ID","village_ID","region_ID")
-
 
 
 

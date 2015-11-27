@@ -1,99 +1,314 @@
 #' Declare the data-generating process of a variable
 #'
-#' @param normal_mean If the variable is normally distributed, its mean
-#' @param normal_sd If the variable is normally distributed, its standard deviation
-#' @param binary_probability The probability of success when the outcome is binary.
-#' @param binary_categories The failure and success labels, respectively.
-#' @param multinomial_probabilities A vector of probabilities of different draws, as long as there are categories.
-#' @param multinomial_categories A vector of labels for the multinomial draws
-#' @param transformation An optional string argument that can perform any operation on the covariates in \code{\link{declare_population}}, provided that: the transformations return a vector of the same length as the dataframe; the transformations only involve variables on one level; and the transformations take place successively (i.e. only variables or transformations which are declared in previous lines can themselves be transformed).
+#' @param type declare the type of variable
+#' @param location_scale a vector containing the first and / or second moments of the distribution, if the variable takes mean and variance type arguments
+#' @param min_max for uniform distributions, the minimum and maximum values
+#' @param probabilities for binary and categorical variables, a vector of probabilities
+#' @param outcome_categories for binary and categorical variables, labels to attach to outcomes
 #' @export
-declare_variable <-
-  function(normal_mean = NULL,normal_sd = NULL,binary_probability = NULL, binary_categories = NULL, multinomial_probabilities = NULL, multinomial_categories = NULL, transformation = NULL) {
+declare_variable <- function(
+  type = NULL,
+  location_scale = NULL,
+  min_max = NULL,
+  probabilities = NULL,
+  outcome_categories = NULL
+) {
+  
+  if(is.null(type)){
+    type <- "normal"
+  }
+  
+  type <- tolower(type)
+  
+  is_available <- type %in% c(continuous,binary,categorical,rate,count)
+  if(is_available == FALSE){
+    stop(paste0(
+      "declare_variable can currently handle the following types of variables: \n categorical (",
+      paste(categorical,collapse = ", "),
+      "); \n binary (",
+      paste(binary,collapse = ", "),
+      "); \n continuous (",
+      paste(continuous,collapse = ", "),
+      "); \n count (",
+      paste(count,collapse = ", "),
+      "); \n and rate (",
+      paste(rate,collapse = ", "),
+      ")."
+    ))
+  }
+  # Continuous
+  if(type %in% continuous){
     
-    type_check <- list(
-      normal = c(normal_mean,normal_sd),
-      binary = c(binary_probability,binary_categories),
-      multinomial = c(multinomial_probabilities,multinomial_categories)
-    )
+    if(type != "uniform"){
+      rng <- "rnorm"
+      
+      if(is.null(location_scale)){
+        location_scale <- c(0,1)
+      }
+      
+      if(length(location_scale)<2){
+        location_scale <- c(location_scale,location_scale/2)
+      }
+      
+      
+      return_expr <- paste0(
+        rng,
+        paste(
+          "(n_",
+          location_scale[1],
+          location_scale[2],
+          sep = ","
+        ),
+        ")")
+      
+    } else {
+      rng <- "runif"
+      
+      if(is.null(min_max)){
+        min_max <- c(-1,1)
+      }
+      
+      return_expr <- paste0(
+        rng,"(",
+        paste("n_",
+              min_max[1],
+              min_max[2],
+              sep = ","),
+        ")")
+      
+    }
     
-    type_lengths <-
-      sapply(type_check,length)
+  }
+  
+  # Count
+  if(type %in% count){
     
-    if (sum(type_lengths > 0) > 1) {
-      stop(
-        "Please enter parameters for only one kind of variable (linear, binary or multinomial)."
+    if(is.null(location_scale)){
+      location_scale <- c(10,1)
+    }
+    
+    if(length(location_scale)<2){
+      location_scale <- c(location_scale,1)
+    }
+    
+    
+    if(type != "gamma"){
+      rng <- "rpois"
+      
+      return_expr <- paste0(
+        rng,"(",
+        paste("n_",
+              location_scale[1],
+              sep = ","),
+        ")")
+      
+    } else {
+      rng <- "rgamma"
+      
+      return_expr <- paste0(
+        rng,"(",
+        paste("n_",
+              location_scale[1],
+              location_scale[2],
+              sep = ","),
+        ")")
+    }
+    
+  }
+  
+  # Categorical
+  if(type %in% categorical){
+    rng <- "rmultinom"
+    
+    if(type == "race"){
+      outcome_categories <- race_categories
+    }
+    
+    if(type == "us_party"){
+      outcome_categories <- us_party_categories
+    }
+    
+    
+    if(is.null(outcome_categories) & is.null(probabilities)){
+      outcome_categories <- 1:4
+    } else {
+      if(is.null(outcome_categories)){
+        outcome_categories <- 1:length(probabilities)
+      }
+    }
+    
+    if(is.null(probabilities)){
+      probabilities <- rep(1/length(outcome_categories),length(outcome_categories))
+    } else {
+      if(length(probabilities) != length(outcome_categories)){
+        stop(paste0("Your vector of outcome_categories has a length of ",
+                    length(outcome_categories),
+                    ", therefore the vector of probabilities should also be of length ",
+                    length(outcome_categories),"."
+        ))
+      }
+    }
+    
+    outcome_categories <- paste0(
+      "c('",
+      paste(outcome_categories,collapse = "','"),
+      "')")
+    
+    probabilities <- paste0(
+      "c('",
+      paste(probabilities,collapse = "','"),
+      "')")
+    
+    return_expr <- paste0(
+      "as.factor(sample(x = ",
+      outcome_categories,
+      ",size = n_,replace = TRUE,prob = ",
+      probabilities,"))"
+      )
+    
+    
+    
+    
+  }
+  
+  if(type %in% binary){
+    rng <- "rbinom"
+    
+    if(is.null(probabilities)){
+      probabilities <- 0.5
+    }
+    
+    return_expr <- paste0(
+      rng,"(",
+      paste("n_",
+            1,
+            probabilities,
+            sep = ","),
+      ")")
+    
+    
+    if(type == "gender"){
+      outcome_categories <- c("F","M")
+    }
+    
+    if(!is.null(outcome_categories)){
+      return_expr <- paste0(
+        "temp_var <- as.factor(",
+        return_expr,
+        ");levels(temp_var) <- c('",
+        paste(outcome_categories,collapse = "','"),
+        "');temp_var"
       )
     }
     
-    if (!is.null(normal_mean)) {
-      if (!is.null(normal_sd)) {
-        
-        variable <- list(distribution = "normal",
-                         mean = normal_mean,
-                         sd = normal_sd)
-      }else{
-        variable <- list(distribution = "normal",
-                         mean = normal_mean,
-                         sd = normal_mean * .10 + 1)
+  }
+  
+  # Rate
+  if(type %in% rate){
+    
+    rng <- "rbeta"
+    
+    if(is.null(location_scale)){
+      if(!is.null(probabilities)){
+        location_scale <- probabilities[1]
+      } else {
+        location_scale <- .5
       }
     }
-    
-    if (!is.null(binary_probability)) {
-      if(binary_probability>1|binary_probability<0){
-        stop("binary_probability must be in the interval [0,1].")
-      }
-      if (!is.null(binary_categories)) {
-        variable <- list(
-          distribution = "binary",
-          probability = binary_probability,
-          categories = binary_categories
-        )
-      }else{
-        variable <- list(
-          distribution = "binary",
-          probability = binary_probability,
-          categories = c(0,1)
-        )
-      }
+    if(length(location_scale)<2){
+      location_scale <- c(location_scale,.01)
     }
     
-    if (!is.null(multinomial_probabilities)) {
-      
-      if(sum(multinomial_probabilities)!=1){
-        stop("multinomial_probabilities must sum to 1.")
-      }
-      
-      if (!is.null(multinomial_categories)) {
-        variable <- list(
-          distribution = "multinomial",
-          probability = multinomial_probabilities,
-          categories = multinomial_categories
-        )
-      }else{
-        variable <- list(
-          distribution = "multinomial",
-          probability = multinomial_probabilities,
-          categories = 1:length(multinomial_probabilities)
-        )
-      }
-    }
+    alpha_beta <- beta_reparam(mu = location_scale[1],location_scale[2])
     
-    if (sum(type_lengths > 0) == 0) {
-      variable <- list(distribution = "normal",
-                       mean = 0,
-                       sd = 1)
-    }
-    
-    if (!is.null(transformation)) {
-      variable <- c(variable, transformation = transformation)
-    }
-    
-    class(variable) <- "DGP_object"
-    
-    return(variable)
+    return_expr <- paste0(
+      rng,"(",
+      paste("n_",
+            alpha_beta[1],
+            alpha_beta[2],
+            sep = ","),
+      ")")
     
   }
+  
+  return(return_expr)
+  
+}
+
+#' @export
+beta_reparam <- function(mu, var) {
+  alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+  beta <- alpha * (1 / mu - 1)
+  if(any(c(alpha,beta) < 0)){
+    stop("You have chosen location and scale parameters for a rate variable that go beyond the [0,1] bounds.")
+  }
+  return(params = list(alpha = alpha, beta = beta))
+}
+
+
+environment(declare_variable) <- list2env(
+  list(
+    continuous = c(
+      # Distributions:
+      "normal","uniform",
+      # Types
+      "continuous"
+    ),
+    categorical = c(
+      # Distributions
+      "multinomial",
+      # Types
+      "categorical",
+      # Custom variables
+      "race","us_party"
+    ),
+    binary = c(
+      # Distributions
+      "binomial",
+      # Types
+      "binary",
+      # Custom variables
+      "gender"
+    ),
+    rate = c(
+      # Distributions
+      "beta",
+      # Types 
+      "rate",
+      # Custom variables
+      "percentage","ratio","proportion"
+    ),
+    count = c(
+      # Distributions
+      "poisson","gamma",
+      # Types
+      "count",
+      # Custom variables
+      "age","events"
+    ),
+    beta_reparam = beta_reparam,
+    race_categories = c("black","white","asian","hispanic","other"),
+    us_party_categories = c("dem","rep","ind")
+  )
+)
+
+# Print the different kinds of variable types
+#' @export
+get_variable_types <- function(){
+  variable_types <- c("continuous","categorical","binary","count","rate")
+  print_list <- lapply(variable_types,
+         get,
+         env = environment(declare_variable))
+  names(print_list) <- variable_types
+  return(print_list)
+}
+
+
+
+
+
+
+
 
 
 
@@ -166,6 +381,8 @@ make_proportions <- function(population_proportions = .5, data){
   return(outcomes)
   
 }
+
+
 
 
 

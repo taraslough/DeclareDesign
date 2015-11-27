@@ -403,7 +403,7 @@ make_data_frame <- function(temp_env,other_arguments){
     )
   }
   # See if it speeds things up to just keep stuff that's not varnames
-  rm(list = c("n_","expressions",other_names),envir = temp_env)
+  suppressWarnings(rm(list = c("n_","expressions",other_names,"temp_var"),envir = temp_env))
   data <- as.data.frame(as.list(temp_env))
   return(data)
 }

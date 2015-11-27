@@ -4,25 +4,19 @@
 \alias{declare_variable}
 \title{Declare the data-generating process of a variable}
 \usage{
-declare_variable(normal_mean = NULL, normal_sd = NULL,
-  binary_probability = NULL, binary_categories = NULL,
-  multinomial_probabilities = NULL, multinomial_categories = NULL,
-  transformation = NULL)
+declare_variable(type = NULL, location_scale = NULL, min_max = NULL,
+  probabilities = NULL, outcome_categories = NULL)
 }
 \arguments{
-\item{normal_mean}{If the variable is normally distributed, its mean}
+\item{type}{declare the type of variable}
 
-\item{normal_sd}{If the variable is normally distributed, its standard deviation}
+\item{location_scale}{a vector containing the first and / or second moments of the distribution, if the variable takes mean and variance type arguments}
 
-\item{binary_probability}{The probability of success when the outcome is binary.}
+\item{min_max}{for uniform distributions, the minimum and maximum values}
 
-\item{binary_categories}{The failure and success labels, respectively.}
+\item{probabilities}{for binary and categorical variables, a vector of probabilities}
 
-\item{multinomial_probabilities}{A vector of probabilities of different draws, as long as there are categories.}
-
-\item{multinomial_categories}{A vector of labels for the multinomial draws}
-
-\item{transformation}{An optional string argument that can perform any operation on the covariates in \code{\link{declare_population}}, provided that: the transformations return a vector of the same length as the dataframe; the transformations only involve variables on one level; and the transformations take place successively (i.e. only variables or transformations which are declared in previous lines can themselves be transformed).}
+\item{outcome_categories}{for binary and categorical variables, labels to attach to outcomes}
 }
 \description{
 Declare the data-generating process of a variable
