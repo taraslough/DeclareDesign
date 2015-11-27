@@ -350,7 +350,7 @@ test_that("test data generation functions", {
     elections = declare_variable("percentage"),
     comp_elections = declare_variable("percentage",location_scale = c(.5,.00001)),
     # You could use this for RD designs
-    RD_forcing_var = "round(comp_elections - .5,2)",
+    RD_forcing_var = "round(comp_elections - .5,4)",
     size = 20
   )$population()
   
