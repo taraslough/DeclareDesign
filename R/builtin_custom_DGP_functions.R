@@ -341,47 +341,6 @@ get_variable <- function(
   return(expr)
 }
 
-#' @export
-make_proportions <- function(population_proportions = .5, data){
-  
-  N <- nrow(data)
-  
-  is_scalar <- is.numeric(population_proportions) & 
-    length(population_proportions) == 1 
-  
-  if(is_scalar){
-    population_proportions <- matrix(
-      data = c(1-population_proportions,
-               population_proportions),
-      byrow = T,
-      nrow = 2)
-    con_names <- c(0,1)
-  }
-  
-  counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
-  
-  row_names <- rownames(population_proportions)
-  
-  if(is.null(row_names)){
-    if(is.null(con_names)){
-      con_names <- 1:nrow(population_proportions)
-    }
-  } else {
-    con_names <- row_names
-  }
-  
-  outcomes <- apply(counts,2,function(times){
-    sample(
-      rep(con_names,times = times)
-    )
-  })
-  
-  colnames(outcomes) <- colnames(population_proportions)
-  
-  return(outcomes)
-  
-}
-
 
 
 

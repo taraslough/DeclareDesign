@@ -19,6 +19,10 @@ declare_potential_outcomes <- function(potential_outcomes_function =
                                        attrition = NULL,
                                        options = NULL){
   
+  if(is.null(formula) & is.null(outcome_variable_name)){
+    stop("If you do not provide a formula, please provide the name of the outcome variable as a character string to outcome_variable_name.")
+  }
+  
   if(is.list(condition_names) & (length(assignment_variable_name) != length(condition_names))){
     stop("If you provide a list of vectors of condition names, you must provide a vector to assignment_variable_name of the same length.")
   }
