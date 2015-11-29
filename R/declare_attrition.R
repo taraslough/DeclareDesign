@@ -33,9 +33,9 @@
 #'
 #' @export
 default_attrition_function <- function(data, condition_names, 
-                                           assignment_variable_name,
-                                           proportion_always_reporters = NULL,
-                                           reporting_proportions = NULL){
+                                       assignment_variable_name,
+                                       proportion_always_reporters = NULL,
+                                       reporting_proportions = NULL){
   
   if(!is.null(reporting_proportions) & !is.null(proportion_always_reporters)){
     stop("Please do not specify reporting_proportions and proportion_always_reporters together. Instead, specify one or the other.")
@@ -104,10 +104,11 @@ default_attrition_function <- function(data, condition_names,
 #' @return A potential_outcomes object
 #' @export
 declare_attrition <- function(attrition_function = default_attrition_function,
-                                  formula = NULL, 
-                                  outcome_variable_name = "R", 
-                                  condition_names = NULL, sep = "_", 
-                                  assignment_variable_name = NULL, options = NULL){
+                              formula = NULL, 
+                              outcome_variable_name = "R", 
+                              condition_names = NULL, sep = "_", 
+                              assignment_variable_name = NULL, options = NULL,
+                              text_description = NULL){
     
     outcomes_object <- 
       declare_potential_outcomes(potential_outcomes_function = attrition_function, 
@@ -116,7 +117,7 @@ declare_attrition <- function(attrition_function = default_attrition_function,
                                  condition_names = condition_names, 
                                  sep = sep, 
                                  assignment_variable_name = assignment_variable_name, 
-                                 options = options)
+                                 options = options, text_description = text_description)
     class(outcome_object) <- "attrition"
     return(outcomes_object)
 }

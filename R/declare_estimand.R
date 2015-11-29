@@ -18,7 +18,7 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
                              estimand_options = NULL,
                              potential_outcomes, condition_names = NULL,
                              subset = NULL, weights_variable_name = NULL, 
-                             label = NULL) {
+                             label = NULL, text_description = NULL) {
   
   if(!is.null(weights_variable_name)){
     stop("Weighted estimands are not yet implemented. Please contact the authors if you are interested in using them.")
@@ -71,7 +71,7 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
   }
   
   structure(list(estimand = estimand_function_internal, potential_outcomes = potential_outcomes, 
-                 condition_names = condition_names, label = label, call = match.call()), class = "estimand")
+                 condition_names = condition_names, label = label, text_description = text_description, call = match.call()), class = "estimand")
   
 }
 

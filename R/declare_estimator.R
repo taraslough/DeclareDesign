@@ -12,7 +12,7 @@
 #'
 #' @export
 declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL, estimates, estimates_options = NULL,
-                              subset = NULL, weights_variable_name = NULL, labels = NULL, estimand = NULL) {
+                              subset = NULL, weights_variable_name = NULL, labels = NULL, text_description = NULL, estimand = NULL) {
   
   if(missing(estimates)){
     stop("Please provide an estimates function. If you provided a model function, the estimates function should extract the quantity of interest (for example, the coefficient associated with the treatment variable). If you did not, the estimates function should take the data and return the quantity of interest directly.")
@@ -63,7 +63,7 @@ declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL
   }
   
   return_object <- list(model = model_function, estimates = estimates_function, 
-                        labels = labels, estimand = estimand, call = match.call())
+                        labels = labels, text_description = text_description, estimand = estimand, call = match.call())
   
   if(is.null(model)){
     return_object$model <- NULL

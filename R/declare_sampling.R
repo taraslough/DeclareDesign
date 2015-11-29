@@ -18,7 +18,8 @@ declare_sampling <- function(probability = NULL,
                              strata_probabilities = NULL,
                              custom_sampling_function = NULL,
                              custom_stratification_function = NULL,
-                             custom_clustering_function = NULL) {
+                             custom_clustering_function = NULL,
+                             text_description = NULL) {
   
   # Determine assignment type
   sampling_type <- "simple"  ## what should this be called. Simple? 
@@ -51,11 +52,12 @@ declare_sampling <- function(probability = NULL,
                           sampling_type = sampling_type,
                           custom_stratification_function = custom_stratification_function,
                           custom_clustering_function = custom_clustering_function,
+                          text_description = text_description,
                           call = match.call())
   } else {
     return.object <- list(
       custom_sampling_function = custom_sampling_function,
-      sampling_type = "custom",
+      sampling_type = "custom", text_description = text_description,
       call = match.call())
   }
   class(return.object) <- "sampling"

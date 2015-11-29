@@ -26,7 +26,8 @@ declare_population <- function(
   random_seed = 42, 
   data = NULL, 
   custom_population_function = NULL,
-  make_unique_ID = FALSE
+  make_unique_ID = FALSE,
+  text_description = NULL
 ) {
   
   # Check whether the user has supplied data
@@ -115,6 +116,7 @@ declare_population <- function(
   return_object <- list(population = population_function, 
                         super_population = super_population, 
                         random_seed = random_seed, 
+                        text_description = text_description,
                         call = match.call())
   class(return_object) <- "population"
   

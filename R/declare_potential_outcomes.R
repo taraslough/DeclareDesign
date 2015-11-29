@@ -17,7 +17,8 @@ declare_potential_outcomes <- function(potential_outcomes_function =
                                        condition_names = NULL, sep = "_", 
                                        assignment_variable_name = NULL,
                                        attrition = NULL,
-                                       options = NULL){
+                                       options = NULL,
+                                       text_description = NULL){
   
   if(is.null(formula) & is.null(outcome_variable_name)){
     stop("If you do not provide a formula, please provide the name of the outcome variable as a character string to outcome_variable_name.")
@@ -60,7 +61,7 @@ declare_potential_outcomes <- function(potential_outcomes_function =
   return_object <- list(potential_outcomes_function = potential_outcomes_function_internal, 
                         outcome_variable_name = outcome_variable_name, sep = "_", condition_names = condition_names,
                         assignment_variable_name = assignment_variable_name,
-                        attrition = attrition,
+                        attrition = attrition, text_description = text_description,
                         call = match.call())
   
   structure(return_object, class = "potential_outcomes")
