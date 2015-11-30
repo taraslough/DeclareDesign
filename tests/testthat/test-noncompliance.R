@@ -25,8 +25,6 @@ test_that("test whether noncompliance works", {
                               potential_outcomes = list(potential_outcomes),
                               noncompliance = noncompliance)
   
-  pop_draw <- draw_population(population = population)
-  
   smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
   smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
   smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = potential_outcomes, noncompliance = noncompliance)

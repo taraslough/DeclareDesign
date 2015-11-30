@@ -193,7 +193,7 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
   attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
   
   if(!is.null(noncompliance)){
-    potential_outcomes <- c(noncompliance, potential_outcomes)
+    potential_outcomes <- c(list(noncompliance), potential_outcomes)
   }
   
   if(is.null(condition_names)){
