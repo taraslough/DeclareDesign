@@ -17,7 +17,10 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
     stop("If you provide a list of potential_outcomes, you must provide a list of condition_names of the same length.")
   }
   
-  potential_outcomes <- clean_inputs(potential_outcomes, object_class = "potential_outcomes")
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance"), accepts_list = TRUE)
+  
+  noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
+  attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
   
   if(!is.null(noncompliance)){
     potential_outcomes <- c(list(noncompliance), potential_outcomes)
@@ -115,6 +118,9 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
 #' @export
 draw_observed_outcome <- function(data, potential_outcomes, condition_names = NULL){
   
+  # Checks -------------------------------------------------
+  potential_outcomes <- clean_inputs(potential_outcomes, c("potential_outcomes", "attrition", "noncompliance"), accepts_list = FALSE)
+  
   sep = potential_outcomes$sep
   condition_combinations <- expand.grid(condition_names)
   
@@ -182,7 +188,9 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
     stop("If you provide a list of potential_outcomes, you must provide a list of condition_names of the same length.")
   }
   
-  potential_outcomes <- clean_inputs(potential_outcomes, object_class = "potential_outcomes")
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = "potential_outcomes", accepts_list = TRUE)
+  noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
+  attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
   
   if(!is.null(noncompliance)){
     potential_outcomes <- c(noncompliance, potential_outcomes)
@@ -245,6 +253,8 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
 #' @export
 draw_outcome_vector <- function(data, potential_outcomes, attrition = NULL){
   
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance"), accepts_list = FALSE)
+  
   outcome_draw <- potential_outcomes$potential_outcomes_function(data = data)
   
   if( is.atomic(outcome_draw) || is.list(outcome_draw)) {
@@ -269,6 +279,8 @@ draw_outcome_vector <- function(data, potential_outcomes, attrition = NULL){
 #'
 #' @export
 draw_potential_outcome_vector <- function(data, potential_outcomes, condition_name){
+  
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance"), accepts_list = FALSE)
   
   for(i in 1:length(condition_name)){
     data[,names(condition_name)[i]] <- condition_name[[i]]

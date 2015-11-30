@@ -13,6 +13,11 @@ draw_population <- function(population,
   
   # Do checks ---------------------------------------------------------------
   
+  population <- clean_inputs(population, object_class = "population", accepts_list = FALSE)
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = "potential_outcomes", accepts_list = TRUE)
+  noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
+  attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
+  
   # Check whether sample provided
   if(missing(population)){
     stop("You must provide an argument to population, created with declare_population().")
@@ -48,8 +53,7 @@ draw_population <- function(population,
 }
 
 draw_covariates <- function(population){
-  if (class(population) != "population" )
-    stop("Please send the population argument an object created using declare_population. You can send just a data frame to declare_population to use your own fixed data.")
+  population <- clean_inputs(population, object_class = "population", accepts_list = FALSE)
   if(class(population$population) == "function")
     return(population$population())
   else if(class(population$population) == "data.frame")

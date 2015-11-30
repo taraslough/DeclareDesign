@@ -9,6 +9,8 @@
 #' @export
 draw_sample <- function(data, sampling = NULL, random_seed = NULL) {
   
+  sampling <- clean_inputs(sampling, object_class = "sampling", accepts_list = FALSE)
+  
   # Construct strata and clusters if custom functions --------------------------------------------------
   
   if(!is.null(sampling$custom_clustering_function)){
@@ -54,6 +56,8 @@ draw_sample <- function(data, sampling = NULL, random_seed = NULL) {
 #' 
 #' @export
 draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
+  
+  sampling <- clean_inputs(sampling, object_class = "sampling", accepts_list = FALSE)
   
   if(!is.null(random_seed)){
     set.seed(random_seed)

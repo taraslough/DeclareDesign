@@ -547,14 +547,6 @@ bootstrap_data <- function(data, size, level_IDs = NULL){
 }
 
 
-
-
-
-#' @export
-make_list <- function(...) list(...)
-
-
-
 #' @export
 remaindr <- function(numerator,denominator) {
   m_each <- rep(numerator %/% denominator, denominator)

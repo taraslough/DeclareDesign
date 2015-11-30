@@ -180,13 +180,13 @@ declare_assignment <-
       stop("Please provide an input to condition_names or a potential_outcomes object with condition_names.")
     }
     
+    # Checks -------------------------------------------------
+    potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = TRUE)
+    noncompliance <- clean_inputs(noncompliance, "noncompliance", accepts_list = FALSE)
+    
     if(!is.null(potential_outcomes) & !is.null(potential_outcomes$condition_names) & is.null(condition_names)){
       # Obtain Condition Names
       if(class(potential_outcomes) == "list"){
-        # Check to make sure all list items are po objects
-        if(!all(sapply(potential_outcomes, class)=="potential_outcomes")){ 
-          stop("All objects in the potential_outcomes argument must be created by declare_potential_outcomes.")
-        }
         if(length(unique(unlist(lapply(X = potential_outcomes, FUN = function(po){po$outcome_variable_name})))) != length(potential_outcomes)){
           stop("Please use different outcome names in each potential outcomes object.")
         }

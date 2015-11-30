@@ -9,6 +9,8 @@
 #' @export
 implement_design <- function(data, design, random_seed = NULL) {
   
+  design <- clean_inputs(design, object_class = "design", accepts_list = FALSE)
+  
   if(!is.null(random_seed)){
     set.seed(random_seed)
   }

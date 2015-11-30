@@ -4,12 +4,12 @@
 \alias{fit_model}
 \title{Fit model}
 \usage{
-fit_model(estimator, data)
+fit_model(data, estimator)
 }
 \arguments{
-\item{estimator}{}
-
 \item{data}{}
+
+\item{estimator}{}
 }
 \description{
 Fit model

@@ -28,7 +28,7 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
   }
   
   # Checks -------------------------------------------------
-  assignment <- clean_inputs(assignment, "assignment")
+  assignment <- clean_inputs(assignment, "assignment", accepts_list = TRUE)
   
   for(i in 1:length(assignment)){
     
@@ -114,6 +114,9 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
   if(!is.null(random_seed)){
     set.seed(random_seed)
   }
+  
+  # Checks -------------------------------------------------
+  assignment <- clean_inputs(assignment, "assignment", accepts_list = FALSE)
   
   ## should be expanded to take either a assignment object or a function
   
@@ -214,6 +217,10 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
 #' 
 #' @export
 get_observed_assignment_probabilities <- function(data, assignment_variable_name, assignment){
+  
+  # Checks -------------------------------------------------
+  assignment <- clean_inputs(assignment, "assignment", accepts_list = FALSE)
+  
   prob_mat <- get_assignment_probabilities(assignment = assignment, data = data)
   prob_obs <- rep(NA, nrow(data))
   condition_names <- unique(data[,assignment_variable_name])

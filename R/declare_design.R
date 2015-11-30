@@ -30,6 +30,14 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
     }
   }
   
+  # Checks -------------------------------------------------
+  population <- clean_inputs(population, "population", accepts_list = FALSE)
+  sampling <- clean_inputs(sampling, "sampling", accepts_list = FALSE)
+  assignment <- clean_inputs(assignment, "assignment", accepts_list = TRUE)
+  estimator <- clean_inputs(estimator, "estimator", accepts_list = TRUE)
+  potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = TRUE)
+  inputs <- clean_inputs(inputs, "inputs", accepts_list = FALSE)
+  
   ## return object
   
   structure(list(population = population, sampling = sampling, assignment = assignment, estimator = estimator,
@@ -99,6 +107,9 @@ modify_design <- function(design, population = NULL, sampling = NULL, assignment
 #' 
 #' @export
 summary_code <- function(design){
+  
+  design <- clean_inputs(design, "design", accepts_list = FALSE)
+  
   paste_skip_lines <- function()
   steps <- c("population", "potential_outcomes", "sampling", "estimand", "assignment", "estimator")
   code <- list()

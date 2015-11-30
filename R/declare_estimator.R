@@ -14,6 +14,9 @@
 declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL, estimates, estimates_options = NULL,
                               subset = NULL, weights_variable_name = NULL, labels = NULL, description = NULL, estimand = NULL) {
   
+  # Checks -------------------------------------------------
+  estimand <- clean_inputs(estimand, "estimand", accepts_list = FALSE)
+  
   if(missing(estimates)){
     stop("Please provide an estimates function. If you provided a model function, the estimates function should extract the quantity of interest (for example, the coefficient associated with the treatment variable). If you did not, the estimates function should take the data and return the quantity of interest directly.")
   }
@@ -79,19 +82,18 @@ declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL
 #' @param data 
 #'
 #' @export
-fit_model <- function(estimator, data){
-  if(class(estimator) != "estimator")
-    stop("The estimator argument must be an object created by the declare_estimator function")
-  if(is.null(estimator$model))
-    stop("This analysis function does not have a model associated with it. Try get_estimates to obtain the estimates instead.")
+fit_model <- function(data, estimator){
   
-  if(!class(estimator) == "list"){ 
-    estimator <- list(estimator)
-  }
+  # Checks -------------------------------------------------
+  estimator <- clean_inputs(estimator, "estimator", accepts_list = TRUE)
   
   model_list <- list()
   for(i in 1:length(estimator)){
-    model_list[[i]] <- estimator[[1]]$model(data = data)
+    if(!is.null(estimator[[i]]$model)){
+      model_list[[i]] <- estimator[[i]]$model(data = data)
+    } else {
+      model_list[[i]] <- NULL
+    }
   }
   
   ## just send back the model fit, not a list, if there is a single estimator
@@ -129,9 +131,8 @@ get_estimates <- function(estimator, data) {
     }
   }
 
-  if(!class(estimator) == "list"){ 
-    estimator <- list(estimator)
-  }
+  # Checks -------------------------------------------------
+  estimator <- clean_inputs(estimator, "estimator", accepts_list = TRUE)
   
   ## if the user sends no qoi function but does send a list of estimator objects,
   ## run this function on each estimator object and cbind the results

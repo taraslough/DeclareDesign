@@ -6,6 +6,9 @@
 #' @export
 draw_data <- function(design, random_seed = NULL) {
   
+  # Checks -------------------------------------------------
+  design <- clean_inputs(design, "design", accepts_list = FALSE)
+  
   if(!is.null(random_seed)){
     set.seed(random_seed)
   }

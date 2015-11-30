@@ -59,18 +59,37 @@ reorient <- function(x) {
 }
 
 
-clean_inputs <- function(object, object_class){
+clean_inputs <- function(object, object_class, accepts_list = TRUE){
   
-  if(class(object) == object_class){
-    object <- list(object)
-  }  
+  if(is.null(object)){
+    return(object)
+  } else {
   
-  if(!all(sapply(object, function(i) class(i)==object_class))){ 
-    stop(paste0("All objects in the ", object_class, " argument must be created by declare_", object_class, "."))
+    if(accepts_list == TRUE){
+      
+      if(class(object) %in% object_class){
+        object <- list(object)
+      }
+      
+      if(class(object) != "list"){
+        stop(paste0("The object in the ", object_class, " argument must be created by ", paste0("declare_", object_class, collapse = " or "), " or be a list of objects created by those function(s)."))
+      }
+      
+      if(!all(sapply(object, function(i) class(i) %in% object_class))){ 
+        stop(paste0("All objects in the list in the ", object_class, " argument must be created by ", paste0("declare_", object_class, collapse = " or "), "."))
+      }
+    } else {
+      
+      ## accepts_list == FALSE
+      
+      if (!(class(object) %in% object_class)){
+        stop(paste0("The object in the ", object_class[1], " argument must be created by ", paste0("declare_", object_class, collapse = " or "), ". It cannot be a list."))
+      }
+      
+    }
+    
+    return(object)
   }
-  
-  return(object)
-
 }
 
 

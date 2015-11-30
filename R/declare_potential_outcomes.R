@@ -20,6 +20,9 @@ declare_potential_outcomes <- function(potential_outcomes_function =
                                        options = NULL,
                                        description = NULL){
   
+  # Checks -------------------------------------------------
+  attrition <- clean_inputs(attrition, "attrition", accepts_list = FALSE)
+  
   if(is.null(formula) & is.null(outcome_variable_name)){
     stop("If you do not provide a formula, please provide the name of the outcome variable as a character string to outcome_variable_name.")
   }

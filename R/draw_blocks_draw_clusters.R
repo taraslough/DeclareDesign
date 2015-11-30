@@ -7,8 +7,14 @@
 #'
 #' @export
 draw_blocks <- function(data, assignment, random_seed = NULL){
-  if(!is.null(assignment$custom_blocking_function)) { 
-    data[, assignment$block_variable_name] <- assignment$custom_blocking_function(data = data)
+  
+  # Checks -------------------------------------------------
+  assignment <- clean_inputs(assignment, "assignment", accepts_list = TRUE)
+  
+  for(i in 1:length(assignment)){
+    if(!is.null(assignment[[i]]$custom_blocking_function)) { 
+      data[, assignment[[i]]$block_variable_name] <- assignment[[i]]$custom_blocking_function(data = data)
+    }
   }
   return(data)
 }
@@ -23,8 +29,13 @@ draw_blocks <- function(data, assignment, random_seed = NULL){
 #'
 #' @export
 draw_clusters <- function(data, assignment, random_seed = NULL){
-  if(!is.null(assignment$custom_clustering_function)){
-    data[, assignment$cluster_variable_name] <- assignment$custom_clustering_function(data = data)
+  # Checks -------------------------------------------------
+  assignment <- clean_inputs(assignment, "assignment", accepts_list = TRUE)
+  
+  for(i in 1:length(assignment)){
+    if(!is.null(assignment[[i]]$custom_clustering_function)){
+      data[, assignment[[i]]$cluster_variable_name] <- assignment[[i]]$custom_clustering_function(data = data)
+    }
   }
   return(data)
 }

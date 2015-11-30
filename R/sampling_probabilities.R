@@ -18,6 +18,8 @@
 #' @export
 get_sampling_probabilities <- function(data, sampling){
   
+  sampling <- clean_inputs(sampling, object_class = "sampling", accepts_list = FALSE)
+  
   N <- nrow(data)  
   strata_variable_name <- sampling$strata_variable_name
   cluster_variable_name <- sampling$cluster_variable_name

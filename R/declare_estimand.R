@@ -20,6 +20,9 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
                              subset = NULL, weights_variable_name = NULL, 
                              label = NULL, description = NULL) {
   
+  # Checks -------------------------------------------------
+  potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = TRUE)
+  
   if(!is.null(weights_variable_name)){
     stop("Weighted estimands are not yet implemented. Please contact the authors if you are interested in using them.")
   }

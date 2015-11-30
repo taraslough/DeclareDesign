@@ -27,6 +27,10 @@ diagnose_design <- function(design = NULL, diagnosis = NULL, statistics = list(c
     stop("Please provide either a design object created by declare_design or a diagnosis object created with diagnose_design, and not both.")
   }
   
+  # Checks -------------------------------------------------
+  design <- clean_inputs(design, "design", accepts_list = FALSE)
+  diagnosis <- clean_inputs(diagnosis, "diagnosis", accepts_list = FALSE)
+  
   if(is.null(diagnosis)){
     
     population <- design$population

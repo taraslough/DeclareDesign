@@ -21,6 +21,9 @@
 #' @export
 get_assignment_probabilities <- function(data, assignment){
   
+  # Checks -------------------------------------------------
+  assignment <- clean_inputs(assignment, "assignment", accepts_list = FALSE)
+  
   N <- nrow(data)  
   block_variable_name <- assignment$block_variable_name
   cluster_variable_name <- assignment$cluster_variable_name
