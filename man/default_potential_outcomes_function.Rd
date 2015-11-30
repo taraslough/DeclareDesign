@@ -4,12 +4,14 @@
 \alias{default_potential_outcomes_function}
 \title{Default potential outcomes function}
 \usage{
-default_potential_outcomes_function(formula, data)
+default_potential_outcomes_function(formula, data, options = NULL)
 }
 \arguments{
 \item{formula}{A formula describing the outcomes as a function of a}
 
-\item{data}{}
+\item{data}{A data frame}
+
+\item{options}{A named list (optional)}
 }
 \description{
 Default potential outcomes function

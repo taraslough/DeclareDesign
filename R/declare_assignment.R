@@ -137,6 +137,7 @@
 declare_assignment <- 
   function(condition_names = NULL,
            potential_outcomes = NULL,
+           interference = NULL,
            block_variable_name = NULL, 
            cluster_variable_name = NULL,
            m = NULL, 
@@ -147,8 +148,8 @@ declare_assignment <-
            baseline_condition = NULL,
            assignment_variable_name = "Z",
            noncompliance = NULL,
-           transform_options = NULL,
            custom_transform_function = NULL, 
+           transform_options = NULL,
            custom_assignment_function = NULL,
            custom_blocking_function = NULL,
            custom_clustering_function = NULL,
@@ -223,6 +224,7 @@ declare_assignment <-
                             baseline_condition = baseline_condition,
                             assignment_variable_name = assignment_variable_name,
                             custom_transform_function = custom_transform_function, transform_options = transform_options,
+                            interference = interference,
                             description = description,
                             call = match.call())
     } else if(!is.null(custom_assignment_function)) {
@@ -233,6 +235,7 @@ declare_assignment <-
         assignment_variable_name = assignment_variable_name,
         noncompliance = noncompliance,
         custom_transform_function = custom_transform_function, transform_options = transform_options,
+        interference = interference,
         assignment_type = "custom",
         description = description,
         call = match.call())
@@ -244,6 +247,7 @@ declare_assignment <-
         assignment_variable_name = assignment_variable_name,
         noncompliance = noncompliance,
         custom_transform_function = custom_transform_function, transform_options = transform_options,
+        interference = interference,
         assignment_type = "existing assignment",
         description = description,
         call = match.call())

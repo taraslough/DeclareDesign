@@ -17,6 +17,14 @@ calculate_ICC <- function(variable, cluster_variable){
   return(rho)
 }
 
+# Default interference function ----------------------------------------------
+
+default_interference_function <- function(data, options, assignment_variable_name){
+  if(!is.null(options)){
+    
+  }
+  return(data)
+}
 
 # Default transform function ----------------------------------------------
 
@@ -407,14 +415,33 @@ calculate_sd_estimate <- function(estimates, ...){
 #' Default potential outcomes function
 #' 
 #' @param formula A formula describing the outcomes as a function of a 
-#' @param data 
+#' @param data A data frame
+#' @param options A named list (optional)
 #'
 #' @export
-default_potential_outcomes_function <- function(formula, data){
+default_potential_outcomes_function <- function(formula, data, options = NULL){
   
-  return(eval(expr = formula[[3]], envir = data))
+  potential_outcomes_env <- list2env(data)
+  if(!is.null(options)){
+    for(i in 1:length(options)){
+      assign(x = names(options)[i], value = options[[i]], 
+             envir = potential_outcomes_env)
+    }
+  }
+  potential_outcomes_env$n_ <- nrow(data)
+    
+  return(eval(expr = formula[[3]], envir = potential_outcomes_env))
   
 }
+
+#' Default potential outcomes function
+#' 
+#' @param formula A formula describing the outcomes as a function of a 
+#' @param data A data frame
+#' @param options A named list (optional)
+#'
+#' @export
+default_interference_function <- default_potential_outcomes_function
 
 # Rows: outcome names
 # Columns: condition names
