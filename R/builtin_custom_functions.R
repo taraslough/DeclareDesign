@@ -419,7 +419,9 @@ calculate_sd_estimate <- function(estimates, ...){
 #' @param options A named list (optional)
 #'
 #' @export
-default_potential_outcomes_function <- function(formula, data, options = NULL){
+default_potential_outcomes_function <- function(formula, data, ...){
+  
+  options <- list(...)
   
   potential_outcomes_env <- list2env(data)
   if(!is.null(options)){
@@ -441,7 +443,7 @@ default_potential_outcomes_function <- function(formula, data, options = NULL){
 #' @param options A named list (optional)
 #'
 #' @export
-default_interference_function <- default_potential_outcomes_function
+default_exposure_function <- default_potential_outcomes_function
 
 # Rows: outcome names
 # Columns: condition names

@@ -5,7 +5,7 @@
 \title{Draw observed outcome}
 \usage{
 draw_outcome(data, condition_names = NULL, potential_outcomes,
-  noncompliance = NULL, attrition = NULL)
+  interference = NULL, noncompliance = NULL, attrition = NULL)
 }
 \arguments{
 \item{data}{}

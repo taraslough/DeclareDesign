@@ -5,7 +5,8 @@
 \title{Draw a population data frame based on a declared data structure}
 \usage{
 draw_population(population, condition_names = NULL,
-  potential_outcomes = NULL, noncompliance = NULL, attrition = NULL)
+  potential_outcomes = NULL, interference = NULL, noncompliance = NULL,
+  attrition = NULL)
 }
 \arguments{
 \item{population}{A population object describing the population data structure created by the \code{declare_population} function.}

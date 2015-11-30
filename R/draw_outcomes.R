@@ -6,7 +6,8 @@
 #' @param condition_names
 #'
 #' @export
-draw_potential_outcomes <- function(data, condition_names = NULL, potential_outcomes, noncompliance = NULL, attrition = NULL) {
+draw_potential_outcomes <- function(data, condition_names = NULL, potential_outcomes, 
+                                    interference = NULL, noncompliance = NULL, attrition = NULL) {
   
   if(is.null(potential_outcomes)){
     stop("You must provide a potential_outcomes object to draw_potential_outcomes. ")
@@ -17,13 +18,30 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
     stop("If you provide a list of potential_outcomes, you must provide a list of condition_names of the same length.")
   }
   
-  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance"), accepts_list = TRUE)
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance", "interference"), accepts_list = TRUE)
   
+  interference <- clean_inputs(interference, object_class = "interference", accepts_list = FALSE)
   noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
   attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
   
+  # You must provide a condition_names argument that makes sense for all po objects.
+  
+  has_assignment_variable_names <- all(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) == TRUE
+  
+  if(sum(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) != length(potential_outcomes)){
+    stop("If you provide a assignment_variable_name for any of the potential_outcomes, you must provide it for all of them.")
+  }
+  
   if(!is.null(noncompliance)){
     potential_outcomes <- c(list(noncompliance), potential_outcomes)
+    noncompliance_has_assigment_variable_names <- !is.null(noncompliance$assignment_variable_name)
+    has_assignment_variable_names <- has_assignment_variable_names & noncompliance_has_assigment_variable_names
+    if(!noncompliance_has_assigment_variable_names){
+      stop("Please provide an assignment variable name to declare_noncompliance.")
+    }
+  }
+  if(!is.null(interference)){
+    potential_outcomes <- c(list(interference), potential_outcomes)
   }
   
   if(is.null(condition_names)){
@@ -31,17 +49,11 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
   }else{
     condition_names <- replicate(length(potential_outcomes), condition_names, simplify = FALSE)
   }
-  # You must provide a condition_names argument that makes sense for all po objects.
   
   has_condition_names <- all(sapply(condition_names, function(x) is.null(x))) == FALSE
-  has_assignment_variable_names <- all(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) == TRUE
   
   if(has_condition_names & !has_assignment_variable_names){
     stop("Please provide the name of the treatment variable to the assignment_variable_name argument in declare_potential_outcomes if you provide condition_names.")
-  }
-  
-  if(sum(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) != length(potential_outcomes)){
-    stop("If you provide a assignment_variable_name for any of the potential_outcomes, you must provide it for all of them.")
   }
   
   if(has_condition_names & has_assignment_variable_names) {
@@ -49,7 +61,9 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
       
       # make the combinations
       
-      sep = potential_outcomes[[i]]$sep
+      sep <- potential_outcomes[[i]]$sep
+      
+      ## if PO is a potential_outcomes or noncompliance object
       
       condition_combinations <- expand.grid(condition_names[[i]])
       if(is.null(names(condition_names[[i]]))){
@@ -76,7 +90,7 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
                                         condition_name = condition_combination)
       }
       
-      if(!is.null(noncompliance) & class(potential_outcomes[[i]]) != "noncompliance"){
+      if(!is.null(noncompliance) & class(potential_outcomes[[i]]) == "potential_outcomes"){
         
         for(j in condition_names[[i]]){
           local_d_column <- paste(noncompliance$outcome_variable_name, noncompliance$assignment_variable_name, j, sep = noncompliance$sep)
@@ -87,7 +101,7 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
           
           for(k in local_d_values){
             local_y_d_column <- paste(potential_outcomes[[i]]$outcome_variable_name, potential_outcomes[[i]]$assignment_variable_name, k,
-                  sep = potential_outcomes[[i]]$sep)
+                                      sep = potential_outcomes[[i]]$sep)
             data[data[,local_d_column] == k, local_y_z_column] <- data[data[,local_d_column] == k, local_y_d_column]
           }
         }
@@ -96,16 +110,16 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
       
       if(!is.null(potential_outcomes[[i]]$attrition)){
         data <- draw_potential_outcomes(data = data, 
-                                       potential_outcomes = potential_outcomes[[i]]$attrition, 
-                                       condition_names= condition_combination)
+                                        potential_outcomes = potential_outcomes[[i]]$attrition, 
+                                        condition_names= condition_combination)
       }
-    
+      
     }
     
     if(!is.null(attrition)){
       data <- draw_potential_outcomes(data = data, 
-                                     potential_outcomes = attrition, 
-                                     condition_names = attrition$condition_names)
+                                      potential_outcomes = attrition, 
+                                      condition_names = attrition$condition_names)
     }
     
     
@@ -119,7 +133,7 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
 draw_observed_outcome <- function(data, potential_outcomes, condition_names = NULL){
   
   # Checks -------------------------------------------------
-  potential_outcomes <- clean_inputs(potential_outcomes, c("potential_outcomes", "attrition", "noncompliance"), accepts_list = FALSE)
+  potential_outcomes <- clean_inputs(potential_outcomes, c("potential_outcomes", "attrition", "noncompliance", "interference"), accepts_list = FALSE)
   
   sep = potential_outcomes$sep
   condition_combinations <- expand.grid(condition_names)
@@ -177,7 +191,7 @@ draw_observed_outcome <- function(data, potential_outcomes, condition_names = NU
 #'
 #' @export
 draw_outcome <- function(data, condition_names = NULL, potential_outcomes, 
-                         noncompliance = NULL, attrition = NULL){
+                         interference = NULL, noncompliance = NULL, attrition = NULL){
   
   if(is.null(potential_outcomes)){
     stop("You must provide a potential_outcomes object to draw_outcome.")
@@ -189,11 +203,26 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
   }
   
   potential_outcomes <- clean_inputs(potential_outcomes, object_class = "potential_outcomes", accepts_list = TRUE)
+  interference <- clean_inputs(interference, object_class = "interference", accepts_list = FALSE)
   noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
   attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
   
+  has_assignment_variable_names <- all(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) == TRUE
+  
+  if(sum(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) != length(potential_outcomes)){
+    stop("If you provide a assignment_variable_name for any of the potential_outcomes, you must provide it for all of them.")
+  }
+  
   if(!is.null(noncompliance)){
     potential_outcomes <- c(list(noncompliance), potential_outcomes)
+    noncompliance_has_assigment_variable_names <- !is.null(noncompliance$assignment_variable_name)
+    has_assignment_variable_names <- has_assignment_variable_names & noncompliance_has_assigment_variable_names
+    if(!noncompliance_has_assigment_variable_names){
+      stop("Please provide an assignment variable name to declare_noncompliance.")
+    }
+  }
+  if(!is.null(interference)){
+    potential_outcomes <- c(list(interference), potential_outcomes)
   }
   
   if(is.null(condition_names)){
@@ -201,15 +230,11 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
   }else{
     condition_names <- replicate(length(potential_outcomes), condition_names, simplify = FALSE)
   }
+  
   has_condition_names <- all(sapply(condition_names, function(x) is.null(x))) == FALSE
-  has_assignment_variable_names <- all(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) == TRUE
   
   if(has_condition_names & !has_assignment_variable_names){
     stop("Please provide the name of the treatment variable to the assignment_variable_name argument in declare_potential_outcomes if you provide condition_names.")
-  }
-  
-  if(sum(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) != length(potential_outcomes)){
-    stop("If you provide a assignment_variable_name for any of the potential_outcomes, you must provide it for all of them.")
   }
   
   if(has_condition_names & has_assignment_variable_names) {
@@ -224,7 +249,7 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
         data <- draw_observed_outcome(data = data, 
                                       potential_outcomes = potential_outcomes[[i]]$attrition, 
                                       condition_names= condition_names[[i]])
-
+        
         data[data[,potential_outcomes[[i]]$attrition$outcome_variable_name]==0, potential_outcomes[[i]]$outcome_variable_name] <- NA
         
       }
@@ -253,7 +278,7 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
 #' @export
 draw_outcome_vector <- function(data, potential_outcomes, attrition = NULL){
   
-  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance"), accepts_list = FALSE)
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance", "interference"), accepts_list = FALSE)
   
   outcome_draw <- potential_outcomes$potential_outcomes_function(data = data)
   
@@ -280,7 +305,7 @@ draw_outcome_vector <- function(data, potential_outcomes, attrition = NULL){
 #' @export
 draw_potential_outcome_vector <- function(data, potential_outcomes, condition_name){
   
-  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance"), accepts_list = FALSE)
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance", "interference"), accepts_list = FALSE)
   
   for(i in 1:length(condition_name)){
     data[,names(condition_name)[i]] <- condition_name[[i]]
