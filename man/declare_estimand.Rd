@@ -6,7 +6,8 @@
 \usage{
 declare_estimand(estimand_function = NULL, estimand_text = NULL,
   estimand_options = NULL, potential_outcomes, condition_names = NULL,
-  subset = NULL, weights_variable_name = NULL, label = NULL)
+  subset = NULL, weights_variable_name = NULL, label = NULL,
+  text_description = NULL)
 }
 \arguments{
 \item{estimand_function}{A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.}

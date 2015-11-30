@@ -7,7 +7,7 @@
 declare_population(..., size, global_transformations = NULL,
   other_arguments = NULL, level_IDs = NULL, super_population = FALSE,
   random_seed = 42, data = NULL, custom_population_function = NULL,
-  make_unique_ID = FALSE)
+  make_unique_ID = FALSE, text_description = NULL)
 }
 \arguments{
 \item{...}{A named list of expressions or list of named lists of expressions that generate data. These should generate vectors, the privileged name n_ can be used to specify the leve-specific N (i.e. rnorm(n_) creates 100 normal draws if it is at the level of 100 individuals, or 10 normal draws if it is at the level of 10 cities). These must be declared consecutively and are level-specific (see global_transformations for expressions that can be evaluated over the entire dataset).}
