@@ -63,17 +63,23 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
 
 # Built-in-Estimators -----------------------------------------------------
 
+collapse_clusters <- function(data, cluster_variable_name, cluster_collapse_function){
+  return(aggregate(as.formula(paste("cbind(", paste(colnames(data)[!(colnames(data) %in% cluster_variable_name)], collapse = ","), ") ~", cluster_variable_name)), 
+                   data = data, FUN = cluster_collapse_function))
+}
+
 #' Built-in Estimators: Difference-in-means
 #' 
 #' @param formula An object of class "formula", such as Y ~ Z
 #' @param data A data.frame, often created by \code{\link{draw_population}}.
 #' @param weights An optional vector of weights (not yet implemented).
 #' @param subset An optional vector specifying a subset of observations to be used.
+#' @param cluster_variable_name The (optional) name of a clustered variable. The function will first collapse the data by cluster before calculating the difference-in-means.
+#' @param cluster_collapse_function The (optional) function to use to collapse the data by cluster. Default is \code{mean}.
 #' @param alpha The significance level, 0.05 by default.
 #'
 #' @export
-difference_in_means <- function(formula, data, weights = NULL, subset = NULL, ##cluster_variable = NULL, 
-                                alpha = .05) {
+difference_in_means <- function(formula, data, weights = NULL, subset = NULL, cluster_variable_name = NULL, cluster_collapse_function = mean, alpha = .05) {
   
   if(length(all.vars(formula[[3]]))>1)
     stop("The formula should only include one variable on the right-hand side: the treatment variable.")
@@ -100,9 +106,9 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, ##
   ##if(!is.null(weights))
   ##  w <- weights[subset]
   
-  ##if(!is.null(cluster_variable)){
-  ##  data <- aggregate(data[,all.vars(formula)], list(d_i_m_cluster_var__ = data[,cluster_variable]), FUN = function(x) mean(x, na.rm = T))
-  ##}
+  if(!is.null(cluster_variable_name)){
+    data <- collapse_clusters(data = data, cluster_variable_name = cluster_variable_name, cluster_collapse_function = cluster_collapse_function)
+  }
   
   Y <- data[, all.vars(formula[[2]])]
   t <- data[, all.vars(formula[[3]])]
@@ -127,11 +133,13 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, ##
 #' @param weights An optional vector of weights (not yet implemented).
 #' @param subset An optional vector specifying a subset of observations to be used.
 #' @param block_variable_name The name of the blocking variable.
+#' @param cluster_variable_name The (optional) name of a clustered variable. The function will first collapse the data by cluster before calculating the difference-in-means.
+#' @param cluster_collapse_function The (optional) function to use to collapse the data by cluster. Default is \code{mean}.
 #' @param alpha The significance level, 0.05 by default.
 #'
 #' @export
 difference_in_means_blocked <- function(formula, data, weights = NULL, subset = NULL, 
-                                        block_variable_name = NULL, ##cluster_variable = NULL, 
+                                        block_variable_name = NULL, cluster_variable_name = NULL, cluster_collapse_function = mean, 
                                         alpha = .05) {
   
   if(is.null(block_variable_name))
@@ -172,9 +180,9 @@ difference_in_means_blocked <- function(formula, data, weights = NULL, subset = 
   if(!is.null(subset))
     data <- data[subset, ]
   
-  ##if(!is.null(cluster_variable)){
-  ##  data <- aggregate(names(data)[!which(names(data) %in% cluster_variable)], list(d_i_m_cluster_var__ = data[,cluster_variable]), FUN = mean)
-  ##}
+  if(!is.null(cluster_variable_name)){
+    data <- collapse_clusters(data = data, cluster_variable_name = cluster_variable_name, cluster_collapse_function = cluster_collapse_function)
+  }
   
   Y <- data[, all.vars(formula[[2]])]
   t <- data[, all.vars(formula[[3]])]

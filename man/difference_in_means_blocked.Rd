@@ -5,7 +5,8 @@
 \title{Built-in Estimators: Blocked Difference-in-means}
 \usage{
 difference_in_means_blocked(formula, data, weights = NULL, subset = NULL,
-  block_variable_name = NULL, alpha = 0.05)
+  block_variable_name = NULL, cluster_variable_name = NULL,
+  cluster_collapse_function = mean, alpha = 0.05)
 }
 \arguments{
 \item{formula}{An object of class "formula", such as Y ~ Z}
@@ -17,6 +18,10 @@ difference_in_means_blocked(formula, data, weights = NULL, subset = NULL,
 \item{subset}{An optional vector specifying a subset of observations to be used.}
 
 \item{block_variable_name}{The name of the blocking variable.}
+
+\item{cluster_variable_name}{The (optional) name of a clustered variable. The function will first collapse the data by cluster before calculating the difference-in-means.}
+
+\item{cluster_collapse_function}{The (optional) function to use to collapse the data by cluster. Default is \code{mean}.}
 
 \item{alpha}{The significance level, 0.05 by default.}
 }

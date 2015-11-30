@@ -8,10 +8,10 @@ test_that("test blocked and clustered experiment", {
   
   population <- declare_population(individuals = list(noise = declare_variable()),
                                    villages = list(elevation = declare_variable(),
-                                                   high_elevation = declare_variable(transformation = "1*(elevation > 0)")), 
-                                   N_per_level = c(1000, 100))
+                                                   high_elevation = "1*(elevation > 0)"), 
+                                   size = c(100000, 1000))
   
-  sampling <- declare_sampling(n = 10, cluster_variable_name = "villages_ID")
+  sampling <- declare_sampling(n = 250, cluster_variable_name = "villages_ID")
   
   potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + .2*Z*elevation + noise,
                                                    condition_names = c(0, 1),
@@ -25,10 +25,19 @@ test_that("test blocked and clustered experiment", {
   
   # Diagnosis ---------------------------------------------------------------
   
-  estimand <- declare_estimand(estimand_text = "mean(Y_1 - Y_0)", potential_outcomes = potential_outcomes)
-  estimator_d_i_m <- declare_estimator(estimates = difference_in_means_blocked,
-                                       estimates_options = list(block_variable_name = "elevation_high"),
+  estimand <- declare_estimand(estimand_text = "mean(Y_Z_1 - Y_Z_0)", potential_outcomes = potential_outcomes)
+  estimator_d_i_m <- declare_estimator(estimates = difference_in_means,
                                        formula = Y ~ Z, estimand = estimand)
+  estimator_d_i_m_clustered <- declare_estimator(estimates = difference_in_means,
+                                                 estimates_options = list(cluster_variable_name = "villages_ID"),
+                                                 formula = Y ~ Z, estimand = estimand)
+  estimator_d_i_m_blocked <- declare_estimator(estimates = difference_in_means_blocked,
+                                               estimates_options = list(block_variable_name = "elevation_high"),
+                                               formula = Y ~ Z, estimand = estimand)
+  estimator_d_i_m_blocked_clustered <- declare_estimator(estimates = difference_in_means_blocked,
+                                                         estimates_options = list(block_variable_name = "elevation_high",
+                                                                                  cluster_variable_name = "villages_ID"),
+                                                         formula = Y ~ Z, estimand = estimand)
   estimator_lm <- declare_estimator(model = lm, estimates = get_regression_coefficient, 
                                     estimates_options = list(coefficient_name = "Z"),
                                     formula = Y ~ Z, estimand = estimand)
@@ -36,7 +45,7 @@ test_that("test blocked and clustered experiment", {
   design <- declare_design(population = population,
                            sampling = sampling, 
                            assignment = assignment, 
-                           estimator = list(estimator_d_i_m, estimator_lm), 
+                           estimator = list(estimator_d_i_m, estimator_d_i_m_clustered, estimator_d_i_m_blocked, estimator_d_i_m_blocked_clustered, estimator_lm), 
                            potential_outcomes = potential_outcomes,
                            label = "Blocked and Clustered Design")
   
@@ -44,10 +53,12 @@ test_that("test blocked and clustered experiment", {
   
   # mock data  ---------------------------------------------------------------  
   
-  pop_draw <- draw_population(population = population)
+  pop_draw <- draw_population(population = population, potential_outcomes = potential_outcomes)
   smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
   smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
   smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = potential_outcomes)
-  estimates <- get_estimates(estimator = estimator_d_i_m, data = smp_draw)
+  estimates <- get_estimates(estimator = list(estimator_d_i_m, estimator_d_i_m_clustered, estimator_d_i_m_blocked, estimator_d_i_m_blocked_clustered, estimator_lm), data = smp_draw)
+
+  estimands <- get_estimands(estimator = estimator_d_i_m, data = smp_draw)
   
 })

@@ -5,6 +5,7 @@
 \title{Built-in Estimators: Difference-in-means}
 \usage{
 difference_in_means(formula, data, weights = NULL, subset = NULL,
+  cluster_variable_name = NULL, cluster_collapse_function = mean,
   alpha = 0.05)
 }
 \arguments{
@@ -15,6 +16,10 @@ difference_in_means(formula, data, weights = NULL, subset = NULL,
 \item{weights}{An optional vector of weights (not yet implemented).}
 
 \item{subset}{An optional vector specifying a subset of observations to be used.}
+
+\item{cluster_variable_name}{The (optional) name of a clustered variable. The function will first collapse the data by cluster before calculating the difference-in-means.}
+
+\item{cluster_collapse_function}{The (optional) function to use to collapse the data by cluster. Default is \code{mean}.}
 
 \item{alpha}{The significance level, 0.05 by default.}
 }
