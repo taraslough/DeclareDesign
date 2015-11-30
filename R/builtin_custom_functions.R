@@ -408,21 +408,43 @@ default_potential_outcomes_function <- function(formula, data){
   
 }
 
+# Rows: outcome names
+# Columns: condition names
+
 #' @export
-proportion_potential_outcomes_function <- function(population_proportions = .5, data){
+proportion_potential_outcomes_function <- function(population_proportions = c(.5,.5), data, condition_names = NULL, assignment_variable_name = "Z"){
+  
+
+  
+  if(!assignment_variable_name %in% names(data)){
+    stop("Unable to find the assignment variable. Please check that you have specified assignment_variable_name correctly.")
+  }
+  
+  assignment_variable <- data[,assignment_variable_name]
   
   N <- nrow(data)
   
-  is_scalar <- is.numeric(population_proportions) & 
-    length(population_proportions) == 1 
+  is_vector <- is.numeric(population_proportions) & 
+    is.vector(population_proportions)
   
-  if(is_scalar){
+  if(is_vector){
+    
+    if(is.null(condition_names) & !is.null(names(population_proportions)))
+      condition_names <- names(population_proportions)
+    
+    out_names <- c(0,1)
+    
     population_proportions <- matrix(
       data = c(1-population_proportions,
                population_proportions),
       byrow = T,
-      nrow = 2)
-    con_names <- c(0,1)
+      nrow = 2,
+      dimnames = list(out_names,condition_names))
+    
+  }
+  
+  if(!is.null(condition_names) & ncol(population_proportions) != length(condition_names)){
+    stop("ncol(population_proportions) != length(condition_names). \nPlease provide population proportions for each of the treatment conditions.")
   }
   
   counts <- apply(population_proportions,2,rmultinom,n = 1,size = N)
@@ -430,22 +452,38 @@ proportion_potential_outcomes_function <- function(population_proportions = .5, 
   row_names <- rownames(population_proportions)
   
   if(is.null(row_names)){
-    if(is.null(con_names)){
-      con_names <- 1:nrow(population_proportions)
+    if(is.null(out_names)){
+      out_names <- 1:nrow(population_proportions)
     }
   } else {
-    con_names <- row_names
+    out_names <- row_names
   }
+  
+  if(is.null(condition_names)){
+    condition_names <- colnames(population_proportions)
+    if(is.null(condition_names)){
+      condition_names <- sort(unique(assignment_variable))
+    }
+  } 
   
   outcomes <- apply(counts, 2, function(times){
     sample(
-      rep(con_names,times = times)
+      rep(out_names,times = times)
     )
   })
   
-  colnames(outcomes) <- colnames(population_proportions)
+  revealed_outcome <- sapply(assignment_variable,function(x) which(condition_names == x))
   
-  return(outcomes)
+  rows <- 1:length(revealed_outcome)
+  
+  reveal_mat <- cbind(rows,revealed_outcome)
+  
+  return_vector <- outcomes[reveal_mat]
+  suppressWarnings({
+  if(all(identical(as.character(as.numeric(return_vector)),return_vector)))
+    return_vector <- as.numeric(return_vector)
+  })
+  return(return_vector)
   
 }
 
