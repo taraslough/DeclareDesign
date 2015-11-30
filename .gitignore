@@ -10,3 +10,4 @@ vignettes/*.html
 vignettes/*.pdf
 vignettes/.*
 .Rproj.user
+tests/testthat/*.pdf
