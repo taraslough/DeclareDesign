@@ -4,7 +4,7 @@
 \alias{print_versions}
 \title{Print version of R and packages to improve reproducibility}
 \usage{
-print_versions()
+print_versions(versions = NULL)
 }
 \description{
 Print version of R and packages to improve reproducibility

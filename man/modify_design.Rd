@@ -6,7 +6,7 @@
 \usage{
 modify_design(design, population = NULL, sampling = NULL,
   assignment = NULL, estimator = NULL, potential_outcomes = NULL,
-  label = NULL, text_description = NULL)
+  inputs = NULL, label = NULL, text_description = NULL)
 }
 \arguments{
 \item{design}{A design object, created by \code{\link{declare_design}}.}

@@ -136,7 +136,6 @@ save_design_replication_files <- function(design){
   
 }
 
-#' @importFrom packrat identifyPackagesUsed recursiveWalk allOf anyOf expressionDependencies
 get_package_dependencies <- function(code) {
   ## was fileDependencies.R
 
@@ -156,5 +155,113 @@ get_package_dependencies <- function(code) {
   unique(pkgs)
 }
 
+anyOf <- function(object, ...) {
+  predicates <- list(...)
+  for (predicate in predicates)
+    if (predicate(object))
+      return(TRUE)
+  FALSE
+}
+
+allOf <- function(object, ...) {
+  predicates <- list(...)
+  for (predicate in predicates)
+    if (!predicate(object))
+      return(FALSE)
+  TRUE
+}
+
+recursiveWalk <- function(`_node`, fn, ...) {
+  fn(`_node`, ...)
+  if (is.call(`_node`)) {
+    for (i in seq_along(`_node`)) {
+      recursiveWalk(`_node`[[i]], fn, ...)
+    }
+  }
+}
+
+# Fills 'env' as a side effect
+identifyPackagesUsed <- function(call, env) {
+  
+  if (!is.call(call))
+    return()
+  
+  fn <- call[[1]]
+  if (!anyOf(fn, is.character, is.symbol))
+    return()
+  
+  fnString <- as.character(fn)
+  
+  # Check for '::', ':::'
+  if (fnString %in% c("::", ":::")) {
+    if (anyOf(call[[2]], is.character, is.symbol)) {
+      pkg <- as.character(call[[2]])
+      env[[pkg]] <- TRUE
+      return()
+    }
+  }
+  
+  # Check for S4-related function calls (implying a dependency on methods)
+  if (fnString %in% c("setClass", "setMethod", "setRefClass", "setGeneric", "setGroupGeneric")) {
+    env[["methods"]] <- TRUE
+    return()
+  }
+  
+  # Check for packge loaders
+  pkgLoaders <- c("library", "require", "loadNamespace", "requireNamespace")
+  if (!fnString %in% pkgLoaders)
+    return()
+  
+  # Try matching the call.
+  loader <- tryCatch(
+    get(fnString, envir = asNamespace("base")),
+    error = function(e) NULL
+  )
+  
+  if (!is.function(loader))
+    return()
+  
+  matched <- match.call(loader, call)
+  if (!"package" %in% names(matched))
+    return()
+  
+  # Protect against 'character.only = TRUE' + symbols.
+  # This defends us against a construct like:
+  #
+  #    for (x in pkgs)
+  #        library(x, character.only = TRUE)
+  #
+  if ("character.only" %in% names(matched)) {
+    if (is.symbol(matched[["package"]])) {
+      return()
+    }
+  }
+  
+  if (anyOf(matched[["package"]], is.symbol, is.character)) {
+    pkg <- as.character(matched[["package"]])
+    env[[pkg]] <- TRUE
+    return()
+  }
+  
+  
+}
+
+expressionDependencies <- function(e) {
+  
+  if (is.expression(e)) {
+    return(unlist(lapply(e, function(call) {
+      expressionDependencies(call)
+    })))
+  }
+  
+  else if (is.call(e)) {
+    env <- new.env(parent = emptyenv())
+    recursiveWalk(e, identifyPackagesUsed, env)
+    return(ls(env, all.names = TRUE))
+  }
+  
+  else character()
+  
+}
 
 
