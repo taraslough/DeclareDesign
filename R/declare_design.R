@@ -11,7 +11,7 @@
 #' @return A design object
 #' @export
 declare_design <- function(population, sampling = NULL, assignment, estimator = NULL, 
-                           potential_outcomes, inputs = NULL, label = NULL, text_description = NULL) {
+                           potential_outcomes, inputs = NULL, label = NULL, description = NULL) {
   
   ## do checks
   
@@ -33,7 +33,7 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
   ## return object
   
   structure(list(population = population, sampling = sampling, assignment = assignment, estimator = estimator,
-                 potential_outcomes = potential_outcomes, inputs = inputs, label = label, text_description = text_description,
+                 potential_outcomes = potential_outcomes, inputs = inputs, label = label, description = description,
                  call = match.call()), class = "design")
   
 }
@@ -52,7 +52,7 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
 #' @return A design object
 #' @export
 modify_design <- function(design, population = NULL, sampling = NULL, assignment = NULL, estimator = NULL, 
-                          potential_outcomes = NULL, inputs = NULL, label = NULL, text_description = NULL) {
+                          potential_outcomes = NULL, inputs = NULL, label = NULL, description = NULL) {
   
   if(all(is.null(population), is.null(sampling), is.null(assignment), is.null(estimator), is.null(potential_outcomes),
          is.null(label))){
@@ -81,12 +81,12 @@ modify_design <- function(design, population = NULL, sampling = NULL, assignment
   if(is.null(label) & !is.null(design$label)){
     label <- design$label
   }
-  if(is.null(text_description) & !is.null(design$text_description)){
-    text_description <- design$text_description
+  if(is.null(description) & !is.null(design$description)){
+    description <- design$description
   }
   
   declare_design(population = population, sampling = sampling, assignment = assignment, estimator = estimator, 
-                 potential_outcomes = potential_outcomes, inputs = inputs, label = label, text_description = text_description)
+                 potential_outcomes = potential_outcomes, inputs = inputs, label = label, description = description)
   
 }
 

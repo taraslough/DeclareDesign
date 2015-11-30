@@ -153,7 +153,7 @@ declare_assignment <-
            custom_blocking_function = NULL,
            custom_clustering_function = NULL,
            existing_assignment_variable_name = NULL,
-           text_description = NULL) {
+           description = NULL) {
     
     # Determine assignment type
     assignment_type <- "complete"   
@@ -223,7 +223,7 @@ declare_assignment <-
                             baseline_condition = baseline_condition,
                             assignment_variable_name = assignment_variable_name,
                             custom_transform_function = custom_transform_function, transform_options = transform_options,
-                            text_description = text_description,
+                            description = description,
                             call = match.call())
     } else if(!is.null(custom_assignment_function)) {
       return.object <- list(
@@ -234,7 +234,7 @@ declare_assignment <-
         noncompliance = noncompliance,
         custom_transform_function = custom_transform_function, transform_options = transform_options,
         assignment_type = "custom",
-        text_description = text_description,
+        description = description,
         call = match.call())
     } else {
       return.object <- list(
@@ -245,7 +245,7 @@ declare_assignment <-
         noncompliance = noncompliance,
         custom_transform_function = custom_transform_function, transform_options = transform_options,
         assignment_type = "existing assignment",
-        text_description = text_description,
+        description = description,
         call = match.call())
     }
     class(return.object) <- "assignment"

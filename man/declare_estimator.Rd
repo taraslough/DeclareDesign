@@ -6,7 +6,7 @@
 \usage{
 declare_estimator(formula = NULL, model = NULL, model_options = NULL,
   estimates, estimates_options = NULL, subset = NULL,
-  weights_variable_name = NULL, labels = NULL, text_description = NULL,
+  weights_variable_name = NULL, labels = NULL, description = NULL,
   estimand = NULL)
 }
 \arguments{

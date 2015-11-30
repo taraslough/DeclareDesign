@@ -108,7 +108,7 @@ declare_attrition <- function(attrition_function = default_attrition_function,
                               outcome_variable_name = "R", 
                               condition_names = NULL, sep = "_", 
                               assignment_variable_name = NULL, options = NULL,
-                              text_description = NULL){
+                              description = NULL){
     
     outcomes_object <- 
       declare_potential_outcomes(potential_outcomes_function = attrition_function, 
@@ -117,7 +117,7 @@ declare_attrition <- function(attrition_function = default_attrition_function,
                                  condition_names = condition_names, 
                                  sep = sep, 
                                  assignment_variable_name = assignment_variable_name, 
-                                 options = options, text_description = text_description)
+                                 options = options, description = description)
     class(outcome_object) <- "attrition"
     return(outcomes_object)
 }

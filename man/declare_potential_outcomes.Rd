@@ -8,7 +8,7 @@
   declare_potential_outcomes(potential_outcomes_function = default_potential_outcomes_function,
   formula = NULL, outcome_variable_name = NULL, condition_names = NULL,
   sep = "_", assignment_variable_name = NULL, attrition = NULL,
-  options = NULL, text_description = NULL)
+  options = NULL, description = NULL)
 }
 \arguments{
 \item{potential_outcomes_function}{}
