@@ -264,4 +264,31 @@ expressionDependencies <- function(e) {
   
 }
 
+#' Compare the data and code inputs for two designs
+#' 
+#' @param inputs A list of two input objects
+#'
+#' @export
+compare_inputs <- function(inputs){
+  
+  inputs <- clean_inputs(inputs, "inputs", accepts_list = TRUE)
+  
+  if(length(inputs) != 2){
+    stop("Please provide a list of two input objects to compare.")
+  }
+  
+  code_identical <- identical(inputs[[1]]$code, inputs[[2]]$code)
+  
+  data_objects_1_not_2 <- names(inputs[[1]]$data)[!(names(inputs[[1]]$data) %in% names(inputs[[2]]$data))]
+  data_objects_2_not_1 <- names(inputs[[2]]$data)[!(names(inputs[[2]]$data) %in% names(inputs[[1]]$data))]
+  
+  cat("Comparison of design", inputs[[1]]$label, "and", inputs[[2]]$label, "\n ========= \n\n")
+  cat("The computer input code is", ifelse(code_identical, "", "not"), "identical in the two designs.\n\n")
+  if(length(data_objects_1_not_2) > 0){
+    cat(paste0("The input data in design ", inputs[[1]]$label, " includes objects that are not in design ", inputs[[2]]$label, ": ", data_objects_1_not_2, "\n"))
+  }
+  if(length(data_objects_2_not_1) > 0){
+    cat(paste0("The input data in design ", inputs[[2]]$label, " includes objects that are not in design ", inputs[[1]]$label, ": ", data_objects_2_not_1, "\n"))
+  }
 
+}
