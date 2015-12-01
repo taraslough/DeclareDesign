@@ -62,13 +62,21 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
     
     estimand_function_internal <- function(data){
       argument_names <- names(formals(estimand_function))
+      options_internal <- list()
       if(!is.null(subset) & "subset" %in% argument_names)
-        estimand_options$subset <- with(data, eval(parse(text = subset)))
+        options_internal$subset <- with(data, eval(parse(text = subset)))
       if(!is.null(weights_variable_name) & "weights" %in% argument_names)
-        estimand_options$weights <- data[, weights_variable_name]
-      estimand_options$data <- data
+        options_internal$weights <- data[, weights_variable_name]
+      if(length(estimand_options) > 0){
+        for(i in 1:length(estimand_options)){
+          if(names(estimand_options)[[i]] %in% argument_names){
+            options_internal[[names(estimand_options)[[i]]]] <- estimand_options[[i]]
+          }
+        }
+      }
+      options_internal$data <- data
       
-      return(do.call(estimand_function, args = estimand_options))
+      return(do.call(estimand_function, args = options_internal))
     }
     
   }

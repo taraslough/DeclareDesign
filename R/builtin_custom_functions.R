@@ -424,7 +424,7 @@ default_potential_outcomes_function <- function(formula, data, ...){
   options <- list(...)
   
   potential_outcomes_env <- list2env(data)
-  if(!is.null(options)){
+  if(length(options) > 0){
     for(i in 1:length(options)){
       assign(x = names(options)[i], value = options[[i]], 
              envir = potential_outcomes_env)

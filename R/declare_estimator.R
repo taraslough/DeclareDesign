@@ -28,37 +28,51 @@ declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL
   if(substitute(estimates) == "difference_in_means" & (length(all.vars(formula)) > 2))
     stop("When using the difference_in_means method, there should only be one covariate listed in the formula on the right-hand side: the treatment variable.")
   
-  ##model_function <- build_function_internal(formula, model, subset, weights_variable_name, ddd = list(...))
-  
   model_function <- function(data){
     argument_names <- names(formals(model))
+    options_internal <- list()
     if(!is.null(formula) & "formula" %in% argument_names)
-      model_options$formula <- stats::formula(unclass(formula))
+      options_internal$formula <- stats::formula(unclass(formula))
     if(!is.null(subset) & "subset" %in% argument_names)
-      model_options$subset <- with(data, eval(parse(text = subset)))
+      options_internal$subset <- with(data, eval(parse(text = subset)))
     if(!is.null(weights_variable_name) & "weights" %in% argument_names)
-      model_options$weights <- data[, weights_variable_name]
-    model_options$data <- data
+      options_internal$weights <- data[, weights_variable_name]
+    if(length(model_options) > 0){
+      for(i in 1:length(model_options)){
+        if(names(model_options)[[i]] %in% argument_names){
+          options_internal[[names(model_options)[[i]]]] <- model_options[[i]]
+        }
+      }
+    }
+    options_internal$data <- data
     
-    return(do.call(model, args = model_options))
+    return(do.call(model, args = options_internal))
   }
   
   estimates_function <- function(model = NULL, data = NULL){
     argument_names <- names(formals(estimates))
+    options_internal <- list()
     if(!is.null(formula) & "formula" %in% argument_names)
-      estimates_options$formula <- stats::formula(unclass(formula))
+      options_internal$formula <- stats::formula(unclass(formula))
     if(!is.null(subset) & "subset" %in% argument_names)
-      estimates_options$subset <- with(data, eval(parse(text = subset)))
+      options_internal$subset <- with(data, eval(parse(text = subset)))
     if(!is.null(weights_variable_name) & "weights" %in% argument_names)
-      estimates_options$weights <- data[, weights_variable_name]
+      options_internal$weights <- data[, weights_variable_name]
     if(!is.null(labels) & "labels" %in% argument_names)
-      estimates_options$labels <- labels
+      options_internal$labels <- labels
     if(!is.null(data) & "data" %in% argument_names)
-      estimates_options$data <- data
+      options_internal$data <- data
     if(!is.null(model) & "model" %in% argument_names)
-      estimates_options$model <- model
-    
-    return(do.call(estimates, args = estimates_options))
+      options_internal$model <- model
+    if(length(estimates_options) > 0){
+      for(i in 1:length(estimates_options)){
+        if(names(estimates_options)[[i]] %in% argument_names){
+          options_internal[[names(estimates_options)[[i]]]] <- estimates_options[[i]]
+        }
+      }
+    }
+
+    return(do.call(estimates, args = options_internal))
   }
   
   if(is.null(estimand$labels) & !is.null(estimand)){
