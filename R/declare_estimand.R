@@ -60,6 +60,10 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
     
     ## if a custom estimand is provided
     
+    check_function_arguments(estimand_function, options = names(estimand_options), options_internal = c("subset", "weights"),
+                             options_internal_obj = c(is.null(subset), is.null(weights_variable_name)),
+                             options_external = c("data"))
+  
     estimand_function_internal <- function(data){
       argument_names <- names(formals(estimand_function))
       options_internal <- list()

@@ -45,24 +45,16 @@ declare_potential_outcomes <- function(potential_outcomes_function =
   
   potential_outcomes_function_internal <- function(data = NULL){
     argument_names <- names(formals(potential_outcomes_function))
-    options_internal <- list()
     if(!is.null(formula) & "formula" %in% argument_names)
-      options_internal$formula <- formula
+      options$formula <- formula
     if(!is.null(data) & "data" %in% argument_names)
-      options_internal$data <- data
+      options$data <- data
     if(!is.null(condition_names) & "condition_names" %in% argument_names)
-      options_internal$condition_names <- condition_names
+      options$condition_names <- condition_names
     if(!is.null(assignment_variable_name) & "assignment_variable_name" %in% argument_names)
-      options_internal$assignment_variable_name <- assignment_variable_name
-    if(length(options) > 0){
-      for(i in 1:length(options)){
-        if(names(options)[[i]] %in% argument_names){
-          options_internal[[names(options)[[i]]]] <- options[[i]]
-        }
-      }
-    }
+      options$assignment_variable_name <- assignment_variable_name
     
-    return(do.call(potential_outcomes_function, args = options_internal))
+    return(do.call(potential_outcomes_function, args = options))
   }
   
   if(is.null(outcome_variable_name) & !is.null(formula)){
