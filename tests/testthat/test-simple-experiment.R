@@ -25,6 +25,8 @@ test_that("test simple experiment analysis and diagnosis", {
                            potential_outcomes = potential_outcomes,
                            label = "Simple Design")
     
+  summary_code(design)
+  
   diagnosis <- diagnose_design(design = design)
   
 # mock data  ---------------------------------------------------------------  
@@ -37,7 +39,7 @@ test_that("test simple experiment analysis and diagnosis", {
   smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = potential_outcomes, condition_names = c(0, 1))
   head(smp_draw)  
     
-    estimates <- get_estimates(estimator = estimator_d_i_m, data = smp_draw)
+  estimates <- get_estimates(estimator = estimator_d_i_m, data = smp_draw)
   estimand <- get_estimands(estimator = estimator_d_i_m, data = pop_draw)
   
   # test draw_data

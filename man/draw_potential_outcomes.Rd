@@ -5,7 +5,7 @@
 \title{Draw potential outcomes}
 \usage{
 draw_potential_outcomes(data, condition_names = NULL, potential_outcomes,
-  interference = NULL, noncompliance = NULL, attrition = NULL)
+  noncompliance = NULL, attrition = NULL)
 }
 \arguments{
 \item{data}{}

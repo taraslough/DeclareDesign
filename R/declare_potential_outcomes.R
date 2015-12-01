@@ -16,12 +16,14 @@ declare_potential_outcomes <- function(potential_outcomes_function =
                                        formula = NULL, outcome_variable_name = NULL, 
                                        condition_names = NULL, sep = "_", 
                                        assignment_variable_name = NULL,
+                                       interference = NULL,
                                        attrition = NULL,
                                        options = NULL,
                                        description = NULL){
   
   # Checks -------------------------------------------------
   attrition <- clean_inputs(attrition, "attrition", accepts_list = FALSE)
+  interference <- clean_inputs(interference, "interference", accepts_list = TRUE)
   
   if(is.null(formula) & is.null(outcome_variable_name)){
     stop("If you do not provide a formula, please provide the name of the outcome variable as a character string to outcome_variable_name.")
@@ -64,6 +66,7 @@ declare_potential_outcomes <- function(potential_outcomes_function =
   return_object <- list(potential_outcomes_function = potential_outcomes_function_internal, 
                         outcome_variable_name = outcome_variable_name, sep = "_", condition_names = condition_names,
                         assignment_variable_name = assignment_variable_name,
+                        interference = interference,
                         attrition = attrition, description = description,
                         call = match.call())
   

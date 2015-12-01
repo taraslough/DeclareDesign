@@ -8,7 +8,6 @@
 draw_population <- function(population, 
                             condition_names = NULL,
                             potential_outcomes = NULL, 
-                            interference = NULL,
                             noncompliance = NULL,
                             attrition = NULL) {
   
@@ -16,7 +15,6 @@ draw_population <- function(population,
   
   population <- clean_inputs(population, object_class = "population", accepts_list = FALSE)
   potential_outcomes <- clean_inputs(potential_outcomes, object_class = "potential_outcomes", accepts_list = TRUE)
-  interference <- clean_inputs(interference, object_class = "interference", accepts_list = FALSE)
   noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
   attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
   
@@ -37,14 +35,16 @@ draw_population <- function(population,
   # Make potential outcomes -------------------------------------------------
   
   if(!is.null(potential_outcomes)){
-    data <- draw_potential_outcomes(data = data,
-                                    condition_names = condition_names,
-                                    potential_outcomes = potential_outcomes, 
-                                    interference = interference,
-                                    noncompliance = noncompliance,
-                                    attrition = attrition)
+    if(any(sapply(potential_outcomes, FUN = function(x) class(x)=="interference"))){
+      warning("In the presence of interference, stable potential outcomes will not be drawn.")
+    }else{
+      data <- draw_potential_outcomes(data = data,
+                                      condition_names = condition_names,
+                                      potential_outcomes = potential_outcomes, 
+                                      noncompliance = noncompliance,
+                                      attrition = attrition)
+    }
   }
-  
   if(population$super_population == FALSE){
     set.seed(current_seed)
   }
