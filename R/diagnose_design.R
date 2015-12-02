@@ -138,3 +138,28 @@ summary.diagnosis <- function(object, ...){
   print(object$diagnosis)
   return()
 }
+
+#' @export
+print.diagnosis.list <- function(x, ...) {
+  
+  diagnosis <- as.data.frame(x[[1]]$diagnosis)
+  if(length(x) > 1){
+    for (k in 2:length(x)) {
+      diagnosis <- merge(diagnosis, as.data.frame(x[[k]]$diagnosis), by = "row.names", all.x = TRUE)
+      rownames(diagnosis) <- diagnosis[, 1]
+      diagnosis <- diagnosis[, -1]
+    }
+  }
+  print(diagnosis)
+  return()
+}
+
+
+#' @export
+list.diagnosis <- function(...) {
+  
+  return_object <- list(...)
+  
+  structure(return_object, class = "diagnosis.list")
+  
+}
