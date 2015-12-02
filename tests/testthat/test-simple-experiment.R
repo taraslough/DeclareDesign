@@ -25,8 +25,6 @@ test_that("test simple experiment analysis and diagnosis", {
                            potential_outcomes = potential_outcomes,
                            label = "Simple Design")
     
-  summary_code(design)
-  
   diagnosis <- diagnose_design(design = design)
   
 # mock data  ---------------------------------------------------------------  

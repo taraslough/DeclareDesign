@@ -6,7 +6,7 @@ context("Attrition")
 
 test_that("test whether attrition works", {
   
-  population <- declare_population(noise = "rpois(n = n_, lambda = 12)", size=1000)
+  population <- declare_population(noise = "rpois(n = n_, lambda = 12)", size = 1000)
   sampling <- declare_sampling(n = 500)
   
   attrition_1 <- declare_attrition(condition_names = c(0,1), 

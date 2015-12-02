@@ -2,9 +2,9 @@ rm(list=ls())
 library(testthat)
 library(DeclareDesign)
 
-context("Simple experiment")
+context("Heterogenous effects")
 
-test_that("test simple experiment analysis and diagnosis", {
+test_that("test whether you can draw heterog effects in multilevel design", {
   
   original_args <- list(
     age_lambda = 30,

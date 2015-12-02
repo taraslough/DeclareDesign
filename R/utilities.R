@@ -91,17 +91,3 @@ clean_inputs <- function(object, object_class, accepts_list = TRUE){
     return(object)
   }
 }
-
-check_function_arguments <- function(func, options = NULL, options_internal = NULL, options_internal_obj = NULL, options_external = NULL){
-  
-  required_arguments <- names(formals(func)[as.numeric(lapply(1:length(formals(func)), function(i) class(formals(func)[[i]]) == "name" & formals(func)[[i]] == "")) & sapply(formals(func), function(i) !is.null(i))])
-  
-  inputs <- c(options, options_internal[options_internal_obj == FALSE], options_external)
-  
-  missing_args <- required_arguments[!(required_arguments %in% inputs)]
-  
-  if(length(missing_args) > 0){
-    stop(paste0("There are missing required inputs: ", paste(missing_args, collapse = ", "), ". They must be provided as options to the declare function you used."))
-  }
-  
-}

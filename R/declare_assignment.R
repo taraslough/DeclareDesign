@@ -181,7 +181,7 @@ declare_assignment <-
     }
     
     # Checks -------------------------------------------------
-    potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = TRUE)
+    potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = FALSE)
     noncompliance <- clean_inputs(noncompliance, "noncompliance", accepts_list = FALSE)
     
     if(!is.null(potential_outcomes) & !is.null(potential_outcomes$condition_names) & is.null(condition_names)){

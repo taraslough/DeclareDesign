@@ -35,7 +35,7 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
   sampling <- clean_inputs(sampling, "sampling", accepts_list = FALSE)
   assignment <- clean_inputs(assignment, "assignment", accepts_list = TRUE)
   estimator <- clean_inputs(estimator, "estimator", accepts_list = TRUE)
-  potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = TRUE)
+  potential_outcomes <- clean_inputs(potential_outcomes, c("potential_outcomes", "interference"), accepts_list = TRUE)
   inputs <- clean_inputs(inputs, "inputs", accepts_list = FALSE)
   
   ## return object

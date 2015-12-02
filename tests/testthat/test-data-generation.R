@@ -5,6 +5,10 @@ library(DeclareDesign)
 
 context("generating data with declare_population")
 
+my_function <- function(x) x + 10
+
+a <- 500
+
 test_that("test data generation functions", {
   
   # Simple 1-level cases
@@ -221,8 +225,9 @@ test_that("test data generation functions", {
   
   # Using objects from the global environment
   
+  expect_error({a <- 1000
+  
   my_function <- function(x) x + 10
-  a <- 1000
   
   global_objects <- declare_population(
     income = "my_function(rnorm(n_))",
@@ -235,7 +240,7 @@ test_that("test data generation functions", {
   
   a <- 500
   
-  global_objects$population()
+  global_objects$population()})
   
   # testing user-provided data with transformations
   
@@ -338,7 +343,7 @@ test_that("test data generation functions", {
   declare_variable("rate",location_scale = c(.5,.01))
   declare_variable("rate",location_scale = c(.1,.01))
   # Informative error:
-  declare_variable("rate",location_scale = c(.1,10))
+  expect_error(declare_variable("rate",location_scale = c(.1,10)))
   
   declare_population(
     beta = declare_variable("beta"),

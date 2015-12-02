@@ -15,7 +15,7 @@
 #'
 #' @export
 declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
-                             estimand_options = NULL,
+                             estimand_options = NULL, fixed = FALSE,
                              potential_outcomes, condition_names = NULL,
                              subset = NULL, weights_variable_name = NULL, 
                              label = NULL, description = NULL) {
@@ -60,10 +60,6 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
     
     ## if a custom estimand is provided
     
-    check_function_arguments(estimand_function, options = names(estimand_options), options_internal = c("subset", "weights"),
-                             options_internal_obj = c(is.null(subset), is.null(weights_variable_name)),
-                             options_external = c("data"))
-  
     estimand_function_internal <- function(data){
       argument_names <- names(formals(estimand_function))
       options_internal <- list()
@@ -85,7 +81,7 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
     
   }
   
-  structure(list(estimand = estimand_function_internal, potential_outcomes = potential_outcomes, 
+  structure(list(estimand = estimand_function_internal, potential_outcomes = potential_outcomes, fixed = fixed,
                  condition_names = condition_names, label = label, description = description, call = match.call()), class = "estimand")
   
 }
@@ -128,7 +124,11 @@ get_estimands <- function(estimand = NULL, estimator = NULL, data){
     for(i in 1:length(estimand)){
       if(!is.null(estimand[[i]])){
         ## if there is an estimand defined
-        estimands_list[[i]] <- estimand[[i]]$estimand(data = draw_potential_outcomes(data = data, potential_outcomes = estimand[[i]]$potential_outcomes, condition_names = estimand[[i]]$condition_names))
+        if(estimand[[i]]$fixed == FALSE){
+          estimands_list[[i]] <- estimand[[i]]$estimand(data = draw_potential_outcomes(data = data, potential_outcomes = estimand[[i]]$potential_outcomes, condition_names = estimand[[i]]$condition_names))
+        } else {
+          estimands_list[[i]] <- estimand[[i]]$estimand(data = data)
+        }
         names(estimands_list[[i]]) <- estimand_labels[i]
       } else {
         ## if there is NOT an estimand defined

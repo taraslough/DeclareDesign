@@ -28,12 +28,6 @@ declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL
   if(substitute(estimates) == "difference_in_means" & (length(all.vars(formula)) > 2))
     stop("When using the difference_in_means method, there should only be one covariate listed in the formula on the right-hand side: the treatment variable.")
   
-  if(!is.null(model)){
-    check_function_arguments(model, options = names(model_options), options_internal = c("formula", "subset", "weights"),
-                             options_internal_obj = c(is.null(formula), is.null(subset), is.null(weights_variable_name)),
-                             options_external = "data")
-  }
-  
   model_function <- function(data){
     argument_names <- names(formals(model))
     options_internal <- list()
@@ -54,10 +48,6 @@ declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL
     
     return(do.call(model, args = options_internal))
   }
-  
-  check_function_arguments(estimates, options = names(estimates_options), options_internal = c("formula", "subset", "weights", "labels"),
-                           options_internal_obj = c(is.null(formula), is.null(subset), is.null(weights_variable_name), is.null(labels)),
-                           options_external = c("data", "model"))
   
   estimates_function <- function(model = NULL, data = NULL){
     argument_names <- names(formals(estimates))

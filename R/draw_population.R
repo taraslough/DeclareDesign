@@ -14,7 +14,7 @@ draw_population <- function(population,
   # Do checks ---------------------------------------------------------------
   
   population <- clean_inputs(population, object_class = "population", accepts_list = FALSE)
-  potential_outcomes <- clean_inputs(potential_outcomes, object_class = "potential_outcomes", accepts_list = TRUE)
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "interference"), accepts_list = TRUE)
   noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
   attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
   

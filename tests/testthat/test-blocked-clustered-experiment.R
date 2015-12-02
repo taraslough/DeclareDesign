@@ -9,9 +9,9 @@ test_that("test blocked and clustered experiment", {
   population <- declare_population(individuals = list(noise = declare_variable()),
                                    villages = list(elevation = declare_variable(),
                                                    high_elevation = "1*(elevation > 0)"), 
-                                   size = c(100000, 1000))
+                                   size = c(1000, 100))
   
-  sampling <- declare_sampling(n = 250, cluster_variable_name = "villages_ID")
+  sampling <- declare_sampling(n = 10, cluster_variable_name = "villages_ID")
   
   potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + .2*Z*elevation + noise,
                                                    condition_names = c(0, 1),

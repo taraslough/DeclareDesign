@@ -1,7 +1,7 @@
 rm(list=ls())
 library(testthat)
 library(DeclareDesign)
-library(sna)
+suppressMessages(library(sna))
 
 context("Interference")
 
@@ -27,7 +27,7 @@ test_that("test simple interference model", {
                                    probability_each = c(.7, .3))
   
   # Should throw error!
-  pop_draw <- draw_population(population = population, potential_outcomes = list(potential_outcomes_1, potential_outcomes_2))
+  expect_error(pop_draw <- draw_population(population = population, potential_outcomes = list(potential_outcomes_1, potential_outcomes_2)))
   # Should not throw error
   pop_draw <- draw_population(population = population)
   
@@ -36,19 +36,12 @@ test_that("test simple interference model", {
   smp_draw <- draw_outcome(data = smp_draw, 
                            potential_outcomes = list(interference, potential_outcomes_1, potential_outcomes_2), 
                            condition_names = c(0, 1))
-  head(smp_draw)  
-  
-    
-  # test draw_data
-  
-  smp_draw_reveal <- draw_data(design = design)
-  
-  
-  
+  head(smp_draw)
   
   # Diagnosis ---------------------------------------------------------------
   
-  estimand <- declare_estimand(estimand_text = "0.5", potential_outcomes = potential_outcomes_1)
+  estimand <- declare_estimand(estimand_text = "0.5", potential_outcomes = potential_outcomes_1,
+                               fixed = TRUE, label = "fixed_estimand")
   estimator_d_i_m <- declare_estimator(estimates = difference_in_means, formula = Y ~ Z, estimand = estimand)
   
   estimates <- get_estimates(estimator = estimator_d_i_m, data = smp_draw)
@@ -62,7 +55,9 @@ test_that("test simple interference model", {
                            potential_outcomes = list(interference, potential_outcomes_1, potential_outcomes_2),
                            label = "Simple Design")
   
-  diagnosis <- diagnose_design(design = design)
+  expect_warning(smp_draw_reveal <- draw_data(design = design))
+  
+  expect_warning(diagnosis <- diagnose_design(design = design))
   
   # mock data  ---------------------------------------------------------------  
   
