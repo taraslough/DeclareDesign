@@ -20,7 +20,7 @@ compare_designs <- function(design, population = NULL, sampling = NULL, assignme
                             potential_outcomes = NULL, inputs = NULL, size = NULL, labels = NULL,
                             population_draws = 5, sample_draws = 5){
   
-  design <- check_inputs(design, "design", accepts_list = TRUE)
+  design <- clean_inputs(design, "design", accepts_list = TRUE)
   
   population <- clean_inputs(population, "population", accepts_list = TRUE)
   sampling <- clean_inputs(sampling, "sampling", accepts_list = TRUE)
@@ -32,43 +32,49 @@ compare_designs <- function(design, population = NULL, sampling = NULL, assignme
   comparison_counts <- c(length(size), length(population), length(sampling), length(assignment),
                          length(estimator), length(potential_outcomes), length(inputs))
   
-  if(any(comparison_counts) > 0 & length(design) > 1){
+  if(any(comparison_counts > 0) & length(design) > 1){
     stop("If you provide more than one design, please do not provide other components of a design, including population, sampling, assignment, estimator, potential_outcomes, or inputs.")
   }
   
-  if(length(design) == 1 & all(comparison_counts) == 0){
+  if(length(design) == 1 & all(comparison_counts == 0)){
     stop("Please provide either more than one design or more than one components of a design for comparison.")
   }
   
-  if(any(comparison_counts != max(comparison_counts) & comparison_counts > 1))
-    stop("Please provide either no inputs for a given option (for example, not providing any size), one input (for example a single value of size), or more than one input (for example size = c(500, 1000)). The set of varying inputs must be the same length (you cannot provide three values of size and two values of assignment).")
-  
-  population_compare <- population
-  sampling_compare <- sampling
-  assignment_compare <- assignment
-  estimator_compare <- estimator
-  potential_outcomes_compare <- potential_outcomes
-  inputs_compare <- inputs
-  
-  ## loop over different configurations of experiments
   diagnoses <- list()
-  for(e in 1:max(comparison_counts)){
+  
+  if(length(design) < 2){
     
-    if(!is.null(size)){
-      population_compare[[min(length(population_compare), e)]] <- substitute_input(population_compare[[min(length(population_compare), e)]], "size", size[e])
+    if(any(comparison_counts != max(comparison_counts) & comparison_counts > 1))
+      stop("Please provide either no inputs for a given option (for example, not providing any size), one input (for example a single value of size), or more than one input (for example size = c(500, 1000)). The set of varying inputs must be the same length (you cannot provide three values of size and two values of assignment).")
+    
+    ## loop over different configurations of experiments
+    for(e in 1:max(comparison_counts)){
+      
+      if(!is.null(size)){
+        population_compare[[min(length(population_compare), e)]] <- substitute_input(population_compare[[min(length(population_compare), e)]], "size", size[e])
+      }
+      
+      diagnoses[[e]] <- diagnose_design(design = modify_design(design = design[[1]], population = population[[min(length(population), e)]],
+                                                               sampling = sampling[[min(length(sampling), e)]],
+                                                               assignment = assignment[[min(length(assignment), e)]],
+                                                               estimator = estimator[[min(length(estimator), e)]],
+                                                               potential_outcomes = potential_outcomes[[min(length(potential_outcomes), e)]],
+                                                               inputs = inputs[[min(length(inputs), e)]],
+                                                               label = labels[[e]]), population_draws = population_draws, sample_draws = sample_draws)
+      
     }
+  } else {
+    ## if 2 or more designs are presented, compare them
     
-    tmp_design <- declare_design(population = population_compare[[min(length(potential_outcomes_compare), e)]],
-                                 sampling = sampling_compare[[min(length(potential_outcomes_compare), e)]],
-                                 assignment = assignment_compare[[min(length(potential_outcomes_compare), e)]],
-                                 estimator = estimator_compare[[min(length(potential_outcomes_compare), e)]],
-                                 potential_outcomes = potential_outcomes_compare[[min(length(potential_outcomes_compare), e)]],
-                                 inputs = inputs_compare[[min(length(potential_outcomes_compare), e)]],
-                                 label = labels[[e]])
-    
-    diagnoses[[e]] <- diagnose_design(design = tmp_design, population_draws = population_draws, sample_draws = sample_draws)
-    
+    for(e in 1:length(design)){
+      if(!is.null(labels[[e]])){
+        diagnoses[[e]] <- diagnose_design(design = modify_design(design[[e]], label = labels[[e]]), population_draws = population_draws, sample_draws = sample_draws)
+      } else {
+        diagnoses[[e]] <- diagnose_design(design = design[[e]], population_draws = population_draws, sample_draws = sample_draws)
+      }
+    }
   }
+  
   
   class(diagnoses) <- "diagnosis.list"
   
