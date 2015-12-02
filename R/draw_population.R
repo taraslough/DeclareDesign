@@ -26,8 +26,10 @@ draw_population <- function(population,
   # Get the covariates ------------------------------------------------------
   
   if(population$super_population == FALSE){
-    current_seed <- .Random.seed
-    set.seed(population$random_seed)
+    if(exists(".Random.seed")){
+      current_seed <- .Random.seed
+    }
+    .Random.seed <- population$random_seed
   }
   
   data <- draw_covariates(population = population)
@@ -46,7 +48,11 @@ draw_population <- function(population,
     }
   }
   if(population$super_population == FALSE){
-    set.seed(current_seed)
+    if(exists("current_seed")){
+      .Random.seed <- current_seed
+    } else {
+      rm(.Random.seed)
+    }
   }
   
   # Return data -------------------------------------------------------------
