@@ -107,7 +107,7 @@ declare_attrition <- function(attrition_function = default_attrition_function,
                               formula = NULL, 
                               outcome_variable_name = "R", 
                               condition_names = NULL, sep = "_", 
-                              assignment_variable_name = NULL,
+                              assignment_variable_name = "Z",
                               description = NULL, ...){
     
     outcomes_object <- 

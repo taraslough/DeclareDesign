@@ -78,7 +78,7 @@ declare_noncompliance <- function(noncompliance_function = default_noncompliance
                                   formula = NULL, 
                                   outcome_variable_name = "D", 
                                   condition_names = NULL, sep = "_", 
-                                  assignment_variable_name = NULL, ...,
+                                  assignment_variable_name = "Z", ...,
                                   description = NULL){
     
     outcomes_object <- 
