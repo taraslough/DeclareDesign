@@ -203,13 +203,15 @@ draw_observed_outcome <- function(data, potential_outcomes, condition_names = NU
   potential_outcomes <- clean_inputs(potential_outcomes, c("potential_outcomes", "attrition", "noncompliance", "interference"), accepts_list = FALSE)
   
   sep = potential_outcomes$sep
-  condition_combinations <- expand.grid(condition_names)
-  
-  if(is.null(names(condition_names))){
-    colnames(condition_combinations) <- potential_outcomes$assignment_variable_name
-  }
   
   if(class(potential_outcomes) != "interference"){
+    
+    condition_combinations <- expand.grid(condition_names)
+    
+    if(is.null(names(condition_names))){
+      colnames(condition_combinations) <- potential_outcomes$assignment_variable_name
+    }
+    
     outcome_name_internal <- list()
     
     for(j in 1:nrow(condition_combinations)){
