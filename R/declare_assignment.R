@@ -184,6 +184,10 @@ declare_assignment <-
     potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = FALSE)
     noncompliance <- clean_inputs(noncompliance, "noncompliance", accepts_list = FALSE)
     
+    if(!is.null(condition_names)){
+      condition_names <- round_condition_names(condition_names)
+    }
+    
     if(!is.null(potential_outcomes) & !is.null(potential_outcomes$condition_names) & is.null(condition_names)){
       # Obtain Condition Names
       if(class(potential_outcomes) == "list"){
@@ -196,7 +200,6 @@ declare_assignment <-
         condition_names <- potential_outcomes$condition_names
       }
     } 
-    
     
     # Figure out baseline condition
     if(!is.null(baseline_condition)){

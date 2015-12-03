@@ -37,6 +37,10 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
     stop("Please provide a potential_outcomes object. This is used to create the potential outcomes before calculating the estimand.")
   }
   
+  if(!is.null(condition_names)){
+    condition_names <- round_condition_names(condition_names)
+  }
+  
   if(!is.null(estimand_text)){
     
     ## if no custom estimand is provided

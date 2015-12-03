@@ -234,8 +234,6 @@ draw_observed_outcome <- function(data, potential_outcomes, condition_names = NU
       realized_condition_names[[names(condition_combinations)[k]]] <- unique(data[, names(condition_combinations)[k]])
     }
     
-    ## new
-    
     realized_condition_combinations <- expand.grid(realized_condition_names)
     
     realized_outcome_name_internal <- list()
@@ -253,8 +251,6 @@ draw_observed_outcome <- function(data, potential_outcomes, condition_names = NU
               paste(names(realized_condition_combination), realized_condition_combinations[j,], sep = sep, collapse = sep),
               sep = sep)
     }
-    ## end new
-    
     
     if(all(realized_outcome_name_internal %in% colnames(data))){
       

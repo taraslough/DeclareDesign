@@ -92,9 +92,10 @@ clean_inputs <- function(object, object_class, accepts_list = TRUE){
   }
 }
 
-#' @export
-round_condition_names <- function(condition_names){
+round_condition_names <- function(condition_names, digits = 15){
   if(class(condition_names) != "list"){
-    round(condition_names, 15)
+    round(condition_names, digits = digits)
+  } else {
+    lapply(condition_names, function(x) round(x, digits = digits))
   }
 }

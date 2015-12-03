@@ -25,6 +25,8 @@ declare_potential_outcomes <- function(potential_outcomes_function =
     stop("Please provide a set of condition_names.")
   }
   
+  condition_names <- round_condition_names(condition_names)
+  
   options <- list(...)
   
   # Checks -------------------------------------------------
