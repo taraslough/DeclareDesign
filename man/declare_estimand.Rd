@@ -4,17 +4,15 @@
 \alias{declare_estimand}
 \title{Declare Estimand}
 \usage{
-declare_estimand(estimand_function = NULL, estimand_text = NULL,
-  estimand_options = NULL, fixed = FALSE, potential_outcomes,
-  condition_names = NULL, subset = NULL, weights_variable_name = NULL,
-  label = NULL, description = NULL)
+declare_estimand(estimand_function = NULL, estimand_text = NULL, ...,
+  fixed = FALSE, potential_outcomes, condition_names = NULL,
+  subset = NULL, weights_variable_name = NULL, label = NULL,
+  description = NULL)
 }
 \arguments{
 \item{estimand_function}{A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.}
 
 \item{estimand_text}{A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.}
-
-\item{estimand_options}{A list of named options to be used by the estimand function.}
 
 \item{potential_outcomes}{A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.}
 
@@ -25,6 +23,8 @@ declare_estimand(estimand_function = NULL, estimand_text = NULL,
 \item{weights_variable_name}{The name of the weighting variable (optional).}
 
 \item{label}{A character string for the estimand's label.}
+
+\item{estimand_options}{A list of named options to be used by the estimand function.}
 }
 \value{
 An estimand object.

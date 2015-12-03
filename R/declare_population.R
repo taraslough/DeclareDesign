@@ -3,7 +3,7 @@
 #' @param ... A named list of expressions or list of named lists of expressions that generate data. These should generate vectors, the privileged name n_ can be used to specify the leve-specific N (i.e. rnorm(n_) creates 100 normal draws if it is at the level of 100 individuals, or 10 normal draws if it is at the level of 10 cities). These must be declared consecutively and are level-specific (see global_transformations for expressions that can be evaluated over the entire dataset). 
 #' @param size A scalar (for single-level datasets) indicating the N, a vector of N's for each level (i.e. c(100,50,2) for 100 individuals in 50 cities in 2 regions), or a list of vectors specifying how many of the lower-level units are in each unit at that level (i.e. list(rep(1,100),rep(2,50),rep(25,2)) for the same example).
 #' @param global_transformations An optional named list of expressions that can be evaluated across levels. For example, if group-invariant means and SDs have been created, these can be used with an expression in global_transformations in order to create individual-level draws of these group-level parameters.
-#' @param other_arguments An optional list of objects that are used by the expressions passed to ... and global_transformations.
+#' @param options An optional list of objects that are used by the expressions passed to ... and global_transformations.
 #' @param level_IDs An optional list of level ID indicators that are otherwise inferred from ... or generated using a default.
 #' @param super_population If TRUE, data is thought of as a single draw from a super-population, and data-resampling is performed during the diagnostics phase. If FALSE, the population is thought of as finite. 
 #' @param random_seed The random seed used for re-sampling. 
@@ -20,7 +20,7 @@ declare_population <- function(
   ..., 
   size, 
   global_transformations = NULL,
-  other_arguments = NULL,
+  options = NULL,
   level_IDs = NULL, 
   super_population = FALSE,
   random_seed = 42, 
@@ -55,7 +55,7 @@ declare_population <- function(
         expressions = expressions,
         size = size, 
         global_transformations = global_transformations,
-        other_arguments = other_arguments,
+        options = options,
         level_IDs = level_IDs, 
         make_unique_ID = make_unique_ID)
       
@@ -75,7 +75,7 @@ declare_population <- function(
           custom_population_function = custom_population_function,
           size = size,
           data = data,
-          other_arguments = other_arguments)
+          options = options)
         
       } else{
         
@@ -99,7 +99,7 @@ declare_population <- function(
           expressions = expressions,
           data = data,
           global_transformations = global_transformations,
-          other_arguments = other_arguments,
+          options = options,
           level_IDs = level_IDs, 
           make_unique_ID = make_unique_ID
         )
@@ -131,7 +131,7 @@ make_population_function <- function(
   size,
   level_IDs,
   global_transformations,
-  other_arguments,
+  options,
   make_unique_ID
 ){
   # Make sure that all of the levels are properly named
@@ -141,7 +141,7 @@ make_population_function <- function(
   # Start creating custom function here
   make_population <- function(
     size, 
-    other_arguments 
+    options 
   ){
     
     # If the defaults are missing, grab them from the environment of the 
@@ -152,10 +152,10 @@ make_population_function <- function(
       size_internal <- get("size",envir = make_pop_env)
     }
     
-    if(!missing(other_arguments)){
-      other_arguments_internal <- other_arguments 
+    if(!missing(options)){
+      options_internal <- options 
     } else {
-      other_arguments_internal <- get("other_arguments",envir = make_pop_env)
+      options_internal <- get("options",envir = make_pop_env)
     }
     
     # Infer the data structure from the size argument
@@ -187,7 +187,7 @@ make_population_function <- function(
       FUN = make_environ,
       data_structure = data_structure,
       exprs = expressions,
-      MoreArgs = list(other_arguments = other_arguments_internal)
+      MoreArgs = list(options = options_internal)
     )
     
     # At each level, make_data_frame takes an environment and
@@ -197,7 +197,7 @@ make_population_function <- function(
     # So this produces a list of data.frames:
     data_list <- lapply(X = environ_list,
                         FUN = make_data_frame,
-                        other_arguments = other_arguments_internal)
+                        options = options_internal)
     
     # Create a list of IDs of the level higher for each lower level, 
     # for use in merging (in multi-level cases)
@@ -241,11 +241,11 @@ make_population_function <- function(
     return_env <- make_environ(
       data_structure = return_data,
       exprs = global_transformations,
-      other_arguments = other_arguments_internal)
+      options = options_internal)
     
     # And evaluate them, returning a data frame
     return_data <- make_data_frame(temp_env = return_env,
-                                   other_arguments = other_arguments_internal)
+                                   options = options_internal)
     return_data <- as.data.frame(as.list(return_env))
     
     # If the data is multilevel, reorder the data frame in order of the IDs
@@ -261,13 +261,13 @@ make_population_function <- function(
   }
   
   # Create the environment that make_population needs to do the above, 
-  # but only if it doesn't have values provided for .size, .other_arguments
+  # but only if it doesn't have values provided for .size, .options
   make_pop_env <- list2env(
     list(expressions = expressions,
          size = size,
          level_IDs = level_IDs,
          global_transformations = global_transformations,
-         other_arguments = other_arguments,
+         options = options,
          make_unique_ID = make_unique_ID)
   )
   
@@ -380,21 +380,21 @@ make_structure <- function(hierarchy,level_IDs){
   return(dat_list)
 }
 
-make_environ <- function(data_structure,exprs,other_arguments){
+make_environ <- function(data_structure,exprs,options){
   temp_env <- list2env(data_structure)
   temp_env$n_ <- nrow(data_structure)
   temp_env$expressions <- exprs
-  if(!is.null(other_arguments)){
-    if(is.null(names(other_arguments))){
-      stop("Elements of the other_arguments list should be named.")
+  if(!is.null(options)){
+    if(is.null(names(options))){
+      stop("Elements of the options list should be named.")
     }
-    list2env(x = other_arguments,envir = temp_env)
+    list2env(x = options,envir = temp_env)
   }
   return(temp_env)
 }
 
-make_data_frame <- function(temp_env,other_arguments){
-  other_names <- names(other_arguments)
+make_data_frame <- function(temp_env,options){
+  other_names <- names(options)
   temp_expr <- get("expressions",envir = temp_env)
   varnames <- names(temp_expr)
   for (variable in varnames){
@@ -559,7 +559,7 @@ wrap_custom_population_function <- function(
   custom_population_function,
   size,
   data = NULL, 
-  other_arguments = NULL
+  options = NULL
 ){
   
   if(!any("size" %in% custom_arguments))
@@ -595,7 +595,7 @@ wrap_custom_population_function <- function(
                        data = data_internal, 
                        custom_arguments =  custom_arguments_internal)
     
-    function_args <- get_custom_args(other_arguments = function_args,
+    function_args <- get_custom_args(options = function_args,
                                      custom_function = custom_population_function) 
     
     do.call(what = custom_population_function,args = function_args)
@@ -644,8 +644,8 @@ make_bootstrap_data_function <- function(data, size, level_IDs = NULL){
   
 }
 
-get_custom_args <- function(other_arguments,custom_function){
-  arg_list <- other_arguments[names(other_arguments) %in% names(formals(custom_function))]
+get_custom_args <- function(options,custom_function){
+  arg_list <- options[names(options) %in% names(formals(custom_function))]
   return(arg_list)
 }
 
@@ -658,7 +658,7 @@ make_population_data_function <- function(
   expressions,
   data,
   global_transformations,
-  other_arguments,
+  options,
   level_IDs,
   make_unique_ID
 ){
@@ -735,7 +735,7 @@ make_population_data_function <- function(
       FUN = make_environ,
       data_structure = data_structure,
       exprs = expressions,
-      MoreArgs = list(other_arguments = other_arguments)
+      MoreArgs = list(options = options)
     )
     
     # At each level, make_data_frame takes an environment and
@@ -745,7 +745,7 @@ make_population_data_function <- function(
     # So this produces a list of data.frames:
     data_list <- lapply(X = environ_list,
                         FUN = make_data_frame,
-                        other_arguments = other_arguments)
+                        options = options)
     
     # Create a list of IDs of the level higher for each lower level, 
     # for use in merging (in multi-level cases)
@@ -794,11 +794,11 @@ make_population_data_function <- function(
     return_env <- make_environ(
       data_structure = return_data,
       exprs = global_transformations,
-      other_arguments = other_arguments)
+      options = options)
     
     # And evaluate them, returning a data frame
     return_data <- make_data_frame(temp_env = return_env,
-                                   other_arguments = other_arguments)
+                                   options = options)
     return_data <- as.data.frame(as.list(return_env))
     
     # If the data is multilevel, reorder the data frame in order of the IDs
@@ -814,13 +814,13 @@ make_population_data_function <- function(
   }
   
   # Create the environment that make_population needs to do the above, 
-  # but only if it doesn't have values provided for .size, .other_arguments
+  # but only if it doesn't have values provided for .size, .options
   make_pop_env <- list2env(
     list(expressions = expressions,
          hierarchy = hierarchy,
          level_IDs = level_IDs,
          global_transformations = global_transformations,
-         other_arguments = other_arguments,
+         options = options,
          make_unique_ID = make_unique_ID)
   )
   

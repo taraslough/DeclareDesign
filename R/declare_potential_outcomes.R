@@ -18,8 +18,10 @@ declare_potential_outcomes <- function(potential_outcomes_function =
                                        assignment_variable_name = "Z",
                                        interference = NULL,
                                        attrition = NULL,
-                                       options = NULL,
+                                       ...,
                                        description = NULL){
+  
+  options <- list(...)
   
   # Checks -------------------------------------------------
   attrition <- clean_inputs(attrition, "attrition", accepts_list = FALSE)

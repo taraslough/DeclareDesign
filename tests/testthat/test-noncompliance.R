@@ -13,9 +13,9 @@ test_that("test whether noncompliance works", {
                                                    assignment_variable_name = "D")
   noncompliance <- declare_noncompliance(condition_names = c(0,1), 
                                          assignment_variable_name = "Z", 
-                                         options = list(compliance_proportions=c(1, .5), 
-                                                        baseline_condition=0))
-                                          
+                                         compliance_proportions=c(1, .5), 
+                                         baseline_condition=0)
+  
   assignment <- declare_assignment(condition_names = c(0,1))
   
   

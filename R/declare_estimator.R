@@ -11,8 +11,10 @@
 #' @param estimand 
 #'
 #' @export
-declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL, estimates, estimates_options = NULL,
+declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL, estimates, ...,
                               subset = NULL, weights_variable_name = NULL, labels = NULL, description = NULL, estimand = NULL) {
+  
+  estimates_options <- list(...)
   
   # Checks -------------------------------------------------
   estimand <- clean_inputs(estimand, "estimand", accepts_list = FALSE)

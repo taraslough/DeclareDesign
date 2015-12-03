@@ -5,9 +5,8 @@
 \title{Estimator declaration}
 \usage{
 declare_estimator(formula = NULL, model = NULL, model_options = NULL,
-  estimates, estimates_options = NULL, subset = NULL,
-  weights_variable_name = NULL, labels = NULL, description = NULL,
-  estimand = NULL)
+  estimates, ..., subset = NULL, weights_variable_name = NULL,
+  labels = NULL, description = NULL, estimand = NULL)
 }
 \arguments{
 \item{formula}{An object of class "formula".}
@@ -18,8 +17,6 @@ declare_estimator(formula = NULL, model = NULL, model_options = NULL,
 
 \item{estimates}{}
 
-\item{estimates_options}{}
-
 \item{subset}{}
 
 \item{weights_variable_name}{}
@@ -27,6 +24,8 @@ declare_estimator(formula = NULL, model = NULL, model_options = NULL,
 \item{labels}{}
 
 \item{estimand}{}
+
+\item{estimates_options}{}
 }
 \description{
 Estimator declaration

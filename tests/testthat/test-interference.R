@@ -13,11 +13,11 @@ test_that("test simple interference model", {
   sampling <- declare_sampling(n = 100)
   
   interference <- declare_interference(formula = E ~ adj %*% Z, 
-                                       options = list(adj = adj))
+                                       adj = adj)
   
   potential_outcomes_1 <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + .1*E  + noise,
-                                                   condition_names = c(0, 1),
-                                                   assignment_variable_name = "Z")
+                                                     condition_names = c(0, 1),
+                                                     assignment_variable_name = "Z")
   
   potential_outcomes_2 <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + .5*E  + noise,
                                                      condition_names = c(0, 1),

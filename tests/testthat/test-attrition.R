@@ -12,12 +12,12 @@ test_that("test whether attrition works", {
   attrition_1 <- declare_attrition(condition_names = c(0,1), 
                                    outcome_variable_name = "R1",
                                    assignment_variable_name = "Z", 
-                                   options=list(reporting_proportions = c(.5, .7)))
+                                   reporting_proportions = c(.5, .7))
   
   attrition_2 <- declare_attrition(condition_names = c(0,1), 
                                    outcome_variable_name = "R2",
                                    assignment_variable_name = "Z", 
-                                   options=list(proportion_always_reporters = .8))
+                                   proportion_always_reporters = .8)
   
   potential_outcomes_1 <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
                                                    condition_names = c(0, 1),

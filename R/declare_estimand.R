@@ -15,10 +15,12 @@
 #'
 #' @export
 declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
-                             estimand_options = NULL, fixed = FALSE,
+                             ..., fixed = FALSE,
                              potential_outcomes, condition_names = NULL,
                              subset = NULL, weights_variable_name = NULL, 
                              label = NULL, description = NULL) {
+  
+  estimand_options <- list(...)
   
   # Checks -------------------------------------------------
   potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = TRUE)

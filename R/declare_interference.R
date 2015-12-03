@@ -2,7 +2,7 @@
 declare_interference <- function(exposure_function = default_exposure_function,
                                  formula = NULL, 
                                  exposure_variable_name = "E", 
-                                 condition_names = NULL, sep = "_", options,
+                                 condition_names = NULL, sep = "_", ...,
                                  description = NULL){
   
   outcomes_object <- 
@@ -12,7 +12,7 @@ declare_interference <- function(exposure_function = default_exposure_function,
                                condition_names = condition_names, 
                                sep = sep, 
                                description = description,
-                               options = options)
+                               ... = ...)
   class(outcomes_object) <- "interference"
   return(outcomes_object)
 }
