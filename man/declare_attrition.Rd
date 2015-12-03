@@ -6,7 +6,7 @@
 \usage{
 declare_attrition(attrition_function = default_attrition_function,
   formula = NULL, outcome_variable_name = "R", condition_names = NULL,
-  sep = "_", assignment_variable_name = NULL, description = NULL, ...)
+  sep = "_", assignment_variable_name = "Z", description = NULL, ...)
 }
 \arguments{
 \item{attrition_function}{A function of data that returns a vector of 0s and 1s that indicate which subjects report their outcomes.}

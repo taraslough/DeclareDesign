@@ -7,7 +7,7 @@
 
   declare_noncompliance(noncompliance_function = default_noncompliance_function,
   formula = NULL, outcome_variable_name = "D", condition_names = NULL,
-  sep = "_", assignment_variable_name = NULL, ..., description = NULL)
+  sep = "_", assignment_variable_name = "Z", ..., description = NULL)
 }
 \arguments{
 \item{noncompliance_function}{A function of data that returns a vector of treatments as received.}
