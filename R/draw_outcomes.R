@@ -229,7 +229,34 @@ draw_observed_outcome <- function(data, potential_outcomes, condition_names = NU
               sep = sep)
     }
     
-    if(all(outcome_name_internal %in% colnames(data))){
+    realized_condition_names <- list()
+    for(k in 1:ncol(condition_combinations)){
+      realized_condition_names[[names(condition_combinations)[k]]] <- unique(data[, names(condition_combinations)[k]])
+    }
+    
+    ## new
+    
+    realized_condition_combinations <- expand.grid(realized_condition_names)
+    
+    realized_outcome_name_internal <- list()
+    for(j in 1:nrow(realized_condition_combinations)){
+      
+      if(ncol(realized_condition_combinations) > 1){
+        realized_condition_combination <- lapply(1:ncol(realized_condition_combinations[j, ]), function(x){ realized_condition_combinations[j, x] })
+      } else {
+        realized_condition_combination <- list(realized_condition_combinations[j, ])
+      }
+      names(realized_condition_combination) <- colnames(realized_condition_combinations)
+      
+      realized_outcome_name_internal[[j]] <- 
+        paste(potential_outcomes$outcome_variable_name, 
+              paste(names(realized_condition_combination), realized_condition_combinations[j,], sep = sep, collapse = sep),
+              sep = sep)
+    }
+    ## end new
+    
+    
+    if(all(realized_outcome_name_internal %in% colnames(data))){
       
       ## switching equation
       data[, potential_outcomes$outcome_variable_name] <- NA

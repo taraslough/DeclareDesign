@@ -26,7 +26,8 @@ test_that("Test whether proportional POs work", {
     potential_outcomes_function = proportion_potential_outcomes_function, 
     outcome_variable_name = "Y",
     population_proportions = pop_proportions,
-    assignment_variable_name = "Z")
+    assignment_variable_name = "Z",
+    condition_names = condition_names)
   
   assignment <- declare_assignment(condition_names = condition_names, 
                                    probability_each = c(.7, .3))
@@ -65,7 +66,7 @@ test_that("Test whether proportional POs work", {
   smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
   smp_draw <- draw_outcome(data = smp_draw, 
                            potential_outcomes = potential_outcomes)
-  smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = potential_outcomes, condition_names = c("tr", "cn"))
+  smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = potential_outcomes, condition_names = c(0, 1))
   
   # This doesn't work:
   smp_draw <- draw_outcome(data = smp_draw, 

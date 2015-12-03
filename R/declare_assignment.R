@@ -176,7 +176,7 @@ declare_assignment <-
       stop("If you supply a custom cluster function, you must supply the name of the cluster variable.")
     }
     
-    if(is.null(potential_outcomes) & is.null(condition_names)){
+    if(is.null(custom_assignment_function) & is.null(potential_outcomes$condition_names) & is.null(condition_names)){
       stop("Please provide an input to condition_names or a potential_outcomes object with condition_names.")
     }
     

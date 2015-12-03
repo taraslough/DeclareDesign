@@ -91,3 +91,10 @@ clean_inputs <- function(object, object_class, accepts_list = TRUE){
     return(object)
   }
 }
+
+#' @export
+round_condition_names <- function(condition_names){
+  if(class(condition_names) != "list"){
+    round(condition_names, 15)
+  }
+}
