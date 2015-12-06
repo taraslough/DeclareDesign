@@ -20,7 +20,6 @@ declare_potential_outcomes <- function(potential_outcomes_function =
                                        attrition = NULL,
                                        ...,
                                        description = NULL){
->>>>>>> origin/master
   
   if(missing(condition_names)){
     stop("Please provide a set of condition_names.")
