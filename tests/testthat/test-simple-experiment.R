@@ -13,7 +13,7 @@ test_that("test simple experiment analysis and diagnosis", {
                                    condition_names = c(0, 1),
                                    assignment_variable_name = "Z")
   
-  assignment <- declare_assignment(condition_names = c(0,1), probability_each = c(.7, .3))
+  assignment <- declare_assignment(potential_outcomes=potential_outcomes, probability_each = c(.7, .3))
   
   estimand <- declare_estimand(estimand_text = "mean(Y_Z_1 - Y_Z_0)", potential_outcomes = potential_outcomes)
   estimator_d_i_m <- declare_estimator(estimates = difference_in_means, formula = Y ~ Z, estimand = estimand)

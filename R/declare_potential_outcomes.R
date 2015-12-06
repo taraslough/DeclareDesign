@@ -25,7 +25,7 @@ declare_potential_outcomes <- function(potential_outcomes_function =
     stop("Please either provide condition_names or set inherit_condition_names to TRUE. The first potential_outcomes created in a design must include condition_names.")
   }
   
-  condition_names <- round_condition_names(condition_names)
+  #condition_names <- round_condition_names(condition_names)
   
   options <- list(...)
   

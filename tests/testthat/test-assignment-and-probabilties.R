@@ -19,7 +19,8 @@ test_that("test assignment and probability functions", {
                                                    assignment_variable_name = "Z")
   
   # Complete Random Assignment assignments
-  assignment_1 <- declare_assignment(condition_names = c(0, 1))
+  assignment_0 <- declare_assignment(potential_outcomes = potential_outcomes)
+  assignment_1 <- declare_assignment(potential_outcomes = potential_outcomes, condition_names = c(0, 1))
   assignment_2 <- declare_assignment(potential_outcomes = potential_outcomes, m = 60, condition_names = c(0, 1))
   assignment_3 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(20, 30, 50))
   assignment_4 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(20, 80), condition_names = c(0, 1))
@@ -61,6 +62,7 @@ test_that("test assignment and probability functions", {
   smp_draw <- assign_treatment(data = smp_draw, assignment = assignment_1)
   
   # Attempt to Assign
+  smp_draw$Z0 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_0) 
   smp_draw$Z1 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_1) 
   smp_draw$Z2 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_2) 
   smp_draw$Z3 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_3) 
