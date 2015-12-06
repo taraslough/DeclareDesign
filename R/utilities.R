@@ -1,25 +1,30 @@
 integerize <- function(data){
   for(i in 1:ncol(data)){
-    numeric_check <- FALSE
-    numeric_check <- class(data[,i]) %in% c("numeric","integer")
-    
-    if(!numeric_check){
-      suppressWarnings(numeric_check <- identical(data[,i], as.factor(as.integer(as.character(data[,i])))))
-      if(!numeric_check){
-        suppressWarnings(numeric_check <- identical(data[,i], as.factor(as.numeric(as.character(data[,i])))))
-        if(!numeric_check){
-          suppressWarnings(numeric_check <- identical(data[,i], as.numeric(as.character(data[,i]))))
-          if(!numeric_check){
-            suppressWarnings(numeric_check <- identical(data[,i], as.numeric(as.character(data[,i]))))
-          }
-        }
-      }
-      if(numeric_check){
-        data[,i] <- as.integer(as.character(data[,i]))
-      }
-    }
+    data[, i] <- integerize_vector(data[, i])
   }
   return(data)
+}
+
+integerize_vector <- function(vector){
+  numeric_check <- FALSE
+  numeric_check <- class(vector) %in% c("numeric","integer")
+  
+  if(!numeric_check){
+    suppressWarnings(numeric_check <- identical(vector, as.factor(as.integer(as.character(vector)))))
+    if(!numeric_check){
+      suppressWarnings(numeric_check <- identical(vector, as.factor(as.numeric(as.character(vector)))))
+      if(!numeric_check){
+        suppressWarnings(numeric_check <- identical(vector, as.numeric(as.character(vector))))
+        if(!numeric_check){
+          suppressWarnings(numeric_check <- identical(vector, as.numeric(as.character(vector))))
+        }
+      }
+    }
+    if(numeric_check){
+      vector <- as.integer(as.character(vector))
+    }
+  }
+  return(vector)
 }
 
 trim_spaces <- function(text){
@@ -64,7 +69,7 @@ clean_inputs <- function(object, object_class, accepts_list = TRUE){
   if(is.null(object)){
     return(object)
   } else {
-  
+    
     if(accepts_list == TRUE){
       
       if(class(object) %in% object_class){
@@ -92,13 +97,27 @@ clean_inputs <- function(object, object_class, accepts_list = TRUE){
   }
 }
 
-round_condition_names <- function(condition_names, digits = 15){
+clean_condition_names <- function(condition_names, digits = 15){
   if(is.null(condition_names)){
     return(condition_names)
-  }
-  if(class(condition_names) != "list"){
-    round(condition_names, digits = digits)
   } else {
-    lapply(condition_names, function(x) round(x, digits = digits))
+    if(class(condition_names) != "list"){
+      condition_names <- integerize_vector(condition_names)
+      
+      if(class(condition_names) != "numeric"){
+        return(condition_names)
+      } else {
+        return(round(condition_names, digits = digits))
+      }
+    } else {
+      return(lapply(condition_names, function(x, digits = digits) {
+        x <- integerize_vector(x)
+        if(class(x) != "numeric"){
+          return(x)
+        } else {
+          return(round(x, digits = digits))
+        }
+      }, digits = digits))
+    }
   }
 }

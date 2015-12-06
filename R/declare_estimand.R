@@ -38,7 +38,7 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
   }
   
   if(!is.null(condition_names)){
-    condition_names <- round_condition_names(condition_names)
+    condition_names <- clean_condition_names(condition_names)
   }
   
   if(!is.null(estimand_text)){

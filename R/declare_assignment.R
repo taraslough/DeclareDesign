@@ -185,7 +185,7 @@ declare_assignment <-
     noncompliance <- clean_inputs(noncompliance, "noncompliance", accepts_list = FALSE)
     
     if(!is.null(condition_names)){
-      condition_names <- round_condition_names(condition_names)
+      condition_names <- clean_condition_names(condition_names)
     }
     
     if(!is.null(potential_outcomes) & !is.null(potential_outcomes$condition_names) & is.null(condition_names)){
