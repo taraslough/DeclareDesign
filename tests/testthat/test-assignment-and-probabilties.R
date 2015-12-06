@@ -19,7 +19,7 @@ test_that("test assignment and probability functions", {
                                                    assignment_variable_name = "Z")
   
   # Complete Random Assignment assignments
-  assignment_1 <- declare_assignment(potential_outcomes = potential_outcomes)
+  assignment_1 <- declare_assignment(condition_names = c(0, 1))
   assignment_2 <- declare_assignment(potential_outcomes = potential_outcomes, m = 60, condition_names = c(0, 1))
   assignment_3 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(20, 30, 50))
   assignment_4 <- declare_assignment(potential_outcomes = potential_outcomes, m_each =c(20, 80), condition_names = c(0, 1))
