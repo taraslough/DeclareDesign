@@ -11,18 +11,6 @@
 #' @return potential_outcomes object.
 #'
 #' @export
-<<<<<<< HEAD
-declare_potential_outcomes <- function(
-  potential_outcomes_function = 
-    default_potential_outcomes_function,
-  formula = NULL, outcome_variable_name = NULL, 
-  condition_names = NULL, sep = "_", 
-  assignment_variable_name = NULL,
-  interference = NULL,
-  attrition = NULL,
-  options = NULL,
-  description = NULL){
-=======
 declare_potential_outcomes <- function(potential_outcomes_function = 
                                          default_potential_outcomes_function,
                                        formula = NULL, outcome_variable_name = NULL, 
