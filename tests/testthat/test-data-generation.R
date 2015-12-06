@@ -223,28 +223,6 @@ test_that("test data generation functions", {
   
   table(population$population()$villages_ID)
   
-  # Using objects from the global environment
-  
-  expect_error({
-    
-    a <- 1000
-    
-    my_function <- function(x) x + 10
-    
-    global_objects <- declare_population(
-      income = "my_function(rnorm(n_))",
-      age = "rpois(10,30)",
-      a = "a",
-      size = 10
-    ) 
-    
-    global_objects$population()
-    
-    a <- 500
-    
-    global_objects$population()
-    
-  })
   
   # testing user-provided data with transformations
   
