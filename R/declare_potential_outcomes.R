@@ -14,15 +14,15 @@
 declare_potential_outcomes <- function(potential_outcomes_function = 
                                          default_potential_outcomes_function,
                                        formula = NULL, outcome_variable_name = NULL, 
-                                       condition_names, sep = "_", 
+                                       condition_names = NULL, inherit_condition_names = FALSE, sep = "_", 
                                        assignment_variable_name = "Z",
                                        interference = NULL,
                                        attrition = NULL,
                                        ...,
                                        description = NULL){
   
-  if(missing(condition_names)){
-    stop("Please provide a set of condition_names.")
+  if(inherit_condition_names == FALSE & is.null(condition_names)){
+    stop("Please either provide condition_names or set inherit_condition_names to TRUE. The first potential_outcomes created in a design must include condition_names.")
   }
   
   condition_names <- round_condition_names(condition_names)
@@ -72,7 +72,8 @@ declare_potential_outcomes <- function(potential_outcomes_function =
   }
   
   return_object <- list(potential_outcomes_function = potential_outcomes_function_internal, 
-                        outcome_variable_name = outcome_variable_name, sep = "_", condition_names = condition_names,
+                        outcome_variable_name = outcome_variable_name, sep = "_", 
+                        condition_names = condition_names, inherit_condition_names = inherit_condition_names,
                         assignment_variable_name = assignment_variable_name,
                         interference = interference,
                         attrition = attrition, description = description,

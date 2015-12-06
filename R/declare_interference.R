@@ -1,10 +1,13 @@
 #' @export
 declare_interference <- function(exposure_function = default_exposure_function,
-                                 formula = NULL, 
-                                 exposure_variable_name = "E", 
-                                 condition_names = NULL, sep = "_", ...,
+                                 formula = NULL, exposure_variable_name = "E", 
+                                 condition_names, sep = "_", ...,
                                  description = NULL){
   
+  if(missing(condition_names)){
+    stop("Please provide condition_names.")
+  }
+
   outcomes_object <- 
     declare_potential_outcomes(potential_outcomes_function = exposure_function, 
                                formula = formula, 

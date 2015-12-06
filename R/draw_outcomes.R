@@ -13,10 +13,16 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
   
   if(class(potential_outcomes) == "list" & class(condition_names) == "list" &
      length(potential_outcomes) != length(condition_names)){
-    stop("If you provide a list of potential_outcomes, you must provide a list of condition_names of the same length.")
+    stop("If you provide a list of potential_outcomes and a list of condition_names, you must provide a list of condition_names of the same length.")
   }
   
   potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance", "interference"), accepts_list = TRUE)
+  
+  inherit_condition_names <- sapply(potential_outcomes, function(x) x$inherit_condition_names)
+  
+  if(!any(lapply(potential_outcomes, function(x) class(x)) == "potential_outcomes") & any(inherit_condition_names) & is.null(condition_names)){
+    stop("At least one object sent to the potential_outcomes argument must be created by declare_potential_outcomes, if you provide .")
+  }
   
   noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
   attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
@@ -27,6 +33,15 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
   
   if(is.null(condition_names)){
     condition_names <- lapply(potential_outcomes, function(x) x$condition_names)
+    first_potential_outcomes_object <- which(sapply(potential_outcomes, function(x) class(x)) == "potential_outcomes")[1]
+    if(any(inherit_condition_names) & is.null(condition_names[[first_potential_outcomes_object]])){
+      stop("If you choose the inherit_condition_names option for any potential_outcomes, interference, noncompliance, or attrition declarations, the first potential_outcomes object created by declare_potential_outcomes must have condition_names. These will be inherited by any objects that set inherit_condition_names = TRUE.")
+    }
+    
+    for(i in which(inherit_condition_names == TRUE)){
+      condition_names[[i]] <- condition_names[[first_potential_outcomes_object]]
+    }
+    
   }else{
     condition_names <- replicate(length(potential_outcomes), condition_names, simplify = FALSE)
   }
@@ -126,10 +141,17 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
   
   if(class(potential_outcomes) == "list" & class(condition_names) == "list" &
      length(potential_outcomes) != length(condition_names)){
-    stop("If you provide a list of potential_outcomes, you must provide a list of condition_names of the same length.")
+    stop("If you provide a list of potential_outcomes and a list of condition_names, you must provide a list of condition_names of the same length.")
   }
   
   potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "interference"), accepts_list = TRUE)
+  
+  inherit_condition_names <- sapply(potential_outcomes, function(x) x$inherit_condition_names)
+  
+  if(!any(lapply(potential_outcomes, function(x) class(x)) == "potential_outcomes") & any(inherit_condition_names) & is.null(condition_names)){
+    stop("At least one object sent to the potential_outcomes argument must be created by declare_potential_outcomes, if you provide .")
+  }
+  
   noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
   attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
   
@@ -143,15 +165,26 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
   
   if(!is.null(noncompliance)){
     potential_outcomes <- c(list(noncompliance), potential_outcomes)
-    noncompliance_has_assigment_variable_names <- !is.null(noncompliance$assignment_variable_name)
-    has_assignment_variable_names <- has_assignment_variable_names & noncompliance_has_assigment_variable_names
-    if(!noncompliance_has_assigment_variable_names){
+    noncompliance_has_assignment_variable_names <- !is.null(noncompliance$assignment_variable_name)
+    has_assignment_variable_names <- has_assignment_variable_names & noncompliance_has_assignment_variable_names
+    if(!noncompliance_has_assignment_variable_names){
       stop("Please provide an assignment variable name to declare_noncompliance.")
     }
   }
   
   if(is.null(condition_names)){
     condition_names <- lapply(potential_outcomes, function(x) x$condition_names)
+    first_potential_outcomes_object <- which(sapply(potential_outcomes, function(x) class(x)) == "potential_outcomes")[1]
+    if(any(inherit_condition_names) & is.null(condition_names[[first_potential_outcomes_object]])){
+      stop("If you choose the inherit_condition_names option for any potential_outcomes, interference, noncompliance, or attrition declarations, the first potential_outcomes object created by declare_potential_outcomes must have condition_names. These will be inherited by any objects that set inherit_condition_names = TRUE.")
+    }
+    
+    if(any(inherit_condition_names)){
+      for(i in which(inherit_condition_names == TRUE)){
+        condition_names[[i]] <- condition_names[[first_potential_outcomes_object]]
+      }
+    }
+    
   }else{
     condition_names <- replicate(length(potential_outcomes), condition_names, simplify = FALSE)
   }

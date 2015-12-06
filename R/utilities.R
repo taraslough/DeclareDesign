@@ -93,6 +93,9 @@ clean_inputs <- function(object, object_class, accepts_list = TRUE){
 }
 
 round_condition_names <- function(condition_names, digits = 15){
+  if(is.null(condition_names)){
+    return(condition_names)
+  }
   if(class(condition_names) != "list"){
     round(condition_names, digits = digits)
   } else {

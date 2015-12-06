@@ -48,11 +48,11 @@ default_attrition_function <- function(data, condition_names,
   R <- rep(NA, nrow(data))  
   
   if(!is.null(reporting_proportions)){
-  for(i in 1:length(condition_names)){
-    R[Z==condition_names[i]] <- rbinom(n = sum(Z==condition_names[i]), 
-                                       size = 1, 
-                                       prob = reporting_proportions[i])
-  }
+    for(i in 1:length(condition_names)){
+      R[Z==condition_names[i]] <- rbinom(n = sum(Z==condition_names[i]), 
+                                         size = 1, 
+                                         prob = reporting_proportions[i])
+    }
   }
   
   if(!is.null(proportion_always_reporters)){
@@ -106,20 +106,24 @@ default_attrition_function <- function(data, condition_names,
 declare_attrition <- function(attrition_function = default_attrition_function,
                               formula = NULL, 
                               outcome_variable_name = "R", 
-                              condition_names = NULL, sep = "_", 
+                              condition_names, sep = "_", 
                               assignment_variable_name = "Z",
                               description = NULL, ...){
-    
-    outcomes_object <- 
-      declare_potential_outcomes(potential_outcomes_function = attrition_function, 
-                                 formula = formula, 
-                                 outcome_variable_name = outcome_variable_name, 
-                                 condition_names = condition_names, 
-                                 sep = sep, 
-                                 assignment_variable_name = assignment_variable_name, 
-                                 description = description, ... = ...)
-    class(outcomes_object) <- "attrition"
-    return(outcomes_object)
+  
+  if(missing(condition_names)){
+    stop("Please provide condition_names.")
+  }
+  
+  outcomes_object <- 
+    declare_potential_outcomes(potential_outcomes_function = attrition_function, 
+                               formula = formula, 
+                               outcome_variable_name = outcome_variable_name, 
+                               condition_names = condition_names,
+                               sep = sep, 
+                               assignment_variable_name = assignment_variable_name, 
+                               description = description, ... = ...)
+  class(outcomes_object) <- "attrition"
+  return(outcomes_object)
 }
 
 

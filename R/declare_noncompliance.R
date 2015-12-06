@@ -77,21 +77,25 @@ default_noncompliance_function <- function(data, condition_names,
 declare_noncompliance <- function(noncompliance_function = default_noncompliance_function,
                                   formula = NULL, 
                                   outcome_variable_name = "D", 
-                                  condition_names = NULL, sep = "_", 
+                                  condition_names, sep = "_", 
                                   assignment_variable_name = "Z", ...,
                                   description = NULL){
-    
-    outcomes_object <- 
-      declare_potential_outcomes(potential_outcomes_function = noncompliance_function, 
-                                 formula = formula, 
-                                 outcome_variable_name = outcome_variable_name, 
-                                 condition_names = condition_names, 
-                                 sep = sep, 
-                                 assignment_variable_name = assignment_variable_name, 
-                                 description = description,
-                                 ... = ...)
-    class(outcomes_object) <- "noncompliance"
-    return(outcomes_object)
+  
+  if(missing(condition_names)){
+    stop("Please provide condition_names.")
+  }
+  
+  outcomes_object <- 
+    declare_potential_outcomes(potential_outcomes_function = noncompliance_function, 
+                               formula = formula, 
+                               outcome_variable_name = outcome_variable_name, 
+                               condition_names = condition_names,
+                               sep = sep, 
+                               assignment_variable_name = assignment_variable_name, 
+                               description = description,
+                               ... = ...)
+  class(outcomes_object) <- "noncompliance"
+  return(outcomes_object)
 }
 
 
