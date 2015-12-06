@@ -305,13 +305,6 @@ get_variable_types <- function(){
 
 
 
-
-
-
-
-
-
-
 # A function for grabbing variables at a given level in multi-level structures
 #' @export
 get_variable <- function(
