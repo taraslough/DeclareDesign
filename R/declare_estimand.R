@@ -43,6 +43,10 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
   
   if(!is.null(estimand_text)){
     
+    if(class(estimand_text) != "character"){
+      stop("Please provide a character string to the estimand_text argument.")
+    }
+    
     ## if no custom estimand is provided
     
     if(is.null(label)){
@@ -63,6 +67,10 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
       return(eval(estimand_text, envir = data))
     }
   } else {
+    
+    if(class(estimand_function) != "function"){
+      stop("Please provide a function to the estimand_function argument.")
+    }
     
     ## if a custom estimand is provided
     
