@@ -290,7 +290,7 @@ draw_observed_outcome <- function(data, potential_outcomes, condition_names = NU
       ## switching equation
       data[, potential_outcomes$outcome_variable_name] <- NA
       for(j in 1:nrow(condition_combinations)){
-        multi_condition_status_internal <- eval(parse(text = paste(colnames(condition_combinations), condition_combinations[j, ], sep= "==", collapse = "&")), 
+        multi_condition_status_internal <- eval(parse(text = paste(colnames(condition_combinations), paste0("'", condition_combinations[j, ], "'"), sep= "==", collapse = "&")), 
                                                 envir = data)
         data[multi_condition_status_internal, potential_outcomes$outcome_variable_name] <- 
           data[multi_condition_status_internal, outcome_name_internal[[j]]]
