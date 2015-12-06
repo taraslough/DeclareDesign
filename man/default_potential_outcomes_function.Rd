@@ -11,7 +11,7 @@ default_potential_outcomes_function(formula, data, ...)
 
 \item{data}{A data frame}
 
-\item{options}{A named list (optional)}
+\item{...}{optional options passed along.}
 }
 \description{
 Default potential outcomes function

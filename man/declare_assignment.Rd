@@ -37,6 +37,12 @@ declare_assignment(condition_names = NULL, m = NULL, m_each = NULL,
 
 \item{potential_outcomes}{potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. The conditions to which subjects can be assigned is obtained from the condition_names stored in a potential outcomes object.  If you prefer, you can use the condition_names argument.}
 
+\item{noncompliance}{An optional noncomplinance object, as created by \code{\link{declare_noncompliance}}.}
+
+\item{custom_transform_function}{}
+
+\item{transform_options}{}
+
 \item{custom_assignment_function}{A function of data that returns an assignment vector of length n.}
 
 \item{custom_blocking_function}{A function of data that returns a blocking vector of length n.}
@@ -44,6 +50,8 @@ declare_assignment(condition_names = NULL, m = NULL, m_each = NULL,
 \item{custom_clustering_function}{A function of data that returns a cluster vector of length n.}
 
 \item{existing_assignment_variable_name}{The name of an already-assigned treatment variable.}
+
+\item{description}{}
 }
 \value{
 assignment object

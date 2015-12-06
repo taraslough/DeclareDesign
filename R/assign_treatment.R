@@ -13,7 +13,7 @@
 #' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
 #'                                                  condition_names = c(0, 1),
 #'                                                  assignment_variable_name = "Z")
-#' assignment <- declare_assignment(condition_names = c(0,1))
+#' assignment <- declare_assignment(potential_outcomes = potential_outcomes)
 #' pop_draw <- draw_population(population = population)
 #' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 #' smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
@@ -102,7 +102,7 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
 #' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
 #'                                                  condition_names = c(0, 1),
 #'                                                  assignment_variable_name = "Z")
-#' assignment <- declare_assignment(condition_names = c(0,1))
+#' assignment <- declare_assignment(potential_outcomes = potential_outcomes)
 #' pop_draw <- draw_population(population = population)
 #' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 #' Z <- assign_treatment_indicator(data = smp_draw, assignment=assignment)
@@ -204,7 +204,7 @@ assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
 #' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
 #'                                                  condition_names = c(0, 1),
 #'                                                  assignment_variable_name = "Z")
-#' assignment <- declare_assignment(condition_names = c(0,1))
+#' assignment <- declare_assignment(potential_outcomes = potential_outcomes)
 #' pop_draw <- draw_population(population = population)
 #' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 #' smp_draw$Z <- assign_treatment_indicator(data = smp_draw, assignment=assignment)

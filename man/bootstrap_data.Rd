@@ -9,13 +9,9 @@ bootstrap_data(data, size, level_IDs = NULL)
 \arguments{
 \item{data}{A data.frame, usually provided by the user and not created with the DeclareDesign package.}
 
-\item{N}{The number of units in the resulting bootstrapped data.frame.}
+\item{size}{A size declaration -- must describe this!}
 
-\item{N_per_level}{The number of units in each level of the bootstrapped heirarchy.}
-
-\item{group_sizes_per_level}{A list of group sizes per level in the heirarchy.}
-
-\item{level_ID_variables}{A vector of variable names, indicating the variables that desibe the heirarchy.}
+\item{level_IDs}{The variables that indicate the data hierarchy.}
 }
 \value{
 A data.frame

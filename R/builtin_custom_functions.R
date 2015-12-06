@@ -416,7 +416,7 @@ calculate_sd_estimate <- function(estimates, ...){
 #' 
 #' @param formula A formula describing the outcomes as a function of a 
 #' @param data A data frame
-#' @param options A named list (optional)
+#' @param ... optional options passed along.
 #'
 #' @export
 default_potential_outcomes_function <- function(formula, data, ...){
@@ -440,7 +440,7 @@ default_potential_outcomes_function <- function(formula, data, ...){
 #' 
 #' @param formula A formula describing the outcomes as a function of a 
 #' @param data A data frame
-#' @param options A named list (optional)
+#' @param ... optional options passed along.
 #'
 #' @export
 default_exposure_function <- default_potential_outcomes_function
@@ -533,10 +533,8 @@ proportion_potential_outcomes_function <- function(population_proportions = c(.5
 #' Bootstrap data, including multi-level data
 #' 
 #' @param data A data.frame, usually provided by the user and not created with the DeclareDesign package.
-#' @param N The number of units in the resulting bootstrapped data.frame.
-#' @param N_per_level The number of units in each level of the bootstrapped heirarchy.
-#' @param group_sizes_per_level A list of group sizes per level in the heirarchy.
-#' @param level_ID_variables A vector of variable names, indicating the variables that desibe the heirarchy.
+#' @param size A size declaration -- must describe this!
+#' @param level_IDs The variables that indicate the data hierarchy.
 #' 
 #' @return A data.frame
 #'

@@ -15,6 +15,10 @@
 #' @param custom_blocking_function  A function of data that returns a blocking vector of length n.
 #' @param custom_clustering_function A function of data that returns a cluster vector of length n.
 #' @param existing_assignment_variable_name The name of an already-assigned treatment variable.
+#' @param noncompliance An optional noncomplinance object, as created by \code{\link{declare_noncompliance}}.
+#' @param custom_transform_function 
+#' @param transform_options 
+#' @param description 
 #'
 #' @return assignment object
 #' 
