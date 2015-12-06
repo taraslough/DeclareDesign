@@ -15,10 +15,12 @@
 #'
 #' @export
 declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
-                             estimand_options = NULL, fixed = FALSE,
+                             ..., fixed = FALSE,
                              potential_outcomes, condition_names = NULL,
                              subset = NULL, weights_variable_name = NULL, 
                              label = NULL, description = NULL) {
+  
+  estimand_options <- list(...)
   
   # Checks -------------------------------------------------
   potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = TRUE)
@@ -33,6 +35,10 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
   
   if(is.null(potential_outcomes)){
     stop("Please provide a potential_outcomes object. This is used to create the potential outcomes before calculating the estimand.")
+  }
+  
+  if(!is.null(condition_names)){
+    condition_names <- round_condition_names(condition_names)
   }
   
   if(!is.null(estimand_text)){

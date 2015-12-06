@@ -32,7 +32,7 @@ test_that("test whether you can draw heterog effects in multilevel design", {
       ml_educ = "rnorm(n_, mean = city_educ_mean, sd = city_educ_sd)"
     ),
     make_unique_ID = T,
-    other_arguments = original_args,
+    options = original_args,
     size = c(1000,100,10)
   ) 
   

@@ -4,10 +4,10 @@
 \alias{declare_population}
 \title{New Declare the Study Population}
 \usage{
-declare_population(..., size, global_transformations = NULL,
-  other_arguments = NULL, level_IDs = NULL, super_population = FALSE,
-  random_seed = 42, data = NULL, custom_population_function = NULL,
-  make_unique_ID = FALSE, description = NULL)
+declare_population(..., size, global_transformations = NULL, options = NULL,
+  level_IDs = NULL, super_population = FALSE, random_seed = 42,
+  data = NULL, custom_population_function = NULL, make_unique_ID = FALSE,
+  description = NULL)
 }
 \arguments{
 \item{...}{A named list of expressions or list of named lists of expressions that generate data. These should generate vectors, the privileged name n_ can be used to specify the leve-specific N (i.e. rnorm(n_) creates 100 normal draws if it is at the level of 100 individuals, or 10 normal draws if it is at the level of 10 cities). These must be declared consecutively and are level-specific (see global_transformations for expressions that can be evaluated over the entire dataset).}
@@ -16,7 +16,7 @@ declare_population(..., size, global_transformations = NULL,
 
 \item{global_transformations}{An optional named list of expressions that can be evaluated across levels. For example, if group-invariant means and SDs have been created, these can be used with an expression in global_transformations in order to create individual-level draws of these group-level parameters.}
 
-\item{other_arguments}{An optional list of objects that are used by the expressions passed to ... and global_transformations.}
+\item{options}{An optional list of objects that are used by the expressions passed to ... and global_transformations.}
 
 \item{level_IDs}{An optional list of level ID indicators that are otherwise inferred from ... or generated using a default.}
 

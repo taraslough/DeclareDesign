@@ -6,9 +6,9 @@
 \usage{
 
   declare_potential_outcomes(potential_outcomes_function = default_potential_outcomes_function,
-  formula = NULL, outcome_variable_name = NULL, condition_names = NULL,
-  sep = "_", assignment_variable_name = NULL, interference = NULL,
-  attrition = NULL, options = NULL, description = NULL)
+  formula = NULL, outcome_variable_name = NULL, condition_names,
+  sep = "_", assignment_variable_name = "Z", interference = NULL,
+  attrition = NULL, ..., description = NULL)
 }
 \arguments{
 \item{potential_outcomes_function}{}

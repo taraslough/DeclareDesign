@@ -29,17 +29,17 @@ test_that("test blocked and clustered experiment", {
   estimator_d_i_m <- declare_estimator(estimates = difference_in_means,
                                        formula = Y ~ Z, estimand = estimand)
   estimator_d_i_m_clustered <- declare_estimator(estimates = difference_in_means,
-                                                 estimates_options = list(cluster_variable_name = "villages_ID"),
+                                                 cluster_variable_name = "villages_ID",
                                                  formula = Y ~ Z, estimand = estimand)
   estimator_d_i_m_blocked <- declare_estimator(estimates = difference_in_means_blocked,
-                                               estimates_options = list(block_variable_name = "elevation_high"),
+                                               block_variable_name = "elevation_high",
                                                formula = Y ~ Z, estimand = estimand)
   estimator_d_i_m_blocked_clustered <- declare_estimator(estimates = difference_in_means_blocked,
-                                                         estimates_options = list(block_variable_name = "elevation_high",
-                                                                                  cluster_variable_name = "villages_ID"),
+                                                         block_variable_name = "elevation_high",
+                                                         cluster_variable_name = "villages_ID",
                                                          formula = Y ~ Z, estimand = estimand)
   estimator_lm <- declare_estimator(model = lm, estimates = get_regression_coefficient, 
-                                    estimates_options = list(coefficient_name = "Z"),
+                                    coefficient_name = "Z",
                                     formula = Y ~ Z, estimand = estimand)
   
   design <- declare_design(population = population,
@@ -58,7 +58,7 @@ test_that("test blocked and clustered experiment", {
   smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
   smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = potential_outcomes)
   estimates <- get_estimates(estimator = list(estimator_d_i_m, estimator_d_i_m_clustered, estimator_d_i_m_blocked, estimator_d_i_m_blocked_clustered, estimator_lm), data = smp_draw)
-
+  
   estimands <- get_estimands(estimator = estimator_d_i_m, data = smp_draw)
   
 })

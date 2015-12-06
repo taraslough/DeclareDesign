@@ -150,7 +150,7 @@ test_that("test data generation functions", {
       ml_educ = "rnorm(n_, mean = city_educ_mean, sd = city_educ_sd)"
     ),
     make_unique_ID = T,
-    other_arguments = original_args,
+    options = original_args,
     size = c(10,5,2)
   ) 
   
@@ -163,12 +163,12 @@ test_that("test data generation functions", {
   new_args$age_lambda <- 20
   new_args$city_educ_shape <- 5
   
-  multi_lev4$population(other_arguments = new_args)
+  multi_lev4$population(options = new_args)
   
   # Changing arguments and size together
   multi_lev4$population(
     size = c(12,6,1),
-    other_arguments = new_args)
+    options = new_args)
   
   # Bringing in data from other datasets with respect to levels
   original_args$user_data <- multi_lev4$population(size = c(100,30,10))
@@ -206,7 +206,7 @@ test_that("test data generation functions", {
         ),
     # The sizes are the same as the user data, this is a constraint for now
     size = c(100,30,10),
-    other_arguments = original_args
+    options = original_args
   )
   grab_vars$population()
   

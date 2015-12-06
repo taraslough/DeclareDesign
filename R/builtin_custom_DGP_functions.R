@@ -312,7 +312,7 @@ get_variable <- function(
   variable_name, 
   data, 
   aggregate_function = NULL,
-  other_arguments = NULL
+  options = NULL
 ){
   default_fun <- "function(x)unique(x)[1]"
   
@@ -325,11 +325,11 @@ get_variable <- function(
   data_string <- as.character(substitute(data))
   variable_name_string <- as.character(substitute(variable_name))
   level_ID_string <- as.character(substitute(level_ID))
-  other_arguments_string <- as.character(substitute(other_arguments))
+  options_string <- as.character(substitute(options))
   
   expr <- paste0(
     "with(",data_string,",tapply(X = ",variable_name_string,",INDEX = ",level_ID_string,
-    ",FUN = ",aggregate_function_string,other_arguments_string,"))"
+    ",FUN = ",aggregate_function_string,options_string,"))"
   )
   return(expr)
 }

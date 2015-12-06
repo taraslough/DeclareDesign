@@ -11,6 +11,7 @@
 #' @return potential_outcomes object.
 #'
 #' @export
+<<<<<<< HEAD
 declare_potential_outcomes <- function(
   potential_outcomes_function = 
     default_potential_outcomes_function,
@@ -21,6 +22,25 @@ declare_potential_outcomes <- function(
   attrition = NULL,
   options = NULL,
   description = NULL){
+=======
+declare_potential_outcomes <- function(potential_outcomes_function = 
+                                         default_potential_outcomes_function,
+                                       formula = NULL, outcome_variable_name = NULL, 
+                                       condition_names, sep = "_", 
+                                       assignment_variable_name = "Z",
+                                       interference = NULL,
+                                       attrition = NULL,
+                                       ...,
+                                       description = NULL){
+>>>>>>> origin/master
+  
+  if(missing(condition_names)){
+    stop("Please provide a set of condition_names.")
+  }
+  
+  condition_names <- round_condition_names(condition_names)
+  
+  options <- list(...)
   
   # Checks -------------------------------------------------
   attrition <- clean_inputs(attrition, "attrition", accepts_list = FALSE)

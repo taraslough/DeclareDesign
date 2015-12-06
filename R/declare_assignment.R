@@ -176,13 +176,17 @@ declare_assignment <-
       stop("If you supply a custom cluster function, you must supply the name of the cluster variable.")
     }
     
-    if(is.null(potential_outcomes) & is.null(condition_names)){
+    if(is.null(custom_assignment_function) & is.null(potential_outcomes$condition_names) & is.null(condition_names)){
       stop("Please provide an input to condition_names or a potential_outcomes object with condition_names.")
     }
     
     # Checks -------------------------------------------------
     potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = FALSE)
     noncompliance <- clean_inputs(noncompliance, "noncompliance", accepts_list = FALSE)
+    
+    if(!is.null(condition_names)){
+      condition_names <- round_condition_names(condition_names)
+    }
     
     if(!is.null(potential_outcomes) & !is.null(potential_outcomes$condition_names) & is.null(condition_names)){
       # Obtain Condition Names
@@ -196,7 +200,6 @@ declare_assignment <-
         condition_names <- potential_outcomes$condition_names
       }
     } 
-    
     
     # Figure out baseline condition
     if(!is.null(baseline_condition)){
