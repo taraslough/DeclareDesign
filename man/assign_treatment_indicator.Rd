@@ -4,14 +4,12 @@
 \alias{assign_treatment_indicator}
 \title{Assign treatment status}
 \usage{
-assign_treatment_indicator(data, assignment, random_seed = NULL)
+assign_treatment_indicator(data, assignment)
 }
 \arguments{
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 
 \item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
-
-\item{random_seed}{A random seed to fix treatment assignments.}
 }
 \value{
 A random assignment vector of length N.

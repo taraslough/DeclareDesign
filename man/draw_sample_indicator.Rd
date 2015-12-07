@@ -4,14 +4,12 @@
 \alias{draw_sample_indicator}
 \title{Draw a sample indicator from population}
 \usage{
-draw_sample_indicator(data, sampling, random_seed = NULL)
+draw_sample_indicator(data, sampling)
 }
 \arguments{
 \item{data}{A dataframe, often created by \code{\link{draw_population}}.}
 
 \item{sampling}{A sampling object created by \code{\link{declare_sampling}}; or a function that samples}
-
-\item{random_seed}{A random seed to fix the sampling across draws.}
 }
 \value{
 A vector of 0's and 1's indicating which population units are sampled.

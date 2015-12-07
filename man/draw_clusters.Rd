@@ -4,14 +4,12 @@
 \alias{draw_clusters}
 \title{Draw clusters for custom cluster functions used in an assignment function}
 \usage{
-draw_clusters(data, assignment, random_seed = NULL)
+draw_clusters(data, assignment)
 }
 \arguments{
 \item{data}{}
 
 \item{assignment}{}
-
-\item{random_seed}{}
 }
 \value{
 thing

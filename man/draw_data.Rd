@@ -4,12 +4,10 @@
 \alias{draw_data}
 \title{Draw mock data based on a design}
 \usage{
-draw_data(design, random_seed = NULL)
+draw_data(design)
 }
 \arguments{
 \item{design}{A design object created by \code{\link{declare_design}}.}
-
-\item{random_seed}{}
 }
 \description{
 Draw mock data based on a design

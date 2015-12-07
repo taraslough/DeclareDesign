@@ -4,14 +4,12 @@
 \alias{draw_sample}
 \title{Draw a sample from the population}
 \usage{
-draw_sample(data, sampling = NULL, random_seed = NULL)
+draw_sample(data, sampling = NULL)
 }
 \arguments{
 \item{data}{A data.frame object representing the population to sample from, typically created by \code{draw_population}.}
 
 \item{sampling}{A sampling object describing the sampling strategy created by \code{declare_sampling}.}
-
-\item{random_seed}{A random seed to fix the sampling across draws.}
 }
 \description{
 This function takes a data frame representing the population and returns a data frame of the data from a sample drawn from the population.

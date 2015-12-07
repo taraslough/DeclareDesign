@@ -4,14 +4,12 @@
 \alias{assign_treatment}
 \title{Assign treatment}
 \usage{
-assign_treatment(data, assignment, random_seed = NULL)
+assign_treatment(data, assignment)
 }
 \arguments{
 \item{data}{A data.frame, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 
 \item{assignment}{A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment}
-
-\item{random_seed}{An optional random seed, in order to ensure the replicability of a particular random assignment.}
 }
 \value{
 A data.frame with new columns added for a treatment assignment, probabilities of assignment, and inverse probability weights.

@@ -4,14 +4,12 @@
 \alias{implement_design}
 \title{Implement a declared sampling strategy and assignment procedure}
 \usage{
-implement_design(data, design, random_seed = NULL)
+implement_design(data, design)
 }
 \arguments{
 \item{data}{}
 
 \item{design}{}
-
-\item{random_seed}{}
 }
 \value{
 data.frame of the sample if there is a sampling strategy declared and with assigned treatment vector, if defined

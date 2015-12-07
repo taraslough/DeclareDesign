@@ -4,14 +4,12 @@
 \alias{draw_blocks}
 \title{Draw blocks for custom block functions used in an assignment function}
 \usage{
-draw_blocks(data, assignment, random_seed = NULL)
+draw_blocks(data, assignment)
 }
 \arguments{
 \item{data}{}
 
 \item{assignment}{}
-
-\item{random_seed}{}
 }
 \value{
 thing
