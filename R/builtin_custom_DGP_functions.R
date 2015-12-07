@@ -149,22 +149,42 @@ declare_variable <- function(
       }
     }
     
-    outcome_categories <- paste0(
-      "c('",
-      paste(outcome_categories,collapse = "','"),
-      "')")
+    is_integer <- is.integer(outcome_categories)
     
     probabilities <- paste0(
       "c('",
       paste(probabilities,collapse = "','"),
       "')")
     
-    return_expr <- paste0(
-      "as.factor(sample(x = ",
-      outcome_categories,
-      ",size = n_,replace = TRUE,prob = ",
-      probabilities,"))"
+    if(is_integer){
+      outcome_categories <- paste0(
+        "c(",
+        paste(outcome_categories,collapse = ","),
+        ")")
+      
+      return_expr <- paste0(
+        "sample(x = ",
+        outcome_categories,
+        ",size = n_,replace = TRUE,prob = ",
+        probabilities,")"
       )
+      
+    } else {
+      outcome_categories <- paste0(
+        "c('",
+        paste(outcome_categories,collapse = "','"),
+        "')")
+      
+      return_expr <- paste0(
+        "as.factor(sample(x = ",
+        outcome_categories,
+        ",size = n_,replace = TRUE,prob = ",
+        probabilities,"))"
+      )
+    }
+    
+    
+    
     
     
     
