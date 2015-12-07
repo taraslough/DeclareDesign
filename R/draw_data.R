@@ -1,17 +1,12 @@
 #' Draw mock data based on a design
 #'
 #' @param design A design object created by \code{\link{declare_design}}. 
-#' @param random_seed 
 #'
 #' @export
-draw_data <- function(design, random_seed = NULL) {
+draw_data <- function(design) {
   
   # Checks -------------------------------------------------
   design <- clean_inputs(design, "design", accepts_list = FALSE)
-  
-  if(!is.null(random_seed)){
-    set.seed(random_seed)
-  }
   
   population <- design$population
   potential_outcomes <- design$potential_outcomes

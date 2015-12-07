@@ -4,10 +4,9 @@
 #' 
 #' @param data A data.frame object representing the population to sample from, typically created by \code{draw_population}.
 #' @param sampling A sampling object describing the sampling strategy created by \code{declare_sampling}.
-#' @param random_seed A random seed to fix the sampling across draws.
 #'
 #' @export
-draw_sample <- function(data, sampling = NULL, random_seed = NULL) {
+draw_sample <- function(data, sampling = NULL) {
   
   sampling <- clean_inputs(sampling, object_class = "sampling", accepts_list = FALSE)
   
@@ -23,7 +22,7 @@ draw_sample <- function(data, sampling = NULL, random_seed = NULL) {
   
   # Draw the sample ------------------------------------------------------
   
-  Z <- draw_sample_indicator(data = data, sampling = sampling, random_seed = random_seed)
+  Z <- draw_sample_indicator(data = data, sampling = sampling)
   
   if(!(sampling$sampling_type == "custom")){
     inclusion_probabilities <- get_sampling_probabilities(data = data, sampling = sampling)
@@ -50,18 +49,13 @@ draw_sample <- function(data, sampling = NULL, random_seed = NULL) {
 #' Description
 #' @param data A dataframe, often created by \code{\link{draw_population}}.
 #' @param sampling A sampling object created by \code{\link{declare_sampling}}; or a function that samples
-#' @param random_seed A random seed to fix the sampling across draws.
 #' 
 #' @return A vector of 0's and 1's indicating which population units are sampled.
 #' 
 #' @export
-draw_sample_indicator <- function(data, sampling, random_seed = NULL) {
+draw_sample_indicator <- function(data, sampling) {
   
   sampling <- clean_inputs(sampling, object_class = "sampling", accepts_list = FALSE)
-  
-  if(!is.null(random_seed)){
-    set.seed(random_seed)
-  }
   
   ## should be expanded to take either a sampling object or a function
   

@@ -6,7 +6,6 @@
 #' @param options An optional list of objects that are used by the expressions passed to ... and global_transformations.
 #' @param level_IDs An optional list of level ID indicators that are otherwise inferred from ... or generated using a default.
 #' @param super_population If TRUE, data is thought of as a single draw from a super-population, and data-resampling is performed during the diagnostics phase. If FALSE, the population is thought of as finite. 
-#' @param random_seed The random seed used for re-sampling. 
 #' @param data User-provided data for bootrstrapping.
 #' @param custom_population_function User-provided function for regenerating data.
 #' @param make_unique_ID If TRUE, an ID is made for each unit that indicates all of the other level IDs.
@@ -23,7 +22,6 @@ declare_population <- function(
   options = NULL,
   level_IDs = NULL, 
   super_population = FALSE,
-  random_seed = 42, 
   data = NULL, 
   custom_population_function = NULL,
   make_unique_ID = FALSE,
@@ -115,7 +113,6 @@ declare_population <- function(
   
   return_object <- list(population = population_function, 
                         super_population = super_population, 
-                        random_seed = random_seed, 
                         description = description,
                         call = match.call())
   class(return_object) <- "population"

@@ -2,18 +2,13 @@
 #' 
 #' @param data 
 #' @param design 
-#' @param random_seed 
 #'
 #' @return data.frame of the sample if there is a sampling strategy declared and with assigned treatment vector, if defined
 #'
 #' @export
-implement_design <- function(data, design, random_seed = NULL) {
+implement_design <- function(data, design) {
   
   design <- clean_inputs(design, object_class = "design", accepts_list = FALSE)
-  
-  if(!is.null(random_seed)){
-    set.seed(random_seed)
-  }
   
   sampling <- design$sampling
   assignment <- design$assignment

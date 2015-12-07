@@ -25,13 +25,6 @@ draw_population <- function(population,
   
   # Get the covariates ------------------------------------------------------
   
-  if(population$super_population == FALSE){
-    if(exists(".Random.seed")){
-      current_seed <- .Random.seed
-    }
-    .Random.seed <- population$random_seed
-  }
-  
   data <- draw_covariates(population = population)
   
   # Make potential outcomes -------------------------------------------------
@@ -45,13 +38,6 @@ draw_population <- function(population,
                                       potential_outcomes = potential_outcomes, 
                                       noncompliance = noncompliance,
                                       attrition = attrition)
-    }
-  }
-  if(population$super_population == FALSE){
-    if(exists("current_seed")){
-      .Random.seed <- current_seed
-    } else {
-      rm(.Random.seed)
     }
   }
   

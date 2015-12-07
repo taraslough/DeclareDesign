@@ -4,7 +4,6 @@
 #'
 #' @param data A data.frame, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}. 
 #' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
-#' @param random_seed An optional random seed, in order to ensure the replicability of a particular random assignment.
 #' @return A data.frame with new columns added for a treatment assignment, probabilities of assignment, and inverse probability weights.
 #' 
 #' @examples 
@@ -21,11 +20,7 @@
 #' head(smp_draw)
 #' 
 #' @export
-assign_treatment <- function(data, assignment, random_seed = NULL) {
-  
-  if(!is.null(random_seed)){
-    set.seed(random_seed)
-  }
+assign_treatment <- function(data, assignment) {
   
   # Checks -------------------------------------------------
   assignment <- clean_inputs(assignment, "assignment", accepts_list = TRUE)
@@ -92,7 +87,6 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
 #'
 #' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
-#' @param random_seed A random seed to fix treatment assignments.
 #' 
 #' @return A random assignment vector of length N.
 #'
@@ -109,11 +103,7 @@ assign_treatment <- function(data, assignment, random_seed = NULL) {
 #' table(Z)
 #' 
 #' @export
-assign_treatment_indicator <- function(data, assignment, random_seed = NULL) {
-  
-  if(!is.null(random_seed)){
-    set.seed(random_seed)
-  }
+assign_treatment_indicator <- function(data, assignment) {
   
   # Checks -------------------------------------------------
   assignment <- clean_inputs(assignment, "assignment", accepts_list = FALSE)

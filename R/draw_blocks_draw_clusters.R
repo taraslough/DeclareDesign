@@ -2,11 +2,10 @@
 #'
 #' @param data 
 #' @param assignment 
-#' @param random_seed 
 #' @return thing
 #'
 #' @export
-draw_blocks <- function(data, assignment, random_seed = NULL){
+draw_blocks <- function(data, assignment){
   
   # Checks -------------------------------------------------
   assignment <- clean_inputs(assignment, "assignment", accepts_list = TRUE)
@@ -23,12 +22,11 @@ draw_blocks <- function(data, assignment, random_seed = NULL){
 #'
 #' @param data 
 #' @param assignment 
-#' @param random_seed 
 #'
 #' @return thing
 #'
 #' @export
-draw_clusters <- function(data, assignment, random_seed = NULL){
+draw_clusters <- function(data, assignment){
   # Checks -------------------------------------------------
   assignment <- clean_inputs(assignment, "assignment", accepts_list = TRUE)
   
