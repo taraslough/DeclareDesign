@@ -562,16 +562,16 @@ wrap_custom_population_function <- function(
   options = NULL
 ){
   
-  if(!any("size" %in% custom_arguments))
+  if(!any("size" %in% options))
     stop("Your custom data function must include a size argument.")
   
   custom_pop_env <- list2env(
     list(size = size,
-         custom_arguments = custom_arguments,
+         options = options,
          data = data)
   )
   
-  make_population <- function(size,custom_arguments,data) {
+  make_population <- function(size,options,data) {
     
     if(!missing(size)){
       size_internal <- size
@@ -585,15 +585,15 @@ wrap_custom_population_function <- function(
       data_internal <- get("data",envir = custom_pop_env)
     }
     
-    if(!missing(custom_arguments)){
-      custom_arguments_internal <- custom_arguments 
+    if(!missing(options)){
+      options_internal <- options 
     } else {
-      custom_arguments_internal <- get("custom_arguments",envir = custom_pop_env)
+      options_internal <- get("options",envir = custom_pop_env)
     }
     
     function_args <- c(size = size_internal, 
                        data = data_internal, 
-                       custom_arguments =  custom_arguments_internal)
+                       options =  options_internal)
     
     function_args <- get_custom_args(options = function_args,
                                      custom_function = custom_population_function) 
