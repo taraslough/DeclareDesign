@@ -259,25 +259,6 @@ declare_assignment <-
     return(return.object)
   }
 
-
-#' @export
-summary.assignment <- function(object, ...) {
-  ## this function itself does nothing, it's just an R package technicality
-  ## so that print.summary.assignment() works
-  structure(object, class = c("summary.assignment", class(object)))
-}
-
-#' @export
-print.summary.assignment <- function(x, ...){
-  ## prints paragraph describing assignment
-  cat(ifelse(x$assignment_type == "blocked", paste("This experiment employs a block-randomized assignment."), ""),
-      ifelse(x$assignment_type == "clustered", paste("This experiment employs a cluster-randomized assignment."), ""),
-      ifelse(x$assignment_type == "blocked and clustered", paste("This experiment employs a block-and-cluster-randomized assignment."), ""),
-      ifelse(x$assignment_type == "complete", "This experiment employs a completely-randomized assignment.", "")
-  )
-  cat(" The possible treatment categories are ", paste(x$condition_names, collapse = " and "), ".", sep = "")
-}
-
 # random assignment functions
 
 complete_assignment <- 
