@@ -25,8 +25,8 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
   
   # Checks -------------------------------------------------
   potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = TRUE)
-  noncompliance <- clean_inputs(potential_outcomes, "noncompliance", accepts_list = FALSE)
-  attrition <- clean_inputs(potential_outcomes, "attrition", accepts_list = FALSE)
+  noncompliance <- clean_inputs(noncompliance, "noncompliance", accepts_list = FALSE)
+  attrition <- clean_inputs(attrition, "attrition", accepts_list = FALSE)
   
   if(!is.null(weights_variable_name)){
     stop("Weighted estimands are not yet implemented. Please contact the authors if you are interested in using them.")
