@@ -16,7 +16,8 @@
 #' @export
 declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
                              ..., fixed = FALSE,
-                             potential_outcomes, condition_names = NULL,
+                             potential_outcomes, noncompliance = NULL, attrition = NULL,
+                             condition_names = NULL,
                              subset = NULL, weights_variable_name = NULL, 
                              label = NULL, description = NULL) {
   
@@ -24,6 +25,8 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
   
   # Checks -------------------------------------------------
   potential_outcomes <- clean_inputs(potential_outcomes, "potential_outcomes", accepts_list = TRUE)
+  noncompliance <- clean_inputs(potential_outcomes, "noncompliance", accepts_list = FALSE)
+  attrition <- clean_inputs(potential_outcomes, "attrition", accepts_list = FALSE)
   
   if(!is.null(weights_variable_name)){
     stop("Weighted estimands are not yet implemented. Please contact the authors if you are interested in using them.")
@@ -95,8 +98,8 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
     
   }
   
-  structure(list(estimand = estimand_function_internal, potential_outcomes = potential_outcomes, fixed = fixed,
-                 condition_names = condition_names, label = label, description = description, call = match.call()), class = "estimand")
+  structure(list(estimand = estimand_function_internal, potential_outcomes = potential_outcomes, noncompliance = noncompliance, attrition = attrition,
+                 fixed = fixed, condition_names = condition_names, label = label, description = description, call = match.call()), class = "estimand")
   
 }
 
@@ -139,7 +142,19 @@ get_estimands <- function(estimand = NULL, estimator = NULL, data){
       if(!is.null(estimand[[i]])){
         ## if there is an estimand defined
         if(estimand[[i]]$fixed == FALSE){
-          estimands_list[[i]] <- estimand[[i]]$estimand(data = draw_potential_outcomes(data = data, potential_outcomes = estimand[[i]]$potential_outcomes, condition_names = estimand[[i]]$condition_names))
+          
+          has_potential_outcomes <- has_potential_outcomes(data = data, potential_outcomes = estimand[[i]]$potential_outcomes, attrition = estimand[[i]]$attrition, noncompliance = estimand[[i]]$noncompliance,
+                                                           condition_names = estimand[[i]]$condition_names)
+          
+          if(has_potential_outcomes == TRUE){
+            ## if PO's already exist, do not create them
+            estimands_list[[i]] <- estimand[[i]]$estimand(data = data)
+          } else {
+            ## otherwise, use draw_potential_outcomes to create them
+            estimands_list[[i]] <- estimand[[i]]$estimand(data = draw_potential_outcomes(data = data, potential_outcomes = estimand[[i]]$potential_outcomes,  
+                                                                                         attrition = estimand[[i]]$attrition, noncompliance = estimand[[i]]$noncompliance,
+                                                                                         condition_names = estimand[[i]]$condition_names))
+          }
         } else {
           estimands_list[[i]] <- estimand[[i]]$estimand(data = data)
         }

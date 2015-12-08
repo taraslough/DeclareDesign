@@ -8,7 +8,7 @@
 draw_potential_outcomes <- function(data, condition_names = NULL, potential_outcomes, noncompliance = NULL, attrition = NULL) {
   
   if(is.null(potential_outcomes)){
-    stop("You must provide a potential_outcomes object to draw_potential_outcomes. ")
+    stop("You must provide a potential_outcomes object to draw_potential_outcomes.")
   }
   
   if(class(potential_outcomes) == "list" & class(condition_names) == "list" &
@@ -21,7 +21,7 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
   inherit_condition_names <- sapply(potential_outcomes, function(x) x$inherit_condition_names)
   
   if(!any(lapply(potential_outcomes, function(x) class(x)) == "potential_outcomes") & any(inherit_condition_names) & is.null(condition_names)){
-    stop("At least one object sent to the potential_outcomes argument must be created by declare_potential_outcomes, if you provide .")
+    stop("At least one object sent to the potential_outcomes argument must be created by declare_potential_outcomes.")
   }
   
   noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
@@ -149,7 +149,7 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
   inherit_condition_names <- sapply(potential_outcomes, function(x) x$inherit_condition_names)
   
   if(!any(lapply(potential_outcomes, function(x) class(x)) == "potential_outcomes") & any(inherit_condition_names) & is.null(condition_names)){
-    stop("At least one object sent to the potential_outcomes argument must be created by declare_potential_outcomes, if you provide .")
+    stop("At least one object sent to the potential_outcomes argument must be created by declare_potential_outcomes.")
   }
   
   noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
@@ -227,6 +227,93 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
   
   return(data)
   
+}
+
+#' @export
+has_potential_outcomes <- function(data, potential_outcomes, condition_names = NULL, noncompliance = NULL, attrition = NULL){
+  
+  if(class(potential_outcomes) == "list" & class(condition_names) == "list" &
+     length(potential_outcomes) != length(condition_names)){
+    stop("If you provide a list of potential_outcomes and a list of condition_names, you must provide a list of condition_names of the same length.")
+  }
+  
+  potential_outcomes <- clean_inputs(potential_outcomes, object_class = c("potential_outcomes", "attrition", "noncompliance", "interference"), accepts_list = TRUE)
+  
+  inherit_condition_names <- sapply(potential_outcomes, function(x) x$inherit_condition_names)
+  
+  if(!any(lapply(potential_outcomes, function(x) class(x)) == "potential_outcomes") & any(inherit_condition_names) & is.null(condition_names)){
+    stop("At least one object sent to the potential_outcomes argument must be created by declare_potential_outcomes.")
+  }
+  
+  noncompliance <- clean_inputs(noncompliance, object_class = "noncompliance", accepts_list = FALSE)
+  attrition <- clean_inputs(attrition, object_class = "attrition", accepts_list = FALSE)
+  
+  if(!is.null(noncompliance)){
+    potential_outcomes <- c(list(noncompliance), potential_outcomes)
+  }
+  
+  if(is.null(condition_names)){
+    condition_names <- lapply(potential_outcomes, function(x) x$condition_names)
+    first_potential_outcomes_object <- which(sapply(potential_outcomes, function(x) class(x)) == "potential_outcomes")[1]
+    if(any(inherit_condition_names) & is.null(condition_names[[first_potential_outcomes_object]])){
+      stop("If you choose the inherit_condition_names option for any potential_outcomes, interference, noncompliance, or attrition declarations, the first potential_outcomes object created by declare_potential_outcomes must have condition_names. These will be inherited by any objects that set inherit_condition_names = TRUE.")
+    }
+    
+    for(i in which(inherit_condition_names == TRUE)){
+      condition_names[[i]] <- condition_names[[first_potential_outcomes_object]]
+    }
+    
+  }else{
+    condition_names <- replicate(length(potential_outcomes), condition_names, simplify = FALSE)
+  }
+  # You must provide a condition_names argument that makes sense for all po objects.
+  
+  has_condition_names <- all(sapply(condition_names, function(x) is.null(x))) == FALSE
+  has_assignment_variable_names <- all(sapply(potential_outcomes, function(x) !is.null(x$assignment_variable_name))) == TRUE
+  
+  if(has_condition_names & !has_assignment_variable_names){
+    stop("Please provide the name of the treatment variable to the assignment_variable_name argument in declare_potential_outcomes if you provide condition_names.")
+  }
+  
+  which_po_class <- sapply(potential_outcomes, function(x) class(x) %in% c("potential_outcomes", "noncompliance", "attrition"))
+  if(sum(sapply(potential_outcomes[which_po_class], function(x) !is.null(x$assignment_variable_name))) != length(potential_outcomes[which_po_class])){
+    stop("If you provide a assignment_variable_name for any of the potential_outcomes, you must provide it for all of them.")
+  }
+  
+  has_potential_outcomes <- list()
+  
+  if(has_condition_names & has_assignment_variable_names) {
+    for(i in 1:length(potential_outcomes)){
+      
+      # make the combinations
+      
+      sep <- potential_outcomes[[i]]$sep
+      
+      condition_combinations <- expand.grid(condition_names[[i]])
+      if(is.null(names(condition_names[[i]]))){
+        colnames(condition_combinations) <- potential_outcomes[[i]]$assignment_variable_name
+      }
+      
+      has_potential_outcomes[[i]] <- rep(NA, nrow(condition_combinations))
+      for(j in 1:nrow(condition_combinations)){
+        
+        if(ncol(condition_combinations) > 1){
+          condition_combination <- lapply(1:ncol(condition_combinations[j, ]), function(x){ condition_combinations[j, x] })
+        } else {
+          condition_combination <- list(condition_combinations[j, ])
+        }
+        names(condition_combination) <- colnames(condition_combinations)
+        
+        outcome_name_internal <- 
+          paste(potential_outcomes[[i]]$outcome_variable_name, 
+                paste(names(condition_combination), condition_combinations[j,], sep = sep, collapse = sep),
+                sep = sep)
+        
+        has_potential_outcomes[[i]][j] <- all(outcome_name_internal %in% colnames(data))
+      }
+    }
+  }
+  return(all(do.call(rbind, has_potential_outcomes)))
 }
 
 #' @export
@@ -369,3 +456,4 @@ draw_potential_outcome_vector <- function(data, potential_outcomes, condition_na
   return(outcome_draw)
   
 }
+
