@@ -121,3 +121,14 @@ clean_condition_names <- function(condition_names, digits = 15){
     }
   }
 }
+
+##capitalize_first_letters <- function(x) {
+##  s <- strsplit(x, " ")[[1]]
+##  paste(toupper(substring(s, 1,1)), substring(s, 2),
+##        sep="", collapse=" ")
+##}
+
+
+formula_as_character <- function(formula){
+  return(Reduce(paste, deparse(formula)))
+}

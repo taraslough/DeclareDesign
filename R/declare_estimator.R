@@ -81,11 +81,12 @@ declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL
     estimand$labels <- as.character(substitute(estimand))
   }
   
-  return_object <- list(model = model_function, estimates = estimates_function, 
+  return_object <- list(model = model_function, model_name = substitute(model), estimates = estimates_function, estimates_name = substitute(estimates),
                         labels = labels, description = description, estimand = estimand, call = match.call())
   
   if(is.null(model)){
     return_object$model <- NULL
+    return_object$model_name <- NULL
   }
   
   structure(return_object, class = "estimator")

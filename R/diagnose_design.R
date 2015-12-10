@@ -129,15 +129,23 @@ diagnose_design <- function(design = NULL, diagnosis = NULL, statistics = list(c
 
 #' @export
 print.diagnosis <- function(x, ...){
-  print(x$diagnosis)
-  return()
+  print(summary(x))
+  invisible(summary(x))
 }
 
 #' @export
-summary.diagnosis <- function(object, ...){
-  print(object$diagnosis)
-  return()
+summary.diagnosis <- function(object, ...) {
+  diagnosis_matrix <- object$diagnosis
+  structure(diagnosis_matrix, class = c("summary.diagnosis", "matrix"))
 }
+
+#' @export
+print.summary.diagnosis <- function(x, ...){
+  class(x) <- "matrix"
+  print(x)
+  invisible(x)
+}
+
 
 #' @export
 print.diagnosis.list <- function(x, ...) {
