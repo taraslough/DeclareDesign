@@ -131,10 +131,11 @@ assign_treatment_indicator <- function(data, assignment) {
   
   if(!is.null(assignment$custom_assignment_function)){
     if("data" %in% names(formals(assignment$custom_assignment_function))){
-      assignment$custom_transform_function_options$data <- data
+      assignment$custom_assignment_function_options$data <- data
     }
-    if("n_" %in% names(formals(assignment$custom_assignment_function)))
+    if("n_" %in% names(formals(assignment$custom_assignment_function))){
       assignment$custom_assignment_function_options$n_ <- nrow(data)
+    }
     
       Z <- do.call(assignment$custom_assignment_function, 
                    args = assignment$custom_assignment_function_options)

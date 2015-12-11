@@ -14,7 +14,6 @@ library(DeclareDesign)
 # blocking, clustering and transforming
 # check multiple custom assignments work
 
-<<<<<<< Updated upstream
 context("Custom treatment assignment functions")
 
 test_that("declare_assignment works with custom functions", {
@@ -95,21 +94,24 @@ test_that("declare_assignment works with custom functions", {
   
   # Obtain Treatment Probabilities
   
-  prob_mat_1 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_1) 
-  prob_mat_2 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_2) 
+  expect_error(prob_mat_1 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_1))
+  expect_error(prob_mat_2 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_2))
   prob_mat_3 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_3) 
   prob_mat_4 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_4) 
   
   # reveal observed probs
-  
+  expect_error(
   prob_obs_1 <- get_observed_assignment_probabilities(
     data = smp_draw, 
     assignment_variable_name = "Z1", 
     assignment = assignment_1) 
+  )
+  expect_error(
   prob_obs_2 <- get_observed_assignment_probabilities(
     data = smp_draw, 
     assignment_variable_name = "Z2", 
     assignment = assignment_2) 
+  )
   prob_obs_3 <- get_observed_assignment_probabilities(
     data = smp_draw, 
     assignment_variable_name = "Z3", 
@@ -118,10 +120,10 @@ test_that("declare_assignment works with custom functions", {
     data = smp_draw, 
     assignment_variable_name = "Z4", 
     assignment = assignment_4) 
-=======
+
+})
 test_that("Custom Assignment Works", {
->>>>>>> Stashed changes
-  
+
   population <- declare_population(noise = "rnorm(n_)", size = 250)
   sampling <- declare_sampling(n = 100)
   
