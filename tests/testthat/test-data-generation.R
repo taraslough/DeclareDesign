@@ -348,6 +348,8 @@ test_that("test data generation functions", {
     size = 20
   )$population()
   
+  
+  
 })
 
 
