@@ -104,12 +104,12 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, cl
     return(c(diff, se, p, ci_lower, ci_upper, df))
   }
   
+  if(!is.null(subset))
+    data <- data[subset, ]
+  
   condition_names <- unique(data[,all.vars(formula[[3]])])
   combn <- combn(rev(sort(condition_names)), m = 2)
   combn_names <- apply(combn, 2, function(x) paste(x, collapse = "-"))
-  
-  if(!is.null(subset))
-    data <- data[subset, ]
   
   ##if(!is.null(weights))
   ##  w <- weights[subset]
