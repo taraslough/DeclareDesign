@@ -559,7 +559,7 @@ wrap_custom_population_function <- function(
   options = NULL
 ){
   
-  if(!any("size" %in% options))
+  if(!any("size" %in% formals(custom_population_function)))
     stop("Your custom data function must include a size argument.")
   
   custom_pop_env <- list2env(
