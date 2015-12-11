@@ -49,6 +49,8 @@ test_that("test blocked and clustered experiment", {
                            potential_outcomes = potential_outcomes,
                            label = "Blocked and Clustered Design")
   
+  summary(design)
+  
   diagnosis <- diagnose_design(design = design, population_draws = 2, sample_draws = 4)
   
   # mock data  ---------------------------------------------------------------  

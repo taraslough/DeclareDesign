@@ -44,8 +44,10 @@ summary.population <- function(object, ...) {
   object <- clean_inputs(object, "population", accepts_list = FALSE)
   size <- get("size", envir = environment(object$population))
   levels <- get_level_names(object$population)
-  level_sizes <- paste(size, levels, collapse = " in ")
-  summary_text <- paste0("The population is defined as", ifelse(level_sizes == "", "individuals", level_sizes), ".")
+  level_sizes <- ifelse(is.null(levels), "individuals", paste(size, levels, collapse = " in "))
+  
+  summary_text <- paste0("The population is defined as ", 
+                         ifelse(length(size) > 1, level_sizes, paste(size, "units")), ".")
   structure(summary_text, class = c("summary.population", "population"))
 }
 
@@ -55,8 +57,10 @@ print.summary.sampling <- function(x, ...){
 }
 
 get_level_names <- function(population){
-  level_ID_variables <- get("level_IDs", envir = environment(population))
-  return(tolower(gsub("_", " ", gsub("_ID", "", level_ID_variables))))
+  level_ID_variables <- get_level_IDs(expression_list = get("expressions", envir = environment(population)), 
+                                      level_IDs = get("level_IDs", envir = environment(population)), 
+                                      N_levels = get("N_levels", envir = environment(population)))
+  return(gsub("[[:space:]]", "", tolower(gsub("_", " ", gsub("_ID", "", level_ID_variables)))))
 }
 
 
@@ -130,30 +134,31 @@ summary.estimator <- function(object, ...) {
   for(i in 1:length(object)){
     if(!is.null(object[[i]]$model)){
       formula <- formula_as_character(get("formula", envir = environment(object[[i]]$model)))
-      if(identical(object[[i]]$model, lm)){
+      if(identical(get("model", envir = environment(object[[i]]$model)), lm)){
         model <- "linear regression"
-      } else if(identical(object[[i]]$model, glm)){
+      } else if(identical(get("model", envir = environment(object[[i]]$model)), glm)){
         model <- "generalized linear model"
       } else {
-        model <- object$model_name
+        model <- object[[i]]$model_name
       }
-      if(identical(object[[i]]$estimates, "get_regression_coefficient")){
-        summary_text[[i]] <- paste0("the coefficient for ", get("coefficient_name", envir = environment(object[[i]]$estimates)), " from a ", model)
+      if(identical(get("estimates", envir = environment(object[[i]]$estimates)), DeclareDesign::get_regression_coefficient)){
+        summary_text[[i]] <- paste0("the coefficient for ", get("estimates_options", envir = environment(object[[i]]$estimates))$coefficient_name, " from a ", model)
       }
     } else {
       if(identical(object[[i]]$estimates, DeclareDesign::difference_in_means)){
         estimator <- "difference-in-means"
-      } else if(identical(object[[i]]$estimates, DeclareDesign::difference_in_means_blocked)) {
+      } else if(identical(get("estimates", envir = environment(object[[i]]$estimates)), DeclareDesign::difference_in_means_blocked)) {
         estimator <- "block-adjusted difference-in-means"
       } else {
-        estimator <- object$estimates_name
+        estimator <- object[[i]]$estimates_name
       }
       summary_text[[i]] <- paste0(estimator)
     }
-    summary_text[[i]] <-  paste0("An estimator", ifelse(is.null(object$label), "", paste(", labeled", object$label, ", ")), 
-                                 "is calculated using", summary_text[[i]])
+    summary_text[[i]] <-  paste0(ifelse(length(object) > 1, paste0("(", i, ifelse(is.null(object$label), "", paste(", labeled", object$label)), ") "), ""), 
+                                 "calculated using ", summary_text[[i]])
   }
-  summary_text <- do.call(paste0, summary_text)
+  paste_semi <- function(...) paste(... = ..., sep = "; ")
+  summary_text <- paste0(ifelse(length(object) == 1, "There is one estimator: ", paste0("There are ", length(object), " estimators: ")), do.call(paste_semi, summary_text), ".")
   structure(summary_text, class = c("summary.estimator", "estimator"))
 }
 
