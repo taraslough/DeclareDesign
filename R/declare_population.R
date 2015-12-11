@@ -615,23 +615,18 @@ make_bootstrap_data_function <- function(data, size, level_IDs = NULL){
   }
   
   boot_pop_env <- list2env(
-    list(size = size,
+    list(size_internal = size,
          level_IDs = level_IDs,
          data = data)
   )
   
-  population_function <- function(.size){
+  population_function <- function(size){
     
-    if(!missing(.size)){
-      size <- .size
-    } else {
-      size <- get("size",envir = boot_pop_env)
-    }
+    if(!missing(size)){
+      size_internal <- size
+    } 
     
-    data <- get("data",envir = boot_pop_env)
-    level_IDs <- get("level_IDs",envir = boot_pop_env)
-    
-    bootstrap_data(data = data, size = size, level_IDs = level_IDs)
+    bootstrap_data(data = data, size = size_internal, level_IDs = level_IDs)
     
   }
   
