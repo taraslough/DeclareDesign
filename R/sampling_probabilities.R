@@ -3,7 +3,7 @@
 #'
 #' Description
 #' @param data A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.
-#' @param sampling A sampling object created by \code{\link{declare_sampling}}
+#' @param sampling A sampling object created by \code{\link{declare_sampling}}.
 #' @return A matrix of probabilities of selection.
 #' @examples
 #' population <- declare_population(size = 850)

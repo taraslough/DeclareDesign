@@ -4,6 +4,13 @@
 #' 
 #' @param data A data.frame object representing the population to sample from, typically created by \code{draw_population}.
 #' @param sampling A sampling object describing the sampling strategy created by \code{declare_sampling}.
+#' @examples
+#' population <- declare_population(size = 850)
+#' sampling <- declare_sampling(n=500)
+#' pop_draw <- draw_population(population = population)
+#' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
+#'
+#' head(smp_draw)
 #'
 #' @export
 draw_sample <- function(data, sampling = NULL) {
@@ -48,9 +55,17 @@ draw_sample <- function(data, sampling = NULL) {
 #'
 #' Description
 #' @param data A dataframe, often created by \code{\link{draw_population}}.
-#' @param sampling A sampling object created by \code{\link{declare_sampling}}; or a function that samples
+#' @param sampling A sampling object created by \code{\link{declare_sampling}}.
 #' 
 #' @return A vector of 0's and 1's indicating which population units are sampled.
+#' 
+#' @examples
+#' population <- declare_population(size = 850)
+#' sampling <- declare_sampling(n=500)
+#' pop_draw <- draw_population(population = population)
+#' pop_draw$S <- draw_sample_indicator(data = pop_draw, sampling = sampling)
+#' 
+#' table(pop_draw$S)
 #' 
 #' @export
 draw_sample_indicator <- function(data, sampling) {

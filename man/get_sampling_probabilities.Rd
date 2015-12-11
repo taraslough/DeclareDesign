@@ -9,7 +9,7 @@ get_sampling_probabilities(data, sampling)
 \arguments{
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 
-\item{sampling}{A sampling object created by \code{\link{declare_sampling}}}
+\item{sampling}{A sampling object created by \code{\link{declare_sampling}}.}
 }
 \value{
 A matrix of probabilities of selection.

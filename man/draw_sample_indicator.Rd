@@ -9,7 +9,7 @@ draw_sample_indicator(data, sampling)
 \arguments{
 \item{data}{A dataframe, often created by \code{\link{draw_population}}.}
 
-\item{sampling}{A sampling object created by \code{\link{declare_sampling}}; or a function that samples}
+\item{sampling}{A sampling object created by \code{\link{declare_sampling}}.}
 }
 \value{
 A vector of 0's and 1's indicating which population units are sampled.
@@ -19,5 +19,14 @@ This function takes a data.frame object representing the population and returns 
 }
 \details{
 Description
+}
+\examples{
+population <- declare_population(size = 850)
+sampling <- declare_sampling(n=500)
+pop_draw <- draw_population(population = population)
+pop_draw$S <- draw_sample_indicator(data = pop_draw, sampling = sampling)
+
+table(pop_draw$S)
+
 }
 

@@ -14,4 +14,13 @@ draw_sample(data, sampling = NULL)
 \description{
 This function takes a data frame representing the population and returns a data frame of the data from a sample drawn from the population.
 }
+\examples{
+population <- declare_population(size = 850)
+sampling <- declare_sampling(n=500)
+pop_draw <- draw_population(population = population)
+smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
+
+head(smp_draw)
+
+}
 
