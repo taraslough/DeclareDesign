@@ -7,6 +7,7 @@ context("Interference")
 
 test_that("test simple interference model", {
   
+  
   adj <- rgnm(n = 1, nv = 100, m = 2000)
   
   population <- declare_population(noise = "rnorm(n_)", size = 250)
@@ -60,5 +61,40 @@ test_that("test simple interference model", {
   
   # mock data  ---------------------------------------------------------------  
   
+  # More complex kinds of exposure ------------------------------------------
+  
+  #   test continuous exposure matrix
+  adj_cont <- adj*rnorm(prod(dim(adj)))
+  interference_cont_1 <- declare_interference(
+    formula = E1 ~ adj %*% Z, adj = adj_cont, condition_names = c(0,1))
+  
+  interference_cont_2 <- declare_interference(
+    formula = E2 ~ adj %*% Z / 2, adj = adj_cont, condition_names = c(0,1))
+  
+  POs_1 <- declare_potential_outcomes(formula = Y1 ~ 5 + .5*Z + .1*E1  + noise,
+                                                     condition_names = c(0, 1),
+                                                     assignment_variable_name = "Z")
+  POs_2 <- declare_potential_outcomes(formula = Y2 ~ 5 + .5*Z + .1*E2  + noise,
+                                      condition_names = c(0, 1),
+                                      assignment_variable_name = "Z")
+  
+  #   test multiple exposures
+  POs_3 <- declare_potential_outcomes(formula = Y3 ~ 5 + .5*Z + .1*E2 + E1 + noise,
+                                      condition_names = c(0, 1),
+                                      assignment_variable_name = "Z")
+  
+  
+  new_smp_draw <- draw_outcome(
+    data = smp_draw, 
+    potential_outcomes = list(
+      interference_cont_1,
+      interference_cont_2, 
+      POs_1, POs_2, POs_3), 
+    condition_names = c(0, 1))
+  
+  
+  
 })
+
+
 
