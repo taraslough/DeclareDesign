@@ -18,17 +18,20 @@ A matrix of probabilities of assignment to treatment.
 Description
 }
 \examples{
-population <- declare_population(noise = declare_variable(), N = 1000)
-sampling <- declare_sampling(n = 500)
-potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
-                                                 condition_names = c(0, 1),
-                                                 assignment_variable_name = "Z")
-assignment <- declare_assignment(potential_outcomes = potential_outcomes)
-pop_draw <- draw_population(population = population)
-smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
-prob_mat <- get_assignment_probabilities(data = smp_draw, assignment = assignment)
+population <- declare_population(size = 850)
+sampling <- declare_sampling(n=500)
+potential_outcomes <- declare_potential_outcomes(condition_names = c(0, 1),
+                                                 formula = Y ~ 1 + 1*Z)
+assignment <- declare_assignment(potential_outcomes = potential_outcomes, m = 200)
 
-head(prob_mat)
+design <- declare_design(population = population, 
+                         sampling = sampling, 
+                         assignment = assignment, 
+                         potential_outcomes = potential_outcomes)
 
+smp_draw <- draw_data(design)
+
+assignment_probabilities <- get_assignment_probabilities(data = smp_draw, assignment = assignment)
+head(assignment_probabilities)
 }
 

@@ -2,14 +2,14 @@
 % Please edit documentation in R/sampling_probabilities.R
 \name{get_sampling_probabilities}
 \alias{get_sampling_probabilities}
-\title{Calculate probabilties of assignment}
+\title{Calculate inclusion probabilties}
 \usage{
 get_sampling_probabilities(data, sampling)
 }
 \arguments{
 \item{data}{A dataframe, often created by \code{\link{draw_population}} or \code{\link{draw_sample}}.}
 
-\item{sampling}{A sampling object created by \code{\link{declare_sampling}}; or a function that assigns treatment}
+\item{sampling}{A sampling object created by \code{\link{declare_sampling}}}
 }
 \value{
 A matrix of probabilities of selection.
@@ -18,14 +18,11 @@ A matrix of probabilities of selection.
 Description
 }
 \examples{
-# these examples don't work yet
-# smp <- declare_population(N = 850)
-# po <- declare_potential_outcomes(condition_names = c("Z0","Z1"),
-#                                    formula = Y ~ .01 + 0*Z0 + .2*Z1)
-# assignment <- declare_assignment(potential_outcomes = po, n=200)
-# mock          <- draw_population(potential_outcomes = po, sample =  smp)
-# mock$Z        <- assign_treatment_indicator(assignment, data = mock)
-# assignment_probabilities <- get_assignment_probabilities(assignment, mock)
-# head(assignment_probabilities)
+population <- declare_population(size = 850)
+sampling <- declare_sampling(n=500)
+pop_draw <- draw_population(population = population)
+sampling_probabilities <- get_sampling_probabilities(data = pop_draw, 
+                                                     sampling = sampling)
+head(sampling_probabilities)
 }
 
