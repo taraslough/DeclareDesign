@@ -635,7 +635,7 @@ make_bootstrap_data_function <- function(data, size, level_IDs = NULL){
     
   }
   
-  environment(make_population) <- boot_pop_env
+  environment(population_function) <- boot_pop_env
   
   return(population_function)
   
