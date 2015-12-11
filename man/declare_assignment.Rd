@@ -12,7 +12,7 @@ declare_assignment(condition_names = NULL, m = NULL, m_each = NULL,
   custom_transform_function = NULL, transform_options = NULL,
   custom_assignment_function = NULL, custom_blocking_function = NULL,
   custom_clustering_function = NULL,
-  existing_assignment_variable_name = NULL, description = NULL)
+  existing_assignment_variable_name = NULL, description = NULL, ...)
 }
 \arguments{
 \item{condition_names}{A vector describing the conditions to which subjects can be assigned. Alternatively, condition_names can be obtained from a potential_outcomes object.}
@@ -52,6 +52,8 @@ declare_assignment(condition_names = NULL, m = NULL, m_each = NULL,
 \item{existing_assignment_variable_name}{The name of an already-assigned treatment variable.}
 
 \item{description}{}
+
+\item{...}{options pssed to custom assignment function}
 }
 \value{
 assignment object

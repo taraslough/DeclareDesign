@@ -14,6 +14,7 @@ library(DeclareDesign)
 # blocking, clustering and transforming
 # check multiple custom assignments work
 
+<<<<<<< Updated upstream
 context("Custom treatment assignment functions")
 
 test_that("declare_assignment works with custom functions", {
@@ -117,5 +118,73 @@ test_that("declare_assignment works with custom functions", {
     data = smp_draw, 
     assignment_variable_name = "Z4", 
     assignment = assignment_4) 
+=======
+test_that("Custom Assignment Works", {
+>>>>>>> Stashed changes
   
+  population <- declare_population(noise = "rnorm(n_)", size = 250)
+  sampling <- declare_sampling(n = 100)
+  
+  potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z*rnorm(n_) + noise,
+                                                   condition_names = 1:4,
+                                                   assignment_variable_name = "Z")
+  
+  custom_fun <- function(n_) sample(1:4, n_, replace=TRUE)
+  
+  assignment <- declare_assignment(custom_assignment_function = custom_fun)
+  
+  design <- declare_design(population = population,
+                           sampling = sampling, 
+                           assignment = assignment, 
+                           potential_outcomes = potential_outcomes)  
+  
+  smp_draw <- draw_data(design)
+  head(smp_draw)
+})
+
+test_that("Custom Assignment again!", {
+  
+  population <- declare_population(noise = "rnorm(n_)", size = 250)
+  sampling <- declare_sampling(n = 100)
+  
+  potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z*rnorm(n_) + noise,
+                                                   condition_names = c(0,1),
+                                                   assignment_variable_name = "Z")
+  
+  custom_fun <- function(m, n_) ifelse(1:n_ %in% sample(1:n_, m-2), 1, 0)
+  
+  assignment <- declare_assignment(custom_assignment_function = custom_fun, m = 23)
+  
+  design <- declare_design(population = population,
+                           sampling = sampling, 
+                           assignment = assignment, 
+                           potential_outcomes = potential_outcomes)  
+  
+  smp_draw <- draw_data(design)
+  head(smp_draw)
+  table(smp_draw$Z)
+})
+
+
+test_that("Custom Assignment once again!", {
+  
+  population <- declare_population(noise = "rnorm(n_)", size = 250)
+  sampling <- declare_sampling(n = 100)
+  
+  potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z*rnorm(n_) + noise,
+                                                   condition_names = c(0,1),
+                                                   assignment_variable_name = "Z")
+  
+  custom_fun <- function(m, n_, distortion_factor) ifelse(1:n_ %in% sample(1:n_, m-distortion_factor), 1, 0)
+  
+  assignment <- declare_assignment(custom_assignment_function = custom_fun, m = 23, distortion_factor = 5)
+  
+  design <- declare_design(population = population,
+                           sampling = sampling, 
+                           assignment = assignment, 
+                           potential_outcomes = potential_outcomes)  
+  
+  smp_draw <- draw_data(design)
+  head(smp_draw)
+  table(smp_draw$Z)
 })

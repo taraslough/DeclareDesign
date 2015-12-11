@@ -19,6 +19,7 @@
 #' @param custom_transform_function 
 #' @param transform_options 
 #' @param description 
+#' @param ... options pssed to custom assignment function
 #'
 #' @return assignment object
 #' 
@@ -157,7 +158,8 @@ declare_assignment <-
            custom_blocking_function = NULL,
            custom_clustering_function = NULL,
            existing_assignment_variable_name = NULL,
-           description = NULL) {
+           description = NULL,
+           ...) {
     
     # Determine assignment type
     assignment_type <- "complete"   
@@ -214,6 +216,33 @@ declare_assignment <-
       baseline_condition <- condition_names[1]
     }
     
+    # add options to custom assignment function
+    
+    if(!is.null(custom_assignment_function)){
+      custom_assignment_function_options <- list(...)
+        argument_names <- names(formals(custom_assignment_function))
+        if(!is.null(condition_names) & "condition_names" %in% argument_names)
+          custom_assignment_function_options$condition_names <- condition_names
+        if(!is.null(potential_outcomes) & "potential_outcomes" %in% argument_names)
+          custom_assignment_function_options$potential_outcomes <- potential_outcomes
+        if(!is.null(block_variable_name) & "block_variable_name" %in% argument_names)
+          custom_assignment_function_options$block_variable_name <- block_variable_name
+        if(!is.null(cluster_variable_name) & "cluster_variable_name" %in% argument_names)
+          custom_assignment_function_options$cluster_variable_name <- cluster_variable_name
+        if(!is.null(m) & "m" %in% argument_names)
+          custom_assignment_function_options$m <- m
+        if(!is.null(m_each) & "m_each" %in% argument_names)
+          custom_assignment_function_options$m_each <- m_each
+        if(!is.null(probability_each) & "probability_each" %in% argument_names)
+          custom_assignment_function_options$probability_each <- probability_each
+        if(!is.null(block_m) & "block_m" %in% argument_names)
+          custom_assignment_function_options$block_m <- block_m
+        if(!is.null(block_probabilities) & "block_probabilities" %in% argument_names)
+          custom_assignment_function_options$block_probabilities <- block_probabilities
+    }
+    
+    
+    
     if(is.null(custom_assignment_function) & is.null(existing_assignment_variable_name)){
       return.object <- list(block_variable_name = block_variable_name,
                             cluster_variable_name = cluster_variable_name,
@@ -235,6 +264,7 @@ declare_assignment <-
     } else if(!is.null(custom_assignment_function)) {
       return.object <- list(
         custom_assignment_function = custom_assignment_function,
+        custom_assignment_function_options = custom_assignment_function_options,
         condition_names = condition_names,
         baseline_condition = baseline_condition,
         assignment_variable_name = assignment_variable_name,
@@ -375,8 +405,8 @@ blocked_assignment <-
         N_block <- sum(block_variable==blocks[i])
         assign[block_variable==blocks[i]] <- 
           complete_assignment(N = N_block, 
-                      condition_names=condition_names, 
-                      baseline_condition = baseline_condition)
+                              condition_names=condition_names, 
+                              baseline_condition = baseline_condition)
       }
       return(assign)
     }
@@ -390,9 +420,9 @@ blocked_assignment <-
         }
         N_block <- sum(block_variable==blocks[i])
         assign[block_variable==blocks[i]] <- complete_assignment(N = N_block, 
-                                                    m_each = block_m[i,], 
-                                                    condition_names=condition_names, 
-                                                    baseline_condition = baseline_condition)
+                                                                 m_each = block_m[i,], 
+                                                                 condition_names=condition_names, 
+                                                                 baseline_condition = baseline_condition)
       }
       return(assign)
     }
@@ -406,9 +436,9 @@ blocked_assignment <-
         }
         N_block <- sum(block_variable==blocks[i])
         assign[block_variable==blocks[i]] <- complete_assignment(N = N_block, 
-                                                    probability_each = probability_each, 
-                                                    condition_names=condition_names, 
-                                                    baseline_condition = baseline_condition)
+                                                                 probability_each = probability_each, 
+                                                                 condition_names=condition_names, 
+                                                                 baseline_condition = baseline_condition)
       }
       return(assign)
     }
@@ -423,9 +453,9 @@ blocked_assignment <-
         }
         N_block <- sum(block_variable==blocks[i])
         assign[block_variable==blocks[i]] <- complete_assignment(N = N_block, 
-                                                    probability_each = probability_each_local, 
-                                                    condition_names=condition_names, 
-                                                    baseline_condition = baseline_condition)
+                                                                 probability_each = probability_each_local, 
+                                                                 condition_names=condition_names, 
+                                                                 baseline_condition = baseline_condition)
       }
       return(assign)
     }
@@ -440,11 +470,11 @@ clustered_assignment <- function(cluster_variable, m=NULL, m_each = NULL, probab
   
   # Conduct assignment at the cluster level
   z_clus <- complete_assignment(N = n_clus, 
-                        m = m,
-                        m_each = m_each, 
-                        probability_each = probability_each,
-                        condition_names = condition_names,
-                        baseline_condition = baseline_condition)
+                                m = m,
+                                m_each = m_each, 
+                                probability_each = probability_each,
+                                condition_names = condition_names,
+                                baseline_condition = baseline_condition)
   
   # Merge back up to the individual level, maintaining original ordering
   merged <- merge(x = data.frame(cluster_variable, init_order = 1:length(cluster_variable)), 
@@ -474,11 +504,11 @@ blocked_and_clustered_assignment <-
     
     # Conduct random assignment at cluster level
     z_clust <- blocked_assignment(block_variable = clust_blocks, 
-                        block_m = block_m, 
-                        probability_each = probability_each,
-                        block_probabilities = block_probabilities,
-                        condition_names = condition_names, 
-                        baseline_condition = baseline_condition)
+                                  block_m = block_m, 
+                                  probability_each = probability_each,
+                                  block_probabilities = block_probabilities,
+                                  condition_names = condition_names, 
+                                  baseline_condition = baseline_condition)
     
     # Merge back up to the individual level, maintaining original ordering
     merged <- merge(x = data.frame(cluster_variable, init_order = 1:length(cluster_variable)), 
