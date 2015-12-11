@@ -6,7 +6,15 @@ context("custom population functions")
 
 test_that("test that custom population generation functions work", {
   
-  # 
+  # Very simple custom GDP function
+  
+  my_DGP <- function(size){
+    data <- data.frame(matrix(data = rnorm(size^2),nrow = size))
+    names(data) <- paste0("X",1:ncol(data))
+    return(data)
+  }
+  
+  declare_population(size = 10,custom_population_function = my_DGP)$population()
   
   # User-provided data, custom resampling function
   
