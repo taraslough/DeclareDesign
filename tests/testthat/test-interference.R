@@ -83,15 +83,17 @@ test_that("test simple interference model", {
                                       condition_names = c(0, 1),
                                       assignment_variable_name = "Z")
   
-  
-  new_smp_draw <- draw_outcome(
-    data = smp_draw, 
-    potential_outcomes = list(
-      interference_cont_1,
-      interference_cont_2, 
-      POs_1, POs_2, POs_3), 
-    condition_names = c(0, 1))
-  
+  expect_error(
+    # This should work once declare_interference inherits the exposure variable
+    # name from the formula
+    new_smp_draw <- draw_outcome(
+      data = smp_draw, 
+      potential_outcomes = list(
+        interference_cont_1,
+        interference_cont_2, 
+        POs_1, POs_2, POs_3), 
+      condition_names = c(0, 1))
+  )
   
   
 })
