@@ -8,13 +8,26 @@ draw_population(population, condition_names = NULL,
   potential_outcomes = NULL, noncompliance = NULL, attrition = NULL)
 }
 \arguments{
-\item{population}{A population object describing the population data structure created by the \code{declare_population} function.}
+\item{population}{A population object describing the population data structure created by the \link{\code{declare_population}}.}
 
 \item{condition_names}{A character vector indicating which conditions to draw potential outcomes for (for example c("Z0", "Z1") would create "Y_Z0" and "Y_Z1" if the outcome is named "Y").}
 
-\item{potential_outcomes}{A potential outcomes object created by the \code{potential_outcomes} object.}
+\item{potential_outcomes}{A potential outcomes object created by \link{\code{declare_potential_outcomes}}.}
+
+\item{noncompliance}{A noncompliance object created by \link{\code{declare_noncompliance}} (optional).}
+
+\item{attrition}{A noncompliance object created by \link{\code{declare_attrition}} (optional).}
+}
+\value{
+A data.frame
 }
 \description{
 Draw a population data frame based on a declared data structure
+}
+\examples{
+population <- declare_population(size = 850)
+sampling <- declare_sampling(n=500)
+pop_draw <- draw_population(population = population)
+
 }
 

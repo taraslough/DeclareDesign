@@ -1,8 +1,17 @@
 #' Draw a population data frame based on a declared data structure
 #' 
-#' @param population A population object describing the population data structure created by the \code{declare_population} function.
-#' @param potential_outcomes A potential outcomes object created by the \code{potential_outcomes} object.
+#' @param population A population object describing the population data structure created by the \link{\code{declare_population}}.
+#' @param potential_outcomes A potential outcomes object created by \link{\code{declare_potential_outcomes}}.
 #' @param condition_names A character vector indicating which conditions to draw potential outcomes for (for example c("Z0", "Z1") would create "Y_Z0" and "Y_Z1" if the outcome is named "Y").
+#' @param noncompliance A noncompliance object created by \link{\code{declare_noncompliance}} (optional).
+#' @param attrition A noncompliance object created by \link{\code{declare_attrition}} (optional).
+#' 
+#' @return A data.frame
+#' 
+#' @examples
+#' population <- declare_population(size = 850)
+#' sampling <- declare_sampling(n=500)
+#' pop_draw <- draw_population(population = population)
 #'
 #' @export
 draw_population <- function(population, 
