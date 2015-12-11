@@ -131,6 +131,11 @@ make_population_function <- function(
   options,
   make_unique_ID
 ){
+  
+  if(length(expressions) == 0){
+    expressions <- list(unit = list())
+  }
+  
   # Make sure that all of the levels are properly named
   expressions <- make_level_names(expressions = expressions,
                                   level_IDs = level_IDs)
