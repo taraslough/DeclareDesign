@@ -36,6 +36,10 @@ test_that("test user provided data can be re-sampled correctly", {
   head(draw_population(population = pop_2))
   
   # Changing the size argument of bootstrapping
-  pop_2$population(size = c(8,4,2))
+  resize_data_1 <- pop_2$population(size = c(8,4,2))
+  resize_data_2 <- pop_2$population(size = c(80,40,2))
+  
+  with(resize_data_1,table(city_ID,region_ID))
+  with(resize_data_2,table(city_ID,region_ID))
   
 })
