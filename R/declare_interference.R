@@ -1,6 +1,6 @@
 #' @export
 declare_interference <- function(exposure_function = default_exposure_function,
-                                 formula = NULL, exposure_variable_name = "E", 
+                                 formula = NULL, exposure_variable_name, 
                                  condition_names, sep = "_", ...,
                                  description = NULL){
   
@@ -8,6 +8,10 @@ declare_interference <- function(exposure_function = default_exposure_function,
     stop("Please provide condition_names.")
   }
 
+  if(is.null(exposure_variable_name) & !is.null(formula)){
+    exposure_variable_name <- as.character(formula[[2]])
+  }
+  
   outcomes_object <- 
     declare_potential_outcomes(potential_outcomes_function = exposure_function, 
                                formula = formula, 
