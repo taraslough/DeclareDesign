@@ -72,8 +72,8 @@ test_that("test simple interference model", {
     formula = E2 ~ adj %*% Z / 2, adj = adj_cont, condition_names = c(0,1))
   
   POs_1 <- declare_potential_outcomes(formula = Y1 ~ 5 + .5*Z + .1*E1  + noise,
-                                                     condition_names = c(0, 1),
-                                                     assignment_variable_name = "Z")
+                                      condition_names = c(0, 1),
+                                      assignment_variable_name = "Z")
   POs_2 <- declare_potential_outcomes(formula = Y2 ~ 5 + .5*Z + .1*E2  + noise,
                                       condition_names = c(0, 1),
                                       assignment_variable_name = "Z")
@@ -83,17 +83,13 @@ test_that("test simple interference model", {
                                       condition_names = c(0, 1),
                                       assignment_variable_name = "Z")
   
-  expect_error(
-    # This should work once declare_interference inherits the exposure variable
-    # name from the formula
-    new_smp_draw <- draw_outcome(
-      data = smp_draw, 
-      potential_outcomes = list(
-        interference_cont_1,
-        interference_cont_2, 
-        POs_1, POs_2, POs_3), 
-      condition_names = c(0, 1))
-  )
+  new_smp_draw <- draw_outcome(
+    data = smp_draw, 
+    potential_outcomes = list(
+      interference_cont_1,
+      interference_cont_2, 
+      POs_1, POs_2, POs_3), 
+    condition_names = c(0, 1))
   
   
 })
