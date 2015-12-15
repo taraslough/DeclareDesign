@@ -1,26 +1,63 @@
-language: r
+# .travis.yml using container-based infrastructure
 
-sudo: required
+# use c as catch-all language
+language: c
 
-env:
- global:
-   - CRAN: http://cran.rstudio.com
+# use containers
+sudo: false
 
-r_github_packages:
-  - hadley/testthat
+# only run for pushes to master branch
+branches:
+  only:
+   - master
 
-r_packages:
-  - covr
+# install R: use r-packages-precise (https://cran.r-project.org/bin/linux/ubuntu/precise/) 
+# as source which is white listed (https://github.com/travis-ci/apt-source-whitelist/)
+addons:
+  apt:
+    sources:
+    - r-packages-precise
+    packages:
+    - r-base-dev	
 
-warnings_are_errors: true
+# cache local R libraries directory:
+cache:
+  directories:
+    - ~/Rlib
 
-script: "Rscript -e 'library(devtools); check(); test()'"
+# install the package and dependencies:
+# - create directory for R libraries (if not already exists)
+# - create .Renviron with location of R libraries
+# - define R repository in .Rprofile
+# - add .travis.yml to .Rbuildignore
+# - install devtools if not already installed
+# - install covr if not already installed
+# - update all installed packages
+# - install package with dependencies
+install:
+  - mkdir -p ~/Rlib
+  - echo 'R_LIBS=~/Rlib' > .Renviron
+  - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
+  - echo '.travis.yml' > .Rbuildignore
+  - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
+  - Rscript -e 'if(!"covr" %in% rownames(installed.packages())) { install.packages("covr", dependencies = TRUE) }'
+  - Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
+  - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
 
-after_success: 
+# Build and check package
+script:
+  - R CMD build . --no-build-vignettes --no-manual
+  - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
+  - R CMD check "${PKG_FILE_NAME}" --no-build-vignettes --no-manual --as-cran 
+
+# report coverage rate to coveralls
+after_success:
   - "Rscript -e \'system(\"curl -s -X POST -H \"Content-Type: application/json\" -H \"Accept: application/json\" -H \"Travis-API-Version: 3\" -H \"Authorization: token zt18Nwsg6dFQay1CAt6Zrw\" -d '{\"request\": {\"branch\":\"master\", \"token\": \"zt18Nwsg6dFQay1CAt6Zrw\"}}\' https://api.travis-ci.org/repo/egap%2FDeclareDesign.org/requests\")\'"
-  - "Rscript -e 'covr::codecov()'"
+  - Rscript -e 'covr::coveralls(exclusions = "src/RcppExports.cpp")'
+
+# send e-mails if stuff changes
 notifications:
   email:
+    graemedouglasblair@gmail.com
     on_success: change
     on_failure: change
-
