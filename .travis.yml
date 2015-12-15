@@ -45,20 +45,10 @@ install:
   - Rscript -e 'if(!"covr" %in% rownames(installed.packages())) { install.packages("covr", dependencies = TRUE) }'
   - Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
   - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
-  - ls -a
 
 # Build and check package
 script:
-  - R CMD build . --no-build-vignettes --no-manual
-  - ls -a
-  - tar -xzvf DeclareDesign_0.1.tar.gz
-  - ls -a
-  - cd DeclareDesign
-  - ls -a
-  - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-  - echo ${PKG_FILE_NAME}
-#  - Rscript -e 'devtools::test()'
-  - R CMD check "${PKG_FILE_NAME}" --no-build-vignettes --no-manual --as-cran 
+  - Rscript -e "devtools::check()'
 
 # report coverage rate to coveralls
 after_success:
