@@ -5,3 +5,4 @@
 
 This software is in alpha release. Please contact the authors before using in experiments or published work.
  
+(c) 2015 Graeme Blair, Jasper Cooper, Alexander Coppock, and Macartan Humphreys. All rights reserved.
