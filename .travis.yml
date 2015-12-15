@@ -56,6 +56,7 @@ script:
   - cd DeclareDesign
   - ls -a
   - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
+  - echo ${PKG_FILE_NAME}
 #  - Rscript -e 'devtools::test()'
   - R CMD check "${PKG_FILE_NAME}" --no-build-vignettes --no-manual --as-cran 
 
