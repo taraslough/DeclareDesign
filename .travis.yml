@@ -45,6 +45,7 @@ install:
   - Rscript -e 'if(!"covr" %in% rownames(installed.packages())) { install.packages("covr", dependencies = TRUE) }'
   - Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
   - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
+  - ls -a
 
 # Build and check package
 script:

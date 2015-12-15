@@ -20,7 +20,8 @@ Imports:
 Suggests:
     testthat,
     dplyr,
-    sna
+    sna,
+    reshape2
 License: GPL (>= 2)
 LazyData: true
 RoxygenNote: 5.0.1
