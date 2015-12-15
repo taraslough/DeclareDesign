@@ -136,11 +136,9 @@ test_that("compare two different custom assignment functions", {
   custom_sampling_1  <- function(data) { N <- nrow(data); sample(c(0, 1), N, prob = c(.1, .9), replace = T) }
   custom_sampling_2  <- function(data) { N <- nrow(data); sample(c(0, 1), N, prob = c(.25, .75), replace = T) }
   
-  sampling_custom_1 <- declare_sampling(condition_names = c(0,1), 
-                                        custom_sampling_function = custom_sampling_1)
+  sampling_custom_1 <- declare_sampling(custom_sampling_function = custom_sampling_1)
   
-  sampling_custom_2 <- declare_sampling(condition_names = c(0,1), 
-                                        custom_sampling_function = custom_sampling_2)
+  sampling_custom_2 <- declare_sampling(custom_sampling_function = custom_sampling_2)
   
   design_1 <- modify_design(design = design, sampling = custom_sampling_1)
   design_2 <- modify_design(design = design, sampling = custom_sampling_2)
