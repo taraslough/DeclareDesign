@@ -58,6 +58,5 @@ after_success:
 # send e-mails if stuff changes
 notifications:
   email:
-    graemedouglasblair@gmail.com
     on_success: change
     on_failure: change
