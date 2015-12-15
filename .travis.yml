@@ -60,5 +60,9 @@ after_success:
 # send e-mails if stuff changes
 notifications:
   email:
+    recipients:
+      - graeme.blair@columbia.edu
+      - jj247@columbia.edu
+      - a.coppock@columbia.edu
     on_success: change
     on_failure: change
