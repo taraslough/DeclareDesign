@@ -18,7 +18,9 @@ Imports:
     foreach,
     doRNG
 Suggests:
-    testthat
+    testthat,
+    dplyr,
+    sna
 License: GPL (>= 2)
 LazyData: true
 RoxygenNote: 5.0.1
