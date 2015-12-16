@@ -22,5 +22,6 @@ Suggests:
     dplyr,
     sna,
     reshape2
+License: All rights reserved
 LazyData: true
 RoxygenNote: 5.0.1
