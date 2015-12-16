@@ -1,8 +1,18 @@
+#' Declare interference 
+#' 
+#' @param exposure_function Function to reveal exposure to treatment
+#' @param formula Formula used in exposure function
+#' @param exposure_variable_name Name of variable indicating realized exposure to treatment
+#' @param condition_names Condition name vector
+#' @param sep Separator for naming exposure potential outcomes
+#' @param description Describe the interference pattern declared
+#' @param ... A set of additional options for the \code{exposure_function}.
+#' 
 #' @export
 declare_interference <- function(exposure_function = default_exposure_function,
                                  formula = NULL, exposure_variable_name = NULL, 
-                                 condition_names, sep = "_", ...,
-                                 description = NULL){
+                                 condition_names, sep = "_", 
+                                 description = NULL, ...){
   
   if(missing(condition_names)){
     stop("Please provide condition_names.")

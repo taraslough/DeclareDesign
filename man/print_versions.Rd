@@ -6,6 +6,9 @@
 \usage{
 print_versions(versions = NULL)
 }
+\arguments{
+\item{versions}{A versions object created by \code{get_versions()}.}
+}
 \description{
 Print version of R and packages to improve reproducibility
 }

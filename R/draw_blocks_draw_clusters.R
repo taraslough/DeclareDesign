@@ -1,8 +1,9 @@
 #' Draw blocks for custom block functions used in an assignment function
 #'
-#' @param data 
-#' @param assignment 
-#' @return thing
+#' @param data A data.frame used to draw blocks from.
+#' @param assignment An \code{assignment} object created by \code{\link{declare_assignment}}.
+#' 
+#' @return a data.frame including blocks.
 #'
 #' @export
 draw_blocks <- function(data, assignment){
@@ -20,10 +21,10 @@ draw_blocks <- function(data, assignment){
 
 #' Draw clusters for custom cluster functions used in an assignment function
 #'
-#' @param data 
-#' @param assignment 
-#'
-#' @return thing
+#' @param data A data.frame used to draw clusters from.
+#' @param assignment An \code{assignment} object created by \code{\link{declare_assignment}}.
+#' 
+#' @return a data.frame including a cluster indicator.
 #'
 #' @export
 draw_clusters <- function(data, assignment){

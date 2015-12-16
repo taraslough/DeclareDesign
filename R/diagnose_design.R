@@ -5,6 +5,8 @@
 #' @param statistics A list of statistic functions that take a list of estimates, sample_estimands, and/or population_estimands and return a statistic (scalar) and a label.
 #' @param population_draws Number of draws of the population, if using super-population.
 #' @param sample_draws Number of draws of a sample from each population draw.
+#' 
+#' @return a \code{diagnosis} object
 #'
 #' @importFrom foreach foreach registerDoSEQ getDoParWorkers %dopar%
 #' @importFrom doRNG %dorng%
@@ -164,7 +166,7 @@ print.diagnosis.list <- function(x, ...) {
 
 
 #' @export
-list.diagnosis <- function(...) {
+as.list.diagnosis <- function(...) {
   
   return_object <- list(...)
   

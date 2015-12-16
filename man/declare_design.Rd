@@ -18,7 +18,11 @@ declare_design(population, sampling = NULL, assignment, estimator = NULL,
 
 \item{potential_outcomes}{A potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. Optionally a list of potential_outcomes objects.}
 
+\item{inputs}{An inputs object, as create by \code{\link{declare_inputs}}, with the data and code required to replicate the design.}
+
 \item{label}{An optional design label.}
+
+\item{description}{A description of the complete design in words.}
 }
 \value{
 A design object

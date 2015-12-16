@@ -1,12 +1,16 @@
 #' Declare potential outcomes
 #' 
-#' @param potential_outcomes_function 
-#' @param formula 
-#' @param outcome_variable_name 
-#' @param condition_names 
-#' @param sep 
-#' @param assignment_variable_name 
-#' @param options 
+#' @param potential_outcomes_function A function to draw potential outcomes as a function of a treatment assignment.
+#' @param formula A formula indicating the relationship between treatment assignment(s) and covariates.
+#' @param outcome_variable_name The variable name of the outcome.
+#' @param condition_names A vector of condition names, such as c(0, 1).
+#' @param inherit_condition_names An indicator for whether condition_names should be inherited from potential outcomes (TRUE) or not (FALSE).
+#' @param sep Separator to construct the variable names of potential outcomes.
+#' @param assignment_variable_name The variable name of the treatment assignment(s) that appear in the potential outcomes \code{formula}.
+#' @param interference An interference object created by \code{\link{declare_interference}}.
+#' @param attrition An attrition object created by \code{\link{declare_attrition}}.
+#' @param description Description in text of the potential outcomes. 
+#' @param ... Other options for the \code{potential_outcomes_function}.
 #' 
 #' @return potential_outcomes object.
 #'
@@ -16,10 +20,8 @@ declare_potential_outcomes <- function(potential_outcomes_function =
                                        formula = NULL, outcome_variable_name = NULL, 
                                        condition_names = NULL, inherit_condition_names = FALSE, sep = "_", 
                                        assignment_variable_name = "Z",
-                                       interference = NULL,
-                                       attrition = NULL,
-                                       ...,
-                                       description = NULL){
+                                       interference = NULL, attrition = NULL,
+                                       description = NULL, ...){
   
   if(inherit_condition_names == FALSE & is.null(condition_names)){
     stop("Please either provide condition_names or set inherit_condition_names to TRUE. The first potential_outcomes created in a design must include condition_names.")

@@ -9,6 +9,7 @@
 #' @param data User-provided data for bootrstrapping.
 #' @param custom_population_function User-provided function for regenerating data.
 #' @param make_unique_ID If TRUE, an ID is made for each unit that indicates all of the other level IDs.
+#' @param description A description of the population in words.
 #
 #' @examples 
 #' 
@@ -121,8 +122,6 @@ declare_population <- function(
   
 }
 
-
-#' @export
 make_population_function <- function(
   expressions,
   size,

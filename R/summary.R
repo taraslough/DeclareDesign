@@ -29,6 +29,52 @@ summary.design <- function(object, ...) {
   
 }
 
+#' Summary of design in code
+#'
+#' @param design A design object created by \code{\link{declare_design}}.
+#'
+#' @return character string representing the design in R code
+#' 
+#' @export
+summary_code <- function(design){
+  
+  stitch_call <- function(call, formals){
+    
+    function_name <- call[[1]]
+    
+    call <- as.list(call)
+    call[[1]] <- NULL
+    
+    as.call(c(function_name, call, formals[!(names(formals) %in% c("...", names(call))) & sapply(formals, function(i) is.null(i)) == FALSE]))
+    
+  }
+  
+  design <- clean_inputs(design, "design", accepts_list = FALSE)
+  
+  paste_skip_lines <- function(x) {
+    paste(x, collapse = "\n\n")
+  }
+  
+  steps <- c("population", "potential_outcomes", "sampling", "assignment", "estimator")
+  code <- list()
+  for(i in 1:length(steps)){
+    step_object <- get(steps[i], design)
+    if(class(step_object) == "list"){
+      code_list <- list()
+      for(j in 1:length(step_object)){
+        code_list[[j]] <- trim_spaces(paste(deparse(stitch_call(step_object[[j]]$call, formals(get(paste0("declare_", steps[i]))))), collapse = " "))
+        if(steps[i] == "estimator" & !is.null(step_object[[j]]$estimand)){
+          code_list[[j]] <- paste_skip_lines(list(code_list[[j]], trim_spaces(paste(deparse(stitch_call(step_object[[j]]$estimand$call, formals(get(paste0("declare_estimand"))))), collapse = " "))))
+        }
+      }
+      code[[i]] <- paste_skip_lines(code_list)
+    } else {
+      code[[i]] <- trim_spaces(paste(deparse(stitch_call(step_object$call, formals(get(paste0("declare_", steps[i]))))), collapse = " "))
+    }
+  }
+  cat(paste_skip_lines(code))
+}
+
 #' @export
 print.summary.design <- function(x, ...){
   ## prints paragraph describing assignment

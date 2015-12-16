@@ -28,6 +28,9 @@ diagnose_design(design = NULL, diagnosis = NULL,
 
 \item{sample_draws}{Number of draws of a sample from each population draw.}
 }
+\value{
+a \code{diagnosis} object
+}
 \description{
 Diagnose the properties of a research design
 }

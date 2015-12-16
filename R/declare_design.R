@@ -7,8 +7,12 @@
 #' @param assignment An assignment object, as created by \code{\link{declare_assignment}}.
 #' @param estimator An estimator object, as created by \code{\link{declare_estimator}}. Optionally a list of estimator objects.
 #' @param potential_outcomes A potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. Optionally a list of potential_outcomes objects.
+#' @param inputs An inputs object, as create by \code{\link{declare_inputs}}, with the data and code required to replicate the design.
 #' @param label An optional design label.
+#' @param description A description of the complete design in words.
+#' 
 #' @return A design object
+#' 
 #' @export
 declare_design <- function(population, sampling = NULL, assignment, estimator = NULL, 
                            potential_outcomes, inputs = NULL, label = NULL, description = NULL) {
@@ -56,8 +60,12 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
 #' @param assignment An assignment object, as created by \code{\link{declare_assignment}}.
 #' @param estimator An estimator object, as created by \code{\link{declare_estimator}}. Optionally a list of estimator objects.
 #' @param potential_outcomes A potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. Optionally a list of potential_outcomes objects.
+#' @param inputs An inputs object, as created by \code{\link{declare_inputs}}.
 #' @param label An optional design label.
+#' @param description A description of the modified design in words.
+#' 
 #' @return A design object
+#' 
 #' @export
 modify_design <- function(design, population = NULL, sampling = NULL, assignment = NULL, estimator = NULL, 
                           potential_outcomes = NULL, inputs = NULL, label = NULL, description = NULL) {
@@ -99,50 +107,5 @@ modify_design <- function(design, population = NULL, sampling = NULL, assignment
 }
 
 
-#' Summary of design in code
-#'
-#' @param design 
-#'
-#' @return character string representing the design in R code
-#' 
-#' @export
-summary_code <- function(design){
-  
-  stitch_call <- function(call, formals){
-    
-    function_name <- call[[1]]
-    
-    call <- as.list(call)
-    call[[1]] <- NULL
-    
-    as.call(c(function_name, call, formals[!(names(formals) %in% c("...", names(call))) & sapply(formals, function(i) is.null(i)) == FALSE]))
-    
-  }
-  
-  design <- clean_inputs(design, "design", accepts_list = FALSE)
-  
-  paste_skip_lines <- function(x) {
-    paste(x, collapse = "\n\n")
-  }
-  
-  steps <- c("population", "potential_outcomes", "sampling", "assignment", "estimator")
-  code <- list()
-  for(i in 1:length(steps)){
-    step_object <- get(steps[i], design)
-    if(class(step_object) == "list"){
-      code_list <- list()
-      for(j in 1:length(step_object)){
-        code_list[[j]] <- trim_spaces(paste(deparse(stitch_call(step_object[[j]]$call, formals(get(paste0("declare_", steps[i]))))), collapse = " "))
-        if(steps[i] == "estimator" & !is.null(step_object[[j]]$estimand)){
-          code_list[[j]] <- paste_skip_lines(list(code_list[[j]], trim_spaces(paste(deparse(stitch_call(step_object[[j]]$estimand$call, formals(get(paste0("declare_estimand"))))), collapse = " "))))
-        }
-      }
-      code[[i]] <- paste_skip_lines(code_list)
-    } else {
-      code[[i]] <- trim_spaces(paste(deparse(stitch_call(step_object$call, formals(get(paste0("declare_", steps[i]))))), collapse = " "))
-    }
-  }
-  cat(paste_skip_lines(code))
-}
 
 

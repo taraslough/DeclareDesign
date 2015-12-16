@@ -7,12 +7,12 @@
 draw_clusters(data, assignment)
 }
 \arguments{
-\item{data}{}
+\item{data}{A data.frame used to draw clusters from.}
 
-\item{assignment}{}
+\item{assignment}{An \code{assignment} object created by \code{\link{declare_assignment}}.}
 }
 \value{
-thing
+a data.frame including a cluster indicator.
 }
 \description{
 Draw clusters for custom cluster functions used in an assignment function

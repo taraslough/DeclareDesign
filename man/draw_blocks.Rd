@@ -7,12 +7,12 @@
 draw_blocks(data, assignment)
 }
 \arguments{
-\item{data}{}
+\item{data}{A data.frame used to draw blocks from.}
 
-\item{assignment}{}
+\item{assignment}{An \code{assignment} object created by \code{\link{declare_assignment}}.}
 }
 \value{
-thing
+a data.frame including blocks.
 }
 \description{
 Draw blocks for custom block functions used in an assignment function

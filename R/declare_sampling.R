@@ -1,13 +1,17 @@
 #' Declare the sampling strategy
+#' 
 #' @param probability The probability of inclusion in the sample. Must be a scalar that takes values between 0 and 1.  
 #' @param strata_variable_name The name of the variable according to which stratified random sampling should be conducted.
 #' @param cluster_variable_name The name of the variable according to which clustered random sampling should be conducted.
 #' @param n The number of units (or clusters) to be sampled.
 #' @param strata_n A vector of the number of units in each stratum to be sampled.
-#' @param strata_probabilities 
-#' @param custom_sampling_function 
-#' @param custom_stratification_function 
-#' @param custom_clustering_function 
+#' @param strata_probabilities Probabilities of selection for each strata.
+#' @param custom_sampling_function A custom function to draw a sample.
+#' @param custom_stratification_function A custom function to sample within strata.
+#' @param custom_clustering_function A custom function to sample clusters.
+#' @param description A description of the sampling procedure in words.
+#' 
+#' @return a \code{sampling} object
 #'
 #' @export
 declare_sampling <- function(probability = NULL,

@@ -9,22 +9,30 @@
   formula = NULL, outcome_variable_name = NULL, condition_names = NULL,
   inherit_condition_names = FALSE, sep = "_",
   assignment_variable_name = "Z", interference = NULL, attrition = NULL,
-  ..., description = NULL)
+  description = NULL, ...)
 }
 \arguments{
-\item{potential_outcomes_function}{}
+\item{potential_outcomes_function}{A function to draw potential outcomes as a function of a treatment assignment.}
 
-\item{formula}{}
+\item{formula}{A formula indicating the relationship between treatment assignment(s) and covariates.}
 
-\item{outcome_variable_name}{}
+\item{outcome_variable_name}{The variable name of the outcome.}
 
-\item{condition_names}{}
+\item{condition_names}{A vector of condition names, such as c(0, 1).}
 
-\item{sep}{}
+\item{inherit_condition_names}{An indicator for whether condition_names should be inherited from potential outcomes (TRUE) or not (FALSE).}
 
-\item{assignment_variable_name}{}
+\item{sep}{Separator to construct the variable names of potential outcomes.}
 
-\item{options}{}
+\item{assignment_variable_name}{The variable name of the treatment assignment(s) that appear in the potential outcomes \code{formula}.}
+
+\item{interference}{An interference object created by \code{\link{declare_interference}}.}
+
+\item{attrition}{An attrition object created by \code{\link{declare_attrition}}.}
+
+\item{description}{Description in text of the potential outcomes.}
+
+\item{...}{Other options for the \code{potential_outcomes_function}.}
 }
 \value{
 potential_outcomes object.

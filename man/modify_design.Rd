@@ -21,7 +21,11 @@ modify_design(design, population = NULL, sampling = NULL,
 
 \item{potential_outcomes}{A potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. Optionally a list of potential_outcomes objects.}
 
+\item{inputs}{An inputs object, as created by \code{\link{declare_inputs}}.}
+
 \item{label}{An optional design label.}
+
+\item{description}{A description of the modified design in words.}
 }
 \value{
 A design object

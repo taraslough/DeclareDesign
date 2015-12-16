@@ -11,6 +11,9 @@ draw_sample(data, sampling = NULL)
 
 \item{sampling}{A sampling object describing the sampling strategy created by \code{declare_sampling}.}
 }
+\value{
+a data.frame including only sampled units.
+}
 \description{
 This function takes a data frame representing the population and returns a data frame of the data from a sample drawn from the population.
 }

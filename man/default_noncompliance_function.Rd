@@ -22,20 +22,26 @@ default_noncompliance_function(data, condition_names, baseline_condition,
 Built-in noncompliance function (one-sided noncompliance)
 }
 \examples{
-population <- declare_population(noise = declare_variable(), N = 1000)
+population <- declare_population(noise = declare_variable(), size = 1000)
 sampling <- declare_sampling(n = 500)
 noncompliance <- declare_noncompliance(condition_names = c(0,1), 
                                        assignment_variable_name = "Z", 
                                        compliance_proportions=c(1, .5), 
                                        baseline_condition=0)
+potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
+                                                 condition_names = c(0, 1),
+                                                 assignment_variable_name = "Z")
 assignment <- declare_assignment(condition_names = c(0,1))
 
 pop_draw <- draw_population(population = population)
 smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
-smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = noncompliance)
+smp_draw <- draw_outcome(data = smp_draw, 
+                         potential_outcomes = potential_outcomes,
+                         noncompliance = noncompliance)
 
 head(smp_draw)
 with(smp_draw, table(Z, D))
+
 }
 

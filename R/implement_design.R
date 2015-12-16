@@ -1,7 +1,7 @@
 #' Implement a declared sampling strategy and assignment procedure
 #' 
-#' @param data 
-#' @param design 
+#' @param data A data.frame used to draw a sample and assign treatment(s) based on a design.
+#' @param design A design object created by \code{declare_design}.
 #'
 #' @return data.frame of the sample if there is a sampling strategy declared and with assigned treatment vector, if defined
 #'

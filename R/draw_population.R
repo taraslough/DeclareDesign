@@ -1,10 +1,10 @@
 #' Draw a population data frame based on a declared data structure
 #' 
-#' @param population A population object describing the population data structure created by the \link{\code{declare_population}}.
-#' @param potential_outcomes A potential outcomes object created by \link{\code{declare_potential_outcomes}}.
+#' @param population A population object describing the population data structure created by the \code{\link{declare_population}}.
+#' @param potential_outcomes A potential outcomes object created by \code{\link{declare_potential_outcomes}}.
 #' @param condition_names A character vector indicating which conditions to draw potential outcomes for (for example c("Z0", "Z1") would create "Y_Z0" and "Y_Z1" if the outcome is named "Y").
-#' @param noncompliance A noncompliance object created by \link{\code{declare_noncompliance}} (optional).
-#' @param attrition A noncompliance object created by \link{\code{declare_attrition}} (optional).
+#' @param noncompliance A noncompliance object created by \code{\link{declare_noncompliance}} (optional).
+#' @param attrition A noncompliance object created by \code{\link{declare_attrition}} (optional).
 #' 
 #' @return A data.frame
 #' 

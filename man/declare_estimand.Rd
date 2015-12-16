@@ -14,7 +14,15 @@ declare_estimand(estimand_function = NULL, estimand_text = NULL, ...,
 
 \item{estimand_text}{A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.}
 
+\item{...}{Include other options to be sent to the \code{estimand_function}.}
+
+\item{fixed}{Indicator (TRUE or FALSE) for whether the estimand is fixed, such a scalar, or not.}
+
 \item{potential_outcomes}{A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.}
+
+\item{noncompliance}{A noncompliance object created by \code{\link{declare_noncompliance}}.}
+
+\item{attrition}{An attrition object created by \code{\link{declare_attrition}}.}
 
 \item{condition_names}{A string vector indicating which conditions to create potential outcomes for.}
 
@@ -24,7 +32,7 @@ declare_estimand(estimand_function = NULL, estimand_text = NULL, ...,
 
 \item{label}{A character string for the estimand's label.}
 
-\item{estimand_options}{A list of named options to be used by the estimand function.}
+\item{description}{A description of the estimand in words.}
 }
 \value{
 An estimand object.

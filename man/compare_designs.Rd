@@ -10,27 +10,27 @@ compare_designs(design, population = NULL, sampling = NULL,
   sample_draws = 5)
 }
 \arguments{
-\item{design}{}
+\item{design}{A design object created by \code{\link{declare_design}}.}
 
-\item{population}{}
+\item{population}{A population object created by \code{\link{declare_population}}.}
 
-\item{sampling}{}
+\item{sampling}{A sampling object created by \code{\link{declare_sampling}}.}
 
-\item{assignment}{}
+\item{assignment}{An assignment object created by \code{\link{declare_assignment}}.}
 
-\item{estimator}{}
+\item{estimator}{A estimator object created by \code{\link{declare_population}}.}
 
-\item{potential_outcomes}{}
+\item{potential_outcomes}{A potential_outcomes object created by \code{\link{declare_population}}.}
 
-\item{inputs}{}
+\item{inputs}{An inputs object created by \code{\link{declare_population}}.}
 
-\item{size}{}
+\item{size}{A vector representing the size of the population.}
 
-\item{labels}{}
+\item{labels}{A vector of labels for each design that will be compared.}
 
-\item{population_draws}{}
+\item{population_draws}{A number of draws of the population.}
 
-\item{sample_draws}{}
+\item{sample_draws}{A number of draws of the sample for each draw of the population.}
 }
 \description{
 Create a diagnosis of two or more designs

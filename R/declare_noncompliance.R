@@ -1,4 +1,5 @@
 #' Built-in noncompliance function (one-sided noncompliance)
+#' 
 #' @param data A dataframe, often created by \code{\link{draw_population}}.
 #' @param condition_names A vector describing the conditions to which subjects can be assigned. Often inherited from \code{\link{declare_noncompliance}}.
 #' @param baseline_condition The value of condition_names that represents the "baseline" condition. This is the condition that subjects will be in if they do not comply with their treatment status. Often a "control" condition.
@@ -6,21 +7,27 @@
 #' @param compliance_proportions A vector of proportions that describes the proportion of subjects who comply in each condition. Each entry in this vector must be a number between 0 and 1.
 #' 
 #' @examples 
-#' population <- declare_population(noise = declare_variable(), N = 1000)
+#' population <- declare_population(noise = declare_variable(), size = 1000)
 #' sampling <- declare_sampling(n = 500)
 #' noncompliance <- declare_noncompliance(condition_names = c(0,1), 
 #'                                        assignment_variable_name = "Z", 
 #'                                        compliance_proportions=c(1, .5), 
 #'                                        baseline_condition=0)
+#' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
+#'                                                  condition_names = c(0, 1),
+#'                                                  assignment_variable_name = "Z")
 #' assignment <- declare_assignment(condition_names = c(0,1))
 #' 
 #' pop_draw <- draw_population(population = population)
 #' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 #' smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
-#' smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = noncompliance)
+#' smp_draw <- draw_outcome(data = smp_draw, 
+#'                          potential_outcomes = potential_outcomes,
+#'                          noncompliance = noncompliance)
 #'
 #' head(smp_draw)
 #' with(smp_draw, table(Z, D))
+#' 
 #' @export
 default_noncompliance_function <- function(data, condition_names, 
                                            baseline_condition, 
@@ -53,33 +60,42 @@ default_noncompliance_function <- function(data, condition_names,
 #' @param condition_names An optional vector of treatment conditions to be passed to noncompliance_function
 #' @param sep A character string describing the separator for concatenating outcomes and conditions. Defaults to "_".
 #' @param assignment_variable_name The name of the treatment assignment variable
+#' @param description A description fo the potential outcomes in words.
 #' @param ... optional additional arguments to be passed to noncompliance_function
 #' 
 #' @return A potential_outcomes object
 #' 
 #' @examples 
-#' population <- declare_population(noise = declare_variable(), N = 1000)
+#' population <- declare_population(noise = declare_variable(), size = 1000)
 #' sampling <- declare_sampling(n = 500)
 #' noncompliance <- declare_noncompliance(condition_names = c(0,1), 
 #'                                        assignment_variable_name = "Z", 
 #'                                        compliance_proportions=c(1, .5), 
 #'                                        baseline_condition=0)
+#' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
+#'                                                  condition_names = c(0, 1),
+#'                                                  assignment_variable_name = "Z")
 #' assignment <- declare_assignment(condition_names = c(0,1))
 #' 
 #' pop_draw <- draw_population(population = population)
 #' smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 #' smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
-#' smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = noncompliance)
+#' smp_draw <- draw_outcome(data = smp_draw, 
+#'                          potential_outcomes = potential_outcomes,
+#'                          noncompliance = noncompliance)
 #'
 #' head(smp_draw)
 #' with(smp_draw, table(Z, D))
+#' 
+#' @return a \code{noncompliance} object
+#' 
 #' @export
 declare_noncompliance <- function(noncompliance_function = default_noncompliance_function,
                                   formula = NULL, 
                                   outcome_variable_name = "D", 
                                   condition_names, sep = "_", 
-                                  assignment_variable_name = "Z", ...,
-                                  description = NULL){
+                                  assignment_variable_name = "Z", 
+                                  description = NULL, ...){
   
   if(missing(condition_names)){
     stop("Please provide condition_names.")

@@ -7,7 +7,7 @@
 
   declare_noncompliance(noncompliance_function = default_noncompliance_function,
   formula = NULL, outcome_variable_name = "D", condition_names, sep = "_",
-  assignment_variable_name = "Z", ..., description = NULL)
+  assignment_variable_name = "Z", description = NULL, ...)
 }
 \arguments{
 \item{noncompliance_function}{A function of data that returns a vector of treatments as received.}
@@ -22,30 +22,40 @@
 
 \item{assignment_variable_name}{The name of the treatment assignment variable}
 
+\item{description}{A description fo the potential outcomes in words.}
+
 \item{...}{optional additional arguments to be passed to noncompliance_function}
 }
 \value{
 A potential_outcomes object
+
+a \code{noncompliance} object
 }
 \description{
 Noncompliance declarations are formally identical to potential_outcomes declarations. You provide a function of data (which includes a treatment assignment).  This function returns a vector of length N with the treatment as received.
 The built-in default function implements one-sided noncompliance in which some subjects do not comply with their assigned treatment status.  Instead, they revert to a baseline condition (usually a control condition).
 }
 \examples{
-population <- declare_population(noise = declare_variable(), N = 1000)
+population <- declare_population(noise = declare_variable(), size = 1000)
 sampling <- declare_sampling(n = 500)
 noncompliance <- declare_noncompliance(condition_names = c(0,1), 
                                        assignment_variable_name = "Z", 
                                        compliance_proportions=c(1, .5), 
                                        baseline_condition=0)
+potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
+                                                 condition_names = c(0, 1),
+                                                 assignment_variable_name = "Z")
 assignment <- declare_assignment(condition_names = c(0,1))
 
 pop_draw <- draw_population(population = population)
 smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
-smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = noncompliance)
+smp_draw <- draw_outcome(data = smp_draw, 
+                         potential_outcomes = potential_outcomes,
+                         noncompliance = noncompliance)
 
 head(smp_draw)
 with(smp_draw, table(Z, D))
+
 }
 

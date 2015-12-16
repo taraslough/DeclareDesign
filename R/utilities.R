@@ -32,6 +32,8 @@ trim_spaces <- function(text){
 }
 
 #' Print version of R and packages to improve reproducibility
+#' 
+#' @param versions A versions object created by \code{get_versions()}.
 #'
 #' @export
 print_versions <- function(versions = NULL){
@@ -132,3 +134,12 @@ clean_condition_names <- function(condition_names, digits = 15){
 formula_as_character <- function(formula){
   return(Reduce(paste, deparse(formula)))
 }
+
+remaindr <- function(numerator,denominator) {
+  m_each <- rep(numerator %/% denominator, denominator)
+  remainder <- numerator %% denominator
+  m_each <-
+    m_each + ifelse(1:denominator %in% sample(1:denominator, remainder), 1, 0)
+  return(m_each)
+}
+

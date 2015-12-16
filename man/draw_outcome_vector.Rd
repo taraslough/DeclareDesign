@@ -7,9 +7,14 @@
 draw_outcome_vector(data, potential_outcomes, attrition = NULL)
 }
 \arguments{
-\item{data}{}
+\item{data}{A data.frame object}
 
-\item{potential_outcomes}{}
+\item{potential_outcomes}{A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.}
+
+\item{attrition}{An attrition object created by \code{\link{declare_attrition}}.}
+}
+\value{
+a vector of the observed outcome.
 }
 \description{
 Draw observed outcome (vector)

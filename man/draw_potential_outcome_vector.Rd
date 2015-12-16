@@ -7,13 +7,14 @@
 draw_potential_outcome_vector(data, potential_outcomes, condition_name)
 }
 \arguments{
-\item{data}{}
+\item{data}{A data.frame object}
 
-\item{potential_outcomes}{}
+\item{potential_outcomes}{A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.}
 
-\item{condition_name}{}
-
-\item{assignment_variable_name}{}
+\item{condition_name}{A vector of condition names.}
+}
+\value{
+a vector of a potential outcome
 }
 \description{
 Draw potential outcome vector

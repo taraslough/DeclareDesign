@@ -4,12 +4,17 @@
 #'
 #' @param estimand_function A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.
 #' @param estimand_text A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
-#' @param estimand_options A list of named options to be used by the estimand function.
+#' @param ... Include other options to be sent to the \code{estimand_function}.
+#' @param fixed Indicator (TRUE or FALSE) for whether the estimand is fixed, such a scalar, or not.
 #' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
+#' @param noncompliance A noncompliance object created by \code{\link{declare_noncompliance}}.
+#' @param attrition An attrition object created by \code{\link{declare_attrition}}.
 #' @param condition_names A string vector indicating which conditions to create potential outcomes for.
 #' @param subset A character string that contains an expression that can be passed to the subset operator.  For example subset = "income > 50".
 #' @param weights_variable_name The name of the weighting variable (optional).
 #' @param label A character string for the estimand's label.
+#' @param description A description of the estimand in words.
+
 #' 
 #' @return An estimand object.
 #'

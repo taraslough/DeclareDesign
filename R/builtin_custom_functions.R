@@ -2,6 +2,7 @@
 #'
 #' @param variable A vector whose intra-cluster correlation coefficient should be estimated
 #' @param cluster_variable A vector of cluster IDs indicating the cluster corresponding to each element of variable 
+#' 
 #' @export
 calculate_ICC <- function(variable, cluster_variable){
   # Code inspired by ICC package, Matthew Wolak <matthewwolak@gmail.com>
@@ -448,8 +449,16 @@ default_exposure_function <- default_potential_outcomes_function
 # Rows: outcome names
 # Columns: condition names
 
+#' Default function for proportional potential outcomes
+#' 
+#' @param data A data.frame
+#' @param population_proportions Proportion in outcome for each treatment condition.
+#' @param condition_names A vector of condition names.
+#' @param assignment_variable_name The variable name for the assignment indicator.
+#' 
 #' @export
-proportion_potential_outcomes_function <- function(population_proportions = c(.5,.5), data, condition_names = NULL, assignment_variable_name = "Z"){
+proportion_potential_outcomes_function <- function(data, population_proportions = c(.5, .5), 
+                                                   condition_names = NULL, assignment_variable_name = "Z"){
   
 
   
@@ -571,16 +580,6 @@ bootstrap_data <- function(data, size, level_IDs = NULL){
   rownames(data) <- 1:nrow(data)
   
   return(data)
-}
-
-
-#' @export
-remaindr <- function(numerator,denominator) {
-  m_each <- rep(numerator %/% denominator, denominator)
-  remainder <- numerator %% denominator
-  m_each <-
-    m_each + ifelse(1:denominator %in% sample(1:denominator, remainder), 1, 0)
-  return(m_each)
 }
 
 

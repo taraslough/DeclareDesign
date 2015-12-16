@@ -21,13 +21,18 @@ declare_sampling(probability = NULL, strata_variable_name = NULL,
 
 \item{strata_n}{A vector of the number of units in each stratum to be sampled.}
 
-\item{strata_probabilities}{}
+\item{strata_probabilities}{Probabilities of selection for each strata.}
 
-\item{custom_sampling_function}{}
+\item{custom_sampling_function}{A custom function to draw a sample.}
 
-\item{custom_stratification_function}{}
+\item{custom_stratification_function}{A custom function to sample within strata.}
 
-\item{custom_clustering_function}{}
+\item{custom_clustering_function}{A custom function to sample clusters.}
+
+\item{description}{A description of the sampling procedure in words.}
+}
+\value{
+a \code{sampling} object
 }
 \description{
 Declare the sampling strategy

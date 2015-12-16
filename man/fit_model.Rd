@@ -7,9 +7,9 @@
 fit_model(data, estimator)
 }
 \arguments{
-\item{data}{}
+\item{data}{A data.frame object, used to fit the model.}
 
-\item{estimator}{}
+\item{estimator}{An estimator object created by \code{declare_estimator}.}
 }
 \description{
 Fit model

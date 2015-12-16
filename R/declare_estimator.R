@@ -1,14 +1,15 @@
 #' Estimator declaration
 #' 
-#' @param formula An object of class "formula".
-#' @param model 
-#' @param model_options 
-#' @param estimates 
-#' @param estimates_options 
-#' @param subset 
-#' @param weights_variable_name 
-#' @param labels 
-#' @param estimand 
+#' @param formula An formula used to create estimates.
+#' @param model A function, such as \code{lm} or \code{glm}, used to estimate a model, from which estimates are extracted.
+#' @param model_options A list of options for the \code{model}, such as \code{family} for \code{glm}.
+#' @param estimates A function to calculate estimates or to extract estimates from the output of the \code{model} function.
+#' @param ... Include other options that are used for the \code{estimates} function.
+#' @param subset A string indicating which subset of the data to calculate estimates on, such as "province == '1'".
+#' @param weights_variable_name The variable name of a weights variable used by the \code{estimates} function and/or the \code{model} function.
+#' @param labels Labels for each of the estimate(s).
+#' @param description A description of the estimator in words.
+#' @param estimand An estimand object created by \code{declare_estimand}.
 #'
 #' @export
 declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL, estimates, ...,
@@ -95,8 +96,8 @@ declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL
 
 #' Fit model 
 #' 
-#' @param estimator 
-#' @param data 
+#' @param estimator An estimator object created by \code{declare_estimator}.
+#' @param data A data.frame object, used to fit the model.
 #'
 #' @export
 fit_model <- function(data, estimator){
@@ -123,8 +124,8 @@ fit_model <- function(data, estimator){
 
 #' Get estimates
 #' 
-#' @param estimator 
-#' @param data 
+#' @param estimator An estimator object created by \code{declare_estimator}.
+#' @param data A data.frame object, used to fit the model.
 #'
 #' @export
 get_estimates <- function(estimator, data) {

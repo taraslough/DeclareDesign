@@ -5,6 +5,7 @@
 #' @param min_max for uniform distributions, the minimum and maximum values
 #' @param probabilities for binary and categorical variables, a vector of probabilities
 #' @param outcome_categories for binary and categorical variables, labels to attach to outcomes
+#'
 #' @export
 declare_variable <- function(
   type = NULL,
@@ -182,13 +183,6 @@ declare_variable <- function(
         probabilities,"))"
       )
     }
-    
-    
-    
-    
-    
-    
-    
   }
   
   if(type %in% binary){
@@ -255,7 +249,6 @@ declare_variable <- function(
   
 }
 
-#' @export
 beta_reparam <- function(mu, var) {
   alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
   beta <- alpha * (1 / mu - 1)
@@ -312,7 +305,8 @@ environment(declare_variable) <- list2env(
   )
 )
 
-# Print the different kinds of variable types
+#' Print the different kinds of variable types
+#'
 #' @export
 get_variable_types <- function(){
   variable_types <- c("continuous","categorical","binary","count","rate")
@@ -325,15 +319,25 @@ get_variable_types <- function(){
 
 
 
-# A function for grabbing variables at a given level in multi-level structures
+#' A function for grabbing variables at a given level in multi-level structures
+#' 
+#' @param level_ID The name of the level ID to get a variable for.
+#' @param variable_name The variable name extracted from the data.
+#' @param data A data.frame object used to get a variable.
+#' @param aggregate_function The function to use to aggregate data if applicable.
+#' @param ... A set of additional options sent to the aggregate function.
+#'
 #' @export
 get_variable <- function(
   level_ID, 
   variable_name, 
   data, 
   aggregate_function = NULL,
-  options = NULL
+  ...
 ){
+  
+  options <- list(...)
+  
   default_fun <- "function(x)unique(x)[1]"
   
   if(is.null(aggregate_function)){

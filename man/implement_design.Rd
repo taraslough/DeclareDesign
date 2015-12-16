@@ -7,9 +7,9 @@
 implement_design(data, design)
 }
 \arguments{
-\item{data}{}
+\item{data}{A data.frame used to draw a sample and assign treatment(s) based on a design.}
 
-\item{design}{}
+\item{design}{A design object created by \code{declare_design}.}
 }
 \value{
 data.frame of the sample if there is a sampling strategy declared and with assigned treatment vector, if defined

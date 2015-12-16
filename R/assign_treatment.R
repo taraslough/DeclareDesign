@@ -7,7 +7,7 @@
 #' @return A data.frame with new columns added for a treatment assignment, probabilities of assignment, and inverse probability weights.
 #' 
 #' @examples 
-#' population <- declare_population(noise = declare_variable(), N = 1000)
+#' population <- declare_population(noise = declare_variable(), size = 1000)
 #' sampling <- declare_sampling(n = 500)
 #' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
 #'                                                  condition_names = c(0, 1),
@@ -91,7 +91,7 @@ assign_treatment <- function(data, assignment) {
 #' @return A random assignment vector of length N.
 #'
 #' @examples 
-#' population <- declare_population(noise = declare_variable(), N = 1000)
+#' population <- declare_population(noise = declare_variable(), size = 1000)
 #' sampling <- declare_sampling(n = 500)
 #' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
 #'                                                  condition_names = c(0, 1),
@@ -194,7 +194,7 @@ assign_treatment_indicator <- function(data, assignment) {
 #' @param assignment A assignment object created by \code{\link{declare_assignment}}; or a function that assigns treatment
 #' @return A vector probabilities of assignment to treatment.
 #' @examples 
-#' population <- declare_population(noise = declare_variable(), N = 1000)
+#' population <- declare_population(noise = declare_variable(), size = 1000)
 #' sampling <- declare_sampling(n = 500)
 #' potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
 #'                                                  condition_names = c(0, 1),

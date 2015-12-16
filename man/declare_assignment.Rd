@@ -39,9 +39,9 @@ declare_assignment(condition_names = NULL, m = NULL, m_each = NULL,
 
 \item{noncompliance}{An optional noncomplinance object, as created by \code{\link{declare_noncompliance}}.}
 
-\item{custom_transform_function}{}
+\item{custom_transform_function}{A function to transform assignments into one or more variables.}
 
-\item{transform_options}{}
+\item{transform_options}{Options sent to the \code{custom_transform_function}.}
 
 \item{custom_assignment_function}{A function of data that returns an assignment vector of length n.}
 
@@ -51,7 +51,7 @@ declare_assignment(condition_names = NULL, m = NULL, m_each = NULL,
 
 \item{existing_assignment_variable_name}{The name of an already-assigned treatment variable.}
 
-\item{description}{}
+\item{description}{A description of the assignment procedure in words.}
 
 \item{...}{options pssed to custom assignment function}
 }
@@ -63,16 +63,12 @@ Declare the experimental assignment
 }
 \examples{
 
-population <- declare_population(
-  individuals = list(noise = declare_variable(),
-                     ideo_3 = declare_variable(
-                          multinomial_probabilities = c(.2, .3, .5), 
-                          multinomial_categories = c("Liberal", "Moderate", 
-                                                     "Conservative"))),
-   villages = list(elevation = declare_variable(),
-                   high_elevation = declare_variable(transformation = 
-                         "1*(elevation > 0)")), 
-   N_per_level = c(1000, 100))
+population <- declare_population(individuals = list(noise = "rnorm(n_)",
+                                   ideo_3 = "sample(c('Liberal', 'Moderate', 'Conservative'), 
+                                   size = n_, prob = c(.2, .3, .5), replace = T)"),
+                                 villages = list(elevation = "rnorm(n_)",
+                                   high_elevation = "1*(elevation > 0)"), 
+                                 size = c(1000, 100))
 
 sampling <- declare_sampling(n = 10, cluster_variable_name = "villages_ID")
 

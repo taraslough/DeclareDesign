@@ -3,17 +3,17 @@
 #' 
 #' Create a diagnosis of two or more designs
 #' 
-#' @param design 
-#' @param population 
-#' @param sampling 
-#' @param assignment 
-#' @param estimator 
-#' @param potential_outcomes 
-#' @param inputs 
-#' @param size 
-#' @param labels 
-#' @param population_draws 
-#' @param sample_draws 
+#' @param design A design object created by \code{\link{declare_design}}.
+#' @param population A population object created by \code{\link{declare_population}}.
+#' @param sampling A sampling object created by \code{\link{declare_sampling}}.
+#' @param assignment An assignment object created by \code{\link{declare_assignment}}.
+#' @param estimator A estimator object created by \code{\link{declare_population}}.
+#' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_population}}.
+#' @param inputs An inputs object created by \code{\link{declare_population}}.
+#' @param size A vector representing the size of the population.
+#' @param labels A vector of labels for each design that will be compared.
+#' @param population_draws A number of draws of the population.
+#' @param sample_draws A number of draws of the sample for each draw of the population.
 #'
 #' @export
 compare_designs <- function(design, population = NULL, sampling = NULL, assignment = NULL, estimator = NULL, 

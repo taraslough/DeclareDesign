@@ -1,4 +1,12 @@
 
+#' Draw a population data frame based on a declared data structure
+#' 
+#' @param data_list List of data objects required to replicate a design
+#' @param data_file File that includes data objects, in .RData format
+#' @param code_file File of code, including functions used in a design
+#'  
+#' @return An inputs object, including data and code required to replicate a design
+#' 
 #' @export
 declare_inputs <- function(data_list = NULL, data_file = NULL, code_file = NULL){
   
@@ -111,6 +119,10 @@ check_code <- function(code){
    
 }
 
+#' Save replication files for a design
+#' 
+#' @param design A design object created by \code{\link{declare_design}}.
+#'
 #' @export
 save_design_replication_files <- function(design){
   
@@ -119,7 +131,7 @@ save_design_replication_files <- function(design){
   
   design_declaration <- c("## Design declaration written by the R package DeclareDesign", 
                           "library(devtools)",
-                          "install_github(\"DeclareDesign/DeclareDesign\", ref = \"", DeclareDesign_ref, "\")",
+                          "install_github(\"DeclareDesign/DeclareDesign\")",
                           paste0("## ", print_versions(versions = design$inputs$versions)),
                           timestamp(), 
                           "")
@@ -130,7 +142,7 @@ save_design_replication_files <- function(design){
     design_declaration <- c(design_declaration, "## Load user-created data as inputs to the design declaration", "load('design_data_inputs.RData')", "")
   }
   
-  design_declaration <- c(design_declaration, summarize_code(design))
+  design_declaration <- c(design_declaration, summary_code(design))
   
   writeLines(text = design_declaration, con = "design_declaration.R")
   

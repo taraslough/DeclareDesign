@@ -18,7 +18,7 @@ A data.frame with new columns added for a treatment assignment, probabilities of
 This function takes a data.frame and an assignment object and returns a data.frame with a treatment assignment, probabilities of assignment, and inverse probability weights.
 }
 \examples{
-population <- declare_population(noise = declare_variable(), N = 1000)
+population <- declare_population(noise = declare_variable(), size = 1000)
 sampling <- declare_sampling(n = 500)
 potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
                                                  condition_names = c(0, 1),

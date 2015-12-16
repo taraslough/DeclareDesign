@@ -11,31 +11,27 @@
 #' @param block_probabilities A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.
 #' @param baseline_condition The value of condition_names that represents the "baseline" condition.  This is the condition against which treatment effects will be assessed. Defaults to the first value of condition_names.
 #' @param assignment_variable_name The name of the treatment variable.  Defaults to "Z"
+#' @param noncompliance An optional noncomplinance object, as created by \code{\link{declare_noncompliance}}.
+#' @param custom_transform_function A function to transform assignments into one or more variables.
+#' @param transform_options Options sent to the \code{custom_transform_function}.
 #' @param custom_assignment_function A function of data that returns an assignment vector of length n.
 #' @param custom_blocking_function  A function of data that returns a blocking vector of length n.
 #' @param custom_clustering_function A function of data that returns a cluster vector of length n.
 #' @param existing_assignment_variable_name The name of an already-assigned treatment variable.
-#' @param noncompliance An optional noncomplinance object, as created by \code{\link{declare_noncompliance}}.
-#' @param custom_transform_function 
-#' @param transform_options 
-#' @param description 
+#' @param description A description of the assignment procedure in words.
 #' @param ... options pssed to custom assignment function
 #'
 #' @return assignment object
 #' 
 #' @examples 
 #' 
-#' population <- declare_population(
-#'   individuals = list(noise = declare_variable(),
-#'                      ideo_3 = declare_variable(
-#'                           multinomial_probabilities = c(.2, .3, .5), 
-#'                           multinomial_categories = c("Liberal", "Moderate", 
-#'                                                      "Conservative"))),
-#'    villages = list(elevation = declare_variable(),
-#'                    high_elevation = declare_variable(transformation = 
-#'                          "1*(elevation > 0)")), 
-#'    N_per_level = c(1000, 100))
-#' 
+#' population <- declare_population(individuals = list(noise = "rnorm(n_)",
+#'                                    ideo_3 = "sample(c('Liberal', 'Moderate', 'Conservative'), 
+#'                                    size = n_, prob = c(.2, .3, .5), replace = T)"),
+#'                                  villages = list(elevation = "rnorm(n_)",
+#'                                    high_elevation = "1*(elevation > 0)"), 
+#'                                  size = c(1000, 100))
+#'
 #' sampling <- declare_sampling(n = 10, cluster_variable_name = "villages_ID")
 #' 
 #' potential_outcomes <- declare_potential_outcomes(

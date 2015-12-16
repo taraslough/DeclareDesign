@@ -22,27 +22,26 @@ default_attrition_function(data, condition_names, assignment_variable_name,
 This default function allows the user to specifiy two common forms of attrition.  If you use the proportion_always_reporters argument, you specificy the portion of the experimental sample that reports their outcomes, regardless of their treatment assignment.  If you use the reporting_proportions argument, you provide a vector of proportions that is equal in length to condition_names.
 }
 \examples{
-population <- declare_population(noise = declare_variable(), N = 1000)
+population <- declare_population(noise = declare_variable(), size = 1000)
 sampling <- declare_sampling(n = 500)
-attrition_1 <- declare_attrition(condition_names = c(0,1), 
-                                 outcome_variable_name = "R1",
-                                 assignment_variable_name = "Z", 
-                                 reporting_proportions = c(.5, .7))
+attrition <- declare_attrition(condition_names = c(0,1), 
+                               outcome_variable_name = "R",
+                               assignment_variable_name = "Z", 
+                               reporting_proportions = c(.5, .7))
 
-attrition_2 <- declare_attrition(condition_names = c(0,1), 
-                                 outcome_variable_name = "R2",
-                                 assignment_variable_name = "Z", 
-                                 proportion_always_reporters = .8)
-
+potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + noise,
+                                                 condition_names = c(0, 1),
+                                                 assignment_variable_name = "Z", 
+                                                 attrition = attrition)
+                                                   
 assignment <- declare_assignment(condition_names = c(0,1))
 
 pop_draw <- draw_population(population = population)
 smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
 smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
-smp_draw <- draw_outcome(data = smp_draw, 
-                         potential_outcomes = list(attrition_1, attrition_2))
-with(smp_draw, table(Z, R1))
-with(smp_draw, table(Z, R2))
+smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = potential_outcomes,
+                         attrition = attrition)
+with(smp_draw, table(Z, R))
 
 }
 

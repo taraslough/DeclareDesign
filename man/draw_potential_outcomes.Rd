@@ -8,11 +8,15 @@ draw_potential_outcomes(data, condition_names = NULL, potential_outcomes,
   noncompliance = NULL, attrition = NULL)
 }
 \arguments{
-\item{data}{}
+\item{data}{A data.frame object}
 
-\item{condition_names}{}
+\item{condition_names}{A vector of condition names.}
 
-\item{potential_outcomes}{}
+\item{potential_outcomes}{A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.}
+
+\item{noncompliance}{A noncompliance object created by \code{\link{declare_noncompliance}}.}
+
+\item{attrition}{An attrition object created by \code{\link{declare_attrition}.}}
 }
 \description{
 Draw potential outcomes

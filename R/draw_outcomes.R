@@ -1,11 +1,14 @@
 #' Draw potential outcomes
 #' 
-#' @param data 
-#' @param potential_outcomes 
-#' @param condition_names
+#' @param data A data.frame object
+#' @param condition_names A vector of condition names.
+#' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
+#' @param noncompliance A noncompliance object created by \code{\link{declare_noncompliance}}.
+#' @param attrition An attrition object created by \code{\link{declare_attrition}.}
 #'
 #' @export
-draw_potential_outcomes <- function(data, condition_names = NULL, potential_outcomes, noncompliance = NULL, attrition = NULL) {
+draw_potential_outcomes <- function(data, condition_names = NULL, potential_outcomes, 
+                                    noncompliance = NULL, attrition = NULL) {
   
   if(is.null(potential_outcomes)){
     stop("You must provide a potential_outcomes object to draw_potential_outcomes.")
@@ -126,10 +129,15 @@ draw_potential_outcomes <- function(data, condition_names = NULL, potential_outc
 
 
 
-#' Draw observed outcome
+#' Draw outcome
 #' 
-#' @param data 
-#' @param potential_outcomes 
+#' @param data A data.frame object
+#' @param condition_names A vector of condition names.
+#' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
+#' @param noncompliance A noncompliance object created by \code{\link{declare_noncompliance}}.
+#' @param attrition An attrition object created by \code{\link{declare_attrition}}.
+#' 
+#' @return data.frame including the outcome
 #'
 #' @export
 draw_outcome <- function(data, condition_names = NULL, potential_outcomes, 
@@ -229,8 +237,19 @@ draw_outcome <- function(data, condition_names = NULL, potential_outcomes,
   
 }
 
+#' Determine whether potential outcomes exist in a data frame
+#' 
+#' @param data data.frame input
+#' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
+#' @param condition_names A vector indicating the names of conditions
+#' @param noncompliance A noncompliance object created by \code{\link{declare_noncompliance}}.
+#' @param attrition An attrition object created by \code{\link{declare_attrition}}.
+#' 
+#' @return indicator for whether potential outcomes exist
+#' 
 #' @export
-has_potential_outcomes <- function(data, potential_outcomes, condition_names = NULL, noncompliance = NULL, attrition = NULL){
+has_potential_outcomes <- function(data, potential_outcomes, condition_names = NULL, 
+                                   noncompliance = NULL, attrition = NULL){
   
   if(class(potential_outcomes) == "list" & class(condition_names) == "list" &
      length(potential_outcomes) != length(condition_names)){
@@ -316,6 +335,14 @@ has_potential_outcomes <- function(data, potential_outcomes, condition_names = N
   return(all(do.call(rbind, has_potential_outcomes)))
 }
 
+#' Draw observed outcome
+#' 
+#' @param data data.frame
+#' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
+#' @param condition_names A vector of condition names.
+#' 
+#' @return data.frame including the observed outcome
+#' 
 #' @export
 draw_observed_outcome <- function(data, potential_outcomes, condition_names = NULL){
   
@@ -403,8 +430,12 @@ draw_observed_outcome <- function(data, potential_outcomes, condition_names = NU
 
 
 #' Draw observed outcome (vector)
-#' @param data 
-#' @param potential_outcomes 
+#' 
+#' @param data A data.frame object
+#' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
+#' @param attrition An attrition object created by \code{\link{declare_attrition}}.
+#' 
+#' @return a vector of the observed outcome.
 #'
 #' @export
 draw_outcome_vector <- function(data, potential_outcomes, attrition = NULL){
@@ -428,10 +459,11 @@ draw_outcome_vector <- function(data, potential_outcomes, attrition = NULL){
 
 #' Draw potential outcome vector
 #'
-#' @param data 
-#' @param potential_outcomes 
-#' @param condition_name 
-#' @param assignment_variable_name 
+#' @param data A data.frame object
+#' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
+#' @param condition_name A vector of condition names.
+#'
+#' @return a vector of a potential outcome
 #'
 #' @export
 draw_potential_outcome_vector <- function(data, potential_outcomes, condition_name){

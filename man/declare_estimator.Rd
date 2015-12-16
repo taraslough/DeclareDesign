@@ -9,23 +9,25 @@ declare_estimator(formula = NULL, model = NULL, model_options = NULL,
   labels = NULL, description = NULL, estimand = NULL)
 }
 \arguments{
-\item{formula}{An object of class "formula".}
+\item{formula}{An formula used to create estimates.}
 
-\item{model}{}
+\item{model}{A function, such as \code{lm} or \code{glm}, used to estimate a model, from which estimates are extracted.}
 
-\item{model_options}{}
+\item{model_options}{A list of options for the \code{model}, such as \code{family} for \code{glm}.}
 
-\item{estimates}{}
+\item{estimates}{A function to calculate estimates or to extract estimates from the output of the \code{model} function.}
 
-\item{subset}{}
+\item{...}{Include other options that are used for the \code{estimates} function.}
 
-\item{weights_variable_name}{}
+\item{subset}{A string indicating which subset of the data to calculate estimates on, such as "province == '1'".}
 
-\item{labels}{}
+\item{weights_variable_name}{The variable name of a weights variable used by the \code{estimates} function and/or the \code{model} function.}
 
-\item{estimand}{}
+\item{labels}{Labels for each of the estimate(s).}
 
-\item{estimates_options}{}
+\item{description}{A description of the estimator in words.}
+
+\item{estimand}{An estimand object created by \code{declare_estimand}.}
 }
 \description{
 Estimator declaration

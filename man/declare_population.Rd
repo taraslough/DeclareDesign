@@ -27,6 +27,8 @@ declare_population(..., size, global_transformations = NULL, options = NULL,
 \item{custom_population_function}{User-provided function for regenerating data.}
 
 \item{make_unique_ID}{If TRUE, an ID is made for each unit that indicates all of the other level IDs.}
+
+\item{description}{A description of the population in words.}
 }
 \description{
 New Declare the Study Population

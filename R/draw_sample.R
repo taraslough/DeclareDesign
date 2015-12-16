@@ -4,6 +4,9 @@
 #' 
 #' @param data A data.frame object representing the population to sample from, typically created by \code{draw_population}.
 #' @param sampling A sampling object describing the sampling strategy created by \code{declare_sampling}.
+#' 
+#' @return a data.frame including only sampled units.
+#' 
 #' @examples
 #' population <- declare_population(size = 850)
 #' sampling <- declare_sampling(n=500)
