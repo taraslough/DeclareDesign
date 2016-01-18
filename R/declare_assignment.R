@@ -19,7 +19,7 @@
 #' @param custom_clustering_function A function of data that returns a cluster vector of length n.
 #' @param existing_assignment_variable_name The name of an already-assigned treatment variable.
 #' @param description A description of the assignment procedure in words.
-#' @param ... options pssed to custom assignment function
+#' @param ... options passed to custom assignment function
 #'
 #' @return assignment object
 #' 

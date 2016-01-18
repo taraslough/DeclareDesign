@@ -88,16 +88,22 @@ draw_sample_indicator <- function(data, sampling) {
   strata_probabilities <- sampling$strata_probabilities
   sampling_type <- sampling$sampling_type
   
-  # For custom random assignment functions
+  # For custom random sampling functions
   if(is.null(sampling_type)){
     sampling_type <- "custom"
   }
   
-  if(sampling_type == "custom"){
-    if("data" %in% names(formals(sampling$custom_sampling_function)))
-      Z <- sampling$custom_sampling_function(data = data)
-    else
-      Z <- sampling$custom_sampling_function()
+  
+  if(!is.null(sampling$custom_sampling_function)){
+    if("data" %in% names(formals(sampling$custom_sampling_function))){
+      sampling$custom_sampling_function_options$data <- data
+    }
+    if("n_" %in% names(formals(sampling$custom_sampling_function))){
+      sampling$custom_sampling_function_options$n_ <- nrow(data)
+    }
+    
+    Z <- do.call(sampling$custom_sampling_function, 
+                 args = sampling$custom_sampling_function_options)
   } 
   
   # For "simple" random sampling

@@ -8,7 +8,7 @@ declare_sampling(probability = NULL, strata_variable_name = NULL,
   cluster_variable_name = NULL, n = NULL, strata_n = NULL,
   strata_probabilities = NULL, custom_sampling_function = NULL,
   custom_stratification_function = NULL, custom_clustering_function = NULL,
-  description = NULL)
+  description = NULL, ...)
 }
 \arguments{
 \item{probability}{The probability of inclusion in the sample. Must be a scalar that takes values between 0 and 1.}
@@ -30,6 +30,8 @@ declare_sampling(probability = NULL, strata_variable_name = NULL,
 \item{custom_clustering_function}{A custom function to sample clusters.}
 
 \item{description}{A description of the sampling procedure in words.}
+
+\item{...}{options passed to custom sampling function}
 }
 \value{
 a \code{sampling} object

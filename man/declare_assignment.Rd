@@ -53,7 +53,7 @@ declare_assignment(condition_names = NULL, m = NULL, m_each = NULL,
 
 \item{description}{A description of the assignment procedure in words.}
 
-\item{...}{options pssed to custom assignment function}
+\item{...}{options passed to custom assignment function}
 }
 \value{
 assignment object
