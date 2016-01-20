@@ -5,13 +5,13 @@
 \title{Declare the experimental assignment}
 \usage{
 declare_assignment(condition_names = NULL, m = NULL, m_each = NULL,
-  probability_each = NULL, block_m = NULL, block_probabilities = NULL,
-  baseline_condition = NULL, assignment_variable_name = "Z",
-  block_variable_name = NULL, cluster_variable_name = NULL,
-  potential_outcomes = NULL, noncompliance = NULL,
-  custom_transform_function = NULL, transform_options = NULL,
-  custom_assignment_function = NULL, custom_blocking_function = NULL,
-  custom_clustering_function = NULL,
+  probability_each = NULL, block_m = NULL, block_m_each = NULL,
+  block_probabilities = NULL, baseline_condition = NULL,
+  assignment_variable_name = "Z", block_variable_name = NULL,
+  cluster_variable_name = NULL, potential_outcomes = NULL,
+  noncompliance = NULL, custom_transform_function = NULL,
+  transform_options = NULL, custom_assignment_function = NULL,
+  custom_blocking_function = NULL, custom_clustering_function = NULL,
   existing_assignment_variable_name = NULL, description = NULL, ...)
 }
 \arguments{
@@ -23,7 +23,9 @@ declare_assignment(condition_names = NULL, m = NULL, m_each = NULL,
 
 \item{probability_each}{A vector describing the probability of units (or clusters) being assigned to each treatment arm. Must sum to 1.}
 
-\item{block_m}{A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.}
+\item{block_m}{A vector describing the number of units to be assigned to treatment in each block in a two-arm trial.}
+
+\item{block_m_each}{A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.}
 
 \item{block_probabilities}{A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.}
 
@@ -53,7 +55,7 @@ declare_assignment(condition_names = NULL, m = NULL, m_each = NULL,
 
 \item{description}{A description of the assignment procedure in words.}
 
-\item{...}{options pssed to custom assignment function}
+\item{...}{options passed to custom assignment function}
 }
 \value{
 assignment object

@@ -34,6 +34,10 @@ test_that("test sampling functions", {
   sampling_10 <- declare_sampling(cluster_variable_name = "villages_ID", 
                                   strata_variable_name = "high_elevation", 
                                   strata_probabilities = c(.1, .9))
+  sampling_11 <- declare_sampling(cluster_variable_name = "villages_ID", 
+                                  strata_variable_name = "high_elevation", 
+                                  strata_n = c(2, 2))
+  
   
   # Draw Data
   pop_draw <- draw_population(population = population)
@@ -65,12 +69,17 @@ test_that("test sampling functions", {
   
   pop_draw$S9 <- draw_sample_indicator(data = pop_draw, sampling = sampling_9) 
   pop_draw$S10 <- draw_sample_indicator(data = pop_draw, sampling = sampling_10) 
+  pop_draw$S11 <- draw_sample_indicator(data = pop_draw, sampling = sampling_11) 
   
   with(pop_draw, table(S9, villages_ID))
   with(pop_draw, table(S9, high_elevation))
   
   with(pop_draw, table(S10, villages_ID))
   with(pop_draw, table(S10, high_elevation))
+  
+  with(pop_draw, table(S11, villages_ID))
+  with(pop_draw, table(S11, high_elevation))
+  
   
   # Obtain Sampling Probabilities
   

@@ -10,6 +10,7 @@
 #' @param custom_stratification_function A custom function to sample within strata.
 #' @param custom_clustering_function A custom function to sample clusters.
 #' @param description A description of the sampling procedure in words.
+#' @param ... options passed to custom sampling function
 #' 
 #' @return a \code{sampling} object
 #'
@@ -23,7 +24,8 @@ declare_sampling <- function(probability = NULL,
                              custom_sampling_function = NULL,
                              custom_stratification_function = NULL,
                              custom_clustering_function = NULL,
-                             description = NULL) {
+                             description = NULL,
+                             ...) {
   
   # Determine assignment type
   sampling_type <- "simple"  ## what should this be called. Simple? 
@@ -46,6 +48,24 @@ declare_sampling <- function(probability = NULL,
     stop("If you supply a custom cluster function, you must supply the name of the cluster variable.")
   }
 
+  
+  if(!is.null(custom_sampling_function)){
+    custom_sampling_function_options <- list(...)
+    argument_names <- names(formals(custom_sampling_function))
+    if(!is.null(strata_variable_name) & "strata_variable_name" %in% argument_names)
+      custom_sampling_function_options$strata_variable_name <- strata_variable_name
+    if(!is.null(cluster_variable_name) & "cluster_variable_name" %in% argument_names)
+      custom_sampling_function_options$cluster_variable_name <- cluster_variable_name
+    if(!is.null(n) & "n" %in% argument_names)
+      custom_sampling_function_options$n <- n
+    if(!is.null(strata_n) & "strata_n" %in% argument_names)
+      custom_sampling_function_options$strata_n <- strata_n
+    if(!is.null(strata_probabilities) & "strata_probabilities" %in% argument_names)
+      custom_sampling_function_options$strata_probabilities <- strata_probabilities
+  }
+  
+  
+  
   if(is.null(custom_sampling_function)){
     return.object <- list(probability = probability,
                           strata_variable_name = strata_variable_name,
@@ -61,6 +81,7 @@ declare_sampling <- function(probability = NULL,
   } else {
     return.object <- list(
       custom_sampling_function = custom_sampling_function,
+      custom_sampling_function_options = custom_sampling_function_options,
       sampling_type = "custom", description = description,
       call = match.call())
   }
@@ -97,7 +118,7 @@ stratified_sampling <- function(strata_variable, probability = NULL, strata_n = 
   }
   
   
-  blocked_assignment(block_variable = strata_variable, block_m = strata_n_matrix, block_probabilities = block_probabilities, probability_each = probability_each, condition_names = c(0,1), baseline_condition = 0)
+  blocked_assignment(block_variable = strata_variable, block_m_each = strata_n_matrix, block_probabilities = block_probabilities, probability_each = probability_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 cluster_sampling <- function(cluster_variable, n = NULL, probability = NULL){
@@ -121,14 +142,14 @@ stratified_and_clustered_sampling <- function(cluster_variable, strata_variable,
     block_probabilities <- cbind(1-strata_probabilities, strata_probabilities)  
   }
   
-  if(!is.null(strata_n)){
-    strata_totals <- table(strata_variable)
-    strata_n_matrix <- cbind(strata_totals - strata_n, strata_n)
-  }else{
-    strata_n_matrix <-NULL
-  }
-  
+  # if(!is.null(strata_n)){
+  #   strata_totals <- table(strata_variable)
+  #   strata_n_matrix <- cbind(strata_totals - strata_n, strata_n)
+  # }else{
+  #   strata_n_matrix <-NULL
+  # }
+  # 
   blocked_and_clustered_assignment(cluster_variable = cluster_variable, block_variable = strata_variable, 
-                           block_m = strata_n_matrix, probability_each = probability_each, 
+                           block_m = strata_n, probability_each = probability_each, 
                            block_probabilities = block_probabilities, condition_names = c(0,1), baseline_condition = 0)
 }

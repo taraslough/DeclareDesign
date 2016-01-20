@@ -121,6 +121,7 @@ assign_treatment_indicator <- function(data, assignment) {
   m_each <- assignment$m_each
   probability_each <- assignment$probability_each
   block_m <- assignment$block_m
+  block_m_each <- assignment$block_m_each
   block_probabilities <- assignment$block_probabilities
   assignment_type <- assignment$assignment_type
   
@@ -155,6 +156,7 @@ assign_treatment_indicator <- function(data, assignment) {
   if(assignment_type=="blocked"){
     Z <- blocked_assignment(block_variable=block_variable, 
                             block_m = block_m,
+                            block_m_each = block_m_each,
                             probability_each = probability_each,
                             block_probabilities=block_probabilities,
                             condition_names = condition_names,
@@ -175,7 +177,7 @@ assign_treatment_indicator <- function(data, assignment) {
   if(assignment_type=="blocked and clustered"){
     Z <- blocked_and_clustered_assignment(cluster_variable=cluster_variable,
                                           block_variable=block_variable, 
-                                          block_m=block_m,
+                                          block_m_each=block_m_each,
                                           block_probabilities=block_probabilities,
                                           probability_each = probability_each,
                                           condition_names = condition_names,

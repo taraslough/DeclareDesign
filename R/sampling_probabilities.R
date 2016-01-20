@@ -105,7 +105,7 @@ stratified_sampling_probabilities <- function(strata_variable,
   
   
   prob_mat <- blocked_assignment_probabilities(block_variable = strata_variable, 
-                                               block_m = strata_n_matrix, 
+                                               block_m_each = strata_n_matrix, 
                                                block_probabilities = block_probabilities, 
                                                probability_each = probability_each, 
                                                condition_names = c(0,1))
@@ -146,7 +146,7 @@ stratified_and_clustered_sampling_probabilities <- function(cluster_variable,
   }
   
   # Must do someday
-  # block_m, strata_n
+  # block_m_each, strata_n
   prob_mat <- blocked_and_clustered_assignment_probabilities(cluster_variable = cluster_variable, 
                                                              block_variable = strata_variable, 
                                                              block_m = strata_n, probability_each = probability_each, 

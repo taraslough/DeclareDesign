@@ -39,6 +39,12 @@ test_that("test assignment and probability functions", {
                                        block_variable_name = "ideo_3",
                                        block_probabilities = block_probabilities)
   
+  assignment_8.6 <- declare_assignment(potential_outcomes = potential_outcomes, 
+                                       block_variable_name = "ideo_3",
+                                       condition_names = c(0, 1),
+                                       block_m = c(10, 10, 10))
+  
+  
   # Clustered assignments 
   assignment_9 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID")
   assignment_10 <- declare_assignment(potential_outcomes = potential_outcomes, cluster_variable_name = "villages_ID", condition_names = c(0, 1))
@@ -71,12 +77,14 @@ test_that("test assignment and probability functions", {
   smp_draw$Z6 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_6) 
   smp_draw$Z7 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_7) 
   smp_draw$Z8 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_8) 
-  smp_draw$Z8_5 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_8.5) 
+  smp_draw$Z8_5 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_8.5)
+  smp_draw$Z8_6 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_8.6) 
   
   with(smp_draw, table(ideo_3, Z6))
   with(smp_draw, table(ideo_3, Z7))
   with(smp_draw, table(ideo_3, Z8))
   with(smp_draw, table(ideo_3, Z8_5))
+  with(smp_draw, table(ideo_3, Z8_6))
   
   smp_draw$Z9 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_9) 
   smp_draw$Z10 <- assign_treatment_indicator(data = smp_draw, assignment = assignment_10) 
@@ -112,6 +120,7 @@ test_that("test assignment and probability functions", {
   prob_mat_8 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_8) 
   
   prob_mat_8.5 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_8.5) 
+  prob_mat_8.6 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_8.6) 
   
   prob_mat_9 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_9) 
   prob_mat_10 <- get_assignment_probabilities(data = smp_draw, assignment = assignment_10) 
@@ -130,7 +139,8 @@ test_that("test assignment and probability functions", {
   prob_obs_5 <- get_observed_assignment_probabilities(data = smp_draw, assignment_variable_name = "Z5", assignment = assignment_5) 
   prob_obs_6 <- get_observed_assignment_probabilities(data = smp_draw, assignment_variable_name = "Z6", assignment = assignment_6) 
   prob_obs_7 <- get_observed_assignment_probabilities(data = smp_draw, assignment_variable_name = "Z7", assignment = assignment_7) 
-  prob_obs_8 <- get_observed_assignment_probabilities(data = smp_draw, assignment_variable_name = "Z8", assignment = assignment_8) 
+  prob_obs_8 <- get_observed_assignment_probabilities(data = smp_draw, assignment_variable_name = "Z8", assignment = assignment_8)
+  
   
   prob_obs_9 <- get_observed_assignment_probabilities(data = smp_draw, assignment_variable_name = "Z9", assignment = assignment_9) 
   prob_obs_10 <- get_observed_assignment_probabilities(data = smp_draw, assignment_variable_name = "Z10", assignment = assignment_10) 
