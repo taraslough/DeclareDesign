@@ -159,8 +159,8 @@ blocked_assignment_probabilities <- function(block_variable, block_m = NULL, blo
     for(i in 1:length(blocks)){
       N_block <- sum(block_variable==blocks[i])
       prob_mat[block_variable==blocks[i],] <- complete_assignment_probabilities(N = N_block, 
-                                                           m_each = block_m_each[i,], 
-                                                           condition_names=condition_names)
+                                                                                m_each = block_m_each[i,], 
+                                                                                condition_names=condition_names)
     }
     return(prob_mat)
   }
@@ -170,8 +170,8 @@ blocked_assignment_probabilities <- function(block_variable, block_m = NULL, blo
     for(i in 1:length(blocks)){
       N_block <- sum(block_variable==blocks[i])
       prob_mat[block_variable==blocks[i],] <- complete_assignment_probabilities(N = N_block, 
-                                                           probability_each = probability_each, 
-                                                           condition_names=condition_names)
+                                                                                probability_each = probability_each, 
+                                                                                condition_names=condition_names)
     }
     return(prob_mat)
   }
@@ -181,8 +181,8 @@ blocked_assignment_probabilities <- function(block_variable, block_m = NULL, blo
     for(i in 1:length(blocks)){
       N_block <- sum(block_variable==blocks[i])
       prob_mat[block_variable==blocks[i],] <- complete_assignment_probabilities(N = N_block, 
-                                                           probability_each = block_probabilities[i,], 
-                                                           condition_names=condition_names)
+                                                                                probability_each = block_probabilities[i,], 
+                                                                                condition_names=condition_names)
     }
     return(prob_mat)
   }
@@ -212,7 +212,7 @@ clustered_assignment_probabilities <- function(cluster_variable, m=NULL, m_each 
 }
 
 blocked_and_clustered_assignment_probabilities <- 
-  function(cluster_variable, block_variable, block_m_each=NULL, probability_each=NULL, block_probabilities=NULL,condition_names = NULL){
+  function(cluster_variable, block_variable, block_m = NULL, block_m_each=NULL, probability_each=NULL, block_probabilities=NULL,condition_names = NULL){
     unique_clus <- unique(cluster_variable)
     
     ## get the block for each cluster
@@ -222,10 +222,11 @@ blocked_and_clustered_assignment_probabilities <-
     }
     
     probs_clus <- blocked_assignment_probabilities(block_variable = clust_blocks, 
-                                 block_m_each = block_m_each,
-                                 probability_each = probability_each,
-                                 block_probabilities=block_probabilities,
-                                 condition_names = condition_names)
+                                                   block_m = block_m,
+                                                   block_m_each = block_m_each,
+                                                   probability_each = probability_each,
+                                                   block_probabilities=block_probabilities,
+                                                   condition_names = condition_names)
     
     merged <- merge(x = data.frame(cluster_variable, init_order = 1:length(cluster_variable)), 
                     data.frame(cluster_variable=unique_clus, probs_clus), by="cluster_variable")

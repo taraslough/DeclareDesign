@@ -149,7 +149,7 @@ stratified_and_clustered_sampling_probabilities <- function(cluster_variable,
   # block_m_each, strata_n
   prob_mat <- blocked_and_clustered_assignment_probabilities(cluster_variable = cluster_variable, 
                                                              block_variable = strata_variable, 
-                                                             block_m_each = strata_n, probability_each = probability_each, 
+                                                             block_m = strata_n, probability_each = probability_each, 
                                                              block_probabilities = block_probabilities, condition_names = c(0,1))
   
   return(prob_mat[,"prob_1"])
