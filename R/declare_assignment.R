@@ -503,7 +503,7 @@ clustered_assignment <- function(cluster_variable, m=NULL, m_each = NULL, probab
 }
 
 blocked_and_clustered_assignment <- 
-  function(cluster_variable, block_variable, block_m_each=NULL, probability_each=NULL, block_probabilities=NULL,condition_names = NULL, baseline_condition=NULL) {
+  function(cluster_variable, block_variable, block_m = NULL,block_m_each=NULL, probability_each=NULL, block_probabilities=NULL,condition_names = NULL, baseline_condition=NULL) {
     
     # confirm that all units within clusters are in the same block
     # is there a computationally faster way to confirm this (possible c++ loop?)
@@ -523,6 +523,7 @@ blocked_and_clustered_assignment <-
     
     # Conduct random assignment at cluster level
     z_clust <- blocked_assignment(block_variable = clust_blocks, 
+                                  block_m = block_m,
                                   block_m_each = block_m_each, 
                                   probability_each = probability_each,
                                   block_probabilities = block_probabilities,
