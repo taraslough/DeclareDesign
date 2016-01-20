@@ -7,7 +7,8 @@
 #' @param m The number of units (or clusters) to be assigned to treatment in a two-arm trial.
 #' @param m_each A vector describing the number of units (or clusters) to be assigned to each treatment arm in a multi-arm trial.  Must sum to N (for individually randomized experments) or N_clusters (for cluster randomized experiments).
 #' @param probability_each A vector describing the probability of units (or clusters) being assigned to each treatment arm. Must sum to 1.
-#' @param block_m A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.
+#' @param block_m A vector describing the number of units to be assigned to treatment in each block in a two-arm trial.
+#' @param block_m_each A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the number of units (or clusters) to be assigned to each treatment arm.
 #' @param block_probabilities A matrix with the same number of rows as blocks and the same number of columns as treatment arms. Cell entries are the probabilities of assignment to each treatment arm.
 #' @param baseline_condition The value of condition_names that represents the "baseline" condition.  This is the condition against which treatment effects will be assessed. Defaults to the first value of condition_names.
 #' @param assignment_variable_name The name of the treatment variable.  Defaults to "Z"
@@ -140,7 +141,8 @@ declare_assignment <-
            m = NULL, 
            m_each = NULL, 
            probability_each = NULL, 
-           block_m = NULL, 
+           block_m = NULL,
+           block_m_each = NULL, 
            block_probabilities = NULL,
            baseline_condition = NULL,
            assignment_variable_name = "Z",
@@ -167,7 +169,7 @@ declare_assignment <-
     
     # Checks ------------------------------------------------------------------
     if(assignment_type == "blocked" & !is.null(m)){
-      stop("Please do not specify m in a blocked assignment.  Use block_m or block_probabilities instead.")
+      stop("Please do not specify m in a blocked assignment.  Use block_m_each or block_probabilities instead.")
     }
     
     if(!is.null(custom_blocking_function) & !is.character(block_variable_name)){
@@ -231,8 +233,8 @@ declare_assignment <-
           custom_assignment_function_options$m_each <- m_each
         if(!is.null(probability_each) & "probability_each" %in% argument_names)
           custom_assignment_function_options$probability_each <- probability_each
-        if(!is.null(block_m) & "block_m" %in% argument_names)
-          custom_assignment_function_options$block_m <- block_m
+        if(!is.null(block_m_each) & "block_m_each" %in% argument_names)
+          custom_assignment_function_options$block_m_each <- block_m_each
         if(!is.null(block_probabilities) & "block_probabilities" %in% argument_names)
           custom_assignment_function_options$block_probabilities <- block_probabilities
     }
@@ -247,6 +249,7 @@ declare_assignment <-
                             m_each = m_each,
                             probability_each = probability_each,
                             block_m = block_m,
+                            block_m_each = block_m_each,
                             block_probabilities = block_probabilities,
                             assignment_type = assignment_type,
                             noncompliance = noncompliance,
@@ -372,16 +375,20 @@ complete_assignment <-
   }
 
 blocked_assignment <- 
-  function(block_variable, block_m=NULL, block_probabilities = NULL, probability_each = NULL, condition_names = NULL, baseline_condition=NULL){
+  function(block_variable, block_m = NULL, block_m_each=NULL, block_probabilities = NULL, probability_each = NULL, condition_names = NULL, baseline_condition=NULL){
     
     # Checks
     
-    if(!is.null(block_m) & !is.null(probability_each)){
-      stop("Do not specify both block_m and probability_each at the same time.")      
+    if(!is.null(block_m) & (!is.null(probability_each) | !is.null(block_m_each) | !is.null(block_probabilities))){
+      stop("Do not specify block_m at the same time as probability_each, block_m_each, or block_probabilities.")      
     }
     
-    if(!is.null(block_m) & !is.null(block_probabilities)){
-      stop("Do not specify both block_m and block_probabilities at the same time.")      
+    if(!is.null(block_m_each) & !is.null(probability_each)){
+      stop("Do not specify both block_m_each and probability_each at the same time.")      
+    }
+    
+    if(!is.null(block_m_each) & !is.null(block_probabilities)){
+      stop("Do not specify both block_m_each and block_probabilities at the same time.")      
     }
     
     if(!is.null(probability_each) & !is.null(block_probabilities)){
@@ -396,7 +403,7 @@ blocked_assignment <-
     # Case 1: Assumes equal probabilties for each condition in all block
     # Does complete_assignment() by block
     
-    if(is.null(block_m) & is.null(probability_each) & is.null(block_probabilities)){
+    if(is.null(block_m_each) & is.null(probability_each) & is.null(block_probabilities) & is.null(block_m)){
       for(i in 1:length(blocks)){
         N_block <- sum(block_variable==blocks[i])
         assign[block_variable==blocks[i]] <- 
@@ -409,14 +416,14 @@ blocked_assignment <-
     
     # Case 2: User specifies exactly how many units will be assigned to each condition, by block
     
-    if(!is.null(block_m)){
+    if(!is.null(block_m_each)){
       for(i in 1:length(blocks)){
-        if(nrow(block_m)!=length(unique(blocks))){
-          stop("block_m should have the same number of rows as there are unique blocks in block_variable")
+        if(nrow(block_m_each)!=length(unique(blocks))){
+          stop("block_m_each should have the same number of rows as there are unique blocks in block_variable")
         }
         N_block <- sum(block_variable==blocks[i])
         assign[block_variable==blocks[i]] <- complete_assignment(N = N_block, 
-                                                                 m_each = block_m[i,], 
+                                                                 m_each = block_m_each[i,], 
                                                                  condition_names=condition_names, 
                                                                  baseline_condition = baseline_condition)
       }
@@ -439,7 +446,7 @@ blocked_assignment <-
       return(assign)
     }
     
-    # Case 4: User specifies the probability of assignment to each condition, but it doesn't vary by block
+    # Case 4: User specifies the probability of assignment to each condition, and it does vary by block
     
     if(!is.null(block_probabilities)){
       for(i in 1:length(blocks)){
@@ -450,6 +457,22 @@ blocked_assignment <-
         N_block <- sum(block_variable==blocks[i])
         assign[block_variable==blocks[i]] <- complete_assignment(N = N_block, 
                                                                  probability_each = probability_each_local, 
+                                                                 condition_names=condition_names, 
+                                                                 baseline_condition = baseline_condition)
+      }
+      return(assign)
+    }
+    
+    # Case 5: User specifies block_m
+    
+    if(!is.null(block_m)){
+      for(i in 1:length(blocks)){
+        if(length(block_m)!=length(unique(blocks))){
+          stop("The length of block_m should be equal to the number unique blocks in block_variable")
+        }
+        N_block <- sum(block_variable==blocks[i])
+        assign[block_variable==blocks[i]] <- complete_assignment(N = N_block, 
+                                                                 m = block_m[i], 
                                                                  condition_names=condition_names, 
                                                                  baseline_condition = baseline_condition)
       }
@@ -480,7 +503,7 @@ clustered_assignment <- function(cluster_variable, m=NULL, m_each = NULL, probab
 }
 
 blocked_and_clustered_assignment <- 
-  function(cluster_variable, block_variable, block_m=NULL, probability_each=NULL, block_probabilities=NULL,condition_names = NULL, baseline_condition=NULL) {
+  function(cluster_variable, block_variable, block_m_each=NULL, probability_each=NULL, block_probabilities=NULL,condition_names = NULL, baseline_condition=NULL) {
     
     # confirm that all units within clusters are in the same block
     # is there a computationally faster way to confirm this (possible c++ loop?)
@@ -500,7 +523,7 @@ blocked_and_clustered_assignment <-
     
     # Conduct random assignment at cluster level
     z_clust <- blocked_assignment(block_variable = clust_blocks, 
-                                  block_m = block_m, 
+                                  block_m_each = block_m_each, 
                                   probability_each = probability_each,
                                   block_probabilities = block_probabilities,
                                   condition_names = condition_names, 

@@ -118,7 +118,7 @@ stratified_sampling <- function(strata_variable, probability = NULL, strata_n = 
   }
   
   
-  blocked_assignment(block_variable = strata_variable, block_m = strata_n_matrix, block_probabilities = block_probabilities, probability_each = probability_each, condition_names = c(0,1), baseline_condition = 0)
+  blocked_assignment(block_variable = strata_variable, block_m_each = strata_n_matrix, block_probabilities = block_probabilities, probability_each = probability_each, condition_names = c(0,1), baseline_condition = 0)
 }
 
 cluster_sampling <- function(cluster_variable, n = NULL, probability = NULL){
@@ -150,6 +150,6 @@ stratified_and_clustered_sampling <- function(cluster_variable, strata_variable,
   }
   
   blocked_and_clustered_assignment(cluster_variable = cluster_variable, block_variable = strata_variable, 
-                           block_m = strata_n_matrix, probability_each = probability_each, 
+                           block_m_each = strata_n_matrix, probability_each = probability_each, 
                            block_probabilities = block_probabilities, condition_names = c(0,1), baseline_condition = 0)
 }
