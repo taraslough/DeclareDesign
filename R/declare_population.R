@@ -492,15 +492,7 @@ get_hierarchy <- function(size){
   # If group_sizes_per_level is supplied
   if(!is.null(group_sizes_per_level)){
     
-    # Test that the structure is logical
-    lower_units_test <- sapply(length(group_sizes_per_level):2,
-                               function(i){
-                                 sum(group_sizes_per_level[[i]])==
-                                   length(group_sizes_per_level[[i-1]])})
     
-    if(!all(lower_units_test)){
-      stop("The argument supplied to group_sizes_per_level is not logical. The sum of every higher level should be equal to the length of the preceding lower level. For example, in a study with 4 units and 2 groups, group_sizes_per_level = list(c(1,1,1,1),c(2,2)).")
-    }
     # Generate N_per_level and N
     N <- sum(group_sizes_per_level[[1]])
     
@@ -511,6 +503,18 @@ get_hierarchy <- function(size){
     if(!all_ones){
       first_level <- list(rep(1,N))
       group_sizes_per_level <- c(first_level,group_sizes_per_level)
+    }
+    
+    # Test that the structure is logical
+    if(length(group_sizes_per_level)>1){
+      lower_units_test <- sapply(length(group_sizes_per_level):2,
+                                 function(i){
+                                   sum(group_sizes_per_level[[i]])==
+                                     length(group_sizes_per_level[[i-1]])})
+      
+      if(!all(lower_units_test)){
+        stop("The argument supplied to group_sizes_per_level is not logical. The sum of every higher level should be equal to the length of the preceding lower level. For example, in a study with 4 units and 2 groups, group_sizes_per_level = list(c(1,1,1,1),c(2,2)).")
+      }
     }
     N_per_level <- sapply(group_sizes_per_level,length)
     
