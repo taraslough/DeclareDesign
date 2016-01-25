@@ -38,6 +38,9 @@ test_that("test sampling functions", {
                                   strata_variable_name = "high_elevation", 
                                   strata_n = c(2, 2))
   
+  # No Sampling
+  sampling_12 <- declare_sampling(sampling = FALSE)
+  
   
   # Draw Data
   pop_draw <- draw_population(population = population)
@@ -81,6 +84,10 @@ test_that("test sampling functions", {
   with(pop_draw, table(S11, high_elevation))
   
   
+  pop_draw$S12 <- draw_sample_indicator(data = pop_draw, sampling = sampling_12) 
+  
+  with(pop_draw, table(S12))
+  
   # Obtain Sampling Probabilities
   
   prob_1 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_1) 
@@ -96,6 +103,9 @@ test_that("test sampling functions", {
   prob_9 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_9) 
   prob_10 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_10) 
   
+  prob_11 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_11) 
+  prob_12 <- get_sampling_probabilities(data = pop_draw, sampling = sampling_12) 
+  
   smp_draw_1 <- draw_sample(pop_draw, sampling = sampling_1)
   smp_draw_2 <- draw_sample(pop_draw, sampling = sampling_2)
   smp_draw_3 <- draw_sample(pop_draw, sampling = sampling_3)
@@ -106,7 +116,8 @@ test_that("test sampling functions", {
   smp_draw_8 <- draw_sample(pop_draw, sampling = sampling_8)
   smp_draw_9 <- draw_sample(pop_draw, sampling = sampling_9)
   smp_draw_10 <- draw_sample(pop_draw, sampling = sampling_10)
-  
+  smp_draw_11 <- draw_sample(pop_draw, sampling = sampling_11)
+  smp_draw_12 <- draw_sample(pop_draw, sampling = sampling_12)
   
   with(smp_draw_1, table(inclusion_probabilities))
   with(smp_draw_2, table(inclusion_probabilities))
@@ -118,5 +129,7 @@ test_that("test sampling functions", {
   with(smp_draw_8, table(inclusion_probabilities))
   with(smp_draw_9, table(inclusion_probabilities))
   with(smp_draw_10, table(inclusion_probabilities))
+  with(smp_draw_11, table(inclusion_probabilities))
+  with(smp_draw_12, table(inclusion_probabilities))
   
 })
