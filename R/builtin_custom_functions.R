@@ -70,6 +70,35 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
 }
 
 
+
+#' Extract Regression Coefficients
+#' 
+#' @param model A model fit
+#' @param formula An optional formula
+#' @param coefficient_name The name of the coefficient to extract.
+#' @param statistics The statistics to extract. Defaults to c("est", "se", "p", "ci_lower", "ci_upper", "df")
+#' @param label Character label for the regression coefficient
+#'
+#' @export
+get_regression_coefficient_robust <- function(model, formula = NULL, coefficient_name, 
+                                       statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                       label = ""){
+  require(sandwich)
+  coef_num <- which(names(coef(model)) %in% coefficient_name)
+  df <- df.residual(model)
+  est <- coef(model)[coef_num]
+  se <- sqrt(diag(vcovHC(model, type = "HC2")))[coef_num]
+  p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
+  
+  conf_int <- est + se %o% qt(c(0.025,0.975),summary(model)$df[2])
+  
+  output <- matrix(c(est, se, p, conf_int, df), 
+                   dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                   paste0(summary(model)$terms[[2]], "~", paste(all.vars(summary(model)$terms[[3]]), collapse = "+"), "_", label)))
+  
+  return(output[which(rownames(output) %in% statistics), , drop = FALSE])
+}
+
 # Built-in-Estimators -----------------------------------------------------
 
 collapse_clusters <- function(data, cluster_variable_name, cluster_collapse_function){
