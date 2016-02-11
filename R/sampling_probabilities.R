@@ -65,6 +65,11 @@ get_sampling_probabilities <- function(data, sampling){
                                                              strata_probabilities = strata_probabilities)
   }
   
+  if(sampling_type=="none"){
+    probs <- rep(1, N)
+  }
+  
+  
   return(probs)
 }
 

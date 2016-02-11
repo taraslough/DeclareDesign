@@ -25,6 +25,7 @@ declare_sampling <- function(probability = NULL,
                              custom_stratification_function = NULL,
                              custom_clustering_function = NULL,
                              description = NULL,
+                             sampling = TRUE,
                              ...) {
   
   # Determine assignment type
@@ -33,6 +34,9 @@ declare_sampling <- function(probability = NULL,
   if(!is.null(cluster_variable_name)) {sampling_type <- "clustered"}
   if(!is.null(cluster_variable_name) & !is.null(strata_variable_name)) {
     sampling_type <- "stratified and clustered"
+  }
+  if(!sampling){
+    sampling_type <- "none"
   }
   
   # Checks ------------------------------------------------------------------

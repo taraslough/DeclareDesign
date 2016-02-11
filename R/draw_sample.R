@@ -126,7 +126,13 @@ draw_sample_indicator <- function(data, sampling) {
     Z <- stratified_and_clustered_sampling(cluster_variable = cluster_variable, strata_variable = strata_variable, strata_n = strata_n, probability = probability, strata_probabilities = strata_probabilities)
   }
   
+  if(sampling_type=="none"){
+    Z <- rep(1, N)
+  }
+  
   return(Z)
+  
+  
   
 }
 
