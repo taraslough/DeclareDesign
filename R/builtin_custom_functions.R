@@ -432,8 +432,15 @@ default_potential_outcomes_function <- function(formula, data, ...){
     }
   }
   potential_outcomes_env$n_ <- nrow(data)
-    
-  return(eval(expr = formula[[3]], envir = potential_outcomes_env))
+  
+  return_po <- eval(expr = formula[[3]], envir = potential_outcomes_env)
+  
+  if(length(return_po) != potential_outcomes_env$n_){
+    formula <- update.formula(old = formula,new = . ~ I(.) + I(rep(0,n_)))
+    return_po <- eval(expr = formula[[3]], envir = potential_outcomes_env)
+  }
+  
+  return(return_po)
   
 }
 
