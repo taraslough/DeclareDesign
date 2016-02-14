@@ -15,13 +15,9 @@ diagnose_design <- function(design = NULL, diagnosis = NULL, statistics = list(c
                                                                                calculate_population_RMSE, calculate_population_bias, calculate_population_coverage, calculate_population_type_S_rate, calculate_population_exaggeration_ratio,
                                                                                calculate_mean_SATE, calculate_sd_SATE, calculate_sample_RMSE, calculate_sample_bias, calculate_sample_coverage, calculate_sample_type_S_rate, calculate_sample_exaggeration_ratio,
                                                                                calculate_mean_power, calculate_sd_power, calculate_mean_estimate, calculate_sd_estimate),
+                            labels = c("mean_PATE", "sd_PATE", "superpopulation_RMSE", "superpopulation_bias", "superpopulation_coverage", "superpopulation_type_S_rate", "superpopulation_exaggeration_ratio", "population_RMSE", "population_bias", "population_coverage", 
+                                       "population_type_S_rate", "population_exaggeration_ratio", "mean_SATE", "sd_SATE", "sample_RMSE", "sample_bias", "sample_coverage", "sample_type_S_rate", "sample_exaggeration_ratio", "mean_power", "sd_power", "mean_estimate", "sd_estimate"),
                             population_draws = 10, sample_draws = 5){
-  
-  ## extract names of statistics objects
-  if(class(statistics) == "list")
-    labels <- paste(substitute(statistics)[-1L])
-  else
-    labels <- paste(substitute(statistics))
   
   if(class(statistics) != "list"){ statistics <- list(statistics) }
   

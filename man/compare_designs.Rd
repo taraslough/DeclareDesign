@@ -6,8 +6,7 @@
 \usage{
 compare_designs(design, population = NULL, sampling = NULL,
   assignment = NULL, estimator = NULL, potential_outcomes = NULL,
-  inputs = NULL, size = NULL, labels = NULL, population_draws = 5,
-  sample_draws = 5)
+  inputs = NULL, size = NULL, design_labels = NULL, ...)
 }
 \arguments{
 \item{design}{A design object created by \code{\link{declare_design}}.}
@@ -26,11 +25,9 @@ compare_designs(design, population = NULL, sampling = NULL,
 
 \item{size}{A vector representing the size of the population.}
 
-\item{labels}{A vector of labels for each design that will be compared.}
+\item{design_labels}{A vector of labels for each design that will be compared.}
 
-\item{population_draws}{A number of draws of the population.}
-
-\item{sample_draws}{A number of draws of the sample for each draw of the population.}
+\item{...}{other options for diagnose_design.}
 }
 \description{
 Create a diagnosis of two or more designs

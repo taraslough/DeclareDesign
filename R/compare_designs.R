@@ -11,14 +11,13 @@
 #' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_population}}.
 #' @param inputs An inputs object created by \code{\link{declare_population}}.
 #' @param size A vector representing the size of the population.
-#' @param labels A vector of labels for each design that will be compared.
-#' @param population_draws A number of draws of the population.
-#' @param sample_draws A number of draws of the sample for each draw of the population.
+#' @param design_labels A vector of labels for each design that will be compared.
+#' @param ... other options for diagnose_design.
 #'
 #' @export
 compare_designs <- function(design, population = NULL, sampling = NULL, assignment = NULL, estimator = NULL, 
-                            potential_outcomes = NULL, inputs = NULL, size = NULL, labels = NULL,
-                            population_draws = 5, sample_draws = 5){
+                            potential_outcomes = NULL, inputs = NULL, size = NULL, design_labels = NULL,
+                            ...){
   
   design <- clean_inputs(design, "design", accepts_list = TRUE)
   
@@ -60,17 +59,17 @@ compare_designs <- function(design, population = NULL, sampling = NULL, assignme
                                                                estimator = estimator[[min(length(estimator), e)]],
                                                                potential_outcomes = potential_outcomes[[min(length(potential_outcomes), e)]],
                                                                inputs = inputs[[min(length(inputs), e)]],
-                                                               label = labels[[e]]), population_draws = population_draws, sample_draws = sample_draws)
+                                                               label = design_labels[[e]]), ... = ...)
       
     }
   } else {
     ## if 2 or more designs are presented, compare them
     
     for(e in 1:length(design)){
-      if(!is.null(labels[[e]])){
-        diagnoses[[e]] <- diagnose_design(design = modify_design(design[[e]], label = labels[[e]]), population_draws = population_draws, sample_draws = sample_draws)
+      if(!is.null(design_labels[[e]])){
+        diagnoses[[e]] <- diagnose_design(design = modify_design(design[[e]], label = design_labels[[e]]), ... = ...)
       } else {
-        diagnoses[[e]] <- diagnose_design(design = design[[e]], population_draws = population_draws, sample_draws = sample_draws)
+        diagnoses[[e]] <- diagnose_design(design = design[[e]], ... = ...)
       }
     }
   }
