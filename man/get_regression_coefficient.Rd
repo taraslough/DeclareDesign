@@ -6,7 +6,7 @@
 \usage{
 get_regression_coefficient(model, formula = NULL, coefficient_name,
   statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"),
-  label = "")
+  label = coefficient_name)
 }
 \arguments{
 \item{model}{A model fit}

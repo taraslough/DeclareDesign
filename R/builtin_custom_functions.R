@@ -53,7 +53,7 @@ default_transform_function <- function(data, options, assignment_variable_name){
 #' @export
 get_regression_coefficient <- function(model, formula = NULL, coefficient_name, 
                                        statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                       label = ""){
+                                       label = coefficient_name){
   
   coef_num <- which(names(coef(model)) %in% coefficient_name)
   df <- df.residual(model)
@@ -64,7 +64,8 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
   
   output <- matrix(c(est, se, p, conf_int, df), 
                    dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                   paste0(summary(model)$terms[[2]], "~", paste(all.vars(summary(model)$terms[[3]]), collapse = "+"), "_", label)))
+                                   ##paste0(summary(model)$terms[[2]], "~", paste(all.vars(summary(model)$terms[[3]]), collapse = "+"), "_", 
+                                   label))
   
   return(output[which(rownames(output) %in% statistics), , drop = FALSE])
 }
