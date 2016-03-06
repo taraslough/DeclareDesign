@@ -25,7 +25,7 @@ test_that("test user provided data can be re-sampled correctly", {
   
   pop_2 <- declare_population(
     data = user_data,
-    super_population = T,
+    resample_data = T,
     size = c(10,5,2),
     level_IDs = c("indiv_ID","city_ID","region_ID"))
   

@@ -3,7 +3,7 @@
 #' @param design A design object created by \code{\link{declare_design}}.
 #' @param diagnosis A diagnosis object created by \code{\link{diagnose_design}}. This allows you to calculate additional summary statistics for existing diagnosis simulations.
 #' @param statistics A list of statistic functions that take a list of estimates, sample_estimands, and/or population_estimands and return a statistic (scalar) and a label.
-#' @param population_draws Number of draws of the population, if using super-population.
+#' @param population_draws Number of draws of the population.
 #' @param sample_draws Number of draws of a sample from each population draw.
 #' 
 #' @return a \code{diagnosis} object
@@ -38,13 +38,6 @@ diagnose_design <- function(design = NULL, diagnosis = NULL, statistics = list(c
     potential_outcomes <- design$potential_outcomes
     label <- design$label
     
-    super_population <- population$super_population
-    
-    if(super_population==FALSE){
-      population_data <- draw_population(population = population, 
-                                         potential_outcomes = potential_outcomes)
-    }
-    
     ## this is the function that recombines the lists of estimators and estimands during the parallel loop
     comb <- function(x, ...) {
       lapply(seq_along(x),
@@ -57,9 +50,7 @@ diagnose_design <- function(design = NULL, diagnosis = NULL, statistics = list(c
     
     simulations_list <- foreach(i = 1:population_draws, .combine = 'comb', .multicombine = TRUE, .init = list(list(), list(), list())) %dorng% {
       
-      if(super_population==TRUE){
-        population_data <- draw_population(population = population, potential_outcomes = potential_outcomes)
-      }
+      population_data <- draw_population(population = population, potential_outcomes = potential_outcomes)
       
       population_estimands <- get_estimands(estimator = estimator, data = population_data)
       

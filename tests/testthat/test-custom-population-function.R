@@ -41,7 +41,7 @@ test_that("test that custom population generation functions work", {
     custom_population_function = my_pop_and_data_function,
     data = user_data,
     size = 1000,
-    super_population = T)
+    resample_data = T)
   
   user_pop_1$population(size = 10)
   

@@ -5,7 +5,7 @@
 \title{New Declare the Study Population}
 \usage{
 declare_population(..., size, global_transformations = NULL, options = NULL,
-  level_IDs = NULL, super_population = FALSE, data = NULL,
+  level_IDs = NULL, data = NULL, resample_data = FALSE,
   custom_population_function = NULL, make_unique_ID = FALSE,
   description = NULL)
 }
@@ -20,9 +20,9 @@ declare_population(..., size, global_transformations = NULL, options = NULL,
 
 \item{level_IDs}{An optional list of level ID indicators that are otherwise inferred from ... or generated using a default.}
 
-\item{super_population}{If TRUE, data is thought of as a single draw from a super-population, and data-resampling is performed during the diagnostics phase. If FALSE, the population is thought of as finite.}
-
 \item{data}{User-provided data for bootrstrapping.}
+
+\item{resample_data}{If TRUE, data is thought of as a single draw from a super-population, and data-resampling is performed during the diagnostics phase. If FALSE, the population is thought of as finite.}
 
 \item{custom_population_function}{User-provided function for regenerating data.}
 

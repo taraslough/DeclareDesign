@@ -5,8 +5,8 @@
 #' @param global_transformations An optional named list of expressions that can be evaluated across levels. For example, if group-invariant means and SDs have been created, these can be used with an expression in global_transformations in order to create individual-level draws of these group-level parameters.
 #' @param options An optional list of objects that are used by the expressions passed to ... and global_transformations.
 #' @param level_IDs An optional list of level ID indicators that are otherwise inferred from ... or generated using a default.
-#' @param super_population If TRUE, data is thought of as a single draw from a super-population, and data-resampling is performed during the diagnostics phase. If FALSE, the population is thought of as finite. 
 #' @param data User-provided data for bootrstrapping.
+#' @param resample_data If TRUE, data is thought of as a single draw from a super-population, and data-resampling is performed during the diagnostics phase. If FALSE, the population is thought of as finite. 
 #' @param custom_population_function User-provided function for regenerating data.
 #' @param make_unique_ID If TRUE, an ID is made for each unit that indicates all of the other level IDs.
 #' @param description A description of the population in words.
@@ -22,8 +22,8 @@ declare_population <- function(
   global_transformations = NULL,
   options = NULL,
   level_IDs = NULL, 
-  super_population = FALSE,
   data = NULL, 
+  resample_data = FALSE,
   custom_population_function = NULL,
   make_unique_ID = FALSE,
   description = NULL
@@ -64,7 +64,7 @@ declare_population <- function(
     
     # Data provided 
     
-    if(super_population == TRUE) {
+    if(resample_data == TRUE) {
       
       # Super population with data 
       
@@ -113,7 +113,6 @@ declare_population <- function(
   } 
   
   return_object <- list(population = population_function, 
-                        super_population = super_population, 
                         description = description,
                         call = match.call())
   class(return_object) <- "population"
