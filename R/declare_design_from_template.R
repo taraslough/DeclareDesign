@@ -1,3 +1,9 @@
+
+#' Declare Design from Template Function
+#' 
+#' @param template Template function to create a design.
+#' @param ... options for the template function.
+#' 
 #' @export
 declare_design_from_template <- function(template, ...){
   
@@ -27,6 +33,11 @@ declare_design_from_template <- function(template, ...){
   
 }
 
+#' Compare Designs from Template Function
+#' 
+#' @param template Template function to create a set of designs to compare
+#' @param ... options for the template function over which to compare designs
+#' 
 #' @export
 compare_designs_from_template <- function(template, ...){
   

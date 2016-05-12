@@ -31,6 +31,8 @@ declare_sampling(probability = NULL, strata_variable_name = NULL,
 
 \item{description}{A description of the sampling procedure in words.}
 
+\item{sampling}{Indicates whether units are sampled from the population (TRUE) or the full population is used in the design (FALSE).}
+
 \item{...}{options passed to custom sampling function}
 }
 \value{

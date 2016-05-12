@@ -15,13 +15,14 @@
 #' @return potential_outcomes object.
 #'
 #' @export
-declare_potential_outcomes <- function(potential_outcomes_function = 
-                                         default_potential_outcomes_function,
-                                       formula = NULL, outcome_variable_name = NULL, 
-                                       condition_names = NULL, inherit_condition_names = FALSE, sep = "_", 
-                                       assignment_variable_name = "Z",
-                                       interference = NULL, attrition = NULL,
-                                       description = NULL, ...){
+declare_potential_outcomes <- function(
+  potential_outcomes_function = 
+    default_potential_outcomes_function,
+  formula = NULL, outcome_variable_name = NULL, 
+  condition_names = NULL, inherit_condition_names = FALSE, sep = "_", 
+  assignment_variable_name = "Z",
+  interference = NULL, attrition = NULL,
+  description = NULL, ...){
   
   if(inherit_condition_names == FALSE & is.null(condition_names)){
     stop("Please either provide condition_names or set inherit_condition_names to TRUE. The first potential_outcomes created in a design must include condition_names.")

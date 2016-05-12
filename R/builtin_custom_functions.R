@@ -84,11 +84,10 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
 get_regression_coefficient_robust <- function(model, formula = NULL, coefficient_name, 
                                        statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
                                        label = ""){
-  require(sandwich)
   coef_num <- which(names(coef(model)) %in% coefficient_name)
   df <- df.residual(model)
   est <- coef(model)[coef_num]
-  se <- sqrt(diag(vcovHC(model, type = "HC2")))[coef_num]
+  se <- sqrt(diag(sandwich::vcovHC(model, type = "HC2")))[coef_num]
   p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
   
   conf_int <- est + se %o% qt(c(0.025,0.975),summary(model)$df[2])

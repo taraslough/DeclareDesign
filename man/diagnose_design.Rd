@@ -31,6 +31,8 @@ diagnose_design(design = NULL, diagnosis = NULL,
 
 \item{statistics}{A list of statistic functions that take a list of estimates, sample_estimands, and/or population_estimands and return a statistic (scalar) and a label.}
 
+\item{labels}{A set of character labels for each of the statistics or use in displaying the diagnosis.}
+
 \item{population_draws}{Number of draws of the population.}
 
 \item{sample_draws}{Number of draws of a sample from each population draw.}

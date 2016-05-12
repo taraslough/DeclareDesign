@@ -3,6 +3,7 @@
 #' @param design A design object created by \code{\link{declare_design}}.
 #' @param diagnosis A diagnosis object created by \code{\link{diagnose_design}}. This allows you to calculate additional summary statistics for existing diagnosis simulations.
 #' @param statistics A list of statistic functions that take a list of estimates, sample_estimands, and/or population_estimands and return a statistic (scalar) and a label.
+#' @param labels A set of character labels for each of the statistics or use in displaying the diagnosis.
 #' @param population_draws Number of draws of the population.
 #' @param sample_draws Number of draws of a sample from each population draw.
 #' 

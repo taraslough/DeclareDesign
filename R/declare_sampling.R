@@ -10,6 +10,7 @@
 #' @param custom_stratification_function A custom function to sample within strata.
 #' @param custom_clustering_function A custom function to sample clusters.
 #' @param description A description of the sampling procedure in words.
+#' @param sampling Indicates whether units are sampled from the population (TRUE) or the full population is used in the design (FALSE).
 #' @param ... options passed to custom sampling function
 #' 
 #' @return a \code{sampling} object
