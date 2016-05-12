@@ -56,6 +56,8 @@ script:
 # report coverage rate to coveralls
 after_success:
   - Rscript -e 'covr::coveralls()'
+  - mkdir _deploy
+  - cp "${PKG_FILE_NAME}" _deploy/latest.tar.gz
 
 # send e-mails if stuff changes
 notifications:
@@ -66,3 +68,19 @@ notifications:
       - a.coppock@columbia.edu
     on_success: change
     on_failure: change
+    
+deploy:
+  provider: s3
+  bucket: experimentr.org-jekyll
+  region: us-east-1
+  local-dir: _deploy
+  skip_cleanup: true
+  access_key_id: "$AWS_KEY"
+  secret_access_key: "$AWS_SECRET_KEY"
+  
+env:
+  global:
+  - secure: jeSSu71onI39A3dxVEjw5ArhR5gLfFx4Z17YcbzLLF2v4+xXQnBfbNj2Gm5hngTjy3qApa8WU0LKdN1rx5+1KI9TDAagnlRzUw+wDOT70ncXDxB8RrAl5oChMrjdQMJeGHqOm56cUahRg3ruHRvf2PAp0wWDKLEUlxDLfMZHo6DZiWeWtc16HYPrqhnBMcTpmmjfrFA2XOFNPrAK6OnRFnXiplNhbzf9AzH9o8nxz48+DpyrxVf9c67B5whn6unSmjyQ2pfosnBp5GD1mEDbyTv8Nt9amhv/rQDLy9rD+6qzh06GI+QNzfJPxlQnvqadioxWDMfHUMu5qISmMEzqYQk9y4YQ7zMGcSOLY44+pByTxfk37El3iMQUUbqWcSQzmxGBfFNFtmZ2B3Z/jgFCeAFdiZNSdd651T77QMR6Wo7KoYLL+Z4xjge3lBaPNyRKRDFuMiIM6tS5puG8MCL+RSWzS7nKgL/PLmpXsltVtQslzizcAWVtn8s6NwVMoQ8iXtYGPKOuCcdcFAtNRKrua4YSoRBheBLYBenZuSMooE6l0I2TOOcbLdfMsXHtszn/2896mZyiYmM3FfiLuEt7T3KA9uQ3AEa0WEeBoY194ftxOzhNzYB9kkDl4VGJH0dDMpiwiTuhtQoxn0gBpxy8rg7q2izSOjifAG/dF90gfjc=
+  - secure: S5Dyt1r7juSpXV32z48SYxrchH6pENKt9ptToh5Wxf6I3/2En41n+/NlEd093NbvFVJAxRCo1e1FeWfB78E7nrBFR/BEoHs1iIVI5nuY6nXzPjUskKFGm8UOzXuK5A50Uee/7EejZRCKvDmHzU01TzF8/BsMyKbPSOTqNQbsBC5bS+U04Da6sKQiWl1Jze2eYG6un7HXjIiQirj/r50MolQ7hL1PlH4N8V0FUiAE6VEcxGPwRk7R9/+fGGTyR71XiNa3Y449tfeSRV7ZEoWMTJkTnXD5wlasA+rlZQG2INDfyYn9UgG31jmUai/tzCXQEthZWqyWk+gkzD3c/Uxv3RFQ7gDwGU1d4oBODFB6lGchHAvyMOS3fsuRKHlMmfFNoGzrTmn5ky0P02WcCIFjEr/nlFF4JRfNiFtAeov3nHgRPacDSxdJLEtwpe3JQCwj6b75OizDZr1bqnD8TSdR0vg6JYeYRUO6teBor1DpHL8n7YoqrO1ypnYFywoy2PWOo/0KJ67G8DMFEPGLBTefugVt4PkYxBbwXnDvEEvYz0P5iaFfkn3FzFWO6U7TOF8EERbFF353s5n+jSu6QWyhY5AhueDadtguRzH1YLiRbcX72VWZO7zWgPoGlYy6nlptdAgDE5+9h4YA0+MK9aaW00nvuef6JQLR4vWWv8fAK8E=
+  - secure: dcLL38NBVu7Gf1DL2gkkqpWL4QhHdakPyt0aGrmyoi3HTGTT0kO2vRyuzyKE1YrHO/rPeYqPWhyoMjSr21lWh+t09U7sUOPH0Io3A4OAVBRm7vK8KtbA7xT2KOOjGR3VNLsB/SdYDORS3PBhW7n5Fh/SZygHMoq867hW46jL4NF/DrW+0YvwJj8etmppSKdw15w+EtFoI9L/CDNAXMxXB2D37S/FCsDZhZKqTlz/7n8WaVDVs0w48qSNoN7O7ERyM8qRtUGU3Ael1PbIZu+hqwGHjVeVJ3RUgkVER4aWwemlG4eXnrnO53pH6KGo8/knBelYXP/SYgOQ+VkItqK0j3ejldEr8Ueyrkcl+oQdIncxxewGvZ7w688KLp++MQH8LmKliqGcg/ToPCOIVJjgW41zYN5rlX/hNE6f+DUfUH4yMc93xqieprBrHQR8hW09zY1RmXmhOmA1OaJpKKCk/lXDVaYnnRYFe+ZL/GtsJJ5KQxkHwNj3reYs32v1uC50cbhXf/pvDOoraSBLBp1XIwVK59qqSF0ElBN84jJcem5F/n3NAC0bgIdzV6fgaC+oLiunTkZ/KOGTd1SyRY4LrvSDr9UpZst77zaiNECgWRnIpGyBF7FWjn+RU6h1sdPB7wBKYinuWsj/MhzTzqFlCz8HK2QOrii9HRc0gGxdd0I=
+
