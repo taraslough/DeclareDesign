@@ -1,86 +1,55 @@
-# .travis.yml using container-based infrastructure
-
-# use c as catch-all language
 language: c
-
-# use containers
 sudo: false
-
 warnings_are_errors: true
-
-# only run for pushes to master branch
 branches:
   only:
-   - master
-
-# install R: use r-packages-precise (https://cran.r-project.org/bin/linux/ubuntu/precise/) 
-# as source which is white listed (https://github.com/travis-ci/apt-source-whitelist/)
+  - master
 addons:
   apt:
     sources:
     - r-packages-precise
     packages:
-    - r-base-dev	
-
-# cache local R libraries directory:
+    - r-base-dev
 cache:
   directories:
-    - ~/Rlib
-
-# install the package and dependencies:
-# - create directory for R libraries (if not already exists)
-# - create .Renviron with location of R libraries
-# - define R repository in .Rprofile
-# - add .travis.yml to .Rbuildignore
-# - install devtools if not already installed
-# - install covr if not already installed
-# - update all installed packages
-# - install package with dependencies
+  - "~/Rlib"
 install:
-  - mkdir -p ~/Rlib
-  - echo 'R_LIBS=~/Rlib' > .Renviron
-  - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
-  - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
-  - Rscript -e 'if(!"covr" %in% rownames(installed.packages())) { install.packages("covr", dependencies = TRUE) }'
-  - Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
-  - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
-  - ls -a
-
-# Build and check package
+- mkdir -p ~/Rlib
+- echo 'R_LIBS=~/Rlib' > .Renviron
+- echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
+- Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools",
+  dependencies = TRUE) }'
+- Rscript -e 'if(!"covr" %in% rownames(installed.packages())) { install.packages("covr",
+  dependencies = TRUE) }'
+- Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
+- Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
+- ls -a
 script:
-  - R CMD build . --no-build-vignettes --no-manual
-  - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-#  - Rscript -e 'devtools::test()'
-  - R CMD check "${PKG_FILE_NAME}" --no-build-vignettes --no-manual --as-cran 
-
-# report coverage rate to coveralls
+- R CMD build . --no-build-vignettes --no-manual
+- PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
+- R CMD check "${PKG_FILE_NAME}" --no-build-vignettes --no-manual --as-cran
 after_success:
-  - Rscript -e 'covr::coveralls()'
-  - mkdir _deploy
-  - cp "${PKG_FILE_NAME}" _deploy/latest.tar.gz
-
-# send e-mails if stuff changes
-notifications:
-  email:
-    recipients:
-      - graeme.blair@columbia.edu
-      - jj247@columbia.edu
-      - a.coppock@columbia.edu
-    on_success: change
-    on_failure: change
-    
+- Rscript -e 'covr::coveralls()'
+- mkdir deploy
+- cp "${PKG_FILE_NAME}" deploy/latest.tar.gz
 deploy:
   provider: s3
   bucket: experimentr.org-jekyll
   region: us-east-1
-  local-dir: _deploy
+  local-dir: deploy
   skip_cleanup: true
   access_key_id: "$AWS_KEY"
   secret_access_key: "$AWS_SECRET_KEY"
-  
+notifications:
+  email:
+    recipients:
+    - graeme.blair@columbia.edu
+    - jj247@columbia.edu
+    - a.coppock@columbia.edu
+    on_success: change
+    on_failure: change
 env:
   global:
-  - secure: jeSSu71onI39A3dxVEjw5ArhR5gLfFx4Z17YcbzLLF2v4+xXQnBfbNj2Gm5hngTjy3qApa8WU0LKdN1rx5+1KI9TDAagnlRzUw+wDOT70ncXDxB8RrAl5oChMrjdQMJeGHqOm56cUahRg3ruHRvf2PAp0wWDKLEUlxDLfMZHo6DZiWeWtc16HYPrqhnBMcTpmmjfrFA2XOFNPrAK6OnRFnXiplNhbzf9AzH9o8nxz48+DpyrxVf9c67B5whn6unSmjyQ2pfosnBp5GD1mEDbyTv8Nt9amhv/rQDLy9rD+6qzh06GI+QNzfJPxlQnvqadioxWDMfHUMu5qISmMEzqYQk9y4YQ7zMGcSOLY44+pByTxfk37El3iMQUUbqWcSQzmxGBfFNFtmZ2B3Z/jgFCeAFdiZNSdd651T77QMR6Wo7KoYLL+Z4xjge3lBaPNyRKRDFuMiIM6tS5puG8MCL+RSWzS7nKgL/PLmpXsltVtQslzizcAWVtn8s6NwVMoQ8iXtYGPKOuCcdcFAtNRKrua4YSoRBheBLYBenZuSMooE6l0I2TOOcbLdfMsXHtszn/2896mZyiYmM3FfiLuEt7T3KA9uQ3AEa0WEeBoY194ftxOzhNzYB9kkDl4VGJH0dDMpiwiTuhtQoxn0gBpxy8rg7q2izSOjifAG/dF90gfjc=
-  - secure: S5Dyt1r7juSpXV32z48SYxrchH6pENKt9ptToh5Wxf6I3/2En41n+/NlEd093NbvFVJAxRCo1e1FeWfB78E7nrBFR/BEoHs1iIVI5nuY6nXzPjUskKFGm8UOzXuK5A50Uee/7EejZRCKvDmHzU01TzF8/BsMyKbPSOTqNQbsBC5bS+U04Da6sKQiWl1Jze2eYG6un7HXjIiQirj/r50MolQ7hL1PlH4N8V0FUiAE6VEcxGPwRk7R9/+fGGTyR71XiNa3Y449tfeSRV7ZEoWMTJkTnXD5wlasA+rlZQG2INDfyYn9UgG31jmUai/tzCXQEthZWqyWk+gkzD3c/Uxv3RFQ7gDwGU1d4oBODFB6lGchHAvyMOS3fsuRKHlMmfFNoGzrTmn5ky0P02WcCIFjEr/nlFF4JRfNiFtAeov3nHgRPacDSxdJLEtwpe3JQCwj6b75OizDZr1bqnD8TSdR0vg6JYeYRUO6teBor1DpHL8n7YoqrO1ypnYFywoy2PWOo/0KJ67G8DMFEPGLBTefugVt4PkYxBbwXnDvEEvYz0P5iaFfkn3FzFWO6U7TOF8EERbFF353s5n+jSu6QWyhY5AhueDadtguRzH1YLiRbcX72VWZO7zWgPoGlYy6nlptdAgDE5+9h4YA0+MK9aaW00nvuef6JQLR4vWWv8fAK8E=
-  - secure: dcLL38NBVu7Gf1DL2gkkqpWL4QhHdakPyt0aGrmyoi3HTGTT0kO2vRyuzyKE1YrHO/rPeYqPWhyoMjSr21lWh+t09U7sUOPH0Io3A4OAVBRm7vK8KtbA7xT2KOOjGR3VNLsB/SdYDORS3PBhW7n5Fh/SZygHMoq867hW46jL4NF/DrW+0YvwJj8etmppSKdw15w+EtFoI9L/CDNAXMxXB2D37S/FCsDZhZKqTlz/7n8WaVDVs0w48qSNoN7O7ERyM8qRtUGU3Ael1PbIZu+hqwGHjVeVJ3RUgkVER4aWwemlG4eXnrnO53pH6KGo8/knBelYXP/SYgOQ+VkItqK0j3ejldEr8Ueyrkcl+oQdIncxxewGvZ7w688KLp++MQH8LmKliqGcg/ToPCOIVJjgW41zYN5rlX/hNE6f+DUfUH4yMc93xqieprBrHQR8hW09zY1RmXmhOmA1OaJpKKCk/lXDVaYnnRYFe+ZL/GtsJJ5KQxkHwNj3reYs32v1uC50cbhXf/pvDOoraSBLBp1XIwVK59qqSF0ElBN84jJcem5F/n3NAC0bgIdzV6fgaC+oLiunTkZ/KOGTd1SyRY4LrvSDr9UpZst77zaiNECgWRnIpGyBF7FWjn+RU6h1sdPB7wBKYinuWsj/MhzTzqFlCz8HK2QOrii9HRc0gGxdd0I=
-
+  - secure: GTsToYIcGZEknVFQw4JM5e6A8AFEwKBmUGug48TOqFrfPDlW2jg0fYqHVnm3n0cHrtidD0P5ru97zN+RcMJTvMW6D3dmwvRKC3qWdGzpl7MJXQkJqjRuJfh2XmTia3AcrV93jo+Vpq+mnHBlpEtJY2e/LwsotMCwJAkIviq1JmRU+3X1IYkj3j7/7IkZdNXcHfA8bMKoeV130+PKCugt0DOxzEMF6q8LvVxKNMReg23GDohT0sYu7Cudpr4nlokgfMpmK0qSl7jZcbb90lFLTR6DsNzm6sJPW8+uc01HBZM/HXMnT6TsDR5XfqK0HwWjCyYEHPg5wh3KVEOEDoZNkld3YmRwwJwux7z4JfTvpz6Ssm/rhb7jui6e+68sE3eikcChURqgRirS8/7CeWUcqIUFhF1slT0yBrNMazgAyDp+ZZFqVqIpvGF0Bra66349SINxl9iZuaE8V5t77mHVhBfB9POv22/XnFPaQ0lOsJH7GzC0zScA4OcZKsF2iyHt04vMTPnlyybmea7FoipxbWOOjR7UaZKkf7gO4zzYor2iwVsybdWVHgSo4VVPCzfmu3d5WwLuo44HKLVvr8XarmE2YqyPsJifHVRRkTkcuKFHeL6MPgxSw6cwyzcKmdZnMA8xZcHQ4gHoPN52mnh1h6zvsjiddqL7j3RZ6tR60YA=
+  - secure: rJzxzt8ujDgbwvaZOHqcUcV0n2pDJbwYlOTt5O5jNnb07dT64wt9hKkDhcJ4O0fbybpwOUF3Fn3LckEZfTKEnOUFzUSPl3PMvE+SPbUdfGw4eM9OdSFX0AFkOPkOofGpS1hqKT33ZEt44AYOAjaRjDF5JBCPSNDPjwRzxqyW9Ljz/GLX1aePsjY//AZHNtWAGiZzJ0AsB42stqfVy1Ctdu3xGbnBjkgrAqPebPPmWKB/+NfR4jBIAPu5nf6FkcCyftd3h8+xrHMX9RaZbHOYGm+5LDtbgllaFYUaCR15dY8f4/NPwOy4fKEfDduWSGV59OXY9EqHxSr29fN5NMfmQENNW8da1DkoftbN/IxfRc69Yv2qgFG22XwpnRr6zj8SCs5NxmCwM/7TFRQJdkzd9osSmMJXRQ1vrDVyjxVxJfrSHQpDKLg7g2AvL+RliYpjtFSnsxrxiP8t8rhSffkF0B5zSToFlt0mRUxBlbdMxt7zCuaMtCOg6h3wQjzShT6wP41RLUGQHSXiStnvsI/6ADo3vuIXgJtIYc/uPeXCi61DWl1c9yCCYbf0twq/YZcTv/3pIoaKP7Hs7JOYILrYK5MOI4LViloZg7Nzorh+mQR/EaxgH/zgzLxc+QeihGiv0MIiufieK1XF5FFEtopmdAWuGkyv8SwbYlJjKeduVLY=
+  - secure: Pp/Y3QROpbFuXqrmUTHDVqAIK6ukKT5MgMcx9PEsib89avJFX9RdheKf0uNU2hLBtUK8WeffEGuu5ib8iRif9gtY0svlyL24CpFiZexJHYghuxAcXnywM3p+WpUdE/n3zuQ6nN41efaE666d1LhjQF5YHhlzjAsuYeOwSYNvLqpWiaSY7H/gpBn4vQUd8yV2MOYrm46ImWm+TFcCYYf4PE2u9RRzHNeAtnoQ2WXnv47d4iUrqLUfoK530SJq5g1ySih6jg6x8klO2pZlKMGMjnCgzZrVl9X0lZ/F4aw0/8lSflCgLWUI0258rHmJ3EL+5x4P5mcxltudDSQ5SpNNv51CBJVOn+cOCk+mKFH693GJYhmi4BEv6ADftmR5PM2ovFSiNU557KBxm4BIZhFMAtmcIP/lXvarNaMpDsbd47VBnOTOmEm/+4CFdTE2CHIxl1FiAQYlU0CL/gd6NVCu6DE27oRyPN4icwMf7T7J+j4XQQMkYRQUy4xfC06ATcGdQeUxWQcgecqoor2PonFB5Lyf5OMXqM/TCukuPcWUxC7pFwHgfS2pVf3BgruULlp/PAvKF2CA58FNktwkece/PViLlahNlMdih4aV9fpWkBOj490CCTbDSmX8YxmobcVq5DfDtH2T0JrT1A9P4ueFdXnM0RTX5EpR26DcNZ+pFNw=
