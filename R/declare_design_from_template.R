@@ -62,3 +62,11 @@ quick_design <- function(template, intersection = NULL, ...){
   
 }
 
+
+#' @export
+vary <- function(...){
+  vary_list <- list(...)
+  class(vary_list) <- "vary"
+  return(vary_list)
+}
+
