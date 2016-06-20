@@ -1,12 +1,11 @@
-
-
-#' Compare Designs from Template Function
+#' Quick Design Generation Function
 #' 
 #' @param template Template function to create a set of designs to compare
-#' @param ... options for the template function over which to compare designs
+#' @param intersection Describes how to 
+#' @param ... options for the template function. If you wish to compare designs over a range of values of a template input, use vary().
 #' 
 #' @export
-compare_designs_from_template <- function(template, ...){
+quick_design <- function(template, intersection = NULL, ...){
   
   if (missing(template)) {
     stop("You must specify a template function in the template argument.")
