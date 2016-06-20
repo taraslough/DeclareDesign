@@ -83,3 +83,16 @@ get_indices <- function(intersection,length_list){
   
   return(index_grid)
 }
+
+#' @export
+get_arg_list <- function(constants,variables,variable_index){
+  variable_args <- mapply(
+    FUN = function(variable_list,index){
+      variable_list[index]
+    },
+    variable_list = variables,
+    index = variable_index
+  )
+  return(c(constants,variable_args))
+}
+
