@@ -14,10 +14,6 @@ quick_design <- function(template, intersection = NULL, ...){
   argument_names <- names(formals(template))
   options <- list(...)
   
-  if(length(options)>2){
-    stop("You may only compare designs across one dimension.")
-  }
-  
   if (length(options) > 0) {
     for (i in 1:length(options)) {
       if (names(options)[[i]] %in% argument_names) {
@@ -28,12 +24,38 @@ quick_design <- function(template, intersection = NULL, ...){
     }
   }
   
-  expand_options <- expand.grid(options)
+  is_variable <- 
+    sapply(options, function(option) class(option) == "vary")
   
-  design_list <- list()
-  
-  for(i in 1:nrow(expand_options)){
-    design_list[[i]] <- do.call(template, args = as.list(expand_options[i,]))
+  if(any(is_variable)){ # At least one arg to vary over
+    
+    constant_options <- options[!is_variable]
+    variable_options <- options[is_variable]
+    
+    variable_lengths <- sapply(variable_options,length)
+    
+    intersection <- set_intersection_warn_user(intersection = intersection,
+                                               variable_lengths = variable_lengths)
+    
+    variable_indices <- get_indices(
+      intersection = intersection,
+      length_list = variable_lengths)
+    
+    design_list <- list()
+    
+    for(i in 1:nrow(variable_indices)){
+      arg_list <- get_arg_list(
+        constants = constant_options,
+        variables = variable_options,
+        variable_index = variable_indices[i,])
+      
+      design_list[[i]] <- do.call(template, args = arg_list)
+      
+      class(design_list[[i]]) <- "design"
+    }
+    
+  } else { # Only constants supplied
+    design_list <- do.call(template, args = options)
   }
   
   return(design_list)
