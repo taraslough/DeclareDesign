@@ -70,3 +70,16 @@ vary <- function(...){
   return(vary_list)
 }
 
+#' @export
+get_indices <- function(intersection,length_list){
+  indices <- as.list(parse(text = paste0("1:",length_list)))
+  names(indices) <- names(length_list)
+  
+  if(intersection){
+    index_grid <- do.call("expand.grid",indices)
+  } else {
+    index_grid <- do.call("data.frame",indices)
+  }
+  
+  return(index_grid)
+}
