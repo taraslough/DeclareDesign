@@ -161,27 +161,20 @@ get_estimates <- function(estimator, data) {
     } else {
       estimates_list[[i]] <- estimator[[i]]$estimates(data = data)
     }
-    if(class(estimates_list[[i]]) == "numeric" & !is.null(names(estimates_list[[i]]))){
-      estimates_list[[i]] <- as.matrix(estimates_list[[i]])
+    if(!any(colnames(estimates_list[[i]]) %in% "estimate_label")) {
+      if(length(estimator_labels[[i]]) == 1){
+        estimates_list[[i]] <- data.frame(estimates_list[[i]], estimate_label = estimator_labels[[i]])    
+      } else {
+        stop("Please provide a single label or provide a column in the estimates named 'estimate_label'.")
+      }
     }
-    if(class(estimates_list[[i]]) != "matrix" & class(estimates_list[[i]]) != "data.frame"){
-      stop(paste("The quantity_of_interest function you set, or in its absence the estimate function, for estimator named", estimator_labels[i], 
-                 "did not produce a matrix or data frame of results."))
-    }
-    if(ncol(estimates_list[[i]]) != length(estimator_labels[[i]]) & length(estimator_labels[[i]]) == 1)
-      estimator_labels[[i]] <- rep(estimator_labels[[i]], ncol(estimates_list[[i]]))
-    colnames(estimates_list[[i]]) <- estimator_labels[[i]] ##colnames(estimates_list[[i]]), estimator_labels[i], sep = "_")
   }
   
-  ## this merges the summary statistics together such that there can be different statistics for each estimator
-  ## and they are merged and named correctly
-  estimates_matrix <- estimates_list[[1]]
-  if(length(estimator) > 1){
-    for(i in 2:length(estimator)){
-      estimates_matrix <- merge(estimates_matrix, estimates_list[[i]], by = "row.names", all.x = TRUE, all.y = TRUE, sort = FALSE)
-      rownames(estimates_matrix) <- estimates_matrix[,1]
-      estimates_matrix <- estimates_matrix[, 2:ncol(estimates_matrix), drop = FALSE]
-    }
+  estimates_matrix <- do.call(rbind, estimates_list)
+  
+  if(!all(c("estimate_label", "statistic_label", "statistic") %in% colnames(estimates_matrix))){
+    stop("Please include the columns estimate_label, statistics_label, and statistic in the output of your estimates function.")
   }
+  
   return(estimates_matrix)
 }

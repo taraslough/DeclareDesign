@@ -5,6 +5,7 @@
 #' @param estimand_function A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.
 #' @param estimand_text A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
 #' @param ... Include other options to be sent to the \code{estimand_function}.
+#' @param estimand_level Level at which the estimand is calculated, either 'population', 'sample', or 'assignment'.
 #' @param fixed Indicator (TRUE or FALSE) for whether the estimand is fixed, such a scalar, or not.
 #' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
 #' @param noncompliance A noncompliance object created by \code{\link{declare_noncompliance}}.
@@ -20,7 +21,7 @@
 #'
 #' @export
 declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
-                             ..., fixed = FALSE,
+                             ..., estimand_level = "population", fixed = FALSE, 
                              potential_outcomes, noncompliance = NULL, attrition = NULL,
                              condition_names = NULL,
                              subset = NULL, weights_variable_name = NULL, 
@@ -43,6 +44,10 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
   
   if(is.null(potential_outcomes)){
     stop("Please provide a potential_outcomes object. This is used to create the potential outcomes before calculating the estimand.")
+  }
+  
+  if(!(estimand_level %in% c("population", "sample", "assignment"))){
+    stop("Please set the argument estimand_level must be either 'population', 'sample', or 'assignment'.")
   }
   
   if(!is.null(condition_names)){
@@ -104,7 +109,8 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
   }
   
   structure(list(estimand = estimand_function_internal, potential_outcomes = potential_outcomes, noncompliance = noncompliance, attrition = attrition,
-                 fixed = fixed, condition_names = condition_names, label = label, description = description, call = match.call()), class = "estimand")
+                 estimand_level = estimand_level, fixed = fixed, condition_names = condition_names, label = label, description = description, 
+                 call = match.call()), class = "estimand")
   
 }
 
@@ -123,8 +129,10 @@ get_estimands <- function(estimand = NULL, estimator = NULL, data){
   
   if(!is.null(estimator) & class(estimator) == "list"){
     estimand <- lapply(1:length(estimator), function(j) estimator[[j]]$estimand)
+    estimator_labels <- sapply(1:length(estimator), function(j) estimator[[j]]$label)
   } else if(!is.null(estimator) & class(estimator) == "estimator"){
     estimand <- estimator$estimand
+    estimator_labels <- estimator$label
   }
   
   if(class(estimand) == "list"){
@@ -163,21 +171,30 @@ get_estimands <- function(estimand = NULL, estimator = NULL, data){
         } else {
           estimands_list[[i]] <- estimand[[i]]$estimand(data = data)
         }
-        names(estimands_list[[i]]) <- estimand_labels[i]
       } else {
         ## if there is NOT an estimand defined
         estimands_list[[i]] <- NA
       }
+      if(length(estimands_list[[i]]) > 1){
+        stop("Your estimand should be a scalar and it currently returns a vector.") ## THIS SHOULD BE WORKABLE NO MATTER WHAT THEY SENT
+      }
     }
-    estimands_vector <- c(estimands_list, recursive = T)
+    ##estimands_vector <- c(estimands_list, recursive = T)
+    if(length(estimator_labels) != length(estimand)){
+      stop("Please provide the same number of labels to your estimator as the number of estimands.")
+    }
+    estimands_matrix <- data.frame(estimate_label = estimator_labels, 
+                                   estimand_label = estimand_labels,
+                                   statistic_label = "estimand",
+                                   statistic = c(estimands_list, recursive = T))
     
   } else {
     ## if estimand is null (i.e. an estimator did not have an estimand)
     
-    estimands_vector <- NA
+    estimands_matrix <- NA
   }
   
-  return(estimands_vector)
+  return(estimands_matrix)
   
 }
 

@@ -62,12 +62,11 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
   p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
   conf_int <- suppressMessages(confint(model))[coef_num, ]
   
-  output <- matrix(c(est, se, p, conf_int, df), 
-                   dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                   ##paste0(summary(model)$terms[[2]], "~", paste(all.vars(summary(model)$terms[[3]]), collapse = "+"), "_", 
-                                   label))
+  output <- data.frame(statistic_label = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                       statistic = c(est, se, p, conf_int, df), 
+                       estimate_label = label)
   
-  return(output[which(rownames(output) %in% statistics), , drop = FALSE])
+  return(output[which(output$statistic_label %in% statistics), , drop = FALSE])
 }
 
 
@@ -82,8 +81,8 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
 #'
 #' @export
 get_regression_coefficient_robust <- function(model, formula = NULL, coefficient_name, 
-                                       statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                       label = ""){
+                                              statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                                              label = ""){
   coef_num <- which(names(coef(model)) %in% coefficient_name)
   df <- df.residual(model)
   est <- coef(model)[coef_num]
@@ -92,11 +91,11 @@ get_regression_coefficient_robust <- function(model, formula = NULL, coefficient
   
   conf_int <- est + se %o% qt(c(0.025,0.975),summary(model)$df[2])
   
-  output <- matrix(c(est, se, p, conf_int, df), 
-                   dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                   paste0(summary(model)$terms[[2]], "~", paste(all.vars(summary(model)$terms[[3]]), collapse = "+"), "_", label)))
+  output <- data.frame(statistic_label = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                       statistic = c(est, se, p, conf_int, df), 
+                       estimate_label = label)
   
-  return(output[which(rownames(output) %in% statistics), , drop = FALSE])
+  return(output[which(rownames(output$statistic) %in% statistics), , drop = FALSE])
 }
 
 # Built-in-Estimators -----------------------------------------------------
@@ -117,32 +116,11 @@ collapse_clusters <- function(data, cluster_variable_name, cluster_collapse_func
 #' @param alpha The significance level, 0.05 by default.
 #'
 #' @export
-difference_in_means <- function(formula, data, weights = NULL, subset = NULL, cluster_variable_name = NULL, cluster_collapse_function = mean, alpha = .05) {
-  
-  if(length(all.vars(formula[[3]]))>1)
-    stop("The formula should only include one variable on the right-hand side: the treatment variable.")
-  
-  d_i_m <- function(Y, t, ##w, 
-                    cond1, cond2, alpha){
-    N <- length(Y)
-    diff <- mean(Y[t == cond1]) - mean(Y[t == cond2])
-    se <- sqrt(var(Y[t == cond1])/sum(t == cond1) + var(Y[t == cond2])/sum(t == cond2))
-    df <- N - 2
-    p <- 2 * pt(abs(diff/se), df = df, lower.tail = FALSE)
-    ci_lower <- diff - qt(1 - alpha/2, df = df) * se
-    ci_upper <- diff + qt(1 - alpha/2, df = df) * se
-    return(c(diff, se, p, ci_lower, ci_upper, df))
-  }
+difference_in_means <- function(formula, condition1 = NULL, condition2 = NULL, data, weights = NULL, subset = NULL, cluster_variable_name = NULL, cluster_collapse_function = mean, alpha = .05,
+                                label = NULL) {
   
   if(!is.null(subset))
     data <- data[subset, ]
-  
-  condition_names <- unique(data[,all.vars(formula[[3]])])
-  combn <- combn(rev(sort(condition_names)), m = 2)
-  combn_names <- apply(combn, 2, function(x) paste(x, collapse = "-"))
-  
-  ##if(!is.null(weights))
-  ##  w <- weights[subset]
   
   if(!is.null(cluster_variable_name)){
     data <- collapse_clusters(data = data, cluster_variable_name = cluster_variable_name, cluster_collapse_function = cluster_collapse_function)
@@ -151,16 +129,39 @@ difference_in_means <- function(formula, data, weights = NULL, subset = NULL, cl
   Y <- data[, all.vars(formula[[2]])]
   t <- data[, all.vars(formula[[3]])]
   
-  return_matrix <- matrix(NA, nrow = 6, ncol = ncol(combn), 
-                          dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                          paste0(all.vars(formula[[2]]), "~", combn_names, 
-                                                 "_diff_in_means")))
-  for(c in 1:ncol(combn)){
-    return_matrix[, c] <- d_i_m(Y = Y, t = t, ##w = w, 
-                                cond1 = combn[1, c], cond2 = combn[2, c], alpha = alpha)
+  if(is.factor(t)){
+    condition_names <- levels(t)
+  }else{
+    condition_names <- sort(unique(t))
   }
   
+  if(is.null(condition1) & is.null(condition2)){
+    condition1 <- condition_names[1]
+    condition2 <- condition_names[2]
+  }
+  
+  ##if(!is.null(weights))
+  ##  w <- weights[subset]
+  
+  N <- length(Y)
+  diff <- mean(Y[t == condition2]) - mean(Y[t == condition1])
+  se <- sqrt(var(Y[t == condition2])/sum(t == condition2) + 
+               var(Y[t == condition1])/sum(t == condition1))
+  df <- N - 2
+  p <- 2 * pt(abs(diff/se), df = df, lower.tail = FALSE)
+  ci_lower <- diff - qt(1 - alpha/2, df = df) * se
+  ci_upper <- diff + qt(1 - alpha/2, df = df) * se
+  
+  if(is.null(label)){
+    label <- paste0("d_i_m_", condition2, "-", condition1)
+  }
+  
+  return_matrix <- data.frame(statistic_label = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
+                              estimate_label = label,
+                              statistic = c(diff, se, p, ci_lower, ci_upper, df))
+  
   return(return_matrix)
+  
 }
 
 
@@ -496,7 +497,7 @@ default_exposure_function <- default_potential_outcomes_function
 proportion_potential_outcomes_function <- function(data, population_proportions = c(.5, .5), 
                                                    condition_names = NULL, assignment_variable_name = "Z"){
   
-
+  
   
   if(!assignment_variable_name %in% names(data)){
     stop("Unable to find the assignment variable. Please check that you have specified assignment_variable_name correctly.")
@@ -562,8 +563,8 @@ proportion_potential_outcomes_function <- function(data, population_proportions 
   
   return_vector <- outcomes[reveal_mat]
   suppressWarnings({
-  if(all(identical(as.character(as.numeric(return_vector)),return_vector)))
-    return_vector <- as.numeric(return_vector)
+    if(all(identical(as.character(as.numeric(return_vector)),return_vector)))
+      return_vector <- as.numeric(return_vector)
   })
   return(return_vector)
   
