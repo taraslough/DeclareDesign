@@ -15,7 +15,9 @@
 #' 
 #' @export
 declare_design <- function(population, sampling = NULL, assignment, estimator = NULL, 
-                           potential_outcomes, inputs = NULL, label = NULL, description = NULL) {
+                           potential_outcomes, 
+                           diagnosand = list(bias, rmse, power, coverage, type_s_rate, sd_estimate), 
+                           inputs = NULL, label = NULL, description = NULL) {
   
   ## do checks
   
@@ -39,13 +41,15 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
   sampling <- clean_inputs(sampling, "sampling", accepts_list = FALSE)
   assignment <- clean_inputs(assignment, "assignment", accepts_list = TRUE)
   estimator <- clean_inputs(estimator, "estimator", accepts_list = TRUE)
-  potential_outcomes <- clean_inputs(potential_outcomes, c("potential_outcomes", "interference"), accepts_list = TRUE)
+  potential_outcomes <- clean_inputs(potential_outcomes, c("potential_outcomes", "interference", "attrition"), accepts_list = TRUE)
+  diagnosand <- clean_inputs(diagnosand, c("diagnosand"), accepts_list = TRUE)
   inputs <- clean_inputs(inputs, "inputs", accepts_list = FALSE)
   
   ## return object
   
   structure(list(population = population, sampling = sampling, assignment = assignment, estimator = estimator,
-                 potential_outcomes = potential_outcomes, inputs = inputs, label = label, description = description,
+                 potential_outcomes = potential_outcomes, diagnosand = diagnosand, 
+                 inputs = inputs, label = label, description = description,
                  call = match.call()), class = "design")
   
 }
@@ -60,6 +64,7 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
 #' @param assignment An assignment object, as created by \code{\link{declare_assignment}}.
 #' @param estimator An estimator object, as created by \code{\link{declare_estimator}}. Optionally a list of estimator objects.
 #' @param potential_outcomes A potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. Optionally a list of potential_outcomes objects.
+#' @param diagnosand 
 #' @param inputs An inputs object, as created by \code{\link{declare_inputs}}.
 #' @param label An optional design label.
 #' @param description A description of the modified design in words.
@@ -68,10 +73,10 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
 #' 
 #' @export
 modify_design <- function(design, population = NULL, sampling = NULL, assignment = NULL, estimator = NULL, 
-                          potential_outcomes = NULL, inputs = NULL, label = NULL, description = NULL) {
+                          potential_outcomes = NULL, diagnosand = NULL, inputs = NULL, label = NULL, description = NULL) {
   
   if(all(is.null(population), is.null(sampling), is.null(assignment), is.null(estimator), is.null(potential_outcomes),
-         is.null(label))){
+         is.null(diagnosand), is.null(label))){
     warning("No part of the design was modified, so the original design is being returned.")
     return(design)
   }
@@ -91,6 +96,9 @@ modify_design <- function(design, population = NULL, sampling = NULL, assignment
   if(is.null(potential_outcomes) & !is.null(design$potential_outcomes)){
     potential_outcomes <- design$potential_outcomes
   }
+  if(is.null(diagnosand) & !is.null(design$diagnosand)){
+    diagnosand <- design$diagnosand
+  }
   if(is.null(inputs) & !is.null(design$inputs)){
     inputs <- design$inputs
   }
@@ -102,7 +110,8 @@ modify_design <- function(design, population = NULL, sampling = NULL, assignment
   }
   
   declare_design(population = population, sampling = sampling, assignment = assignment, estimator = estimator, 
-                 potential_outcomes = potential_outcomes, inputs = inputs, label = label, description = description)
+                 potential_outcomes = potential_outcomes, diagnosand = diagnosand, 
+                 inputs = inputs, label = label, description = description)
   
 }
 

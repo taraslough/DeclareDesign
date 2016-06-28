@@ -5,10 +5,9 @@
 \title{Declare Estimand}
 \usage{
 declare_estimand(estimand_function = NULL, estimand_text = NULL, ...,
-  estimand_level = "population", fixed = FALSE, potential_outcomes,
-  noncompliance = NULL, attrition = NULL, condition_names = NULL,
-  subset = NULL, weights_variable_name = NULL, label = NULL,
-  description = NULL)
+  estimand_level = "population", potential_outcomes, noncompliance = NULL,
+  attrition = NULL, condition_names = NULL, subset = NULL,
+  weights_variable_name = NULL, label = NULL, description = NULL)
 }
 \arguments{
 \item{estimand_function}{A function, possibly of data, that returns a (possibly single-valued) vector of quantities to be estimated.}
@@ -18,8 +17,6 @@ declare_estimand(estimand_function = NULL, estimand_text = NULL, ...,
 \item{...}{Include other options to be sent to the \code{estimand_function}.}
 
 \item{estimand_level}{Level at which the estimand is calculated, either 'population', 'sample', or 'assignment'.}
-
-\item{fixed}{Indicator (TRUE or FALSE) for whether the estimand is fixed, such a scalar, or not.}
 
 \item{potential_outcomes}{A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.}
 

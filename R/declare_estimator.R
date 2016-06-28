@@ -7,18 +7,19 @@
 #' @param ... Include other options that are used for the \code{estimates} function.
 #' @param subset A string indicating which subset of the data to calculate estimates on, such as "province == '1'".
 #' @param weights_variable_name The variable name of a weights variable used by the \code{estimates} function and/or the \code{model} function.
-#' @param labels Labels for each of the estimate(s).
+#' @param label the label for the estimator.
 #' @param description A description of the estimator in words.
 #' @param estimand An estimand object created by \code{declare_estimand}.
 #'
 #' @export
 declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL, estimates, ...,
-                              subset = NULL, weights_variable_name = NULL, labels = NULL, description = NULL, estimand = NULL) {
+                              subset = NULL, weights_variable_name = NULL, 
+                              label = NULL, description = NULL, estimand = NULL) {
   
   estimates_options <- list(...)
   
   # Checks -------------------------------------------------
-  estimand <- clean_inputs(estimand, "estimand", accepts_list = FALSE)
+  
   
   if(missing(estimates)){
     stop("Please provide an estimates function. If you provided a model function, the estimates function should extract the quantity of interest (for example, the coefficient associated with the treatment variable). If you did not, the estimates function should take the data and return the quantity of interest directly.")
@@ -61,8 +62,8 @@ declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL
       options_internal$subset <- with(data, eval(parse(text = subset)))
     if(!is.null(weights_variable_name) & "weights" %in% argument_names)
       options_internal$weights <- data[, weights_variable_name]
-    if(!is.null(labels) & "labels" %in% argument_names)
-      options_internal$labels <- labels
+    if(!is.null(label) & "label" %in% argument_names)
+      options_internal$label <- label
     if(!is.null(data) & "data" %in% argument_names)
       options_internal$data <- data
     if(!is.null(model) & "model" %in% argument_names)
@@ -78,12 +79,36 @@ declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL
     return(do.call(estimates, args = options_internal))
   }
   
-  if(is.null(estimand$labels) & !is.null(estimand)){
-    estimand$labels <- as.character(substitute(estimand))
+  if(class(estimand) == "list"){
+    estimand_labels <- lapply(1:length(estimand), function(j) estimand[[j]]$label)
+    if(any(unlist(lapply(estimand_labels, is.null)))){
+      estimand_object_labels <- paste(substitute(estimand)[-1L])
+      estimand_labels <- lapply(1:length(estimand), function(j) {
+        label <- estimand[[j]]$label
+        if(is.null(label)){
+          label <- estimand_object_labels[j]
+        }
+        return(label)})
+    }
+  } else {
+    if(!is.null(estimand$label)){
+      estimand_labels <- list(estimand$label)
+    } else {
+      estimand_labels <- list(paste(substitute(estimand)))
+    }
   }
   
-  return_object <- list(model = model_function, model_name = substitute(model), estimates = estimates_function, estimates_name = substitute(estimates),
-                        labels = labels, description = description, estimand = estimand, call = match.call())
+  estimand_label <- unlist(estimand_labels)
+  
+  estimand <- clean_inputs(estimand, "estimand", accepts_list = TRUE)
+  
+  estimand_level <- sapply(estimand, function(x) x$estimand_level)
+  
+  return_object <- list(model = model_function, model_name = substitute(model), 
+                        estimates = estimates_function, estimates_name = substitute(estimates),
+                        label = label, description = description, estimand = estimand, 
+                        estimand_label = estimand_label, estimand_level = estimand_level,
+                        call = match.call())
   
   if(is.null(model)){
     return_object$model <- NULL
@@ -130,23 +155,28 @@ fit_model <- function(data, estimator){
 #' @export
 get_estimates <- function(estimator, data) {
   
+  # get the labels
   if(class(estimator) == "list"){
-    estimator_labels <- lapply(1:length(estimator), function(j) estimator[[j]]$labels)
+    estimator_labels <- lapply(1:length(estimator), function(j) estimator[[j]]$label)
+    estimand_labels <- lapply(1:length(estimator), function(j) estimator[[j]]$estimand_label)
+    estimand_levels <- lapply(1:length(estimator), function(j) estimator[[j]]$estimand_level)
     if(any(unlist(lapply(estimator_labels, is.null)))){
       estimator_object_labels <- paste(substitute(estimator)[-1L])
       estimator_labels <- lapply(1:length(estimator), function(j) {
-        labels <- estimator[[j]]$labels
-        if(is.null(labels)){
-          labels <- estimator_object_labels[j]
+        label <- estimator[[j]]$label
+        if(is.null(label)){
+          label <- estimator_object_labels[j]
         }
-        return(labels)})
+        return(label)})
     }
   } else {
-    if(!is.null(estimator$labels)){
-      estimator_labels <- list(estimator$labels)
+    if(!is.null(estimator$label)){
+      estimator_labels <- list(estimator$label)
     } else {
       estimator_labels <- list(paste(substitute(estimator)))
     }
+    estimand_labels <- list(estimator$estimand_label)
+    estimand_levels <- list(estimator$estimand_level)
   }
   
   # Checks -------------------------------------------------
@@ -161,20 +191,27 @@ get_estimates <- function(estimator, data) {
     } else {
       estimates_list[[i]] <- estimator[[i]]$estimates(data = data)
     }
-    if(!any(colnames(estimates_list[[i]]) %in% "estimate_label")) {
-      if(length(estimator_labels[[i]]) == 1){
-        estimates_list[[i]] <- data.frame(estimates_list[[i]], estimate_label = estimator_labels[[i]])    
-      } else {
-        stop("Please provide a single label or provide a column in the estimates named 'estimate_label'.")
-      }
+    estimates_list[[i]]$estimator_label <- estimator_labels[[i]]
+    
+    if(length(estimand_labels[[i]]) == nrow(estimates_list[[i]])){
+      estimates_list[[i]]$estimand_label <- estimand_labels[[i]]
+      estimates_list[[i]]$estimand_level <- c(estimand_levels[[i]], recursive = TRUE)
+    } else if (length(estimand_labels[[i]]) == 0){
+      estimates_list[[i]]$estimand_label <- "no estimand"
+      estimates_list[[i]]$estimand_level <- "no estimand"
+    } else if (length(estimand_labels[[i]]) > nrow(estimates_list[[i]]) & nrow(estimates_list[[i]]) == 1){
+      estimates_list[[i]] <- estimates_list[[i]][rep(1, length(estimand_labels[[i]])), ]
+      estimates_list[[i]]$estimand_label <- c(estimand_labels[[i]], recursive = TRUE)
+      estimates_list[[i]]$estimand_level <- c(estimand_levels[[i]], recursive = TRUE)
+      rownames(estimates_list[[i]]) <- NULL
+    } else if (length(estimand_labels[[i]]) < nrow(estimates_list[[i]])){
+      stop("Please provide at least one estimand for each estimate.")
     }
+    
   }
   
-  estimates_matrix <- do.call(rbind, estimates_list)
+  estimates_df <- do.call(rbind, estimates_list)
   
-  if(!all(c("estimate_label", "statistic_label", "statistic") %in% colnames(estimates_matrix))){
-    stop("Please include the columns estimate_label, statistics_label, and statistic in the output of your estimates function.")
-  }
-  
-  return(estimates_matrix)
+  return(estimates_df)
 }
+

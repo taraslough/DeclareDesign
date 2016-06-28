@@ -116,14 +116,17 @@ collapse_clusters <- function(data, cluster_variable_name, cluster_collapse_func
 #' @param alpha The significance level, 0.05 by default.
 #'
 #' @export
-difference_in_means <- function(formula, condition1 = NULL, condition2 = NULL, data, weights = NULL, subset = NULL, cluster_variable_name = NULL, cluster_collapse_function = mean, alpha = .05,
-                                label = NULL) {
+difference_in_means <- function(formula, condition1 = NULL, condition2 = NULL, 
+                                data, weights = NULL, subset = NULL, 
+                                cluster_variable_name = NULL, cluster_collapse_function = mean, alpha = .05,
+                                estimate_label = NULL) {
   
   if(!is.null(subset))
     data <- data[subset, ]
   
   if(!is.null(cluster_variable_name)){
-    data <- collapse_clusters(data = data, cluster_variable_name = cluster_variable_name, cluster_collapse_function = cluster_collapse_function)
+    data <- collapse_clusters(data = data, cluster_variable_name = cluster_variable_name, 
+                              cluster_collapse_function = cluster_collapse_function)
   }
   
   Y <- data[, all.vars(formula[[2]])]
@@ -152,15 +155,16 @@ difference_in_means <- function(formula, condition1 = NULL, condition2 = NULL, d
   ci_lower <- diff - qt(1 - alpha/2, df = df) * se
   ci_upper <- diff + qt(1 - alpha/2, df = df) * se
   
-  if(is.null(label)){
-    label <- paste0("d_i_m_", condition2, "-", condition1)
+  if(is.null(estimate_label)){
+    estimate_label <- paste0("d_i_m_", condition2, "-", condition1)
   }
   
-  return_matrix <- data.frame(statistic_label = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                              estimate_label = label,
-                              statistic = c(diff, se, p, ci_lower, ci_upper, df))
+  return_df <- data.frame(estimate_label = estimate_label,
+                          est = diff, se = se, p = p, 
+                          ci_lower = ci_lower, ci_upper = ci_upper, df = df,
+                          stringsAsFactors = FALSE)
   
-  return(return_matrix)
+  return(return_df)
   
 }
 

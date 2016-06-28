@@ -6,7 +6,6 @@
 #' @param estimand_text A character string that contains an expression that can be evaluated on the data.  For example, you can provide "mean(Y_Z1 - Y_Z0)" to set the estimand as the average difference between the Y_Z1 potential outcome and the Y_Z0 potential outcome.
 #' @param ... Include other options to be sent to the \code{estimand_function}.
 #' @param estimand_level Level at which the estimand is calculated, either 'population', 'sample', or 'assignment'.
-#' @param fixed Indicator (TRUE or FALSE) for whether the estimand is fixed, such a scalar, or not.
 #' @param potential_outcomes A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.
 #' @param noncompliance A noncompliance object created by \code{\link{declare_noncompliance}}.
 #' @param attrition An attrition object created by \code{\link{declare_attrition}}.
@@ -21,7 +20,7 @@
 #'
 #' @export
 declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
-                             ..., estimand_level = "population", fixed = FALSE, 
+                             ..., estimand_level = "population", 
                              potential_outcomes, noncompliance = NULL, attrition = NULL,
                              condition_names = NULL,
                              subset = NULL, weights_variable_name = NULL, 
@@ -109,12 +108,12 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
   }
   
   structure(list(estimand = estimand_function_internal, potential_outcomes = potential_outcomes, noncompliance = noncompliance, attrition = attrition,
-                 estimand_level = estimand_level, fixed = fixed, condition_names = condition_names, label = label, description = description, 
+                 estimand_level = estimand_level, condition_names = condition_names, label = label, description = description, 
                  call = match.call()), class = "estimand")
   
 }
 
-#' Obtain Estimands
+#' Get Estimands
 #' 
 #' @param estimand An estimand object or list of estimand objects, created with \code{\link{declare_estimand}}.
 #' @param estimator An estimantor object or a list of estimator objects, created with \code{\link{declare_estimator}}.
@@ -123,78 +122,121 @@ declare_estimand <- function(estimand_function = NULL, estimand_text = NULL,
 #' @export
 get_estimands <- function(estimand = NULL, estimator = NULL, data){
   
-  if(!is.null(estimand) & !is.null(estimator)){
-    stop("Please either send estimand(s) or estimator(s) only to get_estimands().")
+  if(sum(is.null(estimand), is.null(estimator)) != 1){
+    stop("Please provide either estimand(s) or estimator(s) and not both.")
   }
   
-  if(!is.null(estimator) & class(estimator) == "list"){
-    estimand <- lapply(1:length(estimator), function(j) estimator[[j]]$estimand)
-    estimator_labels <- sapply(1:length(estimator), function(j) estimator[[j]]$label)
-  } else if(!is.null(estimator) & class(estimator) == "estimator"){
-    estimand <- estimator$estimand
-    estimator_labels <- estimator$label
-  }
-  
-  if(class(estimand) == "list"){
-    estimand_labels <- c(lapply(1:length(estimand), function(j) ifelse(is.null(estimand[[j]]$label), "", estimand[[j]]$label)), recursive = TRUE)
-    estimand_labels[which(estimand_labels == "")] <- paste(substitute(estimand)[-1L])[which(estimand_labels == "")]
-  } else {
-    estimand_labels <- estimand$label
-    if(is.null(estimand_labels)){
-      estimand_labels <- paste(substitute(estimand))
-    }
-  }
-  
-  if(class(estimand) == "estimand"){
-    estimand <- list(estimand)
-  }
-  
-  estimands_list <- list()
   if(!is.null(estimand)){
-    for(i in 1:length(estimand)){
-      if(!is.null(estimand[[i]])){
-        ## if there is an estimand defined
-        if(estimand[[i]]$fixed == FALSE){
+    
+    if(class(estimand) == "list"){
+      estimand_labels <- c(lapply(1:length(estimand), function(j) ifelse(is.null(estimand[[j]]$label), "", estimand[[j]]$label)), recursive = TRUE)
+      estimand_labels[which(estimand_labels == "")] <- paste(substitute(estimand)[-1L])[which(estimand_labels == "")]
+      estimand_levels <- sapply(estimand, function(x) x$estimand_level)
+    } else {
+      estimand_labels <- estimand$label
+      estimand_levels <- estimand$estimand_level
+      if(is.null(estimand_labels)){
+        estimand_labels <- paste(substitute(estimand))
+      }
+    }
+    
+    ## if estimand sent
+    estimand <- clean_inputs(estimand, object_class = "estimand", accepts_list = TRUE)
+    
+    estimands_list <- list()
+    if(!is.null(estimand)){
+      for(i in 1:length(estimand)){
+        if(!is.null(estimand[[i]])){
           
-          has_potential_outcomes <- has_potential_outcomes(data = data, potential_outcomes = estimand[[i]]$potential_outcomes, attrition = estimand[[i]]$attrition, noncompliance = estimand[[i]]$noncompliance,
+          ## if there is an estimand defined
+          has_potential_outcomes <- has_potential_outcomes(data = data, 
+                                                           potential_outcomes = estimand[[i]]$potential_outcomes, 
+                                                           attrition = estimand[[i]]$attrition, 
+                                                           noncompliance = estimand[[i]]$noncompliance,
                                                            condition_names = estimand[[i]]$condition_names)
           
           if(has_potential_outcomes == TRUE){
+            
             ## if PO's already exist, do not create them
             estimands_list[[i]] <- estimand[[i]]$estimand(data = data)
+            
           } else {
+            
             ## otherwise, use draw_potential_outcomes to create them
             estimands_list[[i]] <- estimand[[i]]$estimand(data = draw_potential_outcomes(data = data, potential_outcomes = estimand[[i]]$potential_outcomes,  
                                                                                          attrition = estimand[[i]]$attrition, noncompliance = estimand[[i]]$noncompliance,
                                                                                          condition_names = estimand[[i]]$condition_names))
+            
           }
         } else {
-          estimands_list[[i]] <- estimand[[i]]$estimand(data = data)
+          ## if there is NOT an estimand defined
+          estimands_list[[i]] <- "no estimand"
         }
-      } else {
-        ## if there is NOT an estimand defined
-        estimands_list[[i]] <- NA
+        if(!(is.numeric(estimands_list[[i]]) & length(estimands_list[[i]]) == 1 & is.vector(estimands_list[[i]]))){
+          stop("Please set up your estimand function to return a scalar.") 
+        }
       }
-      if(length(estimands_list[[i]]) > 1){
-        stop("Your estimand should be a scalar and it currently returns a vector.") ## THIS SHOULD BE WORKABLE NO MATTER WHAT THEY SENT
-      }
+      
+      estimands_df <- data.frame(estimator_label = "no estimator", 
+                                 estimand_label = estimand_labels,
+                                 estimand_level = estimand_levels,
+                                 estimand = c(estimands_list, recursive = T),
+                                 stringsAsFactors = FALSE)
+      
+    } else {
+      ## if estimand is null (i.e. an estimator did not have an estimand)
+      
+      estimands_df <- data.frame(estimator_label = "no estimator", 
+                                 estimand_label = "no estimand",
+                                 estimand_level = "no estimand",
+                                 estimand = "no estimand",
+                                 stringsAsFactors = FALSE)
     }
-    ##estimands_vector <- c(estimands_list, recursive = T)
-    if(length(estimator_labels) != length(estimand)){
-      stop("Please provide the same number of labels to your estimator as the number of estimands.")
-    }
-    estimands_matrix <- data.frame(estimate_label = estimator_labels, 
-                                   estimand_label = estimand_labels,
-                                   statistic_label = "estimand",
-                                   statistic = c(estimands_list, recursive = T))
     
   } else {
-    ## if estimand is null (i.e. an estimator did not have an estimand)
     
-    estimands_matrix <- NA
+    ## when estimator is sent
+    
+    if(class(estimator) == "list"){
+      estimator_labels <- lapply(1:length(estimator), function(j) estimator[[j]]$label)
+      if(any(unlist(lapply(estimator_labels, is.null)))){
+        estimator_object_labels <- paste(substitute(estimator)[-1L])
+        estimator_labels <- lapply(1:length(estimator), function(j) {
+          label <- estimator[[j]]$label
+          if(is.null(label)){
+            label <- estimator_object_labels[j]
+          }
+          return(label)})
+      }
+      
+    } else if(class(estimator) == "estimator"){
+      if(!is.null(estimator$label)){
+        estimator_labels <- list(estimator$label)
+      } else {
+        estimator_labels <- list(paste(substitute(estimator)))
+      }
+    }
+    
+    estimator <- clean_inputs(estimator, object_class = "estimator", accepts_list = TRUE)
+    
+    estimands_list <- list()
+    for(i in 1:length(estimator)){
+      if(!is.null(estimator[[i]]$estimand)){
+        estimands_list[[i]] <- get_estimands(estimand = estimator[[i]]$estimand, data = data)
+        estimands_list[[i]]$estimator_label <- estimator_labels[[i]]
+      } else {
+        estimands_list[[i]] <- data.frame(estimator_label = estimator_labels[[i]], 
+                                   estimand_label = "no estimand",
+                                   estimand_level = "no estimand",
+                                   estimand = "no estimand",
+                                   stringsAsFactors = FALSE)
+      }
+    }
+    estimands_df <- do.call(rbind, estimands_list)
+    
   }
   
-  return(estimands_matrix)
+  return(estimands_df)
   
 }
 

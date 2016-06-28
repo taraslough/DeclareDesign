@@ -2,7 +2,7 @@
 % Please edit documentation in R/declare_estimand.R
 \name{get_estimands}
 \alias{get_estimands}
-\title{Obtain Estimands}
+\title{Get Estimands}
 \usage{
 get_estimands(estimand = NULL, estimator = NULL, data)
 }
@@ -14,6 +14,6 @@ get_estimands(estimand = NULL, estimator = NULL, data)
 \item{data}{A data.frame, created by \code{\link{draw_sample}} or \code{\link{draw_population}} depending on the target of the estimate (sample or population).}
 }
 \description{
-Obtain Estimands
+Get Estimands
 }
 

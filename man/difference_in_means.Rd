@@ -6,7 +6,7 @@
 \usage{
 difference_in_means(formula, condition1 = NULL, condition2 = NULL, data,
   weights = NULL, subset = NULL, cluster_variable_name = NULL,
-  cluster_collapse_function = mean, alpha = 0.05, label = NULL)
+  cluster_collapse_function = mean, alpha = 0.05, estimate_label = NULL)
 }
 \arguments{
 \item{formula}{An object of class "formula", such as Y ~ Z}
