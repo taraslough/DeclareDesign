@@ -98,13 +98,7 @@ get_diagnosand <- function(diagnosand, simulations){
     diagnosands_list[[i]]$diagnosand_label <- diagnosand[[i]]$label
   }
   
-  diagnosands <- diagnosands_list[[1]]
-  if(length(diagnosands_list) > 1){
-    for(j in 2:length(diagnosands_list)){
-      diagnosands <- merge(diagnosands, diagnosands_list[[j]], by = c("estimand_label", "estimand_level", "estimator_label", "estimate_label"))
-    }
-  }
-  
+  diagnosands <- do.call(rbind, diagnosands_list)
   return(diagnosands)
   
 }

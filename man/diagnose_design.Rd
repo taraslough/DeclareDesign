@@ -6,7 +6,7 @@
 \usage{
 diagnose_design(design, population_draws = 2, sample_draws = 2,
   assignment_draws = 2, bootstrap_diagnosands = TRUE,
-  population_replicates = 1000)
+  population_replicates = 50)
 }
 \arguments{
 \item{assignment_draws}{}

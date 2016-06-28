@@ -17,7 +17,8 @@ diagnose_design <-
            sample_draws = 2,
            assignment_draws = 2,
            bootstrap_diagnosands = TRUE,
-           population_replicates = 1000) {
+           population_replicates = 50) {
+    
     ## core operations
     
     # check to ensure that the design is complete
@@ -212,11 +213,11 @@ diagnose_design <-
     
     rownames(simulations_df) <- NULL
     
-    diagnosands_df <- get_diagnosand(diagnosand = bias_diagnosand, simulations = simulations_df)
+    diagnosands_df <- get_diagnosand(diagnosand = design$diagnosand, simulations = simulations_df)
     
     if(bootstrap_diagnosands == TRUE){
       diagnosands_df_bootstrap_sd <- bootstrap_diagnosand(simulations_df = simulations_df,
-                                                          diagnosand = bias_diagnosand,
+                                                          diagnosand = design$diagnosand,
                                                           population_replicates = population_replicates)
 
       diagnosands_df <- merge(diagnosands_df, diagnosands_df_bootstrap_sd, by = c("estimand_label", "estimator_label", "estimand_level", "diagnosand_label"))
@@ -230,8 +231,6 @@ diagnose_design <-
   }
 
 bootstrap_draw <- function(simulations_df){
-  # Draw at pop level
-  N <- nrow(simulations_df)
   
   populations <- split(simulations_df, simulations_df$population_draw)
   
@@ -255,7 +254,7 @@ bootstrap_draw <- function(simulations_df){
 }
 
 bootstrap_diagnosand <- function(simulations_df, diagnosand, population_replicates = 50){
-  diagnosand <- DeclareDesign:::clean_inputs(diagnosand, object_class = "diagnosand", accepts_list = TRUE)
+  diagnosand <- clean_inputs(diagnosand, object_class = "diagnosand", accepts_list = TRUE)
   boot_list <- lapply(X = 1:population_replicates, FUN = function(x) bootstrap_draw(simulations_df))
   diagnosands_replicates <- do.call(rbind, lapply(boot_list, get_diagnosand, diagnosand = diagnosand))
     

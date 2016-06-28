@@ -16,8 +16,7 @@ context("Simple experiment")
     )
   
   assignment <-
-    declare_assignment(potential_outcomes = potential_outcomes,
-                       probability_each = c(.7, .3))
+    declare_assignment(potential_outcomes = potential_outcomes)
   
   
   estimand_1 <-
@@ -61,23 +60,28 @@ context("Simple experiment")
       estimand = estimand_2
     )
   
-  bias_diagnosand <-
-    declare_diagnosand(diagnostic_statistic_text = "est - estimand", summary_function = mean)
-  
-
-  
   # Case 1  
   design <- declare_design(
     population = population,
     sampling = sampling,
     assignment = assignment,
-    estimator = estimator_1,
+    estimator = estimator_2,
     potential_outcomes = potential_outcomes
   )
   
-  simulations_df <- diagnose_design(design = design, population_draws = 3, sample_draws = 3, assignment_draws = 3)
+  #debugonce(DeclareDesign:::bootstrap_diagnosand)
+  #debugonce(get_diagnosand)
+  simulations_df <- diagnose_design(design = design, 
+                                    population_draws = 800, 
+                                    sample_draws = 1, 
+                                    assignment_draws = 1,
+                                    population_replicates = 30)
+  
+  simulations_df$diagnosands
+  
+  DeclareDesign:::bootstrap_diagnosand(simulations_df$simulations, population_replicates = 1000, design$diagnosand)
   
   #debugonce(get_diagnosand)
-  get_diagnosand(diagnosand = bias_diagnosand, simulations = simulations_df$simulations)
+  get_diagnosand(diagnosand = bias, simulations = simulations_df$simulations)
   
 #})
