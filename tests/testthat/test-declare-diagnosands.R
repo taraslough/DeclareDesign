@@ -69,8 +69,6 @@ context("Simple experiment")
     potential_outcomes = potential_outcomes
   )
   
-  #debugonce(DeclareDesign:::bootstrap_diagnosand)
-  #debugonce(get_diagnosand)
   simulations_df <- diagnose_design(design = design, 
                                     population_draws = 800, 
                                     sample_draws = 1, 
@@ -81,7 +79,6 @@ context("Simple experiment")
   
   DeclareDesign:::bootstrap_diagnosand(simulations_df$simulations, population_replicates = 1000, design$diagnosand)
   
-  #debugonce(get_diagnosand)
   get_diagnosand(diagnosand = bias, simulations = simulations_df$simulations)
   
 #})
