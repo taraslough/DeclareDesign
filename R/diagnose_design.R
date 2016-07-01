@@ -21,6 +21,8 @@ diagnose_design <-
     
     ## core operations
     
+    design <- clean_inputs(design, "design", accepts_list = FALSE)
+    
     # check to ensure that the design is complete
     
     if(any(is.null(design$population),
@@ -83,6 +85,7 @@ diagnose_design <-
             )
           
         }
+        
         assignment_estimands[[i]][[j]] <- list()
         estimates[[i]][[j]] <- list()
         for (k in 1:assignment_draws) {
@@ -226,11 +229,11 @@ diagnose_design <-
     
     diagnosis <- list(diagnosands = diagnosands_df, simulations = simulations_df)
     
-    return(diagnosis)
+    structure(diagnosis, class = "diagnosis")
     
   }
 
-bootstrap_draw <- function(simulations_df){
+bootstrap_diagnosand_draw <- function(simulations_df){
   
   populations <- split(simulations_df, simulations_df$population_draw)
   
@@ -255,13 +258,13 @@ bootstrap_draw <- function(simulations_df){
 
 bootstrap_diagnosand <- function(simulations_df, diagnosand, population_replicates = 50){
   diagnosand <- clean_inputs(diagnosand, object_class = "diagnosand", accepts_list = TRUE)
-  boot_list <- lapply(X = 1:population_replicates, FUN = function(x) bootstrap_draw(simulations_df))
+  boot_list <- lapply(X = 1:population_replicates, FUN = function(x) bootstrap_diagnosand_draw(simulations_df))
   diagnosands_replicates <- do.call(rbind, lapply(boot_list, get_diagnosand, diagnosand = diagnosand))
     
   
   labels <- paste0(sapply(diagnosand, function(x)x$label), collapse = "`+`")
   diagnosands_summary <- aggregate(cbind(diagnosand_sd_boot = diagnosand) ~ estimand_label + estimator_label + estimand_level + diagnosand_label, 
-              data = diagnosands_replicates, FUN = sd)
+              data = diagnosands_replicates, FUN = sd, na.action = na.pass)
   
   return(diagnosands_summary)
 }

@@ -18,6 +18,7 @@ declare_diagnosand <- function(diagnostic_statistic_text,
                                diagnostic_statistic_function,
                                summary_function = mean,
                                label = NULL, description = NULL,
+                               na_function = na.pass,
                                ...){
   
   diagnostic_statistic_options <- list(...)
@@ -69,6 +70,10 @@ declare_diagnosand <- function(diagnostic_statistic_text,
     
   }
   
+  if(!is.null(na_function)){
+    summary <- function(x) na_function(summary_function(x))
+  }
+  
   return(structure(list(diagnostic_statistic = diagnostic_statistic_function_internal, 
                         summary = summary_function,
                         label = label, description = description, 
@@ -79,7 +84,8 @@ declare_diagnosand <- function(diagnostic_statistic_text,
 #' Title
 #'
 #' @param diagnosand 
-#' @param simulations 
+#' @param simulations
+#' @param na.action How the diagnosand summary of diagnostic statistics handles NAs. Can be \link{na.pass}, \link{na.omit}, etc. 
 #'
 #' @return
 #' @export
@@ -94,7 +100,7 @@ get_diagnosand <- function(diagnosand, simulations){
     simulations[, diagnosand[[i]]$label] <- diagnosand[[i]]$diagnostic_statistic(simulations = simulations)
     diagnosands_list[[i]] <- aggregate(as.formula(paste0("cbind(diagnosand = `", diagnosand[[i]]$label, "`)", 
                                                          " ~ estimand_label + estimand_level + estimator_label + estimate_label")), 
-                                       data = simulations, FUN = diagnosand[[i]]$summary)
+                                       data = simulations, FUN = diagnosand[[i]]$summary, na.action = na.pass)
     diagnosands_list[[i]]$diagnosand_label <- diagnosand[[i]]$label
   }
   
