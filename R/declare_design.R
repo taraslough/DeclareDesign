@@ -26,13 +26,13 @@ declare_design <- function(population, sampling = NULL, assignment, estimator = 
   if(class(estimator) == "list"){
     try(estimator_object_names <- paste(substitute(estimator)[-1L]), silent = TRUE)
     for(i in 1:length(estimator)){
-      if(is.null(estimator[[i]]$labels)){
-        try(estimator[[i]]$labels <- estimator_object_names[i], silent = TRUE)
+      if(is.null(estimator[[i]]$label)){
+        try(estimator[[i]]$label <- estimator_object_names[i], silent = TRUE)
       }
     }
   } else if(class(estimator) == "estimator"){
-    if(is.null(estimator$labels)){
-      try(estimator$labels <- paste(substitute(estimator)), silent = TRUE)
+    if(is.null(estimator$label)){
+      try(estimator$label <- paste(substitute(estimator)), silent = TRUE)
     }
   }
   
