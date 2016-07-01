@@ -102,6 +102,12 @@ declare_estimator <- function(formula = NULL, model = NULL, model_options = NULL
   
   estimand <- clean_inputs(estimand, "estimand", accepts_list = TRUE)
   
+  if(length(estimand) > 0){
+    for(i in 1:length(estimand)){
+      estimand[[i]]$label <- estimand_labels[[i]]
+    }
+  }
+  
   estimand_level <- sapply(estimand, function(x) x$estimand_level)
   
   return_object <- list(model = model_function, model_name = substitute(model), 
@@ -191,7 +197,14 @@ get_estimates <- function(estimator, data) {
     } else {
       estimates_list[[i]] <- estimator[[i]]$estimates(data = data)
     }
+    if(class(estimates_list[[i]]) != "data.frame"){
+      estimates_list[[i]] <- clean_estimates(estimates_list[[i]])
+    }
+    
     estimates_list[[i]]$estimator_label <- estimator_labels[[i]]
+    if(!("estimate_label" %in% names(estimates_list[[i]]))){
+      estimates_list[[i]]$estimate_label <- estimator_labels[[i]]
+    }
     
     if(length(estimand_labels[[i]]) == nrow(estimates_list[[i]])){
       estimates_list[[i]]$estimand_label <- estimand_labels[[i]]
@@ -199,18 +212,31 @@ get_estimates <- function(estimator, data) {
     } else if (length(estimand_labels[[i]]) == 0){
       estimates_list[[i]]$estimand_label <- "no estimand"
       estimates_list[[i]]$estimand_level <- "no estimand"
-    } else if (length(estimand_labels[[i]]) > nrow(estimates_list[[i]]) & nrow(estimates_list[[i]]) == 1){
+    } else if ((length(estimand_labels[[i]]) > 1) & (nrow(estimates_list[[i]]) == 1)){
       estimates_list[[i]] <- estimates_list[[i]][rep(1, length(estimand_labels[[i]])), ]
       estimates_list[[i]]$estimand_label <- c(estimand_labels[[i]], recursive = TRUE)
       estimates_list[[i]]$estimand_level <- c(estimand_levels[[i]], recursive = TRUE)
       rownames(estimates_list[[i]]) <- NULL
-    } else if (length(estimand_labels[[i]]) < nrow(estimates_list[[i]])){
+    } else if ((length(estimand_labels[[i]]) < nrow(estimates_list[[i]]) & length(estimand_labels[[i]]) != 0)){
       stop("Please provide at least one estimand for each estimate.")
     }
     
   }
   
   estimates_df <- do.call(rbind, estimates_list)
+  
+  return(estimates_df)
+}
+
+clean_estimates <- function(estimates){
+  
+  if(is.vector(estimates)){
+    if(is.null(names(estimates)) == FALSE){
+      estimates_df <- data.frame(t(estimates), row.names = NULL)
+    } else if(is.matrix(estimates)){
+      estimates <- data.frame(estimates)
+    }
+  }
   
   return(estimates_df)
 }
