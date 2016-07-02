@@ -9,7 +9,7 @@ get_diagnosand(diagnosand, simulations)
 \arguments{
 \item{diagnosand}{}
 
-\item{simulations}{}
+\item{na.action}{How the diagnosand summary of diagnostic statistics handles NAs. Can be \link{na.pass}, \link{na.omit}, etc.}
 }
 \description{
 Title

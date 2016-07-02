@@ -5,7 +5,8 @@
 \title{Diagnosand}
 \usage{
 declare_diagnosand(diagnostic_statistic_text, diagnostic_statistic_function,
-  summary_function = mean, label = NULL, description = NULL, ...)
+  summary_function = mean, label = NULL, description = NULL,
+  na_function = na.pass, ...)
 }
 \arguments{
 \item{diagnostic_statistic_text}{}

@@ -222,7 +222,7 @@ diagnose_design <-
       diagnosands_df_bootstrap_sd <- bootstrap_diagnosand(simulations_df = simulations_df,
                                                           diagnosand = design$diagnosand,
                                                           population_replicates = population_replicates)
-
+      
       diagnosands_df <- merge(diagnosands_df, diagnosands_df_bootstrap_sd, by = c("estimand_label", "estimator_label", "estimand_level", "diagnosand_label"))
       
     }
@@ -232,6 +232,30 @@ diagnose_design <-
     structure(diagnosis, class = "diagnosis")
     
   }
+
+#' @export
+print.diagnosis <- function(x, ...){
+  print(summary(x))
+  invisible(summary(x))
+}
+
+#' @export
+summary.diagnosis <- function(object, ...) {
+  diagnosis_matrix <- object$diagnosands
+  structure(diagnosis_matrix, class = c("summary.diagnosis", "data.frame"))
+}
+
+#' @export
+print.summary.diagnosis <- function(x, ...){
+  class(x) <- "data.frame"
+  cat("\nResearch design diagnosis\n\n")
+  print_diagnosis <- x
+  names(x) <- gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", gsub("_", " ", names(x)), perl = TRUE)
+  print(x)
+  cat("\n")
+  invisible(x)
+}
+
 
 bootstrap_diagnosand_draw <- function(simulations_df){
   
@@ -260,11 +284,11 @@ bootstrap_diagnosand <- function(simulations_df, diagnosand, population_replicat
   diagnosand <- clean_inputs(diagnosand, object_class = "diagnosand", accepts_list = TRUE)
   boot_list <- lapply(X = 1:population_replicates, FUN = function(x) bootstrap_diagnosand_draw(simulations_df))
   diagnosands_replicates <- do.call(rbind, lapply(boot_list, get_diagnosand, diagnosand = diagnosand))
-    
+  
   
   labels <- paste0(sapply(diagnosand, function(x)x$label), collapse = "`+`")
   diagnosands_summary <- aggregate(cbind(diagnosand_sd_boot = diagnosand) ~ estimand_label + estimator_label + estimand_level + diagnosand_label, 
-              data = diagnosands_replicates, FUN = sd, na.action = na.pass)
+                                   data = diagnosands_replicates, FUN = sd, na.action = na.pass)
   
   return(diagnosands_summary)
 }
