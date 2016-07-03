@@ -223,7 +223,15 @@ get_estimates <- function(estimator, data) {
     
   }
   
-  estimates_df <- do.call(rbind, estimates_list)
+  estimates_df <- estimates_list[[1]]
+  if(length(estimates_list) > 1){
+    for(j in 2:length(estimates_list)){
+      estimates_df <- safe_rbind(estimates_df, estimates_list[[j]])
+    }
+  }
+  
+  ##estimates_df <- do.call(safe_rbind, estimates_list)
+  
   
   return(estimates_df)
 }
@@ -232,12 +240,33 @@ clean_estimates <- function(estimates){
   
   if(is.vector(estimates)){
     if(is.null(names(estimates)) == FALSE){
-      estimates_df <- data.frame(t(estimates), row.names = NULL)
-    } else if(is.matrix(estimates)){
-      estimates <- data.frame(estimates)
+      estimates <- data.frame(t(estimates), row.names = NULL, stringsAsFactors = FALSE)
+    } else {
+      if(length(estimates) == 1){
+        estimates <- data.frame(est = estimates, row.names = NULL, stringsAsFactors = FALSE)
+      }
     }
+  } else if(is.matrix(estimates)){
+    estimates <- data.frame(estimates, stringsAsFactors = FALSE)
+  } 
+
+  return(estimates)
+}
+
+safe_rbind <- function(df1, df2){
+  
+  common_names <- intersect(names(df1), names(df2))
+  
+  df <- rbind(df1[, sort(common_names)], df2[, sort(common_names)])
+  
+  if(sum(!names(df1) %in% common_names) > 0){
+    df <- merge(df, df1, by = c("estimator_label", "estimate_label", "estimand_label"), all = T)
+  }
+  if(sum(!names(df2) %in% common_names) > 0){
+    df <- merge(df, df2, by = c("estimator_label", "estimate_label", "estimand_label"), all = T)
   }
   
-  return(estimates_df)
+  return(df)
+  
 }
 

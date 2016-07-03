@@ -3,17 +3,15 @@
 
 #' Diagnosand
 #'
-#' @param diagnostic_statistic_text 
-#' @param diagnostic_statistic_function 
-#' @param summary_function 
-#' @param label 
-#' @param description 
-#' @param ... 
+#' @param diagnostic_statistic_text A character string that contains an expression that can be evaluated on the estimates, which may include the estimates "est", the standard error "se", etc. For example, you can provide "p <= .05" to set the diagnostic statistic as the an indicator for whether the p-value is less than .05.
+#' @param diagnostic_statistic_function A function that returns a vector of diagnostic-statistic for each simulation draw, such as an indicator for whether the p-value is less than .05.
+#' @param summary_function The function that summarizes diagnostic-statistics to form diagnosands, often mean.
+#' @param label A label for the diagnosand.
+#' @param description A description for the diagnosand.
+#' @param ... Other options sent to the diagnostic-statistic function.
 #'
-#' @return
+#' @return A diagnosand object.
 #' @export
-#'
-#' @examples
 declare_diagnosand <- function(diagnostic_statistic_text,
                                diagnostic_statistic_function,
                                summary_function = mean,
@@ -81,16 +79,15 @@ declare_diagnosand <- function(diagnostic_statistic_text,
   
 }
 
-#' Title
+#' Get Diagnosand Values
 #'
-#' @param diagnosand 
-#' @param simulations
+#' @param diagnosand A \code{diagnosand} object created by \code{\link{declare_diagnosand}}.
+#' @param simulations A data frame of simulations, typically created by \code{\link{diagnose_design}}.
 #' @param na.action How the diagnosand summary of diagnostic statistics handles NAs. Can be \link{na.pass}, \link{na.omit}, etc. 
 #'
-#' @return
+#' @return A data.frame of diagnosands.
 #' @export
 #'
-#' @examples
 get_diagnosand <- function(diagnosand, simulations){
   
   diagnosand <- clean_inputs(diagnosand, object_class = "diagnosand", accepts_list = TRUE)

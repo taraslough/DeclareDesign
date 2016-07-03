@@ -2,7 +2,7 @@ rm(list = ls())
 library(testthat)
 library(DeclareDesign)
 
-context("Simple experiment")
+context("Declare Diagnosands")
 
 #test_that("test declare diagnosands", {
   population <- declare_population(noise = "rnorm(n_)", size = 250)
@@ -70,14 +70,10 @@ context("Simple experiment")
   )
   
   simulations_df <- diagnose_design(design = design, 
-                                    population_draws = 800, 
+                                    population_draws = 5, 
                                     sample_draws = 1, 
                                     assignment_draws = 1,
                                     population_replicates = 30)
-  
-  simulations_df$diagnosands
-  
-  DeclareDesign:::bootstrap_diagnosand(simulations_df$simulations, population_replicates = 1000, design$diagnosand)
   
   get_diagnosand(diagnosand = bias, simulations = simulations_df$simulations)
   

@@ -2,8 +2,8 @@ rm(list=ls())
 library(testthat)
 library(DeclareDesign)
 
-context("")
+context("multiple data types")
 
-test_that("", {
+test_that("multiple data types", {
   
 })

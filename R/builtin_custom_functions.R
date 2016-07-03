@@ -51,9 +51,7 @@ default_transform_function <- function(data, options, assignment_variable_name){
 #' @param label Character label for the regression coefficient
 #'
 #' @export
-get_regression_coefficient <- function(model, formula = NULL, coefficient_name, 
-                                       statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                       label = coefficient_name){
+get_regression_coefficient <- function(model, formula = NULL, coefficient_name, label = coefficient_name){
   
   coef_num <- which(names(coef(model)) %in% coefficient_name)
   df <- df.residual(model)
@@ -62,11 +60,11 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
   p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
   conf_int <- suppressMessages(confint(model))[coef_num, ]
   
-  output <- data.frame(statistic_label = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                       statistic = c(est, se, p, conf_int, df), 
-                       estimate_label = label)
   
-  return(output[which(output$statistic_label %in% statistics), , drop = FALSE])
+  return(data.frame(estimate_label = label, est = as.numeric(est), 
+                    se = as.numeric(se), p = as.numeric(p), 
+                    ci_lower = as.numeric(conf_int[1]), ci_upper = as.numeric(conf_int[2]), 
+                    df = as.numeric(df), stringsAsFactors = FALSE))
 }
 
 
@@ -80,22 +78,19 @@ get_regression_coefficient <- function(model, formula = NULL, coefficient_name,
 #' @param label Character label for the regression coefficient
 #'
 #' @export
-get_regression_coefficient_robust <- function(model, formula = NULL, coefficient_name, 
-                                              statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                              label = ""){
+get_regression_coefficient_robust <- function(model, formula = NULL, coefficient_name, label = coefficient_name){
   coef_num <- which(names(coef(model)) %in% coefficient_name)
   df <- df.residual(model)
   est <- coef(model)[coef_num]
   se <- sqrt(diag(sandwich::vcovHC(model, type = "HC2")))[coef_num]
   p <- 2 * pt(abs(est/se), df = df, lower.tail = FALSE)
   
-  conf_int <- est + se %o% qt(c(0.025,0.975),summary(model)$df[2])
-  
-  output <- data.frame(statistic_label = c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                       statistic = c(est, se, p, conf_int, df), 
-                       estimate_label = label)
-  
-  return(output[which(rownames(output$statistic) %in% statistics), , drop = FALSE])
+  conf_int <- est + se %o% qt(c(0.025,0.975), summary(model)$df[2])
+
+  return(data.frame(estimate_label = label, est = as.numeric(est), 
+                    se = as.numeric(se), p = as.numeric(p), 
+                    ci_lower = as.numeric(conf_int[1]), ci_upper = as.numeric(conf_int[2]), 
+                    df = as.numeric(df), stringsAsFactors = FALSE))
 }
 
 # Built-in-Estimators -----------------------------------------------------
@@ -120,6 +115,9 @@ difference_in_means <- function(formula, condition1 = NULL, condition2 = NULL,
                                 data, weights = NULL, subset = NULL, 
                                 cluster_variable_name = NULL, cluster_collapse_function = mean, alpha = .05,
                                 estimate_label = NULL) {
+  
+  if(length(all.vars(formula[[3]]))>1)
+    stop("The formula should only include one variable on the right-hand side: the treatment variable.")
   
   if(!is.null(subset))
     data <- data[subset, ]
@@ -156,7 +154,7 @@ difference_in_means <- function(formula, condition1 = NULL, condition2 = NULL,
   ci_upper <- diff + qt(1 - alpha/2, df = df) * se
   
   if(is.null(estimate_label)){
-    estimate_label <- paste0("d_i_m_", condition2, "-", condition1)
+    estimate_label <- paste0("d_i_m_", ifelse(!is.null(cluster_variable_name), "clustered_", ""), condition2, "-", condition1)
   }
   
   return_df <- data.frame(estimate_label = estimate_label,
@@ -181,44 +179,15 @@ difference_in_means <- function(formula, condition1 = NULL, condition2 = NULL,
 #' @param alpha The significance level, 0.05 by default.
 #'
 #' @export
-difference_in_means_blocked <- function(formula, data, weights = NULL, subset = NULL, 
+difference_in_means_blocked <- function(formula, condition1 = NULL, condition2 = NULL, data, weights = NULL, subset = NULL, 
                                         block_variable_name = NULL, cluster_variable_name = NULL, cluster_collapse_function = mean, 
-                                        alpha = .05) {
+                                        estimate_label = NULL, alpha = .05) {
   
   if(is.null(block_variable_name))
     stop("This difference-in-means estimator can only be used if you specify block_variable_name, a string indicating which variable in the data frame contains the blocks.")
   
   if(length(all.vars(formula[[3]]))>1)
     stop("The formula should only include one variable on the right-hand side: the treatment variable.")
-  
-  d_i_m_blocked <- function(Y, t, b, cond1, cond2, alpha){
-    
-    N <- length(Y)
-    
-    block_names <- sort(unique(b))
-    
-    block_weights <- (sapply(block_names, function(i) sum(b==i)))/N
-    
-    means_by_block <- tapply(Y,list(t, b), mean, na.rm=TRUE)
-    diff <- (block_weights %*% (means_by_block[as.character(cond1),] - means_by_block[as.character(cond2),]))
-    
-    vars <- sapply(block_names, function(i)  {
-      var(Y[b==i & t == cond1], na.rm = TRUE )/sum(b==i & t == cond1)+
-        var(Y[b==i & t == cond2], na.rm = TRUE )/sum(b==i & t == cond2)})
-    se  <- (block_weights^2 %*% vars)^.5
-    
-    df <- length(Y) - length(block_names) - 1
-    p <- 2 * pt(abs(diff/se), df = df, lower.tail = FALSE)
-    ci_lower <- diff - qt(1 - alpha / 2, df = df) * se
-    ci_upper <- diff + qt(1 - alpha / 2, df = df) * se
-    
-    return(c(diff, se, p, ci_lower, ci_upper, df))
-    
-  }
-  
-  condition_names <- unique(data[,all.vars(formula[[3]])])
-  combn <- combn(rev(sort(condition_names)), m = 2)
-  combn_names <- apply(combn, 2, function(x) paste(x, collapse = "-"))
   
   if(!is.null(subset))
     data <- data[subset, ]
@@ -229,221 +198,49 @@ difference_in_means_blocked <- function(formula, data, weights = NULL, subset = 
   
   Y <- data[, all.vars(formula[[2]])]
   t <- data[, all.vars(formula[[3]])]
+  
+  if(is.factor(t)){
+    condition_names <- levels(t)
+  }else{
+    condition_names <- sort(unique(t))
+  }
+  
+  if(is.null(condition1) & is.null(condition2)){
+    condition1 <- condition_names[1]
+    condition2 <- condition_names[2]
+  }
+  
   b <- data[, block_variable_name]
   
-  return_matrix <- matrix(NA, nrow = 6, ncol = ncol(combn), 
-                          dimnames = list(c("est", "se", "p", "ci_lower", "ci_upper", "df"), 
-                                          paste0(all.vars(formula[[2]]), "~", combn_names, 
-                                                 "_diff_in_means")))
-  for(c in 1:ncol(combn)){
-    return_matrix[, c] <- d_i_m_blocked(Y = Y, t = t, b = b, cond1 = combn[1, c], cond2 = combn[2, c], alpha = alpha)
+  N <- length(Y)
+  
+  block_names <- sort(unique(b))
+  
+  block_weights <- (sapply(block_names, function(i) sum(b==i)))/N
+  
+  means_by_block <- tapply(Y,list(t, b), mean, na.rm = TRUE)
+  diff <- (block_weights %*% (means_by_block[as.character(condition1),] - 
+                                means_by_block[as.character(condition2),]))
+  
+  vars <- sapply(block_names, function(i)  {
+    var(Y[b==i & t == condition1], na.rm = TRUE )/sum(b==i & t == condition1)+
+      var(Y[b==i & t == condition2], na.rm = TRUE )/sum(b==i & t == condition2)})
+  se  <- (block_weights^2 %*% vars)^.5
+  
+  df <- length(Y) - length(block_names) - 1
+  p <- 2 * pt(abs(diff/se), df = df, lower.tail = FALSE)
+  ci_lower <- diff - qt(1 - alpha / 2, df = df) * se
+  ci_upper <- diff + qt(1 - alpha / 2, df = df) * se
+  
+  if(is.null(estimate_label)){
+    estimate_label <- paste0("d_i_m_blocked_", ifelse(!is.null(cluster_variable_name), "clustered_", ""), condition2, "-", condition1)
   }
   
-  return(return_matrix)
+  return(data.frame(estimate_label = estimate_label,
+                    est = diff, se = se, p = p, 
+                    ci_lower = ci_lower, ci_upper = ci_upper, df = df,
+                    stringsAsFactors = FALSE))
 }
-
-
-
-# Diagnose summary functions ----------------------------------------------
-
-summary_internal <- function(object, statistic, na.rm = T, ...){
-  if(class(object) == "matrix"){
-    return(apply(object, 1, statistic, na.rm = na.rm, ... = ...))
-  } else {
-    return(statistic(object, na.rm = na.rm, ... = ...))
-  }
-}
-
-get_estimand_internal <- function(estimands, ...){
-  return(sapply(1:length(estimands), function(i) as.numeric(estimands[[i]])))
-}
-
-get_estimate_internal <- function(estimates, statistic, ...){
-  est <- sapply(1:length(estimates), function(i) as.numeric(estimates[[i]][statistic, , drop = FALSE]))
-  if(class(est) != "matrix"){
-    est <- matrix(est, nrow = 1, ncol = length(est))
-  }
-  return(est)
-}
-
-calculate_mean_PATE <- function(population_estimands, ...){
-  return(list(statistic = summary_internal(get_estimand_internal(population_estimands), mean),
-              label = "Mean, PATE"))
-}
-
-calculate_sd_PATE <- function(population_estimands, ...){
-  return(list(statistic = summary_internal(get_estimand_internal(population_estimands), sd),
-              label = "S.D., PATE"))
-}
-
-calculate_mean_SATE <- function(sample_estimands, ...){
-  SATEs <- sapply(1:length(sample_estimands), function(i) summary_internal(get_estimand_internal(sample_estimands[[i]]), mean))
-  return(list(statistic = summary_internal(SATEs, mean),
-              label = "Mean, SATE"))
-}
-
-calculate_sd_SATE <- function(sample_estimands, ...){
-  SATEs <- sapply(1:length(sample_estimands), function(i) summary_internal(get_estimand_internal(sample_estimands[[i]]), mean))
-  return(list(statistic = summary_internal(SATEs, sd),
-              label = "S.D., SATE"))
-}
-
-calculate_mean_power <- function(estimates, ...){
-  power <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "p") < .05, mean))
-  
-  return(list(statistic = summary_internal(power, mean),
-              label = "Mean, Power"))
-}
-
-calculate_sd_power <- function(estimates, ...){
-  power <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "p") < .05, mean))
-  
-  return(list(statistic = summary_internal(power, sd), 
-              label = "S.D., Power"))
-}
-
-calculate_superpopulation_RMSE <- function(estimates, population_estimands, ...){
-  PATE <- calculate_mean_PATE(population_estimands)$statistic
-  error <- do.call(cbind, lapply(1:length(estimates), function(i) get_estimate_internal(estimates[[i]], "est") - PATE))
-  
-  return(list(statistic = summary_internal(error, function(x, na.rm = T) sqrt(mean(x^2))),
-              label = "Super-Population RMSE"))               
-  
-}
-
-calculate_population_RMSE <- function(estimates, population_estimands, ...){
-  RMSE <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "est") - get_estimand_internal(population_estimands[[i]]), function(x, na.rm = T) sqrt(mean(x^2))))
-  
-  return(list(statistic = summary_internal(RMSE, mean),
-              label = "Mean Population RMSE"))               
-  
-}
-
-calculate_sample_RMSE <- function(estimates, sample_estimands, ...){
-  RMSE <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "est") - get_estimand_internal(sample_estimands[[i]]), function(x, na.rm = T) sqrt(mean(x^2))))
-  
-  return(list(statistic = summary_internal(RMSE, mean),
-              label = "Mean Sample RMSE"))           
-  
-}
-
-calculate_superpopulation_bias <- function(estimates, population_estimands, ...){
-  PATE <- calculate_mean_PATE(population_estimands)$statistic
-  bias <- do.call(cbind, lapply(1:length(estimates), function(i) get_estimate_internal(estimates[[i]], "est") - PATE))
-  
-  return(list(statistic = summary_internal(bias, mean),
-              label = "Super-Population Bias"))               
-  
-}
-
-calculate_population_bias <- function(estimates, population_estimands, ...){
-  bias <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "est") - get_estimand_internal(population_estimands[[i]]), mean))
-  
-  return(list(statistic = summary_internal(bias, mean),
-              label = "Mean Population Bias"))               
-  
-}
-
-calculate_sample_bias <- function(estimates, sample_estimands, ...){
-  bias <- sapply(1:length(estimates), function(i) summary_internal(get_estimate_internal(estimates[[i]], "est") - get_estimand_internal(sample_estimands[[i]]), mean))
-  
-  return(list(statistic = summary_internal(bias, mean),
-              label = "Mean Sample Bias"))           
-  
-}
-
-calculate_superpopulation_coverage <- function(estimates, population_estimands, ...){
-  PATE <- calculate_mean_PATE(population_estimands)$statistic
-  ci_covers_estimate <- do.call(cbind, lapply(1:length(estimates), function(i) PATE <= get_estimate_internal(estimates[[i]], "ci_upper") 
-                                              & PATE >= get_estimate_internal(estimates[[i]], "ci_lower") ))
-  
-  return(list(statistic = summary_internal(ci_covers_estimate, mean),
-              label = "Super-Population Coverage"))               
-  
-}
-
-calculate_population_coverage <- function(estimates, population_estimands, ...){
-  ci_covers_estimate <- sapply(1:length(estimates), function(i) summary_internal(get_estimand_internal(population_estimands[[i]]) <= get_estimate_internal(estimates[[i]], "ci_upper") & get_estimand_internal(population_estimands[[i]]) >= get_estimate_internal(estimates[[i]], "ci_lower"), mean))
-  
-  return(list(statistic = summary_internal(ci_covers_estimate, mean),
-              label = "Mean Population Coverage"))               
-  
-}
-
-calculate_sample_coverage <- function(estimates, sample_estimands, ...){
-  ci_covers_estimate <- sapply(1:length(estimates), function(i) summary_internal(get_estimand_internal(sample_estimands[[i]]) <= get_estimate_internal(estimates[[i]], "ci_upper") & get_estimand_internal(sample_estimands[[i]]) >= get_estimate_internal(estimates[[i]], "ci_lower"), mean))
-  
-  return(list(statistic = summary_internal(ci_covers_estimate, mean),
-              label = "Mean Sample Coverage"))               
-  
-}
-
-calculate_superpopulation_type_S_rate <- function(estimates, population_estimands, ...){
-  PATE <- calculate_mean_PATE(population_estimands)$statistic
-  bias <- do.call(cbind, lapply(1:length(estimates), function(i) sign(get_estimate_internal(estimates[[i]], "est")) != sign(PATE)))
-  
-  return(list(statistic = summary_internal(bias, mean),
-              label = "Super-Population Type S Rate"))               
-  
-}
-
-calculate_population_type_S_rate <- function(estimates, population_estimands, ...){
-  bias <- sapply(1:length(estimates), function(i) summary_internal(sign(get_estimate_internal(estimates[[i]], "est")) != sign(get_estimand_internal(population_estimands[[i]])), mean))
-  
-  return(list(statistic = summary_internal(bias, mean),
-              label = "Mean Population Type S Rate"))               
-  
-}
-
-calculate_sample_type_S_rate <- function(estimates, sample_estimands, ...){
-  bias <- sapply(1:length(estimates), function(i) summary_internal(sign(get_estimate_internal(estimates[[i]], "est")) != sign(get_estimand_internal(sample_estimands[[i]])), mean))
-  
-  return(list(statistic = summary_internal(bias, mean),
-              label = "Mean Sample Type S Rate"))           
-  
-}
-
-calculate_superpopulation_exaggeration_ratio <- function(estimates, population_estimands, ...){
-  PATE <- calculate_mean_PATE(population_estimands)$statistic
-  bias <- do.call(cbind, lapply(1:length(estimates), function(i) get_estimate_internal(estimates[[i]], "est") / PATE))
-  
-  return(list(statistic = summary_internal(bias, mean),
-              label = "Super-Population Exaggeration Ratio"))               
-  
-}
-
-calculate_population_exaggeration_ratio <- function(estimates, population_estimands, ...){
-  bias <- sapply(1:length(estimates), function(i) summary_internal( get_estimate_internal(estimates[[i]], "est") != get_estimand_internal(population_estimands[[i]]), mean))
-  
-  return(list(statistic = summary_internal(bias, mean),
-              label = "Mean Population Exaggeration Ratio"))               
-  
-}
-
-calculate_sample_exaggeration_ratio <- function(estimates, sample_estimands, ...){
-  bias <- sapply(1:length(estimates), function(i) summary_internal( get_estimate_internal(estimates[[i]], "est") / get_estimand_internal(sample_estimands[[i]]), mean))
-  
-  return(list(statistic = summary_internal(bias, mean),
-              label = "Mean Sample Exaggeration Ratio"))           
-  
-}
-
-calculate_mean_estimate <- function(estimates, ...){
-  bias <- do.call(cbind, lapply(1:length(estimates), function(i) get_estimate_internal(estimates[[i]], "est")))
-  
-  return(list(statistic = summary_internal(bias, mean),
-              label = "Mean, Estimate"))               
-  
-}
-
-calculate_sd_estimate <- function(estimates, ...){
-  bias <- do.call(cbind, lapply(1:length(estimates), function(i) get_estimate_internal(estimates[[i]], "est")))
-  
-  return(list(statistic = summary_internal(bias, sd),
-              label = "S.D., Estimate"))               
-  
-}
-
 
 # Potential outcomes ------------------------------------------------------
 

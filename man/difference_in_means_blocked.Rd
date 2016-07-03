@@ -4,9 +4,10 @@
 \alias{difference_in_means_blocked}
 \title{Built-in Estimators: Blocked Difference-in-means}
 \usage{
-difference_in_means_blocked(formula, data, weights = NULL, subset = NULL,
-  block_variable_name = NULL, cluster_variable_name = NULL,
-  cluster_collapse_function = mean, alpha = 0.05)
+difference_in_means_blocked(formula, condition1 = NULL, condition2 = NULL,
+  data, weights = NULL, subset = NULL, block_variable_name = NULL,
+  cluster_variable_name = NULL, cluster_collapse_function = mean,
+  estimate_label = NULL, alpha = 0.05)
 }
 \arguments{
 \item{formula}{An object of class "formula", such as Y ~ Z}

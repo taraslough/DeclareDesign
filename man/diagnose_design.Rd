@@ -9,7 +9,16 @@ diagnose_design(design, population_draws = 2, sample_draws = 2,
   population_replicates = 50)
 }
 \arguments{
-\item{assignment_draws}{}
+\item{design}{Design object created by \link{declare_design}.}
+
+\item{population_draws}{Number of simulated populations to draw.}
+
+\item{sample_draws}{Number of samples to draw per population.}
+
+\item{assignment_draws}{Number of random assignments to draw per sample if there is sampling or per population if there is no sampling.}
+}
+\value{
+Diagnosis object, with simulations of estimates and estimands and estimated diagnosands.
 }
 \description{
 Diagnose a design object

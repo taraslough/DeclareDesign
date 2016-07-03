@@ -3,7 +3,7 @@ rm(list=ls())
 library(testthat)
 library(DeclareDesign)
 
-context("Simple experiment")
+context("Estimand estimator combinations")
 
 test_that("test estimand-estimator combinations", {
   

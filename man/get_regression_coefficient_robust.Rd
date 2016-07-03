@@ -5,8 +5,7 @@
 \title{Extract Regression Coefficients}
 \usage{
 get_regression_coefficient_robust(model, formula = NULL, coefficient_name,
-  statistics = c("est", "se", "p", "ci_lower", "ci_upper", "df"),
-  label = "")
+  label = coefficient_name)
 }
 \arguments{
 \item{model}{A model fit}
@@ -15,9 +14,9 @@ get_regression_coefficient_robust(model, formula = NULL, coefficient_name,
 
 \item{coefficient_name}{The name of the coefficient to extract.}
 
-\item{statistics}{The statistics to extract. Defaults to c("est", "se", "p", "ci_lower", "ci_upper", "df")}
-
 \item{label}{Character label for the regression coefficient}
+
+\item{statistics}{The statistics to extract. Defaults to c("est", "se", "p", "ci_lower", "ci_upper", "df")}
 }
 \description{
 Extract Regression Coefficients

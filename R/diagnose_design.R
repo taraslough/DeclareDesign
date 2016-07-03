@@ -2,15 +2,13 @@
 
 #' Diagnose a design object
 #'
-#' @param design
-#' @param population_draws
-#' @param sample_draws
-#' @param assignment_draws
+#' @param design Design object created by \link{declare_design}.
+#' @param population_draws Number of simulated populations to draw.
+#' @param sample_draws Number of samples to draw per population.
+#' @param assignment_draws Number of random assignments to draw per sample if there is sampling or per population if there is no sampling.
 #'
-#' @return
+#' @return Diagnosis object, with simulations of estimates and estimands and estimated diagnosands.
 #' @export
-#'
-#' @examples
 diagnose_design <-
   function(design,
            population_draws = 2,

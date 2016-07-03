@@ -9,17 +9,20 @@ declare_diagnosand(diagnostic_statistic_text, diagnostic_statistic_function,
   na_function = na.pass, ...)
 }
 \arguments{
-\item{diagnostic_statistic_text}{}
+\item{diagnostic_statistic_text}{A character string that contains an expression that can be evaluated on the estimates, which may include the estimates "est", the standard error "se", etc. For example, you can provide "p <= .05" to set the diagnostic statistic as the an indicator for whether the p-value is less than .05.}
 
-\item{diagnostic_statistic_function}{}
+\item{diagnostic_statistic_function}{A function that returns a vector of diagnostic-statistic for each simulation draw, such as an indicator for whether the p-value is less than .05.}
 
-\item{summary_function}{}
+\item{summary_function}{The function that summarizes diagnostic-statistics to form diagnosands, often mean.}
 
-\item{label}{}
+\item{label}{A label for the diagnosand.}
 
-\item{description}{}
+\item{description}{A description for the diagnosand.}
 
-\item{...}{}
+\item{...}{Other options sent to the diagnostic-statistic function.}
+}
+\value{
+A diagnosand object.
 }
 \description{
 Diagnosand

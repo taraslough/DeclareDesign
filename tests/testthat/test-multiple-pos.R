@@ -2,9 +2,9 @@ rm(list=ls())
 library(testthat)
 library(DeclareDesign)
 
-context("Simple experiment")
+context("Multiple Potential Outcomes")
 
-test_that("test simple experiment analysis and diagnosis", {
+test_that("test multiple potential outcomes", {
   
   population <- declare_population(noise = "rnorm(n_)", size = 250)
   sampling <- declare_sampling(n = 100)
