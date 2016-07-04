@@ -2,7 +2,7 @@ rm(list=ls())
 library(testthat)
 library(DeclareDesign)
 
-context("Simple experiment")
+context("Custom Diagnosis")
 
 test_that("test simple experiment analysis and diagnosis", {
   

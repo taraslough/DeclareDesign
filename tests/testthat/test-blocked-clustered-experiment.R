@@ -11,7 +11,7 @@ test_that("test blocked and clustered experiment", {
                                                    high_elevation = "1*(elevation > 0)"), 
                                    size = c(1000, 100))
   
-  sampling <- declare_sampling(n = 10, cluster_variable_name = "villages_ID")
+  sampling <- declare_sampling(n = 24, cluster_variable_name = "villages_ID")
   
   potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*Z + .2*Z*elevation + noise,
                                                    condition_names = c(0, 1),
@@ -55,12 +55,12 @@ test_that("test blocked and clustered experiment", {
   
   # mock data  ---------------------------------------------------------------  
   
-  pop_draw <- draw_population(population = population, potential_outcomes = potential_outcomes)
-  smp_draw <- draw_sample(data = pop_draw, sampling = sampling)
-  smp_draw <- assign_treatment(data = smp_draw, assignment = assignment)
-  smp_draw <- draw_outcome(data = smp_draw, potential_outcomes = potential_outcomes)
-  estimates <- get_estimates(estimator = list(estimator_d_i_m, estimator_d_i_m_clustered, estimator_d_i_m_blocked, estimator_d_i_m_blocked_clustered, estimator_lm), data = smp_draw)
+  data <- draw_data(design = design)
+  estimates <- get_estimates(estimator = list(estimator_d_i_m, estimator_d_i_m_clustered, estimator_d_i_m_blocked, estimator_d_i_m_blocked_clustered, estimator_lm), data = data)
   
-  estimands <- get_estimands(estimator = estimator_d_i_m, data = smp_draw)
+  estimates1 <- get_estimates(estimator = estimator_lm, data = data)
+  estimates2 <- get_estimates(estimator = estimator_d_i_m, data = data)
+  
+  estimands <- get_estimands(estimator = estimator_d_i_m, data = data)
   
 })

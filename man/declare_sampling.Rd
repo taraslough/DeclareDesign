@@ -23,7 +23,7 @@ declare_sampling(probability = NULL, strata_variable_name = NULL,
 
 \item{strata_probabilities}{Probabilities of selection for each strata.}
 
-\item{custom_sampling_function}{A custom function to draw a sample.}
+\item{custom_sampling_function}{A custom function to draw a sample. At minimum it should take at least data as an argument and return a vector of ones and zeros, where ones indicate inclusion in the sample, zeros otherwise.}
 
 \item{custom_stratification_function}{A custom function to sample within strata.}
 
