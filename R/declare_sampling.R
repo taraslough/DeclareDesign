@@ -6,7 +6,7 @@
 #' @param n The number of units (or clusters) to be sampled.
 #' @param strata_n A vector of the number of units in each stratum to be sampled.
 #' @param strata_probabilities Probabilities of selection for each strata.
-#' @param custom_sampling_function A custom function to draw a sample.
+#' @param custom_sampling_function A custom function to draw a sample. At minimum it should take at least data as an argument and return a vector of ones and zeros, where ones indicate inclusion in the sample, zeros otherwise.
 #' @param custom_stratification_function A custom function to sample within strata.
 #' @param custom_clustering_function A custom function to sample clusters.
 #' @param description A description of the sampling procedure in words.

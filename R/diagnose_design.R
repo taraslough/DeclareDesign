@@ -1,121 +1,235 @@
-#' Diagnose the properties of a research design
-#' 
-#' @param design A design object created by \code{\link{declare_design}}.
-#' @param diagnosis A diagnosis object created by \code{\link{diagnose_design}}. This allows you to calculate additional summary statistics for existing diagnosis simulations.
-#' @param statistics A list of statistic functions that take a list of estimates, sample_estimands, and/or population_estimands and return a statistic (scalar) and a label.
-#' @param labels A set of character labels for each of the statistics or use in displaying the diagnosis.
-#' @param population_draws Number of draws of the population.
-#' @param sample_draws Number of draws of a sample from each population draw.
-#' 
-#' @return a \code{diagnosis} object
+
+
+#' Diagnose a design object
 #'
-#' @importFrom foreach foreach registerDoSEQ getDoParWorkers %dopar%
-#' @importFrom doRNG %dorng%
+#' @param design Design object created by \link{declare_design}.
+#' @param population_draws Number of simulated populations to draw.
+#' @param sample_draws Number of samples to draw per population.
+#' @param assignment_draws Number of random assignments to draw per sample if there is sampling or per population if there is no sampling.
+#'
+#' @return Diagnosis object, with simulations of estimates and estimands and estimated diagnosands.
 #' @export
-diagnose_design <- function(design = NULL, diagnosis = NULL, statistics = list(calculate_mean_PATE, calculate_sd_PATE, calculate_superpopulation_RMSE, calculate_superpopulation_bias, calculate_superpopulation_coverage, calculate_superpopulation_type_S_rate, calculate_superpopulation_exaggeration_ratio,
-                                                                               calculate_population_RMSE, calculate_population_bias, calculate_population_coverage, calculate_population_type_S_rate, calculate_population_exaggeration_ratio,
-                                                                               calculate_mean_SATE, calculate_sd_SATE, calculate_sample_RMSE, calculate_sample_bias, calculate_sample_coverage, calculate_sample_type_S_rate, calculate_sample_exaggeration_ratio,
-                                                                               calculate_mean_power, calculate_sd_power, calculate_mean_estimate, calculate_sd_estimate),
-                            labels = c("mean_PATE", "sd_PATE", "superpopulation_RMSE", "superpopulation_bias", "superpopulation_coverage", "superpopulation_type_S_rate", "superpopulation_exaggeration_ratio", "population_RMSE", "population_bias", "population_coverage", 
-                                       "population_type_S_rate", "population_exaggeration_ratio", "mean_SATE", "sd_SATE", "sample_RMSE", "sample_bias", "sample_coverage", "sample_type_S_rate", "sample_exaggeration_ratio", "mean_power", "sd_power", "mean_estimate", "sd_estimate"),
-                            population_draws = 10, sample_draws = 5){
-  
-  if(class(statistics) != "list"){ statistics <- list(statistics) }
-  
-  if( (is.null(design) & is.null(diagnosis)) | (!is.null(design) & !is.null(diagnosis)) ){
-    stop("Please provide either a design object created by declare_design or a diagnosis object created with diagnose_design, and not both.")
-  }
-  
-  # Checks -------------------------------------------------
-  design <- clean_inputs(design, "design", accepts_list = FALSE)
-  diagnosis <- clean_inputs(diagnosis, "diagnosis", accepts_list = FALSE)
-  
-  if(is.null(diagnosis)){
+diagnose_design <-
+  function(design,
+           population_draws = 2,
+           sample_draws = 2,
+           assignment_draws = 2,
+           bootstrap_diagnosands = TRUE,
+           population_replicates = 50) {
     
-    population <- design$population
-    sampling <- design$sampling
-    assignment <- design$assignment
-    estimator <- design$estimator
-    potential_outcomes <- design$potential_outcomes
-    label <- design$label
+    ## core operations
     
-    ## this is the function that recombines the lists of estimators and estimands during the parallel loop
-    comb <- function(x, ...) {
-      lapply(seq_along(x),
-             function(i) c(x[[i]], lapply(list(...), function(y) y[[i]])))
+    design <- clean_inputs(design, "design", accepts_list = FALSE)
+    
+    # check to ensure that the design is complete
+    
+    if(any(is.null(design$population),
+           is.null(design$sampling),
+           is.null(design$assignment),
+           is.null(design$estimator),
+           is.null(design$potential_outcomes),
+           is.null(design$diagnosand))){
+      stop("Your design object does not include one or more of: population, sampling, assignment, estimator, potential_outcomes, diagnosand")
     }
     
-    if(getDoParWorkers() == 1){ 
-      registerDoSEQ()
-    }
     
-    simulations_list <- foreach(i = 1:population_draws, .combine = 'comb', .multicombine = TRUE, .init = list(list(), list(), list())) %dorng% {
+    population_estimands <-
+      sample_estimands <- assignment_estimands <- estimates <- list()
+    
+    estimators_population_estimands <-
+      get_estimator_at_level(design$estimator, estimand_level = "population")
+    estimators_sample_estimands <-
+      get_estimator_at_level(design$estimator, estimand_level = "sample")
+    estimators_assignment_estimands <-
+      get_estimator_at_level(design$estimator, estimand_level = "assignment")
+    
+    for (i in 1:population_draws) {
+      ## draw population
       
-      population_data <- draw_population(population = population, potential_outcomes = potential_outcomes)
+      population_data <-
+        draw_population(
+          population = design$population,
+          potential_outcomes = design$potential_outcomes
+        )
       
-      population_estimands <- get_estimands(estimator = estimator, data = population_data)
+      ## if any population estimands, get estimands
+      ## write a thing that only does get_estimands on the ones for this level
       
-      if(!is.null(sampling)){
+      
+      if (length(estimators_population_estimands) > 0) {
+        population_estimands[[i]] <-
+          data.frame(
+            get_estimands(estimator = estimators_population_estimands,
+                          data = population_data),
+            population_draw = i
+          )
+      }
+      
+      sample_estimands[[i]] <- list()
+      assignment_estimands[[i]] <- list()
+      estimates[[i]] <- list()
+      for (j in 1:sample_draws) {
+        sample_data <-
+          draw_sample(data = population_data, sampling = design$sampling)
         
-        estimates <- list()
-        sample_estimands <- list()
-        for(j in 1:sample_draws){
-          sample_data <- draw_sample(data = population_data, sampling = sampling)
+        ## if any sample estimands, get estimands
+        ## write a thing that only does get_estimands on the ones for this level
+        if (length(estimators_sample_estimands) > 0) {
+          sample_estimands[[i]][[j]] <-
+            data.frame(
+              get_estimands(estimator = estimators_sample_estimands, data = sample_data),
+              population_draw = i,
+              sample_draw = j
+            )
           
-          sample_data <- assign_treatment(data = sample_data, assignment = assignment)
-          
-          sample_data <- draw_outcome(data = sample_data, potential_outcomes = potential_outcomes)
-          
-          estimates[[j]] <- get_estimates(estimator = estimator, data = sample_data)
-          
-          sample_estimands[[j]] <- get_estimands(estimator = estimator, data = sample_data)
         }
         
-      } else {
-        
-        population_data <- assign_treatment(data = population_data, assignment = assignment)
-        
-        population_data <- draw_outcome(data = population_data, potential_outcomes = potential_outcomes)
-        
-        estimates <- list(get_estimates(estimator = estimator, data = population_data))
-        
-        sample_estimands <- list(NA)
+        assignment_estimands[[i]][[j]] <- list()
+        estimates[[i]][[j]] <- list()
+        for (k in 1:assignment_draws) {
+          sample_data <-
+            assign_treatment(data = sample_data, assignment = design$assignment)
+          
+          ## if any assignment estimands, get estimands
+          ## write a thing that only does get_estimands on the ones for this level
+          
+          sample_data <-
+            draw_outcome(data = sample_data,
+                         potential_outcomes = design$potential_outcomes)
+          
+          if (length(estimators_assignment_estimands) > 0) {
+            assignment_estimands[[i]][[j]][[k]] <-
+              data.frame(
+                get_estimands(estimator = estimators_assignment_estimands, data = sample_data),
+                population_draw = i,
+                sample_draw = j,
+                assignment_draw = k
+              )
+          }
+          estimates[[i]][[j]][[k]] <-
+            data.frame(
+              get_estimates(estimator = design$estimator, data = sample_data),
+              population_draw = i,
+              sample_draw = j,
+              assignment_draw = k
+            )
+          
+        }
         
       }
       
-      return(list(population_estimands, sample_estimands, estimates))
+    }
+    
+    level_indicators_df <-
+      expand.grid(
+        population_draw = 1:population_draws,
+        sample_draw = 1:sample_draws,
+        assignment_draw = 1:assignment_draws
+      )
+    
+    ## put together the pop estimand
+    
+    if (length(estimators_population_estimands) > 0) {
+      population_estimands <- do.call(rbind, population_estimands)
+      population_estimands <-
+        merge(population_estimands, level_indicators_df, by = "population_draw")
+      population_estimands <- population_estimands[, sort(names(population_estimands))]
+    }else{
+      population_estimands <- NULL
+    }
+    
+    ## put together the sample estimand
+    if (length(estimators_sample_estimands) > 0) {
+      sample_estimands <-
+        do.call(rbind, lapply(
+          sample_estimands,
+          FUN = function(x)
+            do.call(rbind, x)
+        ))
+      sample_estimands <-
+        merge(sample_estimands,
+              level_indicators_df,
+              by = c("population_draw", "sample_draw"))
+      sample_estimands <- sample_estimands[, sort(names(sample_estimands))]
+    }else{
+      sample_estimands <- NULL
+    }
+    
+    ## put together the assign estimand
+    if (length(estimators_assignment_estimands) > 0) {
+      assignment_estimands <- super_unlist_rbind(assignment_estimands)
+      assignment_estimands <- assignment_estimands[, sort(names(assignment_estimands))]
+    }else{
+      assignment_estimands <- NULL
+    }
+    
+    ## put together the estimates
+    estimates <- super_unlist_rbind(estimates)
+    
+    ## put together the estimands    
+    estimands_df <-
+      rbind(population_estimands,
+            sample_estimands,
+            assignment_estimands)
+    
+    if(!is.null(estimands_df)){
+      simulations_df <-
+        merge(
+          estimands_df,
+          estimates,
+          by = c(
+            "estimator_label",
+            "estimand_label",
+            "estimand_level",
+            "population_draw",
+            "sample_draw",
+            "assignment_draw"
+          )
+        )
+    }
+    
+    simulations_df <-
+      simulations_df[order(
+        simulations_df$population_draw,
+        simulations_df$sample_draw,
+        simulations_df$assignment_draw
+      ),]
+    
+    simulations_names <- names(simulations_df)
+    fixed_names <-
+      c(
+        "population_draw",
+        "sample_draw",
+        "assignment_draw",
+        "estimand_label",
+        "estimand",
+        "estimand_level",
+        "estimator_label",
+        "estimate_label"
+      )
+    non_fixed <-
+      simulations_names[!simulations_names %in% fixed_names]
+    
+    simulations_df <- simulations_df[, c(fixed_names, non_fixed)]
+    
+    rownames(simulations_df) <- NULL
+    
+    diagnosands_df <- get_diagnosand(diagnosand = design$diagnosand, simulations = simulations_df)
+    
+    if(bootstrap_diagnosands == TRUE){
+      diagnosands_df_bootstrap_sd <- bootstrap_diagnosand(simulations_df = simulations_df,
+                                                          diagnosand = design$diagnosand,
+                                                          population_replicates = population_replicates)
+      
+      diagnosands_df <- merge(diagnosands_df, diagnosands_df_bootstrap_sd, by = c("estimand_label", "estimator_label", "estimand_level", "diagnosand_label"))
       
     }
     
-    population_estimands <- simulations_list[[1]]
-    sample_estimands <- simulations_list[[2]]
-    estimates <- simulations_list[[3]]
+    diagnosis <- list(diagnosands = diagnosands_df, simulations = simulations_df)
     
-  } else {
-    
-    ## if an existing diagnosis is provided, instead take the existing simulations
-    
-    population_estimands <- diagnosis$population_estimands
-    sample_estimands <- diagnosis$sample_estimands
-    estimates <- diagnosis$estimates
+    structure(diagnosis, class = "diagnosis")
     
   }
-  
-  return_matrix <- matrix(NA, nrow = length(statistics), ncol = ncol(estimates[[1]][[1]]), 
-                          dimnames = list(labels, colnames(estimates[[1]][[1]])))
-  for(k in 1:length(statistics)){
-    statistic <- statistics[[k]](estimates = estimates, population_estimands = population_estimands, sample_estimands = sample_estimands)
-    return_matrix[k, ] <- as.matrix(statistic$statistic)
-    if(!is.null(statistic$label)){
-      rownames(return_matrix)[k] <- statistic$label
-    }
-  }
-  
-  return_list <- list(diagnosis = return_matrix, estimates = estimates, population_estimands = population_estimands, sample_estimands = sample_estimands)
-  
-  structure(return_list, class = "diagnosis")
-  
-}
 
 #' @export
 print.diagnosis <- function(x, ...){
@@ -125,39 +239,101 @@ print.diagnosis <- function(x, ...){
 
 #' @export
 summary.diagnosis <- function(object, ...) {
-  diagnosis_matrix <- object$diagnosis
-  structure(diagnosis_matrix, class = c("summary.diagnosis", "matrix"))
+  diagnosis_matrix <- object$diagnosands
+  structure(diagnosis_matrix, class = c("summary.diagnosis", "data.frame"))
 }
 
 #' @export
 print.summary.diagnosis <- function(x, ...){
-  class(x) <- "matrix"
+  class(x) <- "data.frame"
+  cat("\nResearch design diagnosis\n\n")
+  print_diagnosis <- x
+  names(x) <- gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", gsub("_", " ", names(x)), perl = TRUE)
   print(x)
+  cat("\n")
   invisible(x)
 }
 
 
-#' @export
-print.diagnosis.list <- function(x, ...) {
+bootstrap_diagnosand_draw <- function(simulations_df){
   
-  diagnosis <- as.data.frame(x[[1]]$diagnosis)
-  if(length(x) > 1){
-    for (k in 2:length(x)) {
-      diagnosis <- merge(diagnosis, as.data.frame(x[[k]]$diagnosis), by = "row.names", all.x = TRUE)
-      rownames(diagnosis) <- diagnosis[, 1]
-      diagnosis <- diagnosis[, -1]
-    }
-  }
-  print(diagnosis)
-  return()
+  populations <- split(simulations_df, simulations_df$population_draw)
+  
+  populations <- sample(populations, size = length(populations), replace = TRUE)
+  
+  assignments <- 
+    lapply(populations, function(x){
+      samples <- split(x, x$sample_draw)
+      samples <- sample(samples, size = length(samples), replace = TRUE)
+      
+      assignments <- 
+        lapply(samples, function(x){
+          assignments <- split(x, x$assignment_draw)
+          sample(assignments, size = length(assignments), replace = TRUE)
+          
+        })
+    })
+  
+  return(super_unlist_rbind(assignments))
+  
 }
 
+bootstrap_diagnosand <- function(simulations_df, diagnosand, population_replicates = 50){
+  diagnosand <- clean_inputs(diagnosand, object_class = "diagnosand", accepts_list = TRUE)
+  boot_list <- lapply(X = 1:population_replicates, FUN = function(x) bootstrap_diagnosand_draw(simulations_df))
+  diagnosands_replicates <- do.call(rbind, lapply(boot_list, get_diagnosand, diagnosand = diagnosand))
+  
+  
+  labels <- paste0(sapply(diagnosand, function(x)x$label), collapse = "`+`")
+  diagnosands_summary <- aggregate(cbind(diagnosand_sd_boot = diagnosand) ~ estimand_label + estimator_label + estimand_level + diagnosand_label, 
+                                   data = diagnosands_replicates, FUN = sd, na.action = na.pass)
+  
+  return(diagnosands_summary)
+}
 
-#' @export
-as.list.diagnosis <- function(...) {
+get_estimator_at_level <- function(estimator, estimand_level) {
+  for (i in 1:length(estimator)) {
+    if (!is.null(estimator[[i]]$estimand)) {
+      estimands_at_level <-
+        sapply(estimator[[i]]$estimand, function(x)
+          x$estimand_level == estimand_level)
+      if (sum(estimands_at_level) != 0) {
+        estimator[[i]]$estimand <-
+          estimator[[i]]$estimand[estimands_at_level]
+      } else {
+        estimator[[i]]$estimand <- NULL
+      }
+      estimator[[i]]$estimand_label <-
+        estimator[[i]]$estimand_label[estimands_at_level]
+    }
+  }
   
-  return_object <- list(...)
+  estimand_counts <-
+    sapply(estimator, function(i)
+      length(i$estimand))
   
-  structure(return_object, class = "diagnosis.list")
+  if (sum(estimand_counts) > 0) {
+    estimator <- estimator[estimand_counts > 0]
+    return(estimator)
+  } else{
+    return(NULL)
+  }
   
+  
+}
+
+super_unlist_rbind <- function(q) {
+  return_value <-
+    do.call(rbind,
+            lapply(
+              q,
+              FUN = function(x)
+                do.call(rbind,
+                        lapply(
+                          x,
+                          FUN = function(y)
+                            do.call(rbind, y)
+                        ))
+            ))
+  return(return_value)
 }
