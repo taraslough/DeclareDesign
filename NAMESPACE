@@ -22,11 +22,7 @@ export(compare_inputs)
 export(declare_assignment)
 export(declare_attrition)
 export(declare_design)
-<<<<<<< HEAD
-=======
-export(declare_design_from_template)
 export(declare_diagnosand)
->>>>>>> master
 export(declare_estimand)
 export(declare_estimator)
 export(declare_inputs)
@@ -76,15 +72,7 @@ export(proportion_potential_outcomes_function)
 export(quick_design)
 export(save_design_replication_files)
 export(summary_code)
-<<<<<<< HEAD
 export(vary)
-importFrom(doRNG,"%dorng%")
-importFrom(foreach,"%dopar%")
-importFrom(foreach,foreach)
-importFrom(foreach,getDoParWorkers)
-importFrom(foreach,registerDoSEQ)
-=======
->>>>>>> master
 importFrom(stats,aggregate)
 importFrom(stats,anova)
 importFrom(stats,aov)
