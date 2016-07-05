@@ -28,6 +28,6 @@ test_that("declare_design_from_template works", {
     return(design)
   }
   
-  design <- declare_design_from_template(template = simple_template, N = 5000, n = 100)
+  design <- quick_design(template = simple_template, N = 5000, n = 100)
 
 })
