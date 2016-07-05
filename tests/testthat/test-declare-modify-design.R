@@ -2,7 +2,7 @@ rm(list=ls())
 library(testthat)
 library(DeclareDesign)
 
-context("")
+context("modify design")
 
 test_that("", {
   

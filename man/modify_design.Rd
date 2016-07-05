@@ -6,7 +6,7 @@
 \usage{
 modify_design(design, population = NULL, sampling = NULL,
   assignment = NULL, estimator = NULL, potential_outcomes = NULL,
-  inputs = NULL, label = NULL, description = NULL)
+  diagnosand = NULL, inputs = NULL, label = NULL, description = NULL)
 }
 \arguments{
 \item{design}{A design object, created by \code{\link{declare_design}}.}
@@ -20,6 +20,8 @@ modify_design(design, population = NULL, sampling = NULL,
 \item{estimator}{An estimator object, as created by \code{\link{declare_estimator}}. Optionally a list of estimator objects.}
 
 \item{potential_outcomes}{A potential_outcomes object, as created by \code{\link{declare_potential_outcomes}}. Optionally a list of potential_outcomes objects.}
+
+\item{diagnosand}{}
 
 \item{inputs}{An inputs object, as created by \code{\link{declare_inputs}}.}
 

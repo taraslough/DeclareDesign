@@ -5,7 +5,9 @@
 \title{Declare the design}
 \usage{
 declare_design(population, sampling = NULL, assignment, estimator = NULL,
-  potential_outcomes, inputs = NULL, label = NULL, description = NULL)
+  potential_outcomes, diagnosand = list(bias, rmse, power, coverage,
+  type_s_rate, sd_estimate), inputs = NULL, label = NULL,
+  description = NULL)
 }
 \arguments{
 \item{population}{A population object, as created by \code{\link{declare_population}}.}

@@ -6,7 +6,7 @@
 \usage{
 declare_estimator(formula = NULL, model = NULL, model_options = NULL,
   estimates, ..., subset = NULL, weights_variable_name = NULL,
-  labels = NULL, description = NULL, estimand = NULL)
+  label = NULL, description = NULL, estimand = NULL)
 }
 \arguments{
 \item{formula}{An formula used to create estimates.}
@@ -23,7 +23,7 @@ declare_estimator(formula = NULL, model = NULL, model_options = NULL,
 
 \item{weights_variable_name}{The variable name of a weights variable used by the \code{estimates} function and/or the \code{model} function.}
 
-\item{labels}{Labels for each of the estimate(s).}
+\item{label}{the label for the estimator.}
 
 \item{description}{A description of the estimator in words.}
 

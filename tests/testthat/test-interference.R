@@ -7,7 +7,6 @@ context("Interference")
 
 test_that("test simple interference model", {
   
-  
   adj <- rgnm(n = 1, nv = 100, m = 2000)
   
   population <- declare_population(noise = "rnorm(n_)", size = 250)
@@ -41,12 +40,11 @@ test_that("test simple interference model", {
   # Diagnosis ---------------------------------------------------------------
   
   estimand <- declare_estimand(estimand_text = "0.5", potential_outcomes = potential_outcomes_1,
-                               fixed = TRUE, label = "fixed_estimand")
+                               fixed = TRUE, label = "fixed_estimand", estimand_level = "assignment")
   estimator_d_i_m <- declare_estimator(estimates = difference_in_means, formula = Y ~ Z, estimand = estimand)
   
   estimates <- get_estimates(estimator = estimator_d_i_m, data = smp_draw)
-  estimand <- get_estimands(estimator = estimator_d_i_m, data = pop_draw)
-  
+  ##estimand <- get_estimands(estimator = estimator_d_i_m, data = pop_draw)
   
   design <- declare_design(population = population,
                            sampling = sampling, 

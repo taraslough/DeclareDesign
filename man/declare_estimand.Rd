@@ -5,7 +5,7 @@
 \title{Declare Estimand}
 \usage{
 declare_estimand(estimand_function = NULL, estimand_text = NULL, ...,
-  fixed = FALSE, potential_outcomes, noncompliance = NULL,
+  estimand_level = "population", potential_outcomes, noncompliance = NULL,
   attrition = NULL, condition_names = NULL, subset = NULL,
   weights_variable_name = NULL, label = NULL, description = NULL)
 }
@@ -16,7 +16,7 @@ declare_estimand(estimand_function = NULL, estimand_text = NULL, ...,
 
 \item{...}{Include other options to be sent to the \code{estimand_function}.}
 
-\item{fixed}{Indicator (TRUE or FALSE) for whether the estimand is fixed, such a scalar, or not.}
+\item{estimand_level}{Level at which the estimand is calculated, either 'population', 'sample', or 'assignment'.}
 
 \item{potential_outcomes}{A potential_outcomes object created by \code{\link{declare_potential_outcomes}}.}
 

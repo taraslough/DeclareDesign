@@ -2,45 +2,25 @@
 % Please edit documentation in R/diagnose_design.R
 \name{diagnose_design}
 \alias{diagnose_design}
-\title{Diagnose the properties of a research design}
+\title{Diagnose a design object}
 \usage{
-diagnose_design(design = NULL, diagnosis = NULL,
-  statistics = list(calculate_mean_PATE, calculate_sd_PATE,
-  calculate_superpopulation_RMSE, calculate_superpopulation_bias,
-  calculate_superpopulation_coverage, calculate_superpopulation_type_S_rate,
-  calculate_superpopulation_exaggeration_ratio, calculate_population_RMSE,
-  calculate_population_bias, calculate_population_coverage,
-  calculate_population_type_S_rate, calculate_population_exaggeration_ratio,
-  calculate_mean_SATE, calculate_sd_SATE, calculate_sample_RMSE,
-  calculate_sample_bias, calculate_sample_coverage,     
-  calculate_sample_type_S_rate, calculate_sample_exaggeration_ratio,
-  calculate_mean_power, calculate_sd_power, calculate_mean_estimate,
-  calculate_sd_estimate), labels = c("mean_PATE", "sd_PATE",
-  "superpopulation_RMSE", "superpopulation_bias", "superpopulation_coverage",
-  "superpopulation_type_S_rate", "superpopulation_exaggeration_ratio",
-  "population_RMSE", "population_bias", "population_coverage",
-  "population_type_S_rate", "population_exaggeration_ratio", "mean_SATE",
-  "sd_SATE", "sample_RMSE", "sample_bias", "sample_coverage",
-  "sample_type_S_rate", "sample_exaggeration_ratio", "mean_power", "sd_power",
-  "mean_estimate", "sd_estimate"), population_draws = 10, sample_draws = 5)
+diagnose_design(design, population_draws = 2, sample_draws = 2,
+  assignment_draws = 2, bootstrap_diagnosands = TRUE,
+  population_replicates = 50)
 }
 \arguments{
-\item{design}{A design object created by \code{\link{declare_design}}.}
+\item{design}{Design object created by \link{declare_design}.}
 
-\item{diagnosis}{A diagnosis object created by \code{\link{diagnose_design}}. This allows you to calculate additional summary statistics for existing diagnosis simulations.}
+\item{population_draws}{Number of simulated populations to draw.}
 
-\item{statistics}{A list of statistic functions that take a list of estimates, sample_estimands, and/or population_estimands and return a statistic (scalar) and a label.}
+\item{sample_draws}{Number of samples to draw per population.}
 
-\item{labels}{A set of character labels for each of the statistics or use in displaying the diagnosis.}
-
-\item{population_draws}{Number of draws of the population.}
-
-\item{sample_draws}{Number of draws of a sample from each population draw.}
+\item{assignment_draws}{Number of random assignments to draw per sample if there is sampling or per population if there is no sampling.}
 }
 \value{
-a \code{diagnosis} object
+Diagnosis object, with simulations of estimates and estimands and estimated diagnosands.
 }
 \description{
-Diagnose the properties of a research design
+Diagnose a design object
 }
 
