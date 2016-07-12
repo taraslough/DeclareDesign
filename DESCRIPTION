@@ -2,9 +2,9 @@ Package: DeclareDesign
 Title: Tools for Characterizing, Diagnosing, and Pre-Registering Research
     Designs
 Version: 0.1
-Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@columbia.edu", role = c("aut", "cre")),
+Authors@R: c(person("Graeme", "Blair", email = "graeme.blair@ucla.edu", role = c("aut", "cre")),
              person("Jasper", "Cooper", email = "jjc2247@columbia.edu", role = c("aut")),
-             person("Alexander", "Coppock", email = "a.coppock@columbia.edu", role = c("aut")),
+             person("Alexander", "Coppock", email = "alex.coppock@yale.edu", role = c("aut")),
              person("Macartan", "Humphreys", email = "macartan@gmail.com", role = c("aut")))
 Description: Tools for characterizing, diagnosing, and pre-registering research
     designs. This software provides a way for scholars to characterize research
@@ -13,7 +13,7 @@ Description: Tools for characterizing, diagnosing, and pre-registering research
     design. Finalized designs can be straightforwardly pre-registered with the
     package.
 Depends:
-    R (>= 3.2.0)
+    R (>= 3.3.0)
 Imports:
     foreach,
     doRNG

@@ -257,13 +257,18 @@ safe_rbind <- function(df1, df2){
   
   common_names <- intersect(names(df1), names(df2))
   
+  df1_only_names <- names(df1)[!names(df1) %in% common_names]
+  df2_only_names <- names(df2)[!names(df2) %in% common_names]
+  
   df <- rbind(df1[, sort(common_names)], df2[, sort(common_names)])
   
-  if(sum(!names(df1) %in% common_names) > 0){
-    df <- merge(df, df1, by = c("estimator_label", "estimate_label", "estimand_label"), all = T)
+  if(length(df1_only_names) > 0){
+    df <- merge(df, df1[, c("estimator_label", "estimate_label", "estimand_label", df1_only_names)],
+                by = c("estimator_label", "estimate_label", "estimand_label"), all = T)
   }
-  if(sum(!names(df2) %in% common_names) > 0){
-    df <- merge(df, df2, by = c("estimator_label", "estimate_label", "estimand_label"), all = T)
+  if(length(df2_only_names) > 0){
+    df <- merge(df, df2[, c("estimator_label", "estimate_label", "estimand_label", df2_only_names)], 
+                by = c("estimator_label", "estimate_label", "estimand_label"), all = T)
   }
   
   return(df)
