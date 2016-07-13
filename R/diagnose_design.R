@@ -226,8 +226,7 @@ diagnose_design <-
     }
     
     # Sorting the diagnosands df
-    diagnosand_levels <-  sapply(design$diagnosand, function(x)x$label)
-    
+    diagnosand_levels <- sapply(design$diagnosand, function(x)x$label)
     diagnosands_df <- within(diagnosands_df,{
       diagnosand_label <- factor(diagnosand_label, levels = diagnosand_levels)
     })
