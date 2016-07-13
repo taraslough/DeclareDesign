@@ -8,11 +8,13 @@ power <- declare_diagnosand(diagnostic_statistic_text = "p < .05",
                             summary_function = mean, label = "power")
 coverage <- declare_diagnosand(diagnostic_statistic_text = "estimand <= ci_upper & estimand >= ci_lower", 
                                summary_function = mean, label = "coverage")
+mean_estimate <- declare_diagnosand(diagnostic_statistic_text = "est", 
+                                  summary_function = mean, label = "mean(estimate)")
 sd_estimate <- declare_diagnosand(diagnostic_statistic_text = "est", 
                                   summary_function = sd, label = "sd(estimate)")
 type_s_rate <- declare_diagnosand(diagnostic_statistic_text = "sign(est) != sign(estimand)", 
                                   summary_function = mean, label = "type S rate")
 
 
-save(bias, rmse, power, coverage, sd_estimate, type_s_rate, file = "data/diagnosands.RData", 
+save(bias, rmse, power, coverage, mean_estimate, sd_estimate, type_s_rate, file = "data/diagnosands.RData", 
      compress = TRUE)

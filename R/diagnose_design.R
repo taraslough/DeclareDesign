@@ -225,6 +225,15 @@ diagnose_design <-
       
     }
     
+    # Sorting the diagnosands df
+    diagnosand_levels <-  sapply(design$diagnosand, function(x)x$label)
+    
+    diagnosands_df <- within(diagnosands_df,{
+      diagnosand_label <- factor(diagnosand_label, levels = diagnosand_levels)
+    })
+    
+    diagnosands_df <-  diagnosands_df[with(diagnosands_df, order(estimand_label, estimator_label, estimand_level, estimate_label, diagnosand_label)),] 
+    rownames(diagnosands_df) <- NULL
     diagnosis <- list(diagnosands = diagnosands_df, simulations = simulations_df)
     
     structure(diagnosis, class = "diagnosis")

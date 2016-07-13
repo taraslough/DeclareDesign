@@ -16,7 +16,7 @@
 #' @export
 declare_design <- function(population, sampling = NULL, assignment, estimator = NULL, 
                            potential_outcomes, 
-                           diagnosand = list(bias, rmse, power, coverage, type_s_rate, sd_estimate), 
+                           diagnosand = list(mean_estimate, sd_estimate, bias, rmse, coverage, power, type_s_rate), 
                            inputs = NULL, label = NULL, description = NULL) {
   
   ## do checks
