@@ -6,7 +6,7 @@ rmse <- declare_diagnosand(diagnostic_statistic_text = "(est - estimand)^2",
                            summary_function = function(x) sqrt(mean(x)), label = "RMSE")
 power <- declare_diagnosand(diagnostic_statistic_text = "p < .05", 
                             summary_function = mean, label = "power")
-coverage <- declare_diagnosand(diagnostic_statistic_text = "est <= ci_upper & est >= ci_lower", 
+coverage <- declare_diagnosand(diagnostic_statistic_text = "estimand <= ci_upper & estimand >= ci_lower", 
                                summary_function = mean, label = "coverage")
 sd_estimate <- declare_diagnosand(diagnostic_statistic_text = "est", 
                                   summary_function = sd, label = "sd(estimate)")
