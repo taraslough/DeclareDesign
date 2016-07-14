@@ -1,3 +1,7 @@
+rm(list=ls())
+
+library(DeclareDesign)
+
 # built-in diagnosands ----------------------------------------------------
 
 bias <- declare_diagnosand(diagnostic_statistic_text = "est - estimand", 

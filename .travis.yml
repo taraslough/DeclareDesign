@@ -17,9 +17,9 @@ deploy:
 notifications:
   email:
     recipients:
-    - graeme.blair@columbia.edu
-    - jj247@columbia.edu
-    - a.coppock@columbia.edu
+    - graeme.blair@ucla.edu
+    - jjc2247@columbia.edu
+    - alex.coppock@yale.edu
     on_success: change
     on_failure: change
 env:

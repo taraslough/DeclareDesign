@@ -231,7 +231,7 @@ diagnose_design <-
       diagnosand_label <- factor(diagnosand_label, levels = diagnosand_levels)
     })
     
-    diagnosands_df <-  diagnosands_df[with(diagnosands_df, order(estimand_label, estimator_label, estimand_level, estimate_label, diagnosand_label)),] 
+    diagnosands_df <- diagnosands_df[with(diagnosands_df, order(estimand_label, estimator_label, estimand_level, estimate_label, diagnosand_label)),] 
     rownames(diagnosands_df) <- NULL
     diagnosis <- list(diagnosands = diagnosands_df, simulations = simulations_df)
     
