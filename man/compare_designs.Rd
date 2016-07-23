@@ -6,7 +6,8 @@
 \usage{
 compare_designs(design, population = NULL, sampling = NULL,
   assignment = NULL, estimator = NULL, potential_outcomes = NULL,
-  inputs = NULL, size = NULL, design_labels = NULL, ...)
+  inputs = NULL, size = NULL, design_labels = NULL,
+  variable_labels = NULL, ...)
 }
 \arguments{
 \item{design}{A design object created by \code{\link{declare_design}}.}
