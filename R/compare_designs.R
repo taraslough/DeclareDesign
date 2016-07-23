@@ -26,7 +26,17 @@ compare_designs <-
            inputs = NULL,
            size = NULL,
            design_labels = NULL,
+           variable_labels = NULL,
            ...) {
+    
+    # If created with quick_design
+    if(class(design) == "quick_design_list"){
+      design_list <- design
+      design <- design$design_list
+      if(is.null(variable_labels))
+        variable_labels <- design_list$variable_labels
+    }
+    
     design <- clean_inputs(design, "design", accepts_list = TRUE)
     
     population <-
@@ -112,12 +122,39 @@ compare_designs <-
       }
     }
     
+    if(is.null(variable_labels)){
+      variable_labels <- data.frame(
+          diagnosis = 1:length(diagnoses)
+        )
+    }
     
-    class(diagnoses) <- "diagnosis.list"
+    diagnoses <- append_variable_labels(
+      variable_labels = variable_labels,
+      diagnoses = diagnoses)
     
-    return(diagnoses)
+    diagnosands <- do.call(rbind,lapply(diagnoses,function(x)x$diagnosands))
+    simulations <- do.call(rbind,lapply(diagnoses,function(x)x$simulations))
+    
+    diagnoses <- list(diagnosands = diagnosands, simulations = simulations)
+    
+    structure(diagnoses, class = "diagnosis_list")
     
   }
+
+#' @export
+summary.diagnosis_list <- function(object, ...) {
+  diagnosis_matrix <- object$diagnosands
+  structure(diagnosis_matrix, class = c("summary.diagnosis_list", "data.frame"))
+}
+
+#' @export
+print.diagnosis_list <- function(x, ...){
+  print(summary(x))
+  invisible(summary(x))
+}
+
+
+
 
 exists_input <- function(object, input_name) {
   call <- object$call
@@ -133,3 +170,48 @@ substitute_input <- function(object, input_name, input_value) {
   
   eval(call)
 }
+
+
+
+append_variable_labels <- function(variable_labels,diagnoses){
+  
+  if(nrow(variable_labels) != length(diagnoses)){
+    stop("There must be as many rows in the variable_labels matrix or vector as there are designs to diagnose.") 
+  }
+  
+  variable_names <- colnames(variable_labels)
+  
+  if(is.null(variable_names)){
+    stop("You must provide a named data.frame or matrix of variable names.")
+  }
+  
+  
+  if(!"diagnosis" %in% variable_names){
+    variable_labels <- cbind(as.data.frame(variable_labels),diagnosis = 1:length(diagnoses))
+    variable_names <- colnames(variable_labels)
+  }
+
+  for(i in 1:length(diagnoses)){
+    for(j in 1:length(variable_names)){
+      diagnoses[[i]]$diagnosands[,variable_names[j]] <- variable_labels[i,j]
+      diagnoses[[i]]$simulations[,variable_names[j]] <- variable_labels[i,j]
+    }
+  }
+  
+  return(diagnoses)
+  
+}
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
