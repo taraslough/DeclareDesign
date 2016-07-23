@@ -61,8 +61,9 @@ test_that("quick_design with vary works", {
       estimand_text = "mean(Y_Z_1 - Y_Z_0)"),
     " 3 ")
   
-  expect_equal(length(design_list1), 3)
-  expect_true(any(sapply(design_list1, FUN = class) == "design"))
+  expect_equal(length(design_list1$design_list), 3)
+  expect_true(any(sapply(design_list1$design_list, FUN = class) == "design"))
+  expect_true(colnames(design_list1$variable_labels) == "N")
   
   # Check that multiple designs with multiple vary work as expected
   expect_error(
@@ -86,8 +87,10 @@ test_that("quick_design with vary works", {
     " 2 "
   )
   
-  expect_equal(length(design_list2), 2)
-  expect_true(any(sapply(design_list2, FUN = class) == "design"))
+  expect_equal(length(design_list2$design_list), 2)
+  expect_true(any(sapply(design_list2$design_list, FUN = class) == "design"))
+  expect_true(all(c("assignment_probability_each","N") %in% colnames(design_list2$variable_labels)))
+  
   
   expect_message(design_list3 <- quick_design(
     template = simple_template,
@@ -98,7 +101,7 @@ test_that("quick_design with vary works", {
     noise1 = vary("rnorm(n_)", "rnorm(n_, sd = 2)", "rnorm(n_, mean = 2, sd = 10)")),
     " 36 ")
   
-  expect_equal(length(design_list3), 2*3*2*3)
-  expect_true(any(sapply(design_list3, FUN = class) == "design"))
+  expect_equal(length(design_list3$design_list), 2*3*2*3)
+  expect_true(any(sapply(design_list3$design_list, FUN = class) == "design"))
   
 })
