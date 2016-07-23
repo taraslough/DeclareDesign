@@ -58,14 +58,27 @@ quick_design <- function(template, intersection = NULL, ...) {
       design_list[[i]] <- do.call(template, args = arg_list)
       
       class(design_list[[i]]) <- "design"
+      
+      variable_labels <- mapply(FUN = get_variable_labels,index = variable_indices,variable_list = variable_options)
+      
     }
     
   } else {
     # Only constants supplied
     design_list <- do.call(template, args = options)
+    variable_labels <- NULL
   }
   
-  return(design_list)
+  if(class(design_list) == "design"){
+    
+    return_object <- design_list
+    
+  } else {
+    return_object <- list(design_list = design_list,variable_labels = variable_labels)
+    
+    class(return_object) <- "quick_design_list"
+  }
+  return(return_object)
   
 }
 
@@ -196,3 +209,29 @@ set_intersection_warn_user <-
     message(user_message)
     return(intersection)
   }
+
+
+get_variable_labels <- function(index,variable_list){
+  sapply(variable_list[index],deparse)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
