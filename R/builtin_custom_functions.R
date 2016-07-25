@@ -219,12 +219,12 @@ difference_in_means_blocked <- function(formula, condition1 = NULL, condition2 =
   block_weights <- (sapply(block_names, function(i) sum(b==i)))/N
   
   means_by_block <- tapply(Y,list(t, b), mean, na.rm = TRUE)
-  diff <- (block_weights %*% (means_by_block[as.character(condition1),] - 
-                                means_by_block[as.character(condition2),]))
+  diff <- (block_weights %*% (means_by_block[as.character(condition2),] - 
+                                means_by_block[as.character(condition1),]))
   
   vars <- sapply(block_names, function(i)  {
-    var(Y[b==i & t == condition1], na.rm = TRUE )/sum(b==i & t == condition1)+
-      var(Y[b==i & t == condition2], na.rm = TRUE )/sum(b==i & t == condition2)})
+    var(Y[b==i & t == condition1], na.rm = TRUE )/sum(b==i & t == condition2)+
+      var(Y[b==i & t == condition2], na.rm = TRUE )/sum(b==i & t == condition1)})
   se  <- (block_weights^2 %*% vars)^.5
   
   df <- length(Y) - length(block_names) - 1
