@@ -18,6 +18,19 @@ test_that("test whether noncompliance works", {
   
   assignment <- declare_assignment(condition_names = c(0,1))
   
+  estimand <- declare_estimand(estimand_text = "mean(Y_Z_1 - Y_Z_0)", potential_outcomes = potential_outcomes)
+  estimator_d_i_m <- declare_estimator(estimates = difference_in_means, formula = Y ~ Z, estimand = estimand)
+  
+  design <- declare_design(population = population,
+                           sampling = sampling, 
+                           assignment = assignment, 
+                           estimator = estimator_d_i_m, 
+                           potential_outcomes = potential_outcomes,
+                           noncompliance = noncompliance,
+                           label = "Simple Design")
+  
+  diagnosis <- diagnose_design(design = design)
+  
   
   # mock data  ---------------------------------------------------------------  
   
