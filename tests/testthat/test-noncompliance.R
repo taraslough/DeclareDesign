@@ -8,13 +8,14 @@ test_that("test whether noncompliance works", {
   
   population <- declare_population(noise = "rnorm(n_)", size = 1000)
   sampling <- declare_sampling(n = 500)
-  potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*D,
-                                                   condition_names = c(0, 1),
-                                                   assignment_variable_name = "D")
   noncompliance <- declare_noncompliance(condition_names = c(0,1), 
                                          assignment_variable_name = "Z", 
                                          compliance_proportions=c(1, .5), 
                                          baseline_condition=0)
+  potential_outcomes <- declare_potential_outcomes(formula = Y ~ 5 + .5*D,
+                                                   condition_names = c(0, 1),
+                                                   assignment_variable_name = "D",
+                                                   noncompliance = noncompliance)
   
   assignment <- declare_assignment(condition_names = c(0,1))
   
@@ -26,7 +27,6 @@ test_that("test whether noncompliance works", {
                            assignment = assignment, 
                            estimator = estimator_d_i_m, 
                            potential_outcomes = potential_outcomes,
-                           noncompliance = noncompliance,
                            label = "Simple Design")
   
   diagnosis <- diagnose_design(design = design)
