@@ -83,18 +83,21 @@ declare_diagnosand <- function(diagnostic_statistic_text,
 #'
 #' @param diagnosand A \code{diagnosand} object created by \code{\link{declare_diagnosand}}.
 #' @param simulations A data frame of simulations, typically created by \code{\link{diagnose_design}}.
-#' @param na.action How the diagnosand summary of diagnostic statistics handles NAs. Can be \link{na.pass}, \link{na.omit}, etc. 
+#' @param get_diagnostic_statistics Flag for whether diagnostic statistics are drawn before calculating diagnosands
 #'
 #' @return A data.frame of diagnosands.
 #' @export
 #'
-get_diagnosand <- function(diagnosand, simulations){
+get_diagnosands <- function(diagnosand, simulations, get_diagnostic_statistics = FALSE){
   
   diagnosand <- clean_inputs(diagnosand, object_class = "diagnosand", accepts_list = TRUE)
   
   diagnosands_list <- list()
-  for(i in 1:length(diagnosand)){
-    simulations[, diagnosand[[i]]$label] <- diagnosand[[i]]$diagnostic_statistic(simulations = simulations)
+  for (i in 1:length(diagnosand)) {
+    if (get_diagnostic_statistics == TRUE) {
+      simulations[, diagnosand[[i]]$label] <- diagnosand[[i]]$diagnostic_statistic(simulations = simulations)
+    }
+    
     diagnosands_list[[i]] <- aggregate(as.formula(paste0("cbind(diagnosand = `", diagnosand[[i]]$label, "`)", 
                                                          " ~ estimand_label + estimand_level + estimator_label + estimate_label")), 
                                        data = simulations, FUN = diagnosand[[i]]$summary, na.action = na.pass)
@@ -103,5 +106,27 @@ get_diagnosand <- function(diagnosand, simulations){
   
   diagnosands <- do.call(rbind, diagnosands_list)
   return(diagnosands)
+  
+}
+
+
+#' Get Diagnostic Statistics
+#'
+#' @param diagnosand A \code{diagnosand} object created by \code{\link{declare_diagnosand}}.
+#' @param simulations A data frame of simulations, typically created by \code{\link{diagnose_design}}.
+#'
+#' @return A data.frame of simulations with diagnostic statistics.
+#' @export
+#'
+get_diagnostic_statistics <- function(diagnosand, simulations){
+  
+  diagnosand <- clean_inputs(diagnosand, object_class = "diagnosand", accepts_list = TRUE)
+  
+  diagnosands_list <- list()
+  for(i in 1:length(diagnosand)){
+    simulations[, diagnosand[[i]]$label] <- diagnosand[[i]]$diagnostic_statistic(simulations = simulations)
+  }
+  
+  return(simulations)
   
 }

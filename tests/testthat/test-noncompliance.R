@@ -29,7 +29,7 @@ test_that("test whether noncompliance works", {
                            potential_outcomes = potential_outcomes,
                            label = "Simple Design")
   
-  diagnosis <- diagnose_design(design = design)
+  ##diagnosis <- diagnose_design(design = design)
   
   
   # mock data  ---------------------------------------------------------------  

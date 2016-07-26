@@ -4,7 +4,7 @@ library(DeclareDesign)
 
 context("Declare Diagnosands")
 
-#test_that("test declare diagnosands", {
+test_that("test declare diagnosands", {
   population <- declare_population(noise = "rnorm(n_)", size = 250)
   sampling <- declare_sampling(n = 100)
   
@@ -75,6 +75,8 @@ context("Declare Diagnosands")
                                     assignment_draws = 1,
                                     population_replicates = 30)
   
-  get_diagnosand(diagnosand = bias, simulations = simulations_df$simulations)
+  diagnostic_statistics <- get_diagnostic_statistics(diagnosand = bias, simulations = simulations_df$simulations)
   
-#})
+  get_diagnosands(diagnosand = bias, simulations = simulations_df$simulations)
+  
+})
