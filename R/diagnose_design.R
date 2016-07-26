@@ -214,7 +214,9 @@ diagnose_design <-
     
     rownames(simulations_df) <- NULL
     
-    diagnosands_df <- get_diagnosand(diagnosand = design$diagnosand, simulations = simulations_df)
+    simulations_df <- get_diagnostic_statistics(diagnosand = design$diagnosand, simulations = simulations_df)
+    
+    diagnosands_df <- get_diagnosands(diagnosand = design$diagnosand, simulations = simulations_df)
     
     if(bootstrap_diagnosands == TRUE){
       diagnosands_df_bootstrap_sd <- bootstrap_diagnosand(simulations_df = simulations_df,
@@ -289,7 +291,7 @@ bootstrap_diagnosand_draw <- function(simulations_df){
 bootstrap_diagnosand <- function(simulations_df, diagnosand, population_replicates = 50){
   diagnosand <- clean_inputs(diagnosand, object_class = "diagnosand", accepts_list = TRUE)
   boot_list <- lapply(X = 1:population_replicates, FUN = function(x) bootstrap_diagnosand_draw(simulations_df))
-  diagnosands_replicates <- do.call(rbind, lapply(boot_list, get_diagnosand, diagnosand = diagnosand))
+  diagnosands_replicates <- do.call(rbind, lapply(boot_list, get_diagnosands, diagnosand = diagnosand))
   
   
   labels <- paste0(sapply(diagnosand, function(x)x$label), collapse = "`+`")
